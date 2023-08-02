@@ -1,4 +1,4 @@
-Class ot {
+Class dynamicGUI {
     __New(Format:="",ConfigFile:="",DDL_ParamDelimiter:="-<>-",SkipGUI:=FALSE,StepsizedGuiShow:=FALSE) {
         this.type:=Format
         this.ClassName.= Format ")"
