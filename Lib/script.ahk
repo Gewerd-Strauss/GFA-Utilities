@@ -279,20 +279,6 @@ class script {
                 ;; search for html formatting files,
                 ;; first in ScriptDir
                 metadata_element:=Trim(metadata_element)
-                ;#Include, % A_LineFile "\script_templates\test.ahk"
-
-                ; if (MetadataArray.some_other_property) {
-                ;     FileRead html, % "some_other_property.html"
-                ;     html := script_FormatEx(html, MetadataArray)
-                ;     template := StrReplace(template, "<!-- $some_other_property -->", html)
-                ; }
-
-                ; ; Or a donation link:
-                ; if (MetadataArray.donate) {
-                ;     FileRead html, % "p-donate.html"
-                ;     html := script_FormatEx(html, MetadataArray)
-                ;     template := StrReplace(template, "<!-- $donate -->", html)
-                ; }
                 if (About_template="") {
 
                     LibPath:=strreplace(LibPath,"\\","\")
@@ -326,10 +312,7 @@ class script {
                 if FileExist(About_type_path) {
 
                     FileRead html, % About_type_path
-                    ;html := script_FormatEx(html, MetadataArray)
-                    ;m(About_template)
                     About_template := StrReplace(About_template, "<!-- $" metadata_type " -->", html)
-                    ;m(About_template)
 
                 }
             }
@@ -343,8 +326,10 @@ class script {
 
             fo:=FileOpen(this.AboutPath, 0x1, "UTF-8-RAW").Write(About_template)
             fo.close()
+            FileDelete % this.AboutPath
         } else if (this.HasKey("AboutPath")) {
             FileRead About_template, % this.AboutPath
+            FileDelete % this.AboutPath
         }
 
         doc.write(About_template)
