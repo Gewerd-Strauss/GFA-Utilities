@@ -306,6 +306,8 @@ NumpadDot::reload
 #Include <toggleTop>
 #Include <ttip>
 #Include <writeFile>
-
-
-
+#Include <GFC_GUI>
+#Include <Configuration>
+#Include <RunAsAdmin>
+#Include <AddToolTip>
+#Include <RichCode>
