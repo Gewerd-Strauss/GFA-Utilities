@@ -1,10 +1,10 @@
 Class dynamicGUI {
-    __New(Format:="",ConfigFile:="",DDL_ParamDelimiter:="-<>-",SkipGUI:=FALSE,StepsizedGuiShow:=FALSE) {
+    __New(Format:="",ConfigFile:="",DDL_ParamDelimiter:="-<>-",SkipGUI:=FALSE) {
         this.type:=Format
-        this.ClassName.= Format ")"
-        this.DDL_ParamDelimiter:=DDL_ParamDelimiter
-        this.SkipGUI:=SkipGUI
-        this.StepsizedGuiShow:=StepsizedGuiShow
+            , this.ClassName.= Format ")"
+            , this.DDL_ParamDelimiter:=DDL_ParamDelimiter
+            , this.SkipGUI:=SkipGUI
+            , this.StepsizedGuiShow:=FALSE
         if FileExist(ConfigFile) {
             this.ConfigFile:=ConfigFile
         } else {
@@ -16,9 +16,10 @@ Class dynamicGUI {
         }
 
         FileRead Text, % ConfigFile
-        Lines:=strsplit(Text,Format "`r`n").2
-        Lines:=strsplit(Lines,"`r`n`r`n").1
-        Lines:=strsplit(Lines,"`r`n")
+        Text:=strreplace(Text,"`n","`r`n")
+            , Lines:=strsplit(Text,Format "`r`n").2
+            , Lines:=strsplit(Lines,"`r`n`r`n").1
+            , Lines:=strsplit(Lines,"`r`n")
         if !Lines.Count() {
             this.Result:=this.type:=Format "()"
             ID:=+2
@@ -276,7 +277,7 @@ Class dynamicGUI {
         run % OutDir
     }
 
-    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false) {
+    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
         global ;; this cannot be made static or this.SubmitDynamicArguments() will not receive modified values (aka it will always assemble the default)
         if (destroyGUI) {
             gui %GUI_ID% destroy
@@ -293,7 +294,7 @@ Class dynamicGUI {
         if (destroyGUI) {
             gui %GUI_ID% new, +AlwaysOnTop -SysMenu -ToolWindow +caption +Border +LabelotGUI_ +hwndotGUI_
         }
-        gui font, s8
+        gui font, % "s" fontsize
         TabHeaders:={}
         for Parameter, Value in this.Arguments {
             if Value.HasKey("Tab3Parent") {
@@ -354,10 +355,8 @@ Class dynamicGUI {
                 if InStr(Parameter,"pandoc") {
 
                 }
-                if (True) {
-                    if !InStr(Value.String,strreplace(Parameter,"___","-")) {
-                        Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
-                    }
+                if (!RegexMatch(Value.String,"^" strreplace(Parameter,"___","-"))) && (Value.Control!="Text") {
+                    Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
                 }
                 ControlHeight:=0
                 if (Tab=Value.Tab3Parent) {
@@ -481,6 +480,9 @@ Class dynamicGUI {
                                 if (this.StepsizedGuishow) {
                                     gui %GUI_ID% show
                                 }
+                            }
+                            if (Value.Control="Text") {
+                                gui %GUI_ID% add, text, % Value.ctrlOptions " h30 vv" Parameter "D", % Value.String
                             }
                         } else {
                             gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter, % Value.String
