@@ -9,6 +9,35 @@
             Object[Argument.ConfigSection][key]:=Argument.Value
         }
         this.ConfigObject:=Object
+        String:=""
+        if IsObject(Object) {
+            for SectionName, Entry in Object
+            {
+                String.="[" SectionName "]" "`n"
+                Pairs := ""
+                for key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,key "=" Value "`n")
+                        Pairs .= key "=" Value "`n"
+                }
+                String.=Pairs
+            }
+        } else {
+            for SectionName, Entry in this.config
+            {
+                String.="[" SectionName "]" "`n"
+                Pairs := ""
+                for key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,key "=" Value "`n")
+                        Pairs .= key "=" Value "`n"
+                }
+                String.=Pairs
+            }
+        }
+        this.ConfigString:=String
     }
     getTab3Parents() {
         sections:={}
