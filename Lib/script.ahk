@@ -578,15 +578,22 @@ script_TraySetup(IconString) {
     menu tray, nostandard
     Menu Tray, Icon, HICON:*%hICON% ; AHK makes a copy of HICON when * is used
     Menu Tray, Icon
-    f:=Func("setupdefaultconfig")
+    f:=Func("restoredefaultConfig")
+    f2:=Func("RunAsAdmin")
+    f3:=Func("script_reload")
+    f4:=Func("script_exit")
     Menu Tray, Add, Restore default config, % f
-    f2:=Func("script_reload")
-    menu tray, Add, Reload, % f2
+    Menu Tray, Add, Restart as Administrator, % f2
+    menu tray, Add, Reload, % f3
+    menu tray, add, Exit Program, % f4
     DllCall( "DestroyIcon", "Ptr",hICON ) ; Destroy original HICON
     return
 }
 script_reload() {
     reload
+}
+script_exit() {
+    ExitApp
 }
 
 ; #region:script_Base64PNG_to_HICON (2942823315)
@@ -703,3 +710,4 @@ d_fWriteINI_st_count(string, searchFor="`n")
     StringReplace string, string, %searchFor%, %searchFor%, UseErrorLevel
     return ErrorLevel
 }
+
