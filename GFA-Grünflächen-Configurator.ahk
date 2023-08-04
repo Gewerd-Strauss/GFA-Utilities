@@ -300,7 +300,6 @@ NumpadDot::reload
 #Include <OnError>
 #Include <OnExit>
 #Include <Quote>
-#Include <SelectFolder>
 #Include <SelectFolders>
 #Include <st_count>
 #Include <toggleTop>
