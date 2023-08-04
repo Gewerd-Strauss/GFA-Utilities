@@ -26,7 +26,8 @@ script := { base: script.base
         , iconfile: ""
         , version: ""
         , config: []
-        , configfile: A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
+        , scriptconfigfile: A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
+        , gfcGUIconfigfile: A_ScriptDir "\INI-Files\GFC_DA.ini"
         , configfolder: A_ScriptDir "\INI-Files"
         , aboutPath: A_ScriptDir "\res\About.html"
         , reqInternet: false
