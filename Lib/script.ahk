@@ -279,20 +279,6 @@ class script {
                 ;; search for html formatting files,
                 ;; first in ScriptDir
                 metadata_element:=Trim(metadata_element)
-                ;#Include, % A_LineFile "\script_templates\test.ahk"
-
-                ; if (MetadataArray.some_other_property) {
-                ;     FileRead html, % "some_other_property.html"
-                ;     html := script_FormatEx(html, MetadataArray)
-                ;     template := StrReplace(template, "<!-- $some_other_property -->", html)
-                ; }
-
-                ; ; Or a donation link:
-                ; if (MetadataArray.donate) {
-                ;     FileRead html, % "p-donate.html"
-                ;     html := script_FormatEx(html, MetadataArray)
-                ;     template := StrReplace(template, "<!-- $donate -->", html)
-                ; }
                 if (About_template="") {
 
                     LibPath:=strreplace(LibPath,"\\","\")
@@ -326,10 +312,7 @@ class script {
                 if FileExist(About_type_path) {
 
                     FileRead html, % About_type_path
-                    ;html := script_FormatEx(html, MetadataArray)
-                    ;m(About_template)
                     About_template := StrReplace(About_template, "<!-- $" metadata_type " -->", html)
-                    ;m(About_template)
 
                 }
             }
@@ -343,8 +326,10 @@ class script {
 
             fo:=FileOpen(this.AboutPath, 0x1, "UTF-8-RAW").Write(About_template)
             fo.close()
+            FileDelete % this.AboutPath
         } else if (this.HasKey("AboutPath")) {
             FileRead About_template, % this.AboutPath
+            FileDelete % this.AboutPath
         }
 
         doc.write(About_template)
@@ -527,7 +512,7 @@ class script {
         this.config:=Result
         return (this.config.Count()?true:-1) ; returns true if this.config contains values. returns -1 otherwhise to distinguish between a missing config file and an empty config file
     }
-    Save(INI_File:="")
+    Save(INI_File:="",Object:="")
     {
         if (INI_File="")
             INI_File:=this.configfile
@@ -542,16 +527,30 @@ class script {
             FileCreateDir % INI_File_Dir
         if !FileExist(INI_File_File ".ini") ; check for ini-file file ending
             FileAppend,, % INI_File ".ini"
-        for SectionName, Entry in this.config
-        {
-            Pairs := ""
-            for Key, Value in Entry
+        if IsObject(Object) {
+            for SectionName, Entry in Object
             {
-                WriteInd++
-                if !Instr(Pairs,Key "=" Value "`n")
-                    Pairs .= Key "=" Value "`n"
+                Pairs := ""
+                for Key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,Key "=" Value "`n")
+                        Pairs .= Key "=" Value "`n"
+                }
+                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
             }
-            IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+        } else {
+            for SectionName, Entry in this.config
+            {
+                Pairs := ""
+                for Key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,Key "=" Value "`n")
+                        Pairs .= Key "=" Value "`n"
+                }
+                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+            }
         }
     }
 }
@@ -579,15 +578,22 @@ script_TraySetup(IconString) {
     menu tray, nostandard
     Menu Tray, Icon, HICON:*%hICON% ; AHK makes a copy of HICON when * is used
     Menu Tray, Icon
-    f:=Func("setupdefaultconfig")
+    f:=Func("restoredefaultConfig")
+    f2:=Func("RunAsAdmin")
+    f3:=Func("script_reload")
+    f4:=Func("script_exit")
     Menu Tray, Add, Restore default config, % f
-    f2:=Func("script_reload")
-    menu tray, Add, Reload, % f2
+    Menu Tray, Add, Restart as Administrator, % f2
+    menu tray, Add, Reload, % f3
+    menu tray, add, Exit Program, % f4
     DllCall( "DestroyIcon", "Ptr",hICON ) ; Destroy original HICON
     return
 }
 script_reload() {
     reload
+}
+script_exit() {
+    ExitApp
 }
 
 ; #region:script_Base64PNG_to_HICON (2942823315)
@@ -704,3 +710,4 @@ d_fWriteINI_st_count(string, searchFor="`n")
     StringReplace string, string, %searchFor%, %searchFor%, UseErrorLevel
     return ErrorLevel
 }
+

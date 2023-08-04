@@ -1,10 +1,10 @@
 Class dynamicGUI {
-    __New(Format:="",ConfigFile:="",DDL_ParamDelimiter:="-<>-",SkipGUI:=FALSE,StepsizedGuiShow:=FALSE) {
+    __New(Format:="",ConfigFile:="",DDL_ParamDelimiter:="-<>-",SkipGUI:=FALSE) {
         this.type:=Format
-        this.ClassName.= Format ")"
-        this.DDL_ParamDelimiter:=DDL_ParamDelimiter
-        this.SkipGUI:=SkipGUI
-        this.StepsizedGuiShow:=StepsizedGuiShow
+            , this.ClassName.= Format ")"
+            , this.DDL_ParamDelimiter:=DDL_ParamDelimiter
+            , this.SkipGUI:=SkipGUI
+            , this.StepsizedGuiShow:=FALSE
         if FileExist(ConfigFile) {
             this.ConfigFile:=ConfigFile
         } else {
@@ -16,9 +16,10 @@ Class dynamicGUI {
         }
 
         FileRead Text, % ConfigFile
-        Lines:=strsplit(Text,Format "`r`n").2
-        Lines:=strsplit(Lines,"`r`n`r`n").1
-        Lines:=strsplit(Lines,"`r`n")
+        Text:=strreplace(Text,"`n","`r`n")
+            , Lines:=strsplit(Text,Format "`r`n").2
+            , Lines:=strsplit(Lines,"`r`n`r`n").1
+            , Lines:=strsplit(Lines,"`r`n")
         if !Lines.Count() {
             this.Result:=this.type:=Format "()"
             ID:=+2
@@ -215,12 +216,16 @@ Class dynamicGUI {
             if RegexMatch(Value.Other,"Min\:(?<Min>\d*)",v_) {
                 Value.Min:=v_Min+0
             }
-            if Value.HasKey("Max") {
+            if Value.HasKey("Max") && Value.Value>Value.Max {
                 Value.Value:=Value.Max+0
             }
-            if Value.HasKey("Min") && Value.Min>Value.Value 
-            {
+            if Value.HasKey("Min") && Value.Min>Value.Value {
                 Value.Value:=Value.Min+0
+            }
+            if (Value.HasKey("Max") && Value.HasKey("Max")) {
+                if !((Value.Value<=Value.Max) && (Value.Min<=Value.Value)) {
+                    Value.Value:=Value.Default
+                }
             }
         }
     }
@@ -272,7 +277,7 @@ Class dynamicGUI {
         run % OutDir
     }
 
-    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false) {
+    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
         global ;; this cannot be made static or this.SubmitDynamicArguments() will not receive modified values (aka it will always assemble the default)
         if (destroyGUI) {
             gui %GUI_ID% destroy
@@ -289,7 +294,7 @@ Class dynamicGUI {
         if (destroyGUI) {
             gui %GUI_ID% new, +AlwaysOnTop -SysMenu -ToolWindow +caption +Border +LabelotGUI_ +hwndotGUI_
         }
-        gui font, s8
+        gui font, % "s" fontsize
         TabHeaders:={}
         for Parameter, Value in this.Arguments {
             if Value.HasKey("Tab3Parent") {
@@ -350,10 +355,8 @@ Class dynamicGUI {
                 if InStr(Parameter,"pandoc") {
 
                 }
-                if (True) {
-                    if !InStr(Value.String,strreplace(Parameter,"___","-")) {
-                        Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
-                    }
+                if (!RegexMatch(Value.String,"^" strreplace(Parameter,"___","-"))) && (Value.Control!="Text") {
+                    Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
                 }
                 ControlHeight:=0
                 if (Tab=Value.Tab3Parent) {
@@ -478,6 +481,9 @@ Class dynamicGUI {
                                     gui %GUI_ID% show
                                 }
                             }
+                            if (Value.Control="Text") {
+                                gui %GUI_ID% add, text, % Value.ctrlOptions " h30 vv" Parameter "D", % Value.String
+                            }
                         } else {
                             gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter, % Value.String
                             if (this.StepsizedGuishow) {
@@ -600,18 +606,20 @@ Class dynamicGUI {
 
     }
     SubmitDynamicArguments() {
-        static ; global
+        static
         GUI_ID:=this.GUI_ID
+        gui %GUI_ID% Default
         gui %GUI_ID% Submit
-        gui %GUI_ID% destroy
         for Parameter,_ in this.Arguments {
             ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
             parameter:=strreplace(parameter,"-","___")
-            k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
+            ;k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
+            ;a:=%k%
+            GuiControlGet val,, v%Parameter%
             parameter:=strreplace(parameter,"___","-")
-            a:=%k%
-            this["Arguments",Parameter].Value:=a
+            this["Arguments",Parameter].Value:=val
         }
+        gui %GUI_ID% destroy
         return this
     }
     otGUI_Escape2() {
