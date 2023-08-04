@@ -512,7 +512,7 @@ class script {
         this.config:=Result
         return (this.config.Count()?true:-1) ; returns true if this.config contains values. returns -1 otherwhise to distinguish between a missing config file and an empty config file
     }
-    Save(INI_File:="")
+    Save(INI_File:="",Object:="")
     {
         if (INI_File="")
             INI_File:=this.configfile
@@ -527,16 +527,30 @@ class script {
             FileCreateDir % INI_File_Dir
         if !FileExist(INI_File_File ".ini") ; check for ini-file file ending
             FileAppend,, % INI_File ".ini"
-        for SectionName, Entry in this.config
-        {
-            Pairs := ""
-            for Key, Value in Entry
+        if IsObject(Object) {
+            for SectionName, Entry in Object
             {
-                WriteInd++
-                if !Instr(Pairs,Key "=" Value "`n")
-                    Pairs .= Key "=" Value "`n"
+                Pairs := ""
+                for Key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,Key "=" Value "`n")
+                        Pairs .= Key "=" Value "`n"
+                }
+                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
             }
-            IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+        } else {
+            for SectionName, Entry in this.config
+            {
+                Pairs := ""
+                for Key, Value in Entry
+                {
+                    WriteInd++
+                    if !Instr(Pairs,Key "=" Value "`n")
+                        Pairs .= Key "=" Value "`n"
+                }
+                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+            }
         }
     }
 }
