@@ -3,3 +3,4 @@
 .Rhistory
 .vscode/launch.json
 **/INI-Files/*.ini
+**/Excludes/**
