@@ -42,8 +42,6 @@ script := { base: script.base
         , license: A_ScriptDir "\res\LICENSE.txt" ;; do not edit the variables above if you don't know what you are doing.
         , blank: "" }
 global DEBUG := IsDebug()
-;Experiment:=new ot(format,A_ScriptDir "\INI-Files\DynamicArguments.ini","-<>-")
-;General:=new ot(format,A_ScriptDir "\INI-Files\DynamicArguments.ini","-<>-")
 main()
 return
 
@@ -275,8 +273,6 @@ selectConfigLocation(SearchPath) {
     if (!DEBUG) {
         gui +AlwaysOnTop
     }
-    ;Folder:=SelectFolders(SearchPath)
-    ;SelectFolder()
 
     SplitPath % Chosen,,,,ChosenName
     if (Chosen!="") {
@@ -301,9 +297,7 @@ NumpadDot::reload
 #Include <OnError>
 #Include <OnExit>
 #Include <Quote>
-#Include <SelectFolders>
 #Include <st_count>
-#Include <toggleTop>
 #Include <ttip>
 #Include <writeFile>
 #Include <GFC_GUI>
