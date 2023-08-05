@@ -4,3 +4,4 @@
 .vscode/launch.json
 **/INI-Files/*.ini
 **/Excludes/**
+.vscode/
