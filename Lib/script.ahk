@@ -212,6 +212,7 @@ class script {
                     }
                 }
                 ; Clipboard:=html
+                newCredits:={}
                 if IsObject(credits)
                 {
                     if (credits.Count()>0)
@@ -221,17 +222,16 @@ class script {
                         {
                             if (Author="")
                                 continue
-                            if (strsplit(v,"|").2="")
+                            if (strsplit(v,"|").2="") {
                                 CreditsAssembly.="<p>" Author " - " strsplit(v,"|").1 "`n`n"
-                            else
-                            {
+                            } else {
                                 Name:=strsplit(v,"|").1
                                 Credit_URL:=strsplit(v,"|").2
-                                if Instr(Author,",") && Instr(Credit_URL,",")
+                                if Instr(Author,",") && Instr(Trim(Credit_URL),",")
                                 {
                                     tmpAuthors:=""
                                     AllCurrentAuthors:=strsplit(Author,",")
-                                    for s,w in strsplit(Credit_URL,",")
+                                    for s,w in strsplit(Trim(Credit_URL),",")
                                     {
                                         currentAuthor:=AllCurrentAuthors[s]
                                         tmpAuthors.="<a href=" """" w """" ">" trim(currentAuthor) "</a>"
@@ -240,9 +240,19 @@ class script {
                                     }
                                     ;CreditsAssembly.=Name " - <p>" tmpAuthors "</p>"  "`n" ;; figure out how to force this to be on one line, instead of the mess it is right now.
                                     CreditsAssembly.="<p>" Name " - " tmpAuthors "</p>" "`n" ;; figure out how to force this to be on one line, instead of the mess it is right now.
+                                    if (InStr(Credit_URL,"")) {
+
+                                    }
+                                    if (AllCurrentAuthors.Count()>1) {
+                                        newCredits[AllCurrentAuthors[1]]:={Author:Name,URL:Trim(strsplit(Trim(Credit_URL),",").1),License:Trim(strsplit(Trim(Credit_URL),",").2)}
+                                    } else {
+                                        newCredits[Name]:={Author:Name,URL:strsplit(Trim(Credit_URL),",").1,License:strsplit(Trim(Credit_URL),",").2}
+                                    }
                                 }
-                                else
-                                    CreditsAssembly.="<p><a href=" """" Credit_URL """" ">" Author " - " Name "</a></p>`n"
+                                else {
+                                    CreditsAssembly.="<p><a href=" """" Trim(Credit_URL) """" ">" Author " - " Name "</a></p>`n"
+                                    newCredits[Author]:={Author:Name,URL:Trim(Credit_URL)}
+                                }
                             }
                         }
                         ; Clipboard:=html
@@ -332,6 +342,8 @@ class script {
         }
 
         doc.write(About_template)
+        this.creditsArr:=newCredits
+        this.metadataArr:=MetadataArray
         if (bGenerateOnly) {
             return
         }
