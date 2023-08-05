@@ -59,10 +59,18 @@ main() {
     if !script.requiresInternet() {
         exitApp()
     }
-    if !FileExist(script.scriptconfigfile) || (DEBUG || bUpdateGeneratedFiles) {
+    globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
+    globalLogicSwitches.Debug:=DEBUG
+    if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
+        if (globalLogicSwitches.bIsAuthor) {
+            ttip("resetting conf 1")
+        }
         setupdefaultconfig(1)
     }
-    if !FileExist(script.gfcGUIconfigfile) || (DEBUG || bUpdateGeneratedFiles) {
+    if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
+        if (globalLogicSwitches.bIsAuthor) {
+            ttip("resetting conf 2")
+        }
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, bSilentReturn:=1)
@@ -70,8 +78,6 @@ main() {
         RunAsAdmin()
     }
     globalLogicSwitches.bIsDebug:=script.config.settings.bDebugSwitch + 0
-    globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
-    globalLogicSwitches.Debug:=DEBUG
     script.version:=script.config.version.GFC_version
         , script.loadCredits(script.resfolder "\credits.txt")
         , script.loadMetadata(script.resfolder "\meta.txt")
