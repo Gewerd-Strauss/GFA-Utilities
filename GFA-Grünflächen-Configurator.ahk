@@ -564,8 +564,15 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - Debug Mode
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
-
-    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=7)) { ; part 6
+        if script.requiresInternet(script.metadataArr.Issues) {
+            script.About(1)
+            run % "https://www." script.metadataArr.Issues
+        }
+    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=7)) { ; part 6 - documentation
+        if script.requiresInternet(script.metadataArr["GH-Repo"]) {
+            script.About(1)
+            run % "https://www." script.metadataArr.Documentation
+        }
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=8)) { ; part 7
 
