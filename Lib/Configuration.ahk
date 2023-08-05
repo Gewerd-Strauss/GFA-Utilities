@@ -98,6 +98,7 @@ setupdefaultconfig(Switch) {
             if (!FileExist(configDirectory)) {
                 FileCreateDir % configDirectory
             }
+            DefaultConfig:=DerefAHKVariables(DefaultConfig)
             writeFile(script.scriptconfigfile,DefaultConfig,"UTF-8",,true)
             return
         }
@@ -108,7 +109,7 @@ setupdefaultconfig(Switch) {
                 FileCreateDir % configDirectory
             }
             gfcGUIconfig:=LTrim(gfcGUIconfig)
-            gfcGUIconfig:=strreplace(gfcGUIconfig,"%A_TAB%",A_TAB)
+            gfcGUIconfig:=DerefAHKVariables(gfcGUIconfig)
             writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-8",,true)
             return
         }
