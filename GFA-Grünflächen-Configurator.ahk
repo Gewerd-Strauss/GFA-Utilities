@@ -47,33 +47,50 @@ return
 
 main() {
 
+    Loop, % A_Args.Length() {
+        param := %A_Index%  ; Fetch the contents of the variable whose name is contained in A_Index.
+        bUpdateGeneratedFiles:=param
+        if bUpdateGeneratedFiles {
+            break
+        }
+    }
     if !script.requiresInternet() {
         exitApp()
     }
-    if !FileExist(script.scriptconfigfile) || DEBUG {
+    if !FileExist(script.scriptconfigfile) || (DEBUG || bUpdateGeneratedFiles) {
         setupdefaultconfig(1)
     }
-    if !FileExist(script.gfcGUIconfigfile) || DEBUG {
+    if !FileExist(script.gfcGUIconfigfile) || (DEBUG || bUpdateGeneratedFiles) {
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, bSilentReturn:=1)
     if (script.config.settings.bRunAsAdmin) {
         RunAsAdmin()
     }
+    global bIsDebug:=script.config.settings.bDebugSwitch + 0
+    global bIsAuthor:=(script.computername=script.authorID) + 0
     script.version:=script.config.version.GFC_version
         , script.loadCredits(script.resfolder "\credits.txt")
         , script.loadMetadata(script.resfolder "\meta.txt")
         , IconString:="iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARISURBVGhD7dtLbxNXGMbxbFh2yRIpzkWQgpIUKFAVibCBknIJqCFOZNIbJg0Xp7ikkAAh4SJoCxUENiBgW6ktUldIKQURbmpAIkSiqlqg6gcAvsLLPPPKVjp5bM/xnAllMpb+K4/PeX9yjj1epGKmPpqcBmdAcLqPwcrKSol6cCo3BkczOJUbg6MZnMqNwdEMTuXG4GgGp3JjcDSDU7kG4OzvJ+TAs3NT6p04Kd1XB6TtbJc0fbZGaupq6etNqplX666VPNflrH1QesdP0b2/evAtfb03OJVrAext7x/fS9vwNlnwXiNdp1gLljXI5jNpdw22trdQwZnRI3TTQvX/NSwth1NSVVNF15tcorpKNgylZN+fp+lahfry7jG6njc4lWsAxp8W27RU237pk7kNdXRNNLe+TtJX9tHXlmr7yEG6pjc4lWsATl3aRTf1E96JhhWLp6xZv3yh9Nw+Sl/jp87LPVPWZMGpXANw89etdFO/ZcdOyPwl9fn18M6aHhNvH/a1/WfGQsGpXAPwwlVL6aYmdV89INW11e6ZTV/ZS68xadHqZXRWb3Aq1wCMMjcP041NWru/XdYPdNDnTMqMHpVEIkHn9Aancg3BH2Q30c1Nyj46Lnsef0OfM2lVz0Y6IwtO5RqCcUOQfXCcDuC39P1dkh4r/wMQZW4e8/V1lwtO5RqC0crPm+kQfup/Oizt1zZJ8teN0v/kLL3GTys+WU1nKxScyi0DjFIXd9JBSpWZOCRtI+vdMhMD9JpS4euRzVQsOJVbJhh/2uXciKTHdubBW8d20GuKhT3LuVeHU7llghG+R/E1wwYrVOetzjy4c/Rjek2h8ANlXuPbdJZSwancAGCEd3rL5QwdkNVxvTUP7vjN/41MytkjyK8wOJUbEJwLH2S4fWTDTi55rSUPTo600GsmhzVXbm2me5oEp3ItgRHuoNbs+Uh23yv8MzKHzbX/2TC9Dms097a6a7K9TINTuRbBuRJVCVmy7n3ZMJiST3/IundEvY9OSt/fZ6aA+5yfkHgO1+BavAavxRps7XKDU7khgIvlfSfZNWEEp3JjcLi9seCXdypea2ymYsGp3BjsLzbEdMZmKhacyg0AfnGjQv4Zchqcppy9nl9/jWD073dksJDCXrl92UzFglO5ZYJznR96Kz9E2GEvNoOf4FRuQPAX7bPpcGHUlZxNZ/ATnMoNCF7UOEee3+ID2u7dd+bQGfwEp3IDgtH4j7PogDZ7+NMsurff4HS1ziMw+MI0nOMg5xfBqVwL4O6O8M8xPivY3n6DU7kWwIudc8yGtFmQ84vgVK4FMArzHGNttqdJcLpa52EFfPFIeOcYnxFsT5PgVK4lcJjnGGuzPU2CU7mWwGGe46DnF8GpXEtgNP6z/XNs4/wiOF2t87AGDuMcY022l2lwKtci+P8cnMqNwdEMTuXG4GgGp3JjcDSDU7kz5j/TKppeAamEQurI/tgFAAAAAElFTkSuQmCC"
-    ;script.setIcon(IconString)
+
+    if (bUpdateGeneratedFiles) {
+        FileDelete % script.AboutPath
+        script.About(1)
+        ExitApp
+
+    }
     script_TraySetup(IconString)
 
     ;script.Save(script.scriptconfigfile)
-    global bIsDebug:=script.config.settings.bDebugSwitch
-    global bIsAuthor:=(script.computername==script.authorID) + 0
     global gw:=guiCreate()
     hwnd:=guiShow(gw)
     f5:=Func("guiShow2").Bind(gw)
+    f6:=Func("prepare_release")
     Menu Tray, Add, Show/Hide GUI, % f5
+    if (bIsAuthor) {
+        menu Tray, Add, Recompile, % f6
+    }
     return
 }
 
@@ -219,12 +236,16 @@ guiCreate() {
     gui add, button,% "yp w80 hwndgenerateConfiguration x" Sections[3].XAnchor+95, % "Generate Configuration"
     gui add, button,% "yp w80  gfEditSettings hwndEditSettings x" Sections[3].XAnchor+185, % "Open program settings"
     gui add, button,% "yp w80  gexitApp hwndExitProgram x" Sections[3].XAnchor+275, % "Exit Program"
+    if (bIsAuthor) {
+        gui add, button,% "yp w80  gexitApp hwndrecompile x" Sections[3].XAnchor+365, % "Recompile"
+    }
 
     gui add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow
-    if ((bShowDebugPanelINMenuBar) && (script.authorID=A_ComputerName))
+    if ((bShowDebugPanelINMenuBar) && (script.authorID=A_ComputerName)) {
         SB_SetParts(0,240,100,280,95,70,80,170)
-    Else
+    } Else {
         SB_SetParts(0,240,100,270,95,70,80)
+    }
     SB_SetText(script.name " v." script.config.version.GFC_version A_Space script.config.version.build,2)
     SB_SetText(" by " script.author,3)
     SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
@@ -241,12 +262,18 @@ guiCreate() {
         onNewConfiguration := Func("createConfiguration").Bind("D:/")
         oncreateNewStarterScript := Func("createNewStarterScript").Bind("D:/")
     }
-
+    if (bIsAuthor) {
+        onRecompile := Func("prepare_release")
+    }
     guiControl GC:+g, %generateConfiguration%, % onGenerateConfiguration
     guiControl GC:+g, %EditConfiguration%, % onEditConfiguration
     guiControl GC:+g, %NewConfiguration%, % onNewConfiguration
     guiControl GC:+g, %newStarterScript%, % oncreateNewStarterScript
     guiControl GC:+g, %editStarterScript%, % onEditStarterScript
+    if (bIsAuthor) {
+        guiControl GC:+g, %recompile%, % onRecompile
+        gui add, button,% "yp w80  gexitApp hwndRecompile x" Sections[3].XAnchor+365, % "Recompile"
+    }
     GuiControl Show, vTab3
     return {guiWidth:guiWidth
             ,guiHeight:guiHeight
@@ -510,8 +537,6 @@ fCallBack_StatusBarMainWindow() {
         script.About()
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
         script.config.settings.bDebugSwitch:=!script.config.settings.bDebugSwitch
-        bIsAuthor:=(script.computername==script.authorID) + 0
-        bIsDebug:=(script.config.settings.bDebugSwitch) + 0
 
         if (!(script.authorID!=A_ComputerName) & !bIsDebug) || ((script.authorID!=A_ComputerName) & !bIsDebug)
         { ;; public display
@@ -628,6 +653,11 @@ reload() {
     reload
 }
 exitApp() {
+    ExitApp
+}
+
+prepare_release() {
+    RunWait % A_ScriptDir "\Excludes\build.ahk"
     ExitApp
 }
 #Include <script>

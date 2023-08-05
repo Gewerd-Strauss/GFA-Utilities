@@ -1,8 +1,6 @@
 ﻿fEditSettings() {
     ; A_ThisHotkey
     gui GC: -AlwaysOnTop
-    bIsAuthor:=(script.computername=script.authorID)
-    bIsDebug:=script.config.settings.bDebugSwitch
     if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) {
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             reload

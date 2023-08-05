@@ -10,3 +10,4 @@ homepage        - google.com
 forum           - google.com
 Issues          - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/issues
 About           - Utility script for better facilitating ease-of-use of the 'GFA_Evaluation.R'-script within the repo
+Name            - GFA-Grünflächen-Configurator

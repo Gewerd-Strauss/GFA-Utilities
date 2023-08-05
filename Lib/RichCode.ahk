@@ -273,7 +273,6 @@ class ACS_RichCode
         Menu % this.MenuName, Delete
 
         HighlightBound := this.HighlightBound
-        ; m(HighlightBound)
         if CtrlEvent_TimerActive
             SetTimer %HighlightBound%, Delete
     }

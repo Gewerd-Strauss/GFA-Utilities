@@ -43,7 +43,7 @@ class script {
         ,dbgLevel     := this.DBG_NONE
         ,versionScObj := "0.21.3"
         ,versionAHK   := "1.1"
-    About() {
+    About(bGenerateOnly:=false) {
         /**
         Function: About
         Shows a quick HTML Window based on the object's variable information
@@ -166,7 +166,6 @@ class script {
             ;
             ;}
             Key:=Value:=""
-            ;m(html)
             ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
 
         } else {
@@ -195,7 +194,7 @@ class script {
         gui add, activex, w600 r29 vdoc, htmlFile
         hasKey:=this.HasKey("AboutPath")
         FE:=FileExist(this.AboutPath)
-        if (this.HasKey("AboutPath") && !FileExist(this.AboutPath)) || !this.HasKey("AboutPath") {
+        if (this.HasKey("AboutPath") && !FileExist(this.AboutPath)) || !this.HasKey("AboutPath") || bGenerateOnly {
 
             if (MetadataArray.creditslink and MetadataArray.credits) || IsObject(MetadataArray.credits) || RegexMatch(MetadataArray.credits,"(?<Author>(\w|)*)(\s*\-\s*)(?<Snippet>(\w|\|)*)\s*\-\s*(?<URL>.*)")
             {
@@ -333,7 +332,9 @@ class script {
         }
 
         doc.write(About_template)
-
+        if (bGenerateOnly) {
+            return
+        }
         ;clipboard:=About_template
         children := doc.body.children
         maxBottom := 0
