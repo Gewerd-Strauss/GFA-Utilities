@@ -1,7 +1,7 @@
 ﻿fEditSettings() {
     ; A_ThisHotkey
     gui GC: -AlwaysOnTop
-    if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) {
+    if ((!globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug) || (globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug)) {
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             reload
         } else {
@@ -91,7 +91,7 @@ setupdefaultconfig(Switch) {
 
         )
     if (Switch=1) {
-        if (!FileExist(script.scriptconfigfile) || DEBUG ) {
+        if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
             SplitPath % script.scriptconfigfile,,configDirectory
             if (!FileExist(configDirectory)) {
                 FileCreateDir % configDirectory
@@ -101,7 +101,7 @@ setupdefaultconfig(Switch) {
             return
         }
     } else if (Switch=2) {
-        if (!FileExist(script.gfcGUIconfigfile) || DEBUG ) {
+        if (!FileExist(script.gfcGUIconfigfile) || globalLogicSwitches.DEBUG ) {
             SplitPath % script.gfcGUIconfigfile,,configDirectory
             if (!FileExist(configDirectory)) {
                 FileCreateDir % configDirectory

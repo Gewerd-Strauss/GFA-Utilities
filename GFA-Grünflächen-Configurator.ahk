@@ -42,6 +42,8 @@ script := { base: script.base
         , license: A_ScriptDir "\res\LICENSE.txt" ;; do not edit the variables above if you don't know what you are doing.
         , blank: "" }
 global DEBUG := IsDebug()
+global globalLogicSwitches := {}
+globalLogicSwitches.Debug:=DEBUG
 main()
 return
 
@@ -67,13 +69,13 @@ main() {
     if (script.config.settings.bRunAsAdmin) {
         RunAsAdmin()
     }
-    global bIsDebug:=script.config.settings.bDebugSwitch + 0
-    global bIsAuthor:=(script.computername=script.authorID) + 0
+    globalLogicSwitches.bIsDebug:=script.config.settings.bDebugSwitch + 0
+    globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
+    globalLogicSwitches.Debug:=DEBUG
     script.version:=script.config.version.GFC_version
         , script.loadCredits(script.resfolder "\credits.txt")
         , script.loadMetadata(script.resfolder "\meta.txt")
         , IconString:="iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARISURBVGhD7dtLbxNXGMbxbFh2yRIpzkWQgpIUKFAVibCBknIJqCFOZNIbJg0Xp7ikkAAh4SJoCxUENiBgW6ktUldIKQURbmpAIkSiqlqg6gcAvsLLPPPKVjp5bM/xnAllMpb+K4/PeX9yjj1epGKmPpqcBmdAcLqPwcrKSol6cCo3BkczOJUbg6MZnMqNwdEMTuXG4GgGp3JjcDSDU7kG4OzvJ+TAs3NT6p04Kd1XB6TtbJc0fbZGaupq6etNqplX666VPNflrH1QesdP0b2/evAtfb03OJVrAext7x/fS9vwNlnwXiNdp1gLljXI5jNpdw22trdQwZnRI3TTQvX/NSwth1NSVVNF15tcorpKNgylZN+fp+lahfry7jG6njc4lWsAxp8W27RU237pk7kNdXRNNLe+TtJX9tHXlmr7yEG6pjc4lWsATl3aRTf1E96JhhWLp6xZv3yh9Nw+Sl/jp87LPVPWZMGpXANw89etdFO/ZcdOyPwl9fn18M6aHhNvH/a1/WfGQsGpXAPwwlVL6aYmdV89INW11e6ZTV/ZS68xadHqZXRWb3Aq1wCMMjcP041NWru/XdYPdNDnTMqMHpVEIkHn9Aancg3BH2Q30c1Nyj46Lnsef0OfM2lVz0Y6IwtO5RqCcUOQfXCcDuC39P1dkh4r/wMQZW4e8/V1lwtO5RqC0crPm+kQfup/Oizt1zZJ8teN0v/kLL3GTys+WU1nKxScyi0DjFIXd9JBSpWZOCRtI+vdMhMD9JpS4euRzVQsOJVbJhh/2uXciKTHdubBW8d20GuKhT3LuVeHU7llghG+R/E1wwYrVOetzjy4c/Rjek2h8ANlXuPbdJZSwancAGCEd3rL5QwdkNVxvTUP7vjN/41MytkjyK8wOJUbEJwLH2S4fWTDTi55rSUPTo600GsmhzVXbm2me5oEp3ItgRHuoNbs+Uh23yv8MzKHzbX/2TC9Dms097a6a7K9TINTuRbBuRJVCVmy7n3ZMJiST3/IundEvY9OSt/fZ6aA+5yfkHgO1+BavAavxRps7XKDU7khgIvlfSfZNWEEp3JjcLi9seCXdypea2ymYsGp3BjsLzbEdMZmKhacyg0AfnGjQv4Zchqcppy9nl9/jWD073dksJDCXrl92UzFglO5ZYJznR96Kz9E2GEvNoOf4FRuQPAX7bPpcGHUlZxNZ/ATnMoNCF7UOEee3+ID2u7dd+bQGfwEp3IDgtH4j7PogDZ7+NMsurff4HS1ziMw+MI0nOMg5xfBqVwL4O6O8M8xPivY3n6DU7kWwIudc8yGtFmQ84vgVK4FMArzHGNttqdJcLpa52EFfPFIeOcYnxFsT5PgVK4lcJjnGGuzPU2CU7mWwGGe46DnF8GpXEtgNP6z/XNs4/wiOF2t87AGDuMcY022l2lwKtci+P8cnMqNwdEMTuXG4GgGp3JjcDSDU7kz5j/TKppeAamEQurI/tgFAAAAAElFTkSuQmCC"
-
     if (bUpdateGeneratedFiles) {
         FileDelete % script.AboutPath
         script.About(1)
@@ -88,7 +90,7 @@ main() {
     f5:=Func("guiShow2").Bind(gw)
     f6:=Func("prepare_release")
     Menu Tray, Add, Show/Hide GUI, % f5
-    if (bIsAuthor) {
+    if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
     }
     return
@@ -98,6 +100,10 @@ guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
 
+    if (globalLogicSwitches.DEBUG) {
+
+        ttip([globalLogicSwitches.bIsAuthor,globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG])
+    }
     ;; get Screen dimensions
     SysGet A, MonitorWorkArea
     guiWidth:=A_ScreenWidth - 2*30
@@ -138,7 +144,7 @@ guiCreate() {
         , vRCConfiguration
     gui GC: new
     gui GC: +AlwaysOnTop +LabelGC +HWNDGCHWND
-    if DEBUG {
+    if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
     Names:=["1. Configuration File","2. R Starter Script Configuration","3. Miscellaneous"]
@@ -236,7 +242,7 @@ guiCreate() {
     gui add, button,% "yp w80 hwndgenerateConfiguration x" Sections[3].XAnchor+95, % "Generate Configuration"
     gui add, button,% "yp w80  gfEditSettings hwndEditSettings x" Sections[3].XAnchor+185, % "Open program settings"
     gui add, button,% "yp w80  gexitApp hwndExitProgram x" Sections[3].XAnchor+275, % "Exit Program"
-    if (bIsAuthor) {
+    if (globalLogicSwitches.bIsAuthor) {
         gui add, button,% "yp w80  gexitApp hwndrecompile x" Sections[3].XAnchor+365, % "Recompile"
     }
 
@@ -255,14 +261,14 @@ guiCreate() {
     onEditConfiguration := Func("editConfiguration").Bind("")
     onEditStarterScript := Func("editRScript").Bind("")
     onGenerateConfiguration := ObjBindMethod(dynGUI, "generateConfig")
-    if (DEBUG) {
+    if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir)
         oncreateNewStarterScript := Func("createNewStarterScript").Bind(A_ScriptDir)
     } else {
         onNewConfiguration := Func("createConfiguration").Bind("D:/")
         oncreateNewStarterScript := Func("createNewStarterScript").Bind("D:/")
     }
-    if (bIsAuthor) {
+    if (globalLogicSwitches.bIsAuthor) {
         onRecompile := Func("prepare_release")
     }
     guiControl GC:+g, %generateConfiguration%, % onGenerateConfiguration
@@ -270,7 +276,7 @@ guiCreate() {
     guiControl GC:+g, %NewConfiguration%, % onNewConfiguration
     guiControl GC:+g, %newStarterScript%, % oncreateNewStarterScript
     guiControl GC:+g, %editStarterScript%, % onEditStarterScript
-    if (bIsAuthor) {
+    if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
         gui add, button,% "yp w80  gexitApp hwndRecompile x" Sections[3].XAnchor+365, % "Recompile"
     }
@@ -528,7 +534,7 @@ GCEscape() {
 
 fCallBack_StatusBarMainWindow() {
     gui GC: Submit, NoHide
-    ttip(bIsDebug)
+    ttip(globalLogicSwitches.bIsDebug)
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
@@ -538,7 +544,7 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
         script.config.settings.bDebugSwitch:=!script.config.settings.bDebugSwitch
 
-        if (!(script.authorID!=A_ComputerName) & !bIsDebug) || ((script.authorID!=A_ComputerName) & !bIsDebug)
+        if (!(script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug) || ((script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug)
         { ;; public display
             SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
             SoundBeep 150, 150
@@ -547,7 +553,7 @@ fCallBack_StatusBarMainWindow() {
             ListLines Off
             ; KeyHistory
         }
-        else if (!(script.authorID!=A_ComputerName) && bIsDebug) || ((script.authorID!=A_ComputerName) && bIsDebug)
+        else if (!(script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug) || ((script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug)
         {
             SoundBeep 1750, 150
             SoundBeep 1750, 150
@@ -578,7 +584,7 @@ generateConfigFile(Folder) {
 
 }
 createConfiguration(Path) {
-    if (!DEBUG) {
+    if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
     if (!FileExist(Path)) {
@@ -588,7 +594,7 @@ createConfiguration(Path) {
     }
     gui -AlwaysOnTop
     FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
-    if (!DEBUG) {
+    if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }
     SplitPath % Chosen,,,,ChosenName
@@ -612,7 +618,7 @@ editConfiguration(configurationFile) {
     } else if (FileExist(configurationFile)) {
         run % configurationFile
     } else {
-        if (DEBUG) {
+        if (globalLogicSwitches.DEBUG) {
             GFA_configurationFile:=createConfiguration(A_ScriptDir)
 
         } else {
@@ -625,12 +631,12 @@ editConfiguration(configurationFile) {
 }
 
 selectConfigLocation(SearchPath) {
-    if (!DEBUG) {
+    if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
     gui -AlwaysOnTop
     FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
-    if (!DEBUG) {
+    if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }
 
