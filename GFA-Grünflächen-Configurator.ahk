@@ -117,7 +117,7 @@ guiCreate() {
     SysGet A, MonitorWorkArea
     guiWidth:=A_ScreenWidth - 2*30
         ,guiHeight:=ABottom - 2*30
-    if (bRunFromVSC) || ((script.authorID!=A_ComputerName) && script.config.Settings.Toggle1080p) {
+    if (IsDebug()) || (script.config.Settings.Toggle1080p) {
         guiWidth:=1920 - 2*30
         guiHeight:=1080 - 2*30
     }
