@@ -40,6 +40,17 @@ setupdefaultconfig(Switch) {
             ;bRunAsAdmin Do you want to always start the script with Administrator-privileges?
             ;bRunAsAdmin Type: Checkbox
             ;bRunAsAdmin CheckboxName: Always start as Administrator? (Requires restart to take effect.)
+            ;bRunAsAdmin Default: 0
+            RInstallationPath=%A_ScriptDir%/GFA_Evaluation.R
+            ;RInstallationPath Type: File
+            ;RInstallationPath Please select the location of your 'GFA_Evaluation.R'-Script.
+            ;RInstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
+            ;RInstallationPath
+            ;RInstallationPath
+            CheckUpdatesOnScriptStart=0
+            ;CheckUpdatesOnScriptStart Type: Checkbox
+            ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
+            ;CheckUpdatesOnScriptStart Default:0
 
 
         )
