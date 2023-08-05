@@ -121,15 +121,20 @@ guiCreate() {
         guiWidth:=1920 - 2*30
         guiHeight:=1080 - 2*30
     }
-    ttip({guiWidth:guiWidth,guiHeight:guiHeight,A_ScreenHeight:A_ScreenHeight,A_ScreenWidth:A_ScreenWidth},1,2300)
+    if (globalLogicSwitches.DEBUG) {
+        ttip({guiWidth:guiWidth,guiHeight:guiHeight,A_ScreenHeight:A_ScreenHeight,A_ScreenWidth:A_ScreenWidth},1,2300)
+    }
 
     YMarginWidth:=XMarginWidth:=15
-    NumberofSections:=3
-    WidthMinusMargins:=guiWidth - 4*XMarginWidth + 0
-    HeightMinusMargins:=guiHeight - 4*YMarginWidth + 0
-    SectionWidth:=WidthMinusMargins/NumberofSections + 0
-    SectionHeight:=HeightMinusMargins/1 + 0
-    Sections:={}
+        , NumberofSections:=3
+        , WidthMinusMargins:=guiWidth - 4*XMarginWidth + 0
+        , HeightMinusMargins:=guiHeight - 4*YMarginWidth + 0
+        , SectionWidth:=WidthMinusMargins/NumberofSections + 0
+        , SectionHeight:=HeightMinusMargins/1 + 0
+        , Sections:={}
+        , middleanchor:=guiWidth-4*15-middleWidth
+        , middleanchor2:=middleanchor-15
+        , groupbox_height:=953
     loop, % NumberofSections {
         if (A_Index>1) {
             Sections[A_Index]:={XAnchor:XMarginWidth*A_Index + SectionWidth*(A_Index-1),Width:SectionWidth*1,Height:SectionHeight*1}
