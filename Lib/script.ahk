@@ -415,7 +415,7 @@ class script {
         else if (Param=false)
         { ;; set icon to default ahk icon, shows icon
 
-            ; ttip_ScriptObj("Figure out how to hide autohotkey's icon mid-run")
+            ; ttip("Figure out how to hide autohotkey's icon mid-run")
             menu tray, NoIcon
         }
         else if (Param=-1)
