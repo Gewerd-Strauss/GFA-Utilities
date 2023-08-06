@@ -826,8 +826,14 @@ script_FormatEx(FormatStr, Values*) {
 script_TraySetup(IconString) {
     hICON := script_Base64PNG_to_HICON( IconString ) ; Create a HICON for Tray
     menu tray, nostandard
-    Menu Tray, Icon, HICON:*%hICON% ; AHK makes a copy of HICON when * is used
-    Menu Tray, Icon
+    if (FileExist(IconString)) {
+        Menu tray, icon,% A_ScriptDir "\res\icon.png"
+    } else {
+
+        Menu Tray, Icon, HICON:*%hICON% ; AHK makes a copy of HICON when * is used
+        Menu Tray, Icon
+        DllCall( "DestroyIcon", "Ptr",hICON ) ; Destroy original HICON
+    }
     f:=Func("restoredefaultConfig")
     f2:=Func("RunAsAdmin")
     f3:=Func("script_reload")
@@ -836,7 +842,6 @@ script_TraySetup(IconString) {
     Menu Tray, Add, Restart as Administrator, % f2
     menu tray, Add, Reload, % f3
     menu tray, add, Exit Program, % f4
-    DllCall( "DestroyIcon", "Ptr",hICON ) ; Destroy original HICON
     return
 }
 script_reload() {
