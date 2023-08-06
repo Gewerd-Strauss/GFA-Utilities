@@ -14,9 +14,11 @@ CodeTimer("")
 FileGetTime ModDate, %A_ScriptFullPath%, M
 FileGetTime CrtDate, %A_ScriptFullPath%, C
 CrtDate := SubStr(CrtDate, 7, 2) "." SubStr(CrtDate, 5, 2) "." SubStr(CrtDate, 1, 4)
-ModDate := SubStr(ModDate, 7, 2) "." SubStr(ModDate, 5, 2) "." SubStr(ModDate, 1, 4)
+    , ModDate := SubStr(ModDate, 7, 2) "." SubStr(ModDate, 5, 2) "." SubStr(ModDate, 1, 4)
 global script := new script()
-global bRunFromVSC:=(WinActive("ahk_class Chrome_WidgetWin_1") && WinActive("ahk_exe Code.exe"))
+    , bRunFromVSC:=(WinActive("ahk_class Chrome_WidgetWin_1") && WinActive("ahk_exe Code.exe"))
+    , DEBUG := IsDebug()
+    , globalLogicSwitches := {}
 script := { base: script.base
         , name: regexreplace(A_ScriptName, "\.\w+")
         , crtdate: CrtDate
@@ -41,8 +43,7 @@ script := { base: script.base
         , Computername: A_ComputerName
         , license: A_ScriptDir "\res\LICENSE.txt" ;; do not edit the variables above if you don't know what you are doing.
         , blank: "" }
-global DEBUG := IsDebug()
-global globalLogicSwitches := {}
+
 globalLogicSwitches.Debug:=DEBUG
 main()
 CodeTimer("Startup Time")
@@ -52,7 +53,7 @@ main() {
 
     Loop, % A_Args.Length() {
         param := %A_Index%  ; Fetch the contents of the variable whose name is contained in A_Index.
-        bUpdateGeneratedFiles:=param
+            , bUpdateGeneratedFiles:=param
         if bUpdateGeneratedFiles {
             break
         }
@@ -61,7 +62,7 @@ main() {
         exitApp()
     }
     globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
-    globalLogicSwitches.Debug:=DEBUG
+        , globalLogicSwitches.Debug:=DEBUG
     if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
             ttip("resetting conf 1")
@@ -97,8 +98,8 @@ main() {
     ;script.Save(script.scriptconfigfile)
     global gw:=guiCreate()
     hwnd:=guiShow(gw)
-    f5:=Func("guiShow2").Bind(gw)
-    f6:=Func("prepare_release")
+        , f5:=Func("guiShow2").Bind(gw)
+        , f6:=Func("prepare_release")
     Menu Tray, Add, Show/Hide GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
@@ -136,13 +137,23 @@ main() {
             # WINDOWS: 
             source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
             source("`%GFA_EVALUATIONUTILITY`%")
+
+
+
+
+            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+            plot_3 <- GFA_main(r"(/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = F,saveFigures = F,saveExcel = F,saveRDATA = F)
+            plot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
+
+
             }
             plot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
         )
     gw.RCodeTemplate:=template
+        , handleCheckboxes()
+        , handleConfig(gw.dynGUI)
         , fillRC1(template)
-    gw.dynGUI.generateConfig(0)
-    fillRC2(gw.dynGUI.ConfigString)
+        , fillRC2(gw.dynGUI.ConfigString)
     return
 }
 
@@ -162,7 +173,7 @@ guiCreate() {
     if (IsDebug()) || (script.config.Settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
-        guiWidth:=A_ScreenWidth - 2*30
+            , guiWidth:=A_ScreenWidth - 2*30
     } else if (IsDebug()) || (script.config.Settings.SizeSetting="1440p") { ; 1440p
         guiWidth:=2560 - 2*30
             , guiHeight:=1392 - 2*30
@@ -200,19 +211,15 @@ guiCreate() {
             Sections[A_Index]:={XAnchor:XMarginWidth*A_Index,Width:SectionWidth*1,Height:SectionHeight*1}
         }
     }
-    ; if (IsDebug()) || (script.config.Settings.SizeSetting) {
     ShiftSection1:=250
-    ShiftSection2:=250
-    Sections[1].Width:=Sections[1].Width-ShiftSection1
-    Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
-    Sections[2].Width:=Sections[2].Width-ShiftSection2
-    ;;Sections[2].Width:=Sections[2].Width+Shift
-    Sections[3].XAnchor:=Sections[3].XAnchor-ShiftSection1-ShiftSection2
-    Sections[3].Width:=Sections[3].Width+ShiftSection1+ShiftSection2
-    ; }
-    middleanchor:=guiWidth-4*15-middleWidth
-
-    groupbox_height:=953
+        , ShiftSection2:=250
+        , Sections[1].Width:=Sections[1].Width-ShiftSection1
+        , Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
+        , Sections[2].Width:=Sections[2].Width-ShiftSection2
+        , Sections[3].XAnchor:=Sections[3].XAnchor-ShiftSection1-ShiftSection2
+        , Sections[3].Width:=Sections[3].Width+ShiftSection1+ShiftSection2
+        , middleanchor:=guiWidth-4*15-middleWidth
+        , groupbox_height:=953
     global StatusBarMainWindow
         , vUsedConfigLocation
         , vStarterRScriptLocation
@@ -245,8 +252,8 @@ guiCreate() {
     gui add, edit,% "y100 x" Sections[1].XAnchor+5 " r1 disabled vvUsedConfigLocation w" Sections[1].Width - 3*5,   % "<Location of Configuration-'.ini'-File>"
     global dynGUI:= new gfcGUI("Experiment::blank",script.gfcGUIconfigfile,"-<>-",FALSE)
     dynGUI.guiVisible:=false
-    dynGUI.GCHWND:=GCHWND
-    dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
+        , dynGUI.GCHWND:=GCHWND
+        , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
 
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
@@ -340,12 +347,12 @@ guiCreate() {
     SB_SetText("Documentation",7)
 
     onEditConfiguration := Func("editConfiguration").Bind("")
-    onEditStarterScript := Func("editRScript").Bind("")
-    onGenerateConfiguration := Func("handleConfig").Bind(dynGUI)
-    onCheckreturnDays:=Func("handleCheckboxes").Bind("")
-    onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
-    onCheckSaveRData:=Func("handleCheckboxes").Bind("")
-    onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
+        , onEditStarterScript := Func("editRScript").Bind("")
+        , onGenerateConfiguration := Func("handleConfig").Bind(dynGUI)
+        , onCheckreturnDays:=Func("handleCheckboxes").Bind("")
+        , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
+        , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
+        , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir)
         oncreateNewStarterScript := Func("createNewStarterScript").Bind(A_ScriptDir)
@@ -414,6 +421,7 @@ guiShow(gw) {
             gui add, text,% " y3 h15 w" section.Width " x" section.XAnchor-5, % section.name
         }
     }
+    gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
     dynGUI.guiVisible:=true
     handleCheckboxes(Param)
@@ -630,23 +638,18 @@ fillRC2(INI) {
         , RC2.Value:= INI
     return
 }
-handleCheckboxes(Param) {
+handleCheckboxes(Param:="") {
     global
     gui GC: submit, nohide
-
-    ;vreturnDays
-    ;vSaveFigures
-    ;vSaveRData
-    ;vSaveExcel
     template:=strreplace(gw.RCodeTemplate,"%breturnDays%",vreturnDays)
-    template:=strreplace(template,"%bSaveFigures%",vSaveFigures)
-    template:=strreplace(template,"%bSaveRData%",vSaveRData)
-    template:=strreplace(template,"%bSaveExcel%",vSaveExcel)
-    fillRC1(template)
+        , template:=strreplace(template,"%bSaveFigures%",vSaveFigures)
+        , template:=strreplace(template,"%bSaveRData%",vSaveRData)
+        , template:=strreplace(template,"%bSaveExcel%",vSaveExcel)
+        , fillRC1(template)
     return
 }
 handleConfig(dynGUI) {
-    String:=dynGUI.generateConfig(0)
+    dynGUI.generateConfig(0)
     fillRC2(dynGUI.ConfigString)
     return
 }
