@@ -666,10 +666,12 @@ GCEscape() {
 fCallBack_StatusBarMainWindow() {
     gui GC: Submit, NoHide
     ttip(globalLogicSwitches.bIsDebug)
+    gui GC: -AlwaysOnTop
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
         script.Update()
+        gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) { ; part 2  -  Author
         script.About()
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
@@ -710,6 +712,7 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=9)) { ; part 8
 
     }
+    gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     return
 }
 ~!Esc::Reload
