@@ -1,6 +1,6 @@
 ﻿class gfcGUI extends dynamicGUI {
     generateConfig() {
-        this.SubmitDynamicArguments()
+        this.SubmitDynamicArguments(false)
         Object:={}
         for key, Argument in this.Arguments {
             Object[Argument.ConfigSection]:={}

@@ -67,6 +67,7 @@ Class dynamicGUI {
         }
         this.AssumeDefaults()
         this._Adjust()
+        this.ArgumentsBackup:=this.Arguments.Clone()
     }
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
@@ -388,7 +389,7 @@ Class dynamicGUI {
                             }
                         }
                         if !RegexMatch(Value.ctrlOptions,"w\d*") {
-                            Value.ctrlOptions.= " w120"
+                            Value.ctrlOptions.= " w200"
                         }
                         if RegexMatch(Value.ctrlOptions,"h(?<vH>\d*)",v) {
                             ControlHeight+=vvH + 15
@@ -396,7 +397,7 @@ Class dynamicGUI {
                             Value.ctrlOptions.= " h35"
                             ControlHeight+=35
                         }
-                        gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " vv" Parameter, % (Value.Value="NULL"?:Value.Value)
+                        gui %GUI_ID% add, % "edit", % Value.ctrlOptions " vv" Parameter, % (Value.Value="NULL"?:Value.Value)
                         GuiControl Move, vTab3, % "h" TabHeight + ControlHeight + 32
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -605,11 +606,15 @@ Class dynamicGUI {
         }
 
     }
-    SubmitDynamicArguments() {
+    SubmitDynamicArguments(destroy:=true) {
         static
         GUI_ID:=this.GUI_ID
         gui %GUI_ID% Default
-        gui %GUI_ID% Submit
+        if (destroy) {
+            gui %GUI_ID% Submit
+        } else {
+            gui %GUI_ID% Submit, NoHide
+        }
         for Parameter,_ in this.Arguments {
             ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
             parameter:=strreplace(parameter,"-","___")
@@ -619,7 +624,9 @@ Class dynamicGUI {
             parameter:=strreplace(parameter,"___","-")
             this["Arguments",Parameter].Value:=val
         }
-        gui %GUI_ID% destroy
+        if (destroy) {
+            gui %GUI_ID% destroy
+        }
         return this
     }
     otGUI_Escape2() {

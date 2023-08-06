@@ -31,22 +31,35 @@ setupdefaultconfig(Switch) {
             GFC_version=0.2.1
             [Settings]
             bDebugSwitch=0
-            Toggle1080p=0
-            ;Toggle1080p Do you want to always force the GUI to suit a 1080p-monitor? If unchecked, the GUI will auto-scale to the size of the main monitor of your system.
-            ;Toggle1080p Type: Checkbox
-            ;Toggle1080p CheckboxName: Force the small GUI suitable for 1080p-Monitors?
-            ;Toggle1080p Default:0
+            ;bDebugSwitch hidden
+            ;bDebugSwitch Type: Checkbox
+            ;bDebugSwitch CheckboxName: Enable Debugging-Mode?
+            ;bDebugSwitch Allow extended logging of various information to be output in the program's directory.
+            ;bDebugSwitch Default: 0
+            AlwaysOnTop=0
+            ;AlwaysOnTop Type: Checkbox
+            ;AlwaysOnTop CheckboxName: Set the GUI to be always on top?
+            ;AlwaysOnTop This will keep the gui front and center on your screen. You can still hide the GUI via the tray-menu item.
+            ;AlwaysOnTop Default: 0
+            sFontType_Text=Times New Roman
+            ;sFontType_Text Set Font for all texts, excluding the listviews.
+            ;sFontType_Text Type: DropDown Arial|Calibri|Cambria|Consolas|Comic Sans MS|Corbel|Courier|Courier New|Georgia|Lucidia Console|Lucidia Sans|MS Sans Serif|Segoe UI||Times New Roman|Tahoma|Verdana|System
+            ;sFontType_Text Default: Times New Roman
+            SizeSetting=auto
+            ;SizeSetting Determine how to scale the GUI: Auto will calculate the GUI-dimensions based on your main monitor's size. '1080p' and '1440p' will force a scaling based on that assumption.
+            ;SizeSetting Type: DropDown 1080p|1440p||auto
+            ;SizeSetting Default: auto
             bRunAsAdmin=0
             ;bRunAsAdmin Do you want to always start the script with Administrator-privileges?
             ;bRunAsAdmin Type: Checkbox
             ;bRunAsAdmin CheckboxName: Always start as Administrator? (Requires restart to take effect.)
             ;bRunAsAdmin Default: 0
-            RInstallationPath=%A_ScriptDir%/GFA_Evaluation.R
-            ;RInstallationPath Type: File
-            ;RInstallationPath Please select the location of your 'GFA_Evaluation.R'-Script.
-            ;RInstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
-            ;RInstallationPath
-            ;RInstallationPath
+            GFA_Evaluation_InstallationPath=%A_ScriptDir%/GFA_Evaluation.R
+            ;GFA_Evaluation_InstallationPath Type: File
+            ;GFA_Evaluation_InstallationPath Please select the location of your 'GFA_Evaluation.R'-Script.
+            ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
+            ;GFA_Evaluation_InstallationPath
+            ;GFA_Evaluation_InstallationPath
             CheckUpdatesOnScriptStart=0
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
