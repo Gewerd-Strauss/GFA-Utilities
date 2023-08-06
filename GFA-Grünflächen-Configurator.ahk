@@ -767,10 +767,29 @@ editConfiguration(configurationFile) {
             GFA_configurationFile:=createConfiguration("D:/")
         }
     }
+editRScript(rScriptFile) {
+    global
+    gui Submit,NoHide
 
+    if (FileExist(GFA_rScriptFile)) {
+        run % GFA_rScriptFile
+    } else if (FileExist(configurationFile)) {
+        run % rScriptFile
+    } else {
+        if (globalLogicSwitches.DEBUG) {
+            GFA_rScriptFile:=createRScriptFile(A_ScriptDir)
+
+        } else {
+
+            GFA_rScriptFile:=createRScriptFile("D:/")
+        }
+    }
+    gui GC: default
     return
 }
+createRScriptFile(Path) {
 
+}
 selectConfigLocation(SearchPath) {
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
