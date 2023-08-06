@@ -10,7 +10,7 @@ DetectHiddenWindows On
 SetKeyDelay -1, -1
 SetBatchLines -1
 SetTitleMatchMode 2
-
+CodeTimer("")
 FileGetTime ModDate, %A_ScriptFullPath%, M
 FileGetTime CrtDate, %A_ScriptFullPath%, C
 CrtDate := SubStr(CrtDate, 7, 2) "." SubStr(CrtDate, 5, 2) "." SubStr(CrtDate, 1, 4)
@@ -45,6 +45,7 @@ global DEBUG := IsDebug()
 global globalLogicSwitches := {}
 globalLogicSwitches.Debug:=DEBUG
 main()
+CodeTimer("Startup Time")
 return
 
 main() {
