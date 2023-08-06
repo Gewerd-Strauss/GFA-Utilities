@@ -744,8 +744,10 @@ createConfiguration(Path) {
         }
     }
     global GFA_configurationFile:=Chosen
-    gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
-    fillRC1(Code)
+    if (Chosen!="") {
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
+        fillRC1(Code)
+    }
     return Chosen
 }
 editConfiguration(configurationFile) {
