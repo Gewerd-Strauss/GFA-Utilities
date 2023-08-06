@@ -131,7 +131,7 @@ setupdefaultconfig(Switch) {
                 FileCreateDir % configDirectory
             }
             gfcGUIconfig:=LTrim(gfcGUIconfig)
-            gfcGUIconfig:=DerefAHKVariables(gfcGUIconfig)
+                , gfcGUIconfig:=DerefAHKVariables(gfcGUIconfig)
             writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-8",,true)
             return
         }

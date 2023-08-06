@@ -176,8 +176,8 @@ class GC_RichCode
     {
         static Test
         this.Settings := Settings
-        FGColor := this.BGRFromRGB(Settings.FGColor)
-        BGColor := this.BGRFromRGB(Settings.BGColor)
+            , FGColor := this.BGRFromRGB(Settings.FGColor)
+            , BGColor := this.BGRFromRGB(Settings.BGColor)
 
         Gui Add, Custom, ClassRichEdit50W hWndhWnd +0x5031b1c4 +E0x20000 %Options%
         this.hWnd := hWnd
@@ -190,50 +190,50 @@ class GC_RichCode
         ; NOTE: this prevents garbage collection of
         ; the class until the control is destroyed
         this.EventMask := 1 ; ENM_CHANGE
-        CtrlEvent := this.CtrlEvent.Bind(this)
+            , CtrlEvent := this.CtrlEvent.Bind(this)
         GuiControl +g, %hWnd%, %CtrlEvent%
 
         ; Set background color
         this.SendMsg(0x443, 0, BGColor) ; EM_SETBKGNDCOLOR
 
         ; Set character format
-        VarSetCapacity(CHARFORMAT2, 116, 0)
-        NumPut(116,                    CHARFORMAT2, 0,  "UInt")       ; cbSize      = sizeof(CHARFORMAT2)
-        NumPut(0xE0000000,             CHARFORMAT2, 4,  "UInt")       ; dwMask      = CFM_COLOR|CFM_FACE|CFM_SIZE
-        NumPut(FGColor,                CHARFORMAT2, 20, "UInt")       ; crTextColor = 0xBBGGRR
-        NumPut(Settings.Font.Size*20,  CHARFORMAT2, 12, "UInt")       ; yHeight     = twips
-        StrPut(Settings.Font.Typeface, &CHARFORMAT2+26, 32, "UTF-16") ; szFaceName  = TCHAR
-        this.SendMsg(0x444, 0, &CHARFORMAT2) ; EM_SETCHARFORMAT
+            , VarSetCapacity(CHARFORMAT2, 116, 0)
+            , NumPut(116,                    CHARFORMAT2, 0,  "UInt")       ; cbSize      = sizeof(CHARFORMAT2)
+            , NumPut(0xE0000000,             CHARFORMAT2, 4,  "UInt")       ; dwMask      = CFM_COLOR|CFM_FACE|CFM_SIZE
+            , NumPut(FGColor,                CHARFORMAT2, 20, "UInt")       ; crTextColor = 0xBBGGRR
+            , NumPut(Settings.Font.Size*20,  CHARFORMAT2, 12, "UInt")       ; yHeight     = twips
+            , StrPut(Settings.Font.Typeface, &CHARFORMAT2+26, 32, "UTF-16") ; szFaceName  = TCHAR
+            , this.SendMsg(0x444, 0, &CHARFORMAT2) ; EM_SETCHARFORMAT
 
         ; Set tab size to 4 for non-highlighted code
-        VarSetCapacity(TabStops, 4, 0), NumPut(Settings.TabSize*4, TabStops, "UInt")
-        this.SendMsg(0x0CB, 1, &TabStops) ; EM_SETTABSTOPS
+            , VarSetCapacity(TabStops, 4, 0), NumPut(Settings.TabSize*4, TabStops, "UInt")
+            , this.SendMsg(0x0CB, 1, &TabStops) ; EM_SETTABSTOPS
 
         ; Change text limit from 32,767 to max
-        this.SendMsg(0x435, 0, -1) ; EM_EXLIMITTEXT
+            , this.SendMsg(0x435, 0, -1) ; EM_EXLIMITTEXT
 
         ; Bind for keyboard events
         ; Use a pointer to prevent reference loop
-        this.OnMessageBound := this.OnMessage.Bind(&this)
-        OnMessage(0x100, this.OnMessageBound) ; WM_KEYDOWN
-        OnMessage(0x205, this.OnMessageBound) ; WM_RBUTTONUP
+            , this.OnMessageBound := this.OnMessage.Bind(&this)
+            , OnMessage(0x100, this.OnMessageBound) ; WM_KEYDOWN
+            , OnMessage(0x205, this.OnMessageBound) ; WM_RBUTTONUP
 
         ; Bind the highlighter
-        this.HighlightBound := this.Highlight.Bind(&this)
+            , this.HighlightBound := this.Highlight.Bind(&this)
 
         ; Create the right click menu
-        this.MenuName := this.__Class . &this
-        RCMBound := this.RightClickMenu.Bind(&this)
+            , this.MenuName := this.__Class . &this
+            , RCMBound := this.RightClickMenu.Bind(&this)
         for Index, Entry in this.MenuItems
             Menu % this.MenuName, Add, %Entry%, %RCMBound%
 
         ; Get the ITextDocument object
         VarSetCapacity(pIRichEditOle, A_PtrSize, 0)
-        this.SendMsg(0x43C, 0, &pIRichEditOle) ; EM_GETOLEINTERFACE
-        this.pIRichEditOle := NumGet(pIRichEditOle, 0, "UPtr")
-        this.IRichEditOle := ComObject(9, this.pIRichEditOle, 1), ObjAddRef(this.pIRichEditOle)
-        this.pITextDocument := ComObjQuery(this.IRichEditOle, this.IID_ITextDocument)
-        this.ITextDocument := ComObject(9, this.pITextDocument, 1), ObjAddRef(this.pITextDocument)
+            , this.SendMsg(0x43C, 0, &pIRichEditOle) ; EM_GETOLEINTERFACE
+            , this.pIRichEditOle := NumGet(pIRichEditOle, 0, "UPtr")
+            , this.IRichEditOle := ComObject(9, this.pIRichEditOle, 1), ObjAddRef(this.pIRichEditOle)
+            , this.pITextDocument := ComObjQuery(this.IRichEditOle, this.IID_ITextDocument)
+            , this.ITextDocument := ComObject(9, this.pITextDocument, 1), ObjAddRef(this.pITextDocument)
     }
 
     RightClickMenu(ItemName, ItemPos, MenuName)
@@ -263,7 +263,7 @@ class GC_RichCode
     {
         ; Release the ITextDocument object
         this.ITextDocument := "", ObjRelease(this.pITextDocument)
-        this.IRichEditOle := "", ObjRelease(this.pIRichEditOle)
+            , this.IRichEditOle := "", ObjRelease(this.pIRichEditOle)
 
         ; Release the OnMessage handlers
         OnMessage(0x100, this.OnMessageBound, 0) ; WM_KEYDOWN
@@ -300,7 +300,7 @@ class GC_RichCode
                 {
                     ; TODO: Trim to size needed to reach next TabSize
                     this.SelectedText := this.Settings.Indent
-                    this.Selection[1] := this.Selection[2] ; Place cursor after
+                        , this.Selection[1] := this.Selection[2] ; Place cursor after
                 }
                 return False
             }
@@ -309,7 +309,7 @@ class GC_RichCode
             else if (wParam == GetKeyVK("v") && GetKeyState("Ctrl"))
             {
                 this.SelectedText := Clipboard ; Strips formatting
-                this.Selection[1] := this.Selection[2] ; Place cursor after
+                    , this.Selection[1] := this.Selection[2] ; Place cursor after
                 return False
             }
         }
@@ -350,47 +350,47 @@ class GC_RichCode
         ; Freeze the control while it is being modified, stop change event
         ; generation, suspend the undo buffer, buffer any input events
         PrevFrozen := this.Frozen, this.Frozen := True
-        PrevEventMask := this.EventMask, this.EventMask := 0 ; ENM_NONE
-        PrevUndoSuspended := this.UndoSuspended, this.UndoSuspended := True
-        PrevCritical := A_IsCritical
+            , PrevEventMask := this.EventMask, this.EventMask := 0 ; ENM_NONE
+            , PrevUndoSuspended := this.UndoSuspended, this.UndoSuspended := True
+            , PrevCritical := A_IsCritical
         Critical, 1000
 
         ; Run the highlighter
         Highlighter := this.Settings.Highlighter
-        RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
+            , RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
 
         ; "TRichEdit suspend/resume undo function"
         ; https://stackoverflow.com/a/21206620
 
         ; Save the rich text to a UTF-8 buffer
         VarSetCapacity(Buf, StrPut(RTF, "UTF-8"), 0)
-        StrPut(RTF, &Buf, "UTF-8")
+            , StrPut(RTF, &Buf, "UTF-8")
 
         ; Set up the necessary structs
         VarSetCapacity(ZOOM,      8, 0) ; Zoom Level
-        VarSetCapacity(POINT,     8, 0) ; Scroll Pos
-        VarSetCapacity(CHARRANGE, 8, 0) ; Selection
-        VarSetCapacity(SETTEXTEX, 8, 0) ; SetText Settings
-        NumPut(1, SETTEXTEX, 0, "UInt") ; flags = ST_KEEPUNDO
+            , VarSetCapacity(POINT,     8, 0) ; Scroll Pos
+            , VarSetCapacity(CHARRANGE, 8, 0) ; Selection
+            , VarSetCapacity(SETTEXTEX, 8, 0) ; SetText Settings
+            , NumPut(1, SETTEXTEX, 0, "UInt") ; flags = ST_KEEPUNDO
 
         ; Save the scroll and cursor positions, update the text,
         ; then restore the scroll and cursor positions
         MODIFY := this.SendMsg(0xB8, 0, 0)    ; EM_GETMODIFY
-        this.SendMsg(0x4E0, &ZOOM, &ZOOM+4)   ; EM_GETZOOM
-        this.SendMsg(0x4DD, 0, &POINT)        ; EM_GETSCROLLPOS
-        this.SendMsg(0x434, 0, &CHARRANGE)    ; EM_EXGETSEL
-        this.SendMsg(0x461, &SETTEXTEX, &Buf) ; EM_SETTEXTEX
-        this.SendMsg(0x437, 0, &CHARRANGE)    ; EM_EXSETSEL
-        this.SendMsg(0x4DE, 0, &POINT)        ; EM_SETSCROLLPOS
-        this.SendMsg(0x4E1, NumGet(ZOOM, "UInt")
+            , this.SendMsg(0x4E0, &ZOOM, &ZOOM+4)   ; EM_GETZOOM
+            , this.SendMsg(0x4DD, 0, &POINT)        ; EM_GETSCROLLPOS
+            , this.SendMsg(0x434, 0, &CHARRANGE)    ; EM_EXGETSEL
+            , this.SendMsg(0x461, &SETTEXTEX, &Buf) ; EM_SETTEXTEX
+            , this.SendMsg(0x437, 0, &CHARRANGE)    ; EM_EXSETSEL
+            , this.SendMsg(0x4DE, 0, &POINT)        ; EM_SETSCROLLPOS
+            , this.SendMsg(0x4E1, NumGet(ZOOM, "UInt")
             , NumGet(ZOOM, 4, "UInt"))        ; EM_SETZOOM
-        this.SendMsg(0xB9, MODIFY, 0)         ; EM_SETMODIFY
+            , this.SendMsg(0xB9, MODIFY, 0)         ; EM_SETMODIFY
 
         ; Restore previous settings
         Critical, %PrevCritical%
         this.UndoSuspended := PrevUndoSuspended
-        this.EventMask := PrevEventMask
-        this.Frozen := PrevFrozen
+            , this.EventMask := PrevEventMask
+            , this.Frozen := PrevFrozen
     }
 
     IndentSelection(Reverse:=False, Indent:="")
@@ -398,8 +398,8 @@ class GC_RichCode
         ; Freeze the control while it is being modified, stop change event
         ; generation, buffer any input events
         PrevFrozen := this.Frozen, this.Frozen := True
-        PrevEventMask := this.EventMask, this.EventMask := 0 ; ENM_NONE
-        PrevCritical := A_IsCritical
+            , PrevEventMask := this.EventMask, this.EventMask := 0 ; ENM_NONE
+            , PrevCritical := A_IsCritical
         Critical, 1000
 
         if (Indent == "")
@@ -407,14 +407,14 @@ class GC_RichCode
         IndentLen := StrLen(Indent)
 
         ; Select back to the start of the first line
-        Min := this.Selection[1]
-        Top := this.SendMsg(0x436, 0, Min) ; EM_EXLINEFROMCHAR
-        TopLineIndex := this.SendMsg(0xBB, Top, 0) ; EM_LINEINDEX
-        this.Selection[1] := TopLineIndex
+            , Min := this.Selection[1]
+            , Top := this.SendMsg(0x436, 0, Min) ; EM_EXLINEFROMCHAR
+            , TopLineIndex := this.SendMsg(0xBB, Top, 0) ; EM_LINEINDEX
+            , this.Selection[1] := TopLineIndex
 
         ; TODO: Insert newlines using SetSel/ReplaceSel to avoid having to call
         ; the highlighter again
-        Text := this.SelectedText
+            , Text := this.SelectedText
         if Reverse
         {
             ; Remove indentation appropriately
@@ -438,13 +438,13 @@ class GC_RichCode
         {
             ; Add indentation appropriately
             Trailing := (SubStr(Text, 0) == "`n")
-            Temp := Trailing ? SubStr(Text, 1, -1) : Text
+                , Temp := Trailing ? SubStr(Text, 1, -1) : Text
             Loop, Parse, Temp, `n, `r
                 Out .= "`n" Indent . A_LoopField
             this.SelectedText := SubStr(Out, 2) . (Trailing ? "`n" : "")
 
             ; Move the selection start forward
-            this.Selection[1] := Min + IndentLen
+                , this.Selection[1] := Min + IndentLen
         }
 
         this.Highlight()
@@ -457,10 +457,10 @@ class GC_RichCode
         ; unfreezing causes the scrollbar to jump. To solve this, jump back
         ; after unfreezing. This will cause a flicker when that edge case
         ; occurs, but it's better than the alternative.
-        VarSetCapacity(POINT, 8, 0)
-        this.SendMsg(0x4DD, 0, &POINT) ; EM_GETSCROLLPOS
-        this.Frozen := PrevFrozen
-        this.SendMsg(0x4DE, 0, &POINT) ; EM_SETSCROLLPOS
+            , VarSetCapacity(POINT, 8, 0)
+            , this.SendMsg(0x4DD, 0, &POINT) ; EM_GETSCROLLPOS
+            , this.Frozen := PrevFrozen
+            , this.SendMsg(0x4DE, 0, &POINT) ; EM_SETSCROLLPOS
     }
 
     ; --- Helper/Convenience Methods ---
@@ -633,10 +633,10 @@ GenHighlighterCache(Settings)
     Cache := Settings.Cache := {}
 
     ; --- Process Colors ---
-    Cache.Colors := Settings.Colors.Clone()
+        , Cache.Colors := Settings.Colors.Clone()
 
     ; Inherit from the Settings array's base
-    BaseSettings := Settings
+        , BaseSettings := Settings
     while (BaseSettings := BaseSettings.Base)
         for Name, Color in BaseSettings.Colors
             if !Cache.Colors.HasKey(Name)
@@ -655,7 +655,7 @@ GenHighlighterCache(Settings)
     RTF := "{\urtf"
 
     ; Color Table
-    RTF .= "{\colortbl;"
+        , RTF .= "{\colortbl;"
     for Name, Color in Cache.Colors
     {
         RTF .= "\red" 	Color>>16	& 0xFF
@@ -678,7 +678,7 @@ GenHighlighterCache(Settings)
     ; Tab size (twips)
     RTF .= "\deftab" GetCharWidthTwips(Settings.Font) * Settings.TabSize
 
-    Cache.RTFHeader := RTF
+        , Cache.RTFHeader := RTF
 }
 
 GetCharWidthTwips(Font)
@@ -691,12 +691,12 @@ GetCharWidthTwips(Font)
 
     ; Calculate parameters of CreateFont
     Height	:= -Round(Font.Size*A_ScreenDPI/72)
-    Weight	:= 400+300*(!!Font.Bold)
-    Face 	:= Font.Typeface
+        , Weight	:= 400+300*(!!Font.Bold)
+        , Face 	:= Font.Typeface
 
     ; Get the width of "x"
     hDC 	:= DllCall("GetDC", "UPtr", 0)
-    hFont 	:= DllCall("CreateFont"
+        , hFont 	:= DllCall("CreateFont"
         , "Int", Height 	; _In_ int       	  nHeight,
         , "Int", 0 	; _In_ int       	  nWidth,
         , "Int", 0 	; _In_ int       	  nEscapement,
@@ -712,16 +712,16 @@ GetCharWidthTwips(Font)
         , "UInt", 0 	; _In_ DWORD   fdwPitchAndFamily, (FF_DONTCARE|DEFAULT_PITCH)
         , "Str", Face 	; _In_ LPCTSTR  lpszFace
         , "UPtr")
-    hObj := DllCall("SelectObject", "UPtr", hDC, "UPtr", hFont, "UPtr")
-    VarSetCapacity(SIZE, 8, 0)
-    DllCall("GetTextExtentPoint32", "UPtr", hDC, "Str", "x", "Int", 1, "UPtr", &SIZE)
-    DllCall("SelectObject", "UPtr", hDC, "UPtr", hObj, "UPtr")
-    DllCall("DeleteObject", "UPtr", hFont)
-    DllCall("ReleaseDC", "UPtr", 0, "UPtr", hDC)
+        , hObj := DllCall("SelectObject", "UPtr", hDC, "UPtr", hFont, "UPtr")
+        , VarSetCapacity(SIZE, 8, 0)
+        , DllCall("GetTextExtentPoint32", "UPtr", hDC, "Str", "x", "Int", 1, "UPtr", &SIZE)
+        , DllCall("SelectObject", "UPtr", hDC, "UPtr", hObj, "UPtr")
+        , DllCall("DeleteObject", "UPtr", hFont)
+        , DllCall("ReleaseDC", "UPtr", 0, "UPtr", hDC)
 
     ; Convert to twpis
     Twips := Round(NumGet(SIZE, 0, "UInt")*1440/A_ScreenDPI)
-    Cache[Font.Typeface "_" Font.Size "_" Font.Bold] := Twips
+        , Cache[Font.Typeface "_" Font.Size "_" Font.Bold] := Twips
     return Twips
 }
 

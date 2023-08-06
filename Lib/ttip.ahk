@@ -62,15 +62,15 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	if IsObject(text)
 		text:=ttip_Obj2Str(text)
 	static ttip_text
-	static currTip2
+		, currTip2
 	global ttOnOff
 	currTip2:=currTip
-	cMode:=(CoordMode=1?"Screen":(CoordMode=2?"Window":cCoordModeTT))
+		, cMode:=(CoordMode=1?"Screen":(CoordMode=2?"Window":cCoordModeTT))
 	CoordMode % cMode
 	tooltip
 
 	ttip_text:=text
-	lUnevenTimers:=false
+		, lUnevenTimers:=false
 	MouseGetPos xp1,yp1
 	if (mode=4) ; set text offset from cursor
 	{
@@ -93,7 +93,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	{
 		; gosub,  A
 		global to_1:=to
-		global to2_1:=to2
+			, to2_1:=to2
 		global tTimes:=Times
 		Settimer lTTIP_SwitchOnOff,-100
 	}

@@ -22,16 +22,16 @@ Class dynamicGUI {
             , Lines:=strsplit(Lines,"`r`n")
         if !Lines.Count() {
             this.Result:=this.type:=Format "()"
-            ID:=+2
-            this.Error:=this.Errors[ID] ;.String
+                , ID:=+2
+                , this.Error:=this.Errors[ID] ;.String
             MsgBox 0x40031,% this.ClassName " > " A_ThisFunc "()" ,% (this.Errors.HasKey(ID)?this.Errors[ID].String:"Fatal: Undefined Error with ID '" ID "'")
             return this
         }
         for _, Line in Lines {
             Count:=1
-            p := 1
-            regex:="(?<Key>\w+\:)(?<Val>[^|]+)" ;; does not support keys a la 'toc-depth' (as required by quarto)
-            regex:="(?<Key>(\-|\w)+\:)(?<Val>[^|]+)"
+                , p := 1
+                , regex:="(?<Key>\w+\:)(?<Val>[^|]+)" ;; does not support keys a la 'toc-depth' (as required by quarto)
+                , regex:="(?<Key>(\-|\w)+\:)(?<Val>[^|]+)"
             if (SubStr(Trim(Line),1,1)=";") {
                 continue
             }
@@ -45,20 +45,20 @@ Class dynamicGUI {
                         if (Count<2) { ;; initiate Parameter-Object
                             if (InStr(Line,"renderingpackage")) {
                                 This[matchKey]:=StrSplit(Line,"Value:").2
-                                p+=StrLen(Match)
-                                Count++
+                                    , p+=StrLen(Match)
+                                    , Count++
                                 continue
                             } else {
                                 CurrentParam:=matchKey
-                                ObjRawSet(This.Arguments,matchKey,{})
-                                ObjRawSet(This.Arguments[CurrentParam],"Control",matchVal)
+                                    , ObjRawSet(This.Arguments,matchKey,{})
+                                    , ObjRawSet(This.Arguments[CurrentParam],"Control",matchVal)
                             }
                         }
                         if !(InStr(Line,"renderingpackage")) {
                             ObjRawSet(This.Arguments[CurrentParam],matchKey,matchVal) ;; there ought to be a simpler method than ObjRawSet that I am utterly missing, or tested with bad data and assumed faulty...
                         }
                         p+=StrLen(Match)
-                        Count++
+                            , Count++
                     }
                 }
             } else { ;; we reached the first line of the next output format, indicated by its `package::format`-line
@@ -66,23 +66,22 @@ Class dynamicGUI {
             }
         }
         this.AssumeDefaults()
-        this._Adjust()
-        this.ArgumentsBackup:=this.Arguments.Clone()
+            , this._Adjust()
+            , this.ArgumentsBackup:=this.Arguments.Clone()
     }
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
-
                 -1:{String:"Provided Configfile does not exist:`n`n",EndString:"`n`n---`nExiting Script",Criticality:-100,ID:-1}
                 ,0:{String:"Gui got cancelled",EndString:"`n`n---`nReturning to General Selection",Criticality:0,ID:0}
                 ,+2:{String:"Format not defined.`nCheck your configfile.`n`nReturning default 'outputformat()'",Criticality:20,ID:+2}}
-        this.ClassName:="ot ("
-        this.GUITitle:="Define output format - "
-        this.Version:="0.1.a"
-        this.type:=""
-        this.ConfigFile:=""
-        this.bClosedNoSubmit:=false
-        ObjRawSet(this,"type","")
-        ObjRawSet(this,"Arguments",{})
+            , this.ClassName:="ot ("
+            , this.GUITitle:="Define output format - "
+            , this.Version:="0.1.a"
+            , this.type:=""
+            , this.ConfigFile:=""
+            , this.bClosedNoSubmit:=false
+            , ObjRawSet(this,"type","")
+            , ObjRawSet(this,"Arguments",{})
     }
     __Get(Param*) {
         ret:={}
@@ -94,10 +93,10 @@ Class dynamicGUI {
 
     _Adjust() {
         This.AdjustMinMax()
-        This.AdjustDDLs()
-        This.AdjustBools()
-        This.AdjustIntegers()
-        This.AdjustNulls()
+            , This.AdjustDDLs()
+            , This.AdjustBools()
+            , This.AdjustIntegers()
+            , This.AdjustNulls()
         return This
     }
     AssembleFormatString() {
@@ -142,14 +141,14 @@ Class dynamicGUI {
                 }
                 if Instr(ParamString,"(") {
                     ParamString:=strsplit(ParamString,"(").2
-                    ParamString:=Trim(ParamString,"""")
+                        , ParamString:=Trim(ParamString,"""")
                     if SubStr(ParamString,0)=")" {
                         tpl_Len:=StrLen(ParamString)-1
-                        ParamString:=SubStr(ParamString, 1, tpl_Len)
+                            , ParamString:=SubStr(ParamString, 1, tpl_Len)
                     }
                 }
                 ParamString:=StrReplace(ParamString, "\", "/")
-                Value.Value:=DA_Quote(ParamString)
+                    , Value.Value:=DA_Quote(ParamString)
                 if (ParamString="") {
                     Value.Value:=DA_Quote(strreplace(Trim(ParamBackup,""""),"\","/"))
                 }
@@ -264,7 +263,7 @@ Class dynamicGUI {
         VarName:=strreplace(VarName,"___","-")
         FileSelectFile Chosen, 3,% this.Arguments[VarName].SearchPath,% this.Arguments[VarName].String
         this.Arguments[VarName].Value:=Chosen
-        GUI_ID:=this.GUI_ID
+            , GUI_ID:=this.GUI_ID
         gui %GUI_ID% default
         SplitPath % Chosen,,,,ChosenName
         if (Chosen!="") {
@@ -306,15 +305,15 @@ Class dynamicGUI {
             }
         }
         Tab3String:=""
-        ind:=0
-        HiddenHeaders:={}
+            , ind:=0
+            , HiddenHeaders:={}
         for Header,_  in TabHeaders {
             HeaderFound:=false
             for Parameter, Value in this.Arguments {
                 if (Value.Tab3Parent=Header) {
                     if Value.Control!="meta" {
                         HeaderFound:=true
-                        HiddenHeaders[Header]:=false
+                            , HiddenHeaders[Header]:=false
                         break
                     } else {
                         HiddenHeaders[Header]:=true
@@ -324,7 +323,7 @@ Class dynamicGUI {
             if (HeaderFound) {
 
                 Tab3String.=Header
-                ind++
+                    , ind++
                 if (ind<TabHeaders.Count()) || (ind=1) {
                     Tab3String.="|"
                 }
@@ -419,7 +418,7 @@ Class dynamicGUI {
                         ;GuiControl Move, vTab3, % "h" TabHeight + ControlHeight
                         gui %GUI_ID% add, button, yp xp+77 hwndOpenFileSelectionFolder, % "Open File Selection Folder"
                         onOpenFileSelectionFolder:=ObjBindMethod(this, "OpenFileSelectionFolder", Value.SearchPath)
-                        onSelectFile := ObjBindMethod(this, "ChooseFile",Parameter)
+                            , onSelectFile := ObjBindMethod(this, "ChooseFile",Parameter)
                         GuiControl %GUI_ID% +g, %SelectFile%, % onSelectFile
                         GuiControl %GUI_ID% +g, %OpenFileSelectionFolder%, % onOpenFileSelectionFolder
                         gui %GUI_ID% add,text, w0 h0 yp+20 xp-77
@@ -450,10 +449,10 @@ Class dynamicGUI {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.ctrlOptions "|")
                         }
                         Threshold:=5
-                        tmpctrlOptions:=LTrim(RTrim(strreplace(Value.ctrlOptions,"||","|"),"|"),"|")
-                        tmpctrlOptions_arr:=strsplit(tmpctrlOptions,"|")
-                        Count:=tmpctrlOptions_arr.Count()
-                        shown_rows:=(Count<=1?1:(Count>Threshold?Threshold:Count))
+                            , tmpctrlOptions:=LTrim(RTrim(strreplace(Value.ctrlOptions,"||","|"),"|"),"|")
+                            , tmpctrlOptions_arr:=strsplit(tmpctrlOptions,"|")
+                            , Count:=tmpctrlOptions_arr.Count()
+                            , shown_rows:=(Count<=1?1:(Count>Threshold?Threshold:Count))
                         gui %GUI_ID% add, % Value.Control, % "  vv" Parameter " r" shown_rows , % Value.ctrlOptions
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -525,10 +524,7 @@ Class dynamicGUI {
             }
         }
         GuiControl Move, vTab3, % "h" maxTabHeight
-        ;guicontrol hide,vTab3
-        ttip(maxTabHeight)
         maxTabHeight+=25
-        ;gui show,
         GuiControl Choose, vTab3, 1
         gui %GUI_ID% Tab
         if (AttachBottom) {
@@ -542,10 +538,10 @@ Class dynamicGUI {
             Hotkey IfWinActive, % "ahk_id " otGUI_
             Hotkey Escape,% onEscape
             guiWidth:=692
-            guiHeight:=maxTabHeight+40
+                , guiHeight:=maxTabHeight+40
         } else {
             guiWidth:=692
-            guiHeight:=maxTabHeight
+                , guiHeight:=maxTabHeight
 
         }
         ;if (!x || (x="")) {
@@ -559,7 +555,7 @@ Class dynamicGUI {
             SysGet MonW,MonitorWorkArea, 1
         }
         MonWidth:=(MonLeft?MonLeft:MonRight)
-        MonWidth:=MonRight-MonLeft
+            , MonWidth:=MonRight-MonLeft
         if SubStr(MonWidth, 1,1)="-" {
             MonWidth:=SubStr(MonWidth,2)
         }
