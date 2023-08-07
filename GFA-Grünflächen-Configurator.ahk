@@ -115,39 +115,34 @@ main() {
     template=
         (LTRIM
             get_os <- function(){
-            sysinf <- Sys.info()
-            if (!is.null(sysinf)){
-            os <- sysinf['sysname']
-            if (os == 'Darwin')
-            os <- "osx"
-            } else { ## mystery machine
-            os <- .Platform$OS.type
-            if (grepl("^darwin", R.version$os))
-            os <- "osx"
-            if (grepl("linux-gnu", R.version$os))
-            os <- "linux"
-            }
-            tolower(os)
+            `tsysinf <- Sys.info()
+            `tif (!is.null(sysinf)){
+            `t`tos <- sysinf['sysname']
+            `t`tif (os == 'Darwin')
+            `t`t`tos <- "osx"
+            `t} else { ## mystery machine
+            `t`tos <- .Platform$OS.type
+            `t`tif (grepl("^darwin", R.version$os))
+            `t`t`tos <- "osx"
+            `t`tif (grepl("linux-gnu", R.version$os))
+            `t`t`tos <- "linux"
+            `t}
+            `ttolower(os)
             }
             if (get_os()) {
-            # MAC:
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            source("`%GFA_EVALUATIONUTILITY`%")
+            `t# MAC:
+            `tsource("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+            `tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tplot_3 <- GFA_main(r"(/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = F,saveFigures = F,saveExcel = F,saveRDATA = F)
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {
-            # WINDOWS: 
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            source("`%GFA_EVALUATIONUTILITY`%")
-
-
-
-
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            plot_3 <- GFA_main(r"(/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = F,saveFigures = F,saveExcel = F,saveRDATA = F)
-            plot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
-
-
+            `t# WINDOWS: 
+            `tsource("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+            `tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tsource("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+            `tplot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
-            plot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
         )
     gw.RCodeTemplate:=template
         , handleCheckboxes()
