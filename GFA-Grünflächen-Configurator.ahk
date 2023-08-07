@@ -1,4 +1,4 @@
-#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
 #Requires AutoHotkey v1.1.35+ ;; version at which script was written.
 #SingleInstance Force
 #MaxHotkeysPerInterval 99999999
@@ -778,11 +778,12 @@ createConfiguration(Path,AA) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         } else {
             dynGUI.loadConfigFromFile(Chosen)
-            dynGUI.validateLoadedConfig()
-            dynGUI.populateLoadedConfig()
+                , dynGUI.validateLoadedConfig()
+                , dynGUI.populateLoadedConfig()
         }
     }
     GFA_configurationFile:=Chosen
+        , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
     if (Chosen!="") {
         ;OutputDebug % gw.RCodeTemplate
         ;m(gw)
