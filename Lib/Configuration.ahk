@@ -121,7 +121,7 @@ setupdefaultconfig(Switch) {
                 FileCreateDir % configDirectory
             }
             DefaultConfig:=DerefAHKVariables(DefaultConfig)
-            writeFile(script.scriptconfigfile,DefaultConfig,"UTF-8",,true)
+            writeFile(script.scriptconfigfile,DefaultConfig,"UTF-16",,true)
             return
         }
     } else if (Switch=2) {
@@ -132,7 +132,7 @@ setupdefaultconfig(Switch) {
             }
             gfcGUIconfig:=LTrim(gfcGUIconfig)
                 , gfcGUIconfig:=DerefAHKVariables(gfcGUIconfig)
-            writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-8",,true)
+            writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-16",,true)
             return
         }
     }
