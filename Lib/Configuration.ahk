@@ -71,11 +71,11 @@ setupdefaultconfig(Switch) {
         (LTRIM
             Experiment::blank
             %A_Tab%;; 1. General configuration
-            %A_Tab%TO:DateTime|Type:String|Default:A_Now|String:"Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%T0:DateTime|Type:String|Default:{A_Now}|String:"Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%UniqueGroups:Edit|Type:String|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%GroupsOrder:Edit|Type:String|String:"Set the comma-separated order of groups in the plots"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%RefGroup:Edit|Type:String|String:"Set the reference group for all statistical tests"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%GroupsOrder:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%RefGroup:Edit|Type:String|Default:UU|String:"Set the reference group for all statistical tests"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Normalise:Checkbox|Type:boolean|Default:1|String:"Do you want to normalise your leaf area?"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Normalise_text:text|Type:String|Default:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|String:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
