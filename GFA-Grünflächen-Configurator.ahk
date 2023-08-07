@@ -329,7 +329,7 @@ guiCreate() {
     buttonHeight:=40
     global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, HighlightBound=Func("HighlightR"))
     ;gui add, edit,% "y" ((45+(Sections[4].Height*2.2-45-3*5)/4 + 15)+15) " x" Sections[4].XAnchor+5 " h" (Sections[4].Height-45-3*5)/4 " disabled vvRCConfiguration w" Sections[4].Width - 3*5,   % "<Configuration-preview -'.ini'-File>"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwnd x" Sections[4].XAnchor+5 " ggenerateRScript", % "Generate R-Script"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateRScript x" Sections[4].XAnchor+5, % "Generate R-Script"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfiguration x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[4].XAnchor+185, % "Generate Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gfEditSettings hwndEditSettings x" Sections[4].XAnchor+275, % "Open &program settings"
@@ -358,21 +358,23 @@ guiCreate() {
         , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
         , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
+        , onGenerateRScript:=Func("generateRScript").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
-        onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir)
-        oncreateNewStarterScript := Func("createNewStarterScript").Bind(A_ScriptDir)
+        onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,gw)
+        oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
     } else {
-        onNewConfiguration := Func("createConfiguration").Bind("D:/")
-        oncreateNewStarterScript := Func("createNewStarterScript").Bind("D:/")
+        onNewConfiguration := Func("createConfiguration").Bind("D:/",gw)
+        oncreateRScript := Func("createRScript").Bind("D:/")
     }
     if (globalLogicSwitches.bIsAuthor) {
         onRecompile := Func("prepare_release")
     }
+    guiControl GC:+g, %generateRScript%, % onGenerateRScript
     guiControl GC:+g, %PreviewConfiguration%, % onPreviewConfiguration
     guiControl GC:+g, %generateConfiguration%, % onGenerateConfiguration
     guiControl GC:+g, %EditConfiguration%, % onEditConfiguration
     guiControl GC:+g, %NewConfiguration%, % onNewConfiguration
-    guiControl GC:+g, %newStarterScript%, % oncreateNewStarterScript
+    guiControl GC:+g, %newStarterScript%, % oncreateRScript
     guiControl GC:+g, %editStarterScript%, % onEditStarterScript
 
 
@@ -389,7 +391,7 @@ guiCreate() {
             ,dynGUI:dynGUI
             ,Sections:Sections}
 }
-generateRScript() {
+generateRScript(Arg:="") {
     return
 }
 guiShow2(gw) {
@@ -614,6 +616,10 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
                 rPath:=R_Path
             } else if (rCount=0) {                ;; create a new one
                 FileSelectFile rPath, S8, % File[1], % "Please create the Rscript-file you want to use.", *.R
+                if !RegexMatch(rPath,"\.R$")  {
+                    rPath.= ".R"
+                }
+                writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
             }
         } else { ; file
             rPath:=File[1]
@@ -636,6 +642,8 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
 
     }
+    dynGUI.GFA_Evaluation_RScript_Location:=rPath
+    dynGUI.GFA_Evaluation_Configfile_Location:=configPath
     return  
 }
 fillRC1(Code) {
@@ -669,7 +677,7 @@ handleConfig(dynGUI,writetoFile:=false) {
         fillRC2(dynGUI.ConfigString)
     }
     if (writetoFile) {
-
+        writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
     }
     return
 }
@@ -744,7 +752,9 @@ generateConfigFile(Folder) {
     }
 
 }
-createConfiguration(Path) {
+*/
+createConfiguration(Path,AA) {
+    global
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
@@ -754,13 +764,15 @@ createConfiguration(Path) {
         SearchPath:=Path
     }
     gui -AlwaysOnTop
-    FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
+    FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
     if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
-        Chosen:=Chosen "\GFA_conf_AG.ini"
+        if !RegexMatch(Chosen,"\.ini$") {
+            Chosen.=".ini" 
+        }
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
@@ -770,10 +782,16 @@ createConfiguration(Path) {
             dynGUI.populateLoadedConfig()
         }
     }
-    global GFA_configurationFile:=Chosen
+    GFA_configurationFile:=Chosen
     if (Chosen!="") {
-        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
-        fillRC1(Code)
+        ;OutputDebug % gw.RCodeTemplate
+        ;m(gw)
+        WINDOWS:=Chosen
+        MAC:=strreplace(Chosen,"\","/")
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+        ;OutputDebug % gw.RCodeTemplate
+        fillRC1(gw.RCodeTemplate)
     }
     return Chosen
 }
@@ -787,11 +805,11 @@ editConfiguration(configurationFile) {
         run % configurationFile
     } else {
         if (globalLogicSwitches.DEBUG) {
-            GFA_configurationFile:=createConfiguration(A_ScriptDir)
+            GFA_configurationFile:=createConfiguration(A_ScriptDir,gw)
 
         } else {
 
-            GFA_configurationFile:=createConfiguration("D:/")
+            GFA_configurationFile:=createConfiguration("D:/",gw)
         }
     }
     gui GC: default
@@ -807,25 +825,56 @@ editRScript(rScriptFile) {
         run % rScriptFile
     } else {
         if (globalLogicSwitches.DEBUG) {
-            GFA_rScriptFile:=createRScriptFile(A_ScriptDir)
+            GFA_rScriptFile:=createRScript(A_ScriptDir)
 
         } else {
 
-            GFA_rScriptFile:=createRScriptFile("D:/")
+            GFA_rScriptFile:=createRScript("D:/")
         }
     }
     gui GC: default
     return
 }
-createRScriptFile(Path) {
-
+createRScript(Path) {
+    gui Submit, NoHide
+    if (gw.dynGUI.GFA_Evaluation_RScript_Location!="") {
+        writeFile(gw.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+    } 
+    if (!globalLogicSwitches.DEBUG) {
+        SearchPath:="C://"
+    }
+    if (!FileExist(Path)) {
+        SearchPath:="C://"
+    } else {
+        SearchPath:=Path
+    }
+    gui -AlwaysOnTop
+    ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
+    FileSelectFile Chosen, S8, % SearchPath, % "Please create the .R-file you want to use.", *.R
+    if (!globalLogicSwitches.DEBUG || script.config.settings.AlwaysOnTop) {
+        gui +AlwaysOnTop
+    }
+    if (Chosen!="") {
+        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+        Chosen:=Chosen "\GFA_conf_AG.ini"
+        guicontrol % "GC:",vUsedConfigLocation, % Chosen
+        if (!FileExist(Chosen)) {
+            writeFile(Chosen,"","UTF-8-RAW",,true)
+        }
+    }
+    global GFA_configurationFile:=Chosen
+    if (Chosen!="") {
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
+        fillRC1(Code)
+    }
+    return Chosen
 }
 selectConfigLocation(SearchPath) {
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
     gui -AlwaysOnTop
-    FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
+    FileSelectFile Chosen, 3, % SearchPath, % "Please select the ini-file you want to use.", *.R
     if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }
