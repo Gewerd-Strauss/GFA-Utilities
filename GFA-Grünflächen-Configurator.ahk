@@ -764,6 +764,10 @@ createConfiguration(Path) {
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+            dynGUI.loadConfigFromFile(Chosen)
+            dynGUI.validateLoadedConfig()
+            dynGUI.populateLoadedConfig()
         }
     }
     global GFA_configurationFile:=Chosen
