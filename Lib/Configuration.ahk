@@ -345,7 +345,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
         Gui Add, Text, x215 y154, Description                        ;ahk_class Static2
         Gui Add, Text, x45 y48 w480 h20 +Center, ( All changes are Auto-Saved )
         Gui Font, S16 CDefault Bold, Verdana
-        Gui Add, Text, x45 y13 w480 h35 +Center, Settings for %ProgName%
+        Gui Add, Text, x45 y13 w600 h25 +Center, Settings for %ProgName%
 
     }
     Else
@@ -368,7 +368,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
         Gui Add, Text, x360 y154, Description                        ;ahk_class Static2
         Gui Add, Text, x45 y48 w480 h20 +Center, ( All changes are Auto-Saved )
         Gui Font, S16 CDefault Bold, Verdana
-        Gui Add, Text, x45 y13 w480 h35 +Center, Settings for %ProgName%
+        Gui Add, Text, x45 y13 w600 h25 +Center, Settings for %ProgName%
 
     }
 
