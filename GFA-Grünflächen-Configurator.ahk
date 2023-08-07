@@ -860,7 +860,7 @@ createRScript(Path) {
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+            writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
     }
     global GFA_configurationFile:=Chosen
