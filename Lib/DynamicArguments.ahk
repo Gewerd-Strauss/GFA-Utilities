@@ -90,7 +90,6 @@ Class dynamicGUI {
         }
         return ret
     }
-
     _Adjust() {
         This.AdjustMinMax()
             , This.AdjustDDLs()

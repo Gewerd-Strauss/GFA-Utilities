@@ -151,7 +151,7 @@ main() {
         )
     gw.RCodeTemplate:=template
         , handleCheckboxes()
-        , handleConfig(gw.dynGUI)
+        , handleConfig(gw.dynGUI,false)
         , fillRC1(template)
         , fillRC2(gw.dynGUI.ConfigString)
     return
@@ -327,11 +327,12 @@ guiCreate() {
     global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[3].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[3].Width - 3*5, HighlightBound=Func("HighlightR"))
     ;gui add, edit,% "y" ((45+(Sections[3].Height*2.2-45-3*5)/4 + 15)+15) " x" Sections[3].XAnchor+5 " h" (Sections[3].Height-45-3*5)/4 " disabled vvRCConfiguration w" Sections[3].Width - 3*5,   % "<Configuration-preview -'.ini'-File>"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwnd x" Sections[3].XAnchor+5 " ggenerateRScript", % "Generate R-Script"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[3].XAnchor+95, % "Generate Configuration"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gfEditSettings hwndEditSettings x" Sections[3].XAnchor+185, % "Open &program settings"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndExitProgram x" Sections[3].XAnchor+275, % "Exit Program"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfiguration x" Sections[3].XAnchor+95, % "Preview Configuration"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[3].XAnchor+185, % "Generate Configuration"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gfEditSettings hwndEditSettings x" Sections[3].XAnchor+275, % "Open &program settings"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndExitProgram x" Sections[3].XAnchor+365, % "Exit Program"
     if (globalLogicSwitches.bIsAuthor) {
-        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndrecompile x" Sections[3].XAnchor+365, % "Recompile"
+        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndrecompile x" Sections[3].XAnchor+455, % "Recompile"
     }
 
     gui add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow
@@ -348,7 +349,8 @@ guiCreate() {
 
     onEditConfiguration := Func("editConfiguration").Bind("")
         , onEditStarterScript := Func("editRScript").Bind("")
-        , onGenerateConfiguration := Func("handleConfig").Bind(dynGUI)
+        , onPreviewConfiguration := Func("handleConfig").Bind(dynGUI,false)
+        , onGenerateConfiguration := Func("handleConfig").Bind(dynGUI,true)
         , onCheckreturnDays:=Func("handleCheckboxes").Bind("")
         , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
@@ -363,6 +365,7 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         onRecompile := Func("prepare_release")
     }
+    guiControl GC:+g, %PreviewConfiguration%, % onPreviewConfiguration
     guiControl GC:+g, %generateConfiguration%, % onGenerateConfiguration
     guiControl GC:+g, %EditConfiguration%, % onEditConfiguration
     guiControl GC:+g, %NewConfiguration%, % onNewConfiguration
@@ -376,7 +379,6 @@ guiCreate() {
     guiControl GC:+g, %CheckSaveExcel%, % onCheckSaveExcel
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
-        gui add, button,% "yp w80  gexitApp hwndRecompile x" Sections[3].XAnchor+365, % "Recompile"
     }
     GuiControl Show, vTab3
     return {guiWidth:guiWidth
@@ -425,7 +427,7 @@ guiShow(gw) {
     gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
     dynGUI.guiVisible:=true
     handleCheckboxes(Param)
-    handleConfig(dynGUI)
+    handleConfig(dynGUI,false)
     return
 }
 guiHide() {
@@ -565,15 +567,18 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
             Gui -OwnDialogs
             return
-        }
-        if !RegexMatch(configPath,"\.ini$") {
+        } else if !RegexMatch(configPath,"\.ini$") {
             configPath.= ".ini"
         }
-        if !FileExist(configPath) {
+        if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
             dynGUI.generateConfig(0)
             written_config:=dynGUI.ConfigObject
             t_script:=new script()
             t_script.Save(configPath,written_config)
+        } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
+            dynGUI.loadConfigFromFile(configPath)
+            dynGUI.validateLoadedConfig()
+            dynGUI.populateLoadedConfig()
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
 
@@ -614,8 +619,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             MsgBox 0x40010, % script.name " - Error occured: Dropped config-file on rscript-dropper", % "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead."
             Gui -OwnDialogs
             return
-        }
-        if !RegexMatch(rPath,"\.R$")  {
+        } else if !RegexMatch(rPath,"\.R$")  {
             rPath.= ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
@@ -648,9 +652,14 @@ handleCheckboxes(Param:="") {
         , fillRC1(template)
     return
 }
-handleConfig(dynGUI) {
+handleConfig(dynGUI,writetoFile:=false) {
     dynGUI.generateConfig(0)
-    fillRC2(dynGUI.ConfigString)
+    if (dynGUI.ConfigString!="") {
+        fillRC2(dynGUI.ConfigString)
+    }
+    if (writetoFile) {
+
+    }
     return
 }
 GCSubmit() {
@@ -770,6 +779,9 @@ editConfiguration(configurationFile) {
             GFA_configurationFile:=createConfiguration("D:/")
         }
     }
+    gui GC: default
+    return
+}
 editRScript(rScriptFile) {
     global
     gui Submit,NoHide
@@ -837,7 +849,7 @@ prepare_release() {
 #Include <OnError>
 #Include <OnExit>
 #Include <Quote>
-#Include <st_count>
+#Include <st_stringthings_functions>
 #Include <ttip>
 #Include <writeFile>
 #Include <GFC_GUI>
@@ -845,3 +857,5 @@ prepare_release() {
 #Include <RunAsAdmin>
 #Include <AddToolTip>
 #Include <RichCode>
+#Include <HasVal>
+#Include <Obj2Str>

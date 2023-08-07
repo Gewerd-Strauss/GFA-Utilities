@@ -52,3 +52,25 @@ st_count(string, searchFor="`n") {
 }
 
 ; --uID:2849897047
+
+st_concat(delim,final_delim, as*)
+{
+   if (as.Length()=1) {
+      as:=as[1]
+   }
+   for k, v in as {
+      if (k<(as.Count()-1)) {
+         s .= v . delim
+      } else {
+         s .= v . final_delim
+      }
+   }
+   return subStr(s,1,-strLen(delim))
+}
+st_removeDuplicates(string, delim="`n")
+{
+   delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
+   Return RegExReplace(string, "(" delim ")+", "$1")
+}
+
+
