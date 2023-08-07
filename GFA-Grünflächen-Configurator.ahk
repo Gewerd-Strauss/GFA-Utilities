@@ -786,7 +786,8 @@ createConfiguration(Path,AA) {
     if (Chosen!="") {
         ;OutputDebug % gw.RCodeTemplate
         ;m(gw)
-        WINDOWS:=Chosen
+        SplitPath % Chosen,, Chosen
+        WINDOWS:=strreplace(Chosen,"\","/")
         MAC:=strreplace(Chosen,"\","/")
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
