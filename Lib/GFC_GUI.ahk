@@ -1,6 +1,7 @@
 ﻿class gfcGUI extends dynamicGUI {
     generateConfig(destroyGUI:=false) {
         this.SubmitDynamicArguments(destroyGUI)
+        this._Adjust()
         Object:={}
         bValidateGroups:=bValidateFacetting:=false
         for key, Argument in this.Arguments {
