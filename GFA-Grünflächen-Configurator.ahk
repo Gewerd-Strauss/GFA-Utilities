@@ -388,14 +388,10 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
-    GuiControl Show, vTab3
     return {guiWidth:guiWidth
             ,guiHeight:guiHeight
             ,dynGUI:dynGUI
             ,Sections:Sections}
-}
-generateRScript(Arg:="") {
-    return
 }
 guiShow2(gw) {
     global
@@ -512,15 +508,21 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         if !RegexMatch(configPath,"\.ini$") {
             configPath.= ".ini"
         }
-        if !FileExist(configPath) {
+        if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
             dynGUI.generateConfig(0)
             written_config:=dynGUI.ConfigObject
             t_script:=new script()
             t_script.Save(configPath,written_config)
-
-            ;;writeFile(configPath,"","UTF-8",0x2,1)
+        } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
+            dynGUI.loadConfigFromFile(configPath)
+            dynGUI.validateLoadedConfig()
+            dynGUI.populateLoadedConfig()
+            handleConfig(dynGUI,false)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
+        if (configPath!="") {
+            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        }
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -563,6 +565,9 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath.= ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
+        if (rPath!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        }
     } else { ;; anywhere else
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -611,8 +616,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             dynGUI.loadConfigFromFile(configPath)
             dynGUI.validateLoadedConfig()
             dynGUI.populateLoadedConfig()
+            handleConfig(dynGUI,false)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
+        if (configPath!="") {
+            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        }
 
 
         if (File.Count()>1) {
@@ -635,10 +644,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
                 rPath:=R_Path
             } else if (rCount=0) {                ;; create a new one
                 FileSelectFile rPath, S8, % File[1], % "Please create the Rscript-file you want to use.", *.R
-                if !RegexMatch(rPath,"\.R$")  {
-                    rPath.= ".R"
+                if (rPath!="") {
+                    if !RegexMatch(rPath,"\.R$")  {
+                        rPath.= ".R"
+                    }
+                    writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
                 }
-                writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
             }
         } else { ; file
             rPath:=File[1]
@@ -659,16 +670,23 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath.= ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
+        if (rPath!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        }
 
     }
-    dynGUI.GFA_Evaluation_RScript_Location:=rPath
-    dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+    if (rPath!="") {
+        dynGUI.GFA_Evaluation_RScript_Location:=rPath
+    }
+    if (configPath!="") {
+        dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+    }
     return  
 }
 fillRC1(Code) {
     global
     gui GC: default
-    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",script.config.Settings.GFA_Evaluation_InstallationPath)
+    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
     RC.Settings.Highlighter:= "HighlightR"
         , RC.Value:= Code
     return
@@ -696,7 +714,25 @@ handleConfig(dynGUI,writetoFile:=false) {
         fillRC2(dynGUI.ConfigString)
     }
     if (writetoFile) {
-        writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive
+        if FileExist(OutDrive) { ;; can't believe this is necessary...
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
+        } else {
+            if (globalLogicSwitches.bIsDebug || globalLogicSwitches.Debug) { 
+                Elaboration:="CallStack: " A_ThisFunc
+            } 
+            Gui +OwnDialogs
+            MsgBox 0x40010
+                ,% script.name " - Error occured: no config-file destination defined"
+                ,% "You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration."
+                . Elaboration
+            Gui -OwnDialogs
+        }
+        try {
+            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+        } catch e {
+            throw Exception( "`n" CallStack() )
+        }
     }
     return
 }
@@ -763,15 +799,7 @@ fCallBack_StatusBarMainWindow() {
     return
 }
 ~!Esc::Reload
-generateConfigFile(Folder) {
-    InputBox configName, % "Choose name", % "Set the name of the config file", ,,,,,,5000, % "GFA_conf"
-    if InStr(configName, ".ini") {
-        SplitPath % configName,,,, OutNameNoExt
-        configName:=OutNameNoExt
-    }
 
-}
-*/
 createConfiguration(Path,AA) {
     global
     if (!globalLogicSwitches.DEBUG) {
@@ -799,6 +827,7 @@ createConfiguration(Path,AA) {
             dynGUI.loadConfigFromFile(Chosen)
                 , dynGUI.validateLoadedConfig()
                 , dynGUI.populateLoadedConfig()
+                , handleConfig(dynGUI,false)
         }
     }
     GFA_configurationFile:=Chosen
@@ -842,7 +871,7 @@ editRScript(rScriptFile) {
 
     if (FileExist(GFA_rScriptFile)) {
         run % GFA_rScriptFile
-    } else if (FileExist(configurationFile)) {
+    } else if (FileExist(rScriptFile)) {
         run % rScriptFile
     } else {
         if (globalLogicSwitches.DEBUG) {
@@ -908,9 +937,7 @@ createRScript(Path) {
             writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
     }
-    ;global GFA_configurationFile:=Chosen
     if (Chosen!="") {
-        ;m(dynGUI.GFA_Evaluation_Configfile_Location)
         gw.RCodeTemplate:=handleCheckboxes()
         if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
             SplitPath % gw.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
