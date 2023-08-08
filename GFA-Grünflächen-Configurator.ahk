@@ -83,7 +83,8 @@ main() {
     script.version:=script.config.version.GFC_version
         , script.loadCredits(script.resfolder "\credits.txt")
         , script.loadMetadata(script.resfolder "\meta.txt")
-        , IconString:="iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARISURBVGhD7dtLbxNXGMbxbFh2yRIpzkWQgpIUKFAVibCBknIJqCFOZNIbJg0Xp7ikkAAh4SJoCxUENiBgW6ktUldIKQURbmpAIkSiqlqg6gcAvsLLPPPKVjp5bM/xnAllMpb+K4/PeX9yjj1epGKmPpqcBmdAcLqPwcrKSol6cCo3BkczOJUbg6MZnMqNwdEMTuXG4GgGp3JjcDSDU7kG4OzvJ+TAs3NT6p04Kd1XB6TtbJc0fbZGaupq6etNqplX666VPNflrH1QesdP0b2/evAtfb03OJVrAext7x/fS9vwNlnwXiNdp1gLljXI5jNpdw22trdQwZnRI3TTQvX/NSwth1NSVVNF15tcorpKNgylZN+fp+lahfry7jG6njc4lWsAxp8W27RU237pk7kNdXRNNLe+TtJX9tHXlmr7yEG6pjc4lWsATl3aRTf1E96JhhWLp6xZv3yh9Nw+Sl/jp87LPVPWZMGpXANw89etdFO/ZcdOyPwl9fn18M6aHhNvH/a1/WfGQsGpXAPwwlVL6aYmdV89INW11e6ZTV/ZS68xadHqZXRWb3Aq1wCMMjcP041NWru/XdYPdNDnTMqMHpVEIkHn9Aancg3BH2Q30c1Nyj46Lnsef0OfM2lVz0Y6IwtO5RqCcUOQfXCcDuC39P1dkh4r/wMQZW4e8/V1lwtO5RqC0crPm+kQfup/Oizt1zZJ8teN0v/kLL3GTys+WU1nKxScyi0DjFIXd9JBSpWZOCRtI+vdMhMD9JpS4euRzVQsOJVbJhh/2uXciKTHdubBW8d20GuKhT3LuVeHU7llghG+R/E1wwYrVOetzjy4c/Rjek2h8ANlXuPbdJZSwancAGCEd3rL5QwdkNVxvTUP7vjN/41MytkjyK8wOJUbEJwLH2S4fWTDTi55rSUPTo600GsmhzVXbm2me5oEp3ItgRHuoNbs+Uh23yv8MzKHzbX/2TC9Dms097a6a7K9TINTuRbBuRJVCVmy7n3ZMJiST3/IundEvY9OSt/fZ6aA+5yfkHgO1+BavAavxRps7XKDU7khgIvlfSfZNWEEp3JjcLi9seCXdypea2ymYsGp3BjsLzbEdMZmKhacyg0AfnGjQv4Zchqcppy9nl9/jWD073dksJDCXrl92UzFglO5ZYJznR96Kz9E2GEvNoOf4FRuQPAX7bPpcGHUlZxNZ/ATnMoNCF7UOEee3+ID2u7dd+bQGfwEp3IDgtH4j7PogDZ7+NMsurff4HS1ziMw+MI0nOMg5xfBqVwL4O6O8M8xPivY3n6DU7kWwIudc8yGtFmQ84vgVK4FMArzHGNttqdJcLpa52EFfPFIeOcYnxFsT5PgVK4lcJjnGGuzPU2CU7mWwGGe46DnF8GpXEtgNP6z/XNs4/wiOF2t87AGDuMcY022l2lwKtci+P8cnMqNwdEMTuXG4GgGp3JjcDSDU7kz5j/TKppeAamEQurI/tgFAAAAAElFTkSuQmCC"
+        , IconString:=A_ScriptDir "\res\icon.ico"
+    ;, IconString:="iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARISURBVGhD7dtLbxNXGMbxbFh2yRIpzkWQgpIUKFAVibCBknIJqCFOZNIbJg0Xp7ikkAAh4SJoCxUENiBgW6ktUldIKQURbmpAIkSiqlqg6gcAvsLLPPPKVjp5bM/xnAllMpb+K4/PeX9yjj1epGKmPpqcBmdAcLqPwcrKSol6cCo3BkczOJUbg6MZnMqNwdEMTuXG4GgGp3JjcDSDU7kG4OzvJ+TAs3NT6p04Kd1XB6TtbJc0fbZGaupq6etNqplX666VPNflrH1QesdP0b2/evAtfb03OJVrAext7x/fS9vwNlnwXiNdp1gLljXI5jNpdw22trdQwZnRI3TTQvX/NSwth1NSVVNF15tcorpKNgylZN+fp+lahfry7jG6njc4lWsAxp8W27RU237pk7kNdXRNNLe+TtJX9tHXlmr7yEG6pjc4lWsATl3aRTf1E96JhhWLp6xZv3yh9Nw+Sl/jp87LPVPWZMGpXANw89etdFO/ZcdOyPwl9fn18M6aHhNvH/a1/WfGQsGpXAPwwlVL6aYmdV89INW11e6ZTV/ZS68xadHqZXRWb3Aq1wCMMjcP041NWru/XdYPdNDnTMqMHpVEIkHn9Aancg3BH2Q30c1Nyj46Lnsef0OfM2lVz0Y6IwtO5RqCcUOQfXCcDuC39P1dkh4r/wMQZW4e8/V1lwtO5RqC0crPm+kQfup/Oizt1zZJ8teN0v/kLL3GTys+WU1nKxScyi0DjFIXd9JBSpWZOCRtI+vdMhMD9JpS4euRzVQsOJVbJhh/2uXciKTHdubBW8d20GuKhT3LuVeHU7llghG+R/E1wwYrVOetzjy4c/Rjek2h8ANlXuPbdJZSwancAGCEd3rL5QwdkNVxvTUP7vjN/41MytkjyK8wOJUbEJwLH2S4fWTDTi55rSUPTo600GsmhzVXbm2me5oEp3ItgRHuoNbs+Uh23yv8MzKHzbX/2TC9Dms097a6a7K9TINTuRbBuRJVCVmy7n3ZMJiST3/IundEvY9OSt/fZ6aA+5yfkHgO1+BavAavxRps7XKDU7khgIvlfSfZNWEEp3JjcLi9seCXdypea2ymYsGp3BjsLzbEdMZmKhacyg0AfnGjQv4Zchqcppy9nl9/jWD073dksJDCXrl92UzFglO5ZYJznR96Kz9E2GEvNoOf4FRuQPAX7bPpcGHUlZxNZ/ATnMoNCF7UOEee3+ID2u7dd+bQGfwEp3IDgtH4j7PogDZ7+NMsurff4HS1ziMw+MI0nOMg5xfBqVwL4O6O8M8xPivY3n6DU7kWwIudc8yGtFmQ84vgVK4FMArzHGNttqdJcLpa52EFfPFIeOcYnxFsT5PgVK4lcJjnGGuzPU2CU7mWwGGe46DnF8GpXEtgNP6z/XNs4/wiOF2t87AGDuMcY022l2lwKtci+P8cnMqNwdEMTuXG4GgGp3JjcDSDU7kz5j/TKppeAamEQurI/tgFAAAAAElFTkSuQmCC"
     if (script.requiresInternet(script.vfile,true) && script.config.Settings.CheckUpdatesOnScriptStart) {
         script.Update()
     }
@@ -361,7 +362,7 @@ guiCreate() {
         , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
         , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
-        , onGenerateRScript:=Func("generateRScript").Bind(dynGUI)
+        , onGenerateRScript:=Func("createRScript").Bind("D:/")
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,gw)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -388,14 +389,10 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
-    GuiControl Show, vTab3
     return {guiWidth:guiWidth
             ,guiHeight:guiHeight
             ,dynGUI:dynGUI
             ,Sections:Sections}
-}
-generateRScript(Arg:="") {
-    return
 }
 guiShow2(gw) {
     global
@@ -441,11 +438,27 @@ guiShow(gw) {
     }
     gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
+    guicontrol GC: hide, % "vExcelSheetPreview"
     dynGUI.guiVisible:=true
     handleCheckboxes(Param)
     handleConfig(dynGUI,false)
+    ;handleExcelSheets(dynGUI.Arguments)
+    Tabs:=[]
+    TabName:="Example-Excel-File No. "
+    loop, 12 {
+        Tabs[A_Index]:=TabName A_Index
+    }
+    loop, % Tabs.Count(){
+        TabNames.=Tabs[A_Index]
+        if (A_Index=1) {
+            TabNames.="||"
+        } else {
+            TabNames.="|"
+        }
+    }
     return
 }
+
 guiHide() {
     global
     dynGUI.guiVisible:=false
@@ -496,15 +509,21 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         if !RegexMatch(configPath,"\.ini$") {
             configPath.= ".ini"
         }
-        if !FileExist(configPath) {
+        if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
             dynGUI.generateConfig(0)
             written_config:=dynGUI.ConfigObject
             t_script:=new script()
             t_script.Save(configPath,written_config)
-
-            ;;writeFile(configPath,"","UTF-8",0x2,1)
+        } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
+            dynGUI.loadConfigFromFile(configPath)
+            dynGUI.validateLoadedConfig()
+            dynGUI.populateLoadedConfig()
+            handleConfig(dynGUI,false)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
+        if (configPath!="") {
+            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        }
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -547,6 +566,9 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath.= ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
+        if (rPath!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        }
     } else { ;; anywhere else
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -595,8 +617,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             dynGUI.loadConfigFromFile(configPath)
             dynGUI.validateLoadedConfig()
             dynGUI.populateLoadedConfig()
+            handleConfig(dynGUI,false)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
+        if (configPath!="") {
+            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        }
 
 
         if (File.Count()>1) {
@@ -619,10 +645,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
                 rPath:=R_Path
             } else if (rCount=0) {                ;; create a new one
                 FileSelectFile rPath, S8, % File[1], % "Please create the Rscript-file you want to use.", *.R
-                if !RegexMatch(rPath,"\.R$")  {
-                    rPath.= ".R"
+                if (rPath!="") {
+                    if !RegexMatch(rPath,"\.R$")  {
+                        rPath.= ".R"
+                    }
+                    writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
                 }
-                writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
             }
         } else { ; file
             rPath:=File[1]
@@ -643,16 +671,23 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath.= ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
+        if (rPath!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        }
 
     }
-    dynGUI.GFA_Evaluation_RScript_Location:=rPath
-    dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+    if (rPath!="") {
+        dynGUI.GFA_Evaluation_RScript_Location:=rPath
+    }
+    if (configPath!="") {
+        dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+    }
     return  
 }
 fillRC1(Code) {
     global
     gui GC: default
-    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",script.config.Settings.GFA_Evaluation_InstallationPath)
+    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
     RC.Settings.Highlighter:= "HighlightR"
         , RC.Value:= Code
     return
@@ -672,7 +707,7 @@ handleCheckboxes(Param:="") {
         , template:=strreplace(template,"%bSaveRData%",vSaveRData)
         , template:=strreplace(template,"%bSaveExcel%",vSaveExcel)
         , fillRC1(template)
-    return
+    return template
 }
 handleConfig(dynGUI,writetoFile:=false) {
     dynGUI.generateConfig(0)
@@ -680,7 +715,25 @@ handleConfig(dynGUI,writetoFile:=false) {
         fillRC2(dynGUI.ConfigString)
     }
     if (writetoFile) {
-        writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive
+        if FileExist(OutDrive) { ;; can't believe this is necessary...
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
+        } else {
+            if (globalLogicSwitches.bIsDebug || globalLogicSwitches.Debug) { 
+                Elaboration:="CallStack: " A_ThisFunc
+            } 
+            Gui +OwnDialogs
+            MsgBox 0x40010
+                ,% script.name " - Error occured: no config-file destination defined"
+                ,% "You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration."
+                . Elaboration
+            Gui -OwnDialogs
+        }
+        try {
+            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+        } catch e {
+            throw Exception( "`n" CallStack() )
+        }
     }
     return
 }
@@ -747,15 +800,7 @@ fCallBack_StatusBarMainWindow() {
     return
 }
 ~!Esc::Reload
-generateConfigFile(Folder) {
-    InputBox configName, % "Choose name", % "Set the name of the config file", ,,,,,,5000, % "GFA_conf"
-    if InStr(configName, ".ini") {
-        SplitPath % configName,,,, OutNameNoExt
-        configName:=OutNameNoExt
-    }
 
-}
-*/
 createConfiguration(Path,AA) {
     global
     if (!globalLogicSwitches.DEBUG) {
@@ -783,6 +828,7 @@ createConfiguration(Path,AA) {
             dynGUI.loadConfigFromFile(Chosen)
                 , dynGUI.validateLoadedConfig()
                 , dynGUI.populateLoadedConfig()
+                , handleConfig(dynGUI,false)
         }
     }
     GFA_configurationFile:=Chosen
@@ -826,7 +872,7 @@ editRScript(rScriptFile) {
 
     if (FileExist(GFA_rScriptFile)) {
         run % GFA_rScriptFile
-    } else if (FileExist(configurationFile)) {
+    } else if (FileExist(rScriptFile)) {
         run % rScriptFile
     } else {
         if (globalLogicSwitches.DEBUG) {
@@ -841,36 +887,73 @@ editRScript(rScriptFile) {
     return
 }
 createRScript(Path) {
+    global
+    static Chosen
     gui Submit, NoHide
-    if (gw.dynGUI.GFA_Evaluation_RScript_Location!="") {
-        writeFile(gw.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
-    } 
+
+
+    OutDrive:=0
+    SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,,,, OutDrive
+    if FileExist(OutDrive) { ;; can't believe this is necessary...
+        writeFile(dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+    } else {
+        if FileExist(dynGUI.GFA_Evaluation_Configfile_Location) {
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
+        }
+    }
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
-    if (!FileExist(Path)) {
-        SearchPath:="C://"
-    } else {
-        SearchPath:=Path
+    if (SearchPath="") {
+        if (!FileExist(Path)) {
+            if IsObject(Path) {
+                if (Path.HasKey("GFA_Evaluation_Configfile_Location")) {
+                    SplitPath % Path.GFA_Evaluation_Configfile_Location,, SearchPath
+                } else {
+                    SearchPath:="C://"
+                }
+            } else {
+                SearchPath:="C://"
+            }
+        } else {
+            SearchPath:=Path
+        }
     }
     gui -AlwaysOnTop
     ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
-    FileSelectFile Chosen, S8, % SearchPath, % "Please create the .R-file you want to use.", *.R
+    if (Chosen="") {
+
+        FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
+    }
     if (!globalLogicSwitches.DEBUG || script.config.settings.AlwaysOnTop) {
         gui +AlwaysOnTop
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
-        Chosen:=Chosen "\GFA_conf_AG.ini"
-        guicontrol % "GC:",vUsedConfigLocation, % Chosen
+        if (!InStr(Chosen,".R")) {
+            Chosen:=Chosen ".R"
+        }
+        guicontrol % "GC:",vStarterRScriptLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
     }
-    global GFA_configurationFile:=Chosen
     if (Chosen!="") {
-        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
+        gw.RCodeTemplate:=handleCheckboxes()
+        if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
+            SplitPath % gw.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
+        }
+        WINDOWS:=strreplace(configLocationFolder,"\","/")
+        MAC:=strreplace(configLocationFolder,"\","/")
+        Code:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+        Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
         fillRC1(Code)
+        try {
+            writeFile(Chosen,Code,"UTF-8-RAW",,true)
+        } catch e {
+            throw Exception( "`n" CallStack() )
+        }
     }
     return Chosen
 }
