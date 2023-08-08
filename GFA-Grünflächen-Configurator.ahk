@@ -361,7 +361,7 @@ guiCreate() {
         , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
         , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
-        , onGenerateRScript:=Func("generateRScript").Bind(dynGUI)
+        , onGenerateRScript:=Func("createRScript").Bind("D:/")
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,gw)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -857,36 +857,75 @@ editRScript(rScriptFile) {
     return
 }
 createRScript(Path) {
+    global
+    static Chosen
     gui Submit, NoHide
-    if (gw.dynGUI.GFA_Evaluation_RScript_Location!="") {
-        writeFile(gw.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
-    } 
+
+
+    OutDrive:=0
+    SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,,,, OutDrive
+    if FileExist(OutDrive) { ;; can't believe this is necessary...
+        writeFile(dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+    } else {
+        if FileExist(dynGUI.GFA_Evaluation_Configfile_Location) {
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
+        }
+    }
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
-    if (!FileExist(Path)) {
-        SearchPath:="C://"
-    } else {
-        SearchPath:=Path
+    if (SearchPath="") {
+        if (!FileExist(Path)) {
+            if IsObject(Path) {
+                if (Path.HasKey("GFA_Evaluation_Configfile_Location")) {
+                    SplitPath % Path.GFA_Evaluation_Configfile_Location,, SearchPath
+                } else {
+                    SearchPath:="C://"
+                }
+            } else {
+                SearchPath:="C://"
+            }
+        } else {
+            SearchPath:=Path
+        }
     }
     gui -AlwaysOnTop
     ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
-    FileSelectFile Chosen, S8, % SearchPath, % "Please create the .R-file you want to use.", *.R
+    if (Chosen="") {
+
+        FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
+    }
     if (!globalLogicSwitches.DEBUG || script.config.settings.AlwaysOnTop) {
         gui +AlwaysOnTop
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
-        Chosen:=Chosen "\GFA_conf_AG.ini"
-        guicontrol % "GC:",vUsedConfigLocation, % Chosen
+        if (!InStr(Chosen,".R")) {
+            Chosen:=Chosen ".R"
+        }
+        guicontrol % "GC:",vStarterRScriptLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
     }
-    global GFA_configurationFile:=Chosen
+    ;global GFA_configurationFile:=Chosen
     if (Chosen!="") {
-        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
+        ;m(dynGUI.GFA_Evaluation_Configfile_Location)
+        gw.RCodeTemplate:=handleCheckboxes()
+        if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
+            SplitPath % gw.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
+        }
+        WINDOWS:=strreplace(configLocationFolder,"\","/")
+        MAC:=strreplace(configLocationFolder,"\","/")
+        Code:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+        Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
         fillRC1(Code)
+        try {
+            writeFile(Chosen,Code,"UTF-8-RAW",,true)
+        } catch e {
+            throw Exception( "`n" CallStack() )
+        }
     }
     return Chosen
 }
