@@ -1,4 +1,4 @@
-#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
+﻿#NoEnv ; Recommended for performance and compatibility with future AutoHotkey releases.
 #Requires AutoHotkey v1.1.35+ ;; version at which script was written.
 #SingleInstance Force
 #MaxHotkeysPerInterval 99999999
@@ -115,40 +115,38 @@ main() {
     template=
         (LTRIM
             get_os <- function(){
-            sysinf <- Sys.info()
-            if (!is.null(sysinf)){
-            os <- sysinf['sysname']
-            if (os == 'Darwin')
-            os <- "osx"
-            } else { ## mystery machine
-            os <- .Platform$OS.type
-            if (grepl("^darwin", R.version$os))
-            os <- "osx"
-            if (grepl("linux-gnu", R.version$os))
-            os <- "linux"
-            }
-            tolower(os)
+            `tsysinf <- Sys.info()
+            `tif (!is.null(sysinf)){
+            `t`tos <- sysinf['sysname']
+            `t`tif (os == 'Darwin')
+            `t`t`tos <- "osx"
+            `t} else { ## mystery machine
+            `t`tos <- .Platform$OS.type
+            `t`tif (grepl("^darwin", R.version$os))
+            `t`t`tos <- "osx"
+            `t`tif (grepl("linux-gnu", R.version$os))
+            `t`t`tos <- "linux"
+            `t}
+            `ttolower(os)
             }
             if (get_os()) {
-            # MAC:
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            source("`%GFA_EVALUATIONUTILITY`%")
+            `t# MAC:
+            `tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {
-            # WINDOWS: 
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            source("`%GFA_EVALUATIONUTILITY`%")
-
-
-
-
-            source("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
-            plot_3 <- GFA_main(r"(/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = F,saveFigures = F,saveExcel = F,saveRDATA = F)
-            plot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
-
-
+            `t# WINDOWS: 
+            `tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
-            plot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
         )
+        /*MAC additions:
+    `tsource("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+    `tplot_3 <- GFA_main(r"(/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = F,saveFigures = F,saveExcel = F,saveRDATA = F)
+    */
+    /*WINDOWS additions:
+    `tsource("/Volumes/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Scripts/Utility/GFA_Evaluation.R")
+    `tplot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
+    */
     gw.RCodeTemplate:=template
         , handleCheckboxes()
         , handleConfig(gw.dynGUI,false)
@@ -170,14 +168,14 @@ guiCreate() {
     ABottom2:=ABottom
     SysGet A, MonitorWorkArea,2
 
-    if (IsDebug()) || (script.config.Settings.SizeSetting="auto") { ; auto
+    if (script.config.Settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
             , guiWidth:=A_ScreenWidth - 2*30
-    } else if (IsDebug()) || (script.config.Settings.SizeSetting="1440p") { ; 1440p
+    } else if (script.config.Settings.SizeSetting="1440p") { ; 1440p
         guiWidth:=2560 - 2*30
             , guiHeight:=1392 - 2*30
-    } else if (IsDebug()) || (script.config.Settings.SizeSetting="1080p") { ; 1080p
+    } else if (script.config.Settings.SizeSetting="1080p") { ; 1080p
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
@@ -200,26 +198,34 @@ guiCreate() {
         , WidthMinusMargins:=guiWidth - 4*XMarginWidth + 0
         , HeightMinusMargins:=guiHeight - 4*YMarginWidth + 0
         , SectionWidth:=WidthMinusMargins/NumberofSections + 0
-        , SectionHeight:=HeightMinusMargins/1 + 0
+        , SectionHeight:=guiHeight
         , Sections:={}
         , middleanchor:=guiWidth-4*15-middleWidth
         , groupbox_height:=953
     loop, % NumberofSections {
         if (A_Index>1) {
-            Sections[A_Index]:={XAnchor:XMarginWidth*A_Index + SectionWidth*(A_Index-1),Width:SectionWidth*1,Height:SectionHeight*1}
+            Sections[A_Index]:={XAnchor:XMarginWidth*A_Index + SectionWidth*(A_Index-1),YAnchor:3,Width:SectionWidth*1,Height:SectionHeight*1}
         } else {
-            Sections[A_Index]:={XAnchor:XMarginWidth*A_Index,Width:SectionWidth*1,Height:SectionHeight*1}
+            Sections[A_Index]:={XAnchor:XMarginWidth*A_Index,YAnchor:3,Width:SectionWidth*1,Height:SectionHeight*1}
         }
     }
+    Sections[4]:={XAnchor:Sections[3].XAnchor,YAnchor:Sections[3].YAnchor,Width:Sections[3].Width,Height:Sections[3].Height}
+
     ShiftSection1:=250
         , ShiftSection2:=250
         , Sections[1].Width:=Sections[1].Width-ShiftSection1
         , Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
         , Sections[2].Width:=Sections[2].Width-ShiftSection2
-        , Sections[3].XAnchor:=Sections[3].XAnchor-ShiftSection1-ShiftSection2
-        , Sections[3].Width:=Sections[3].Width+ShiftSection1+ShiftSection2
+        , Sections[4].XAnchor:=Sections[4].XAnchor-ShiftSection1-ShiftSection2
+        , Sections[4].Width:=Sections[4].Width+ShiftSection1+ShiftSection2
+        , Sections[2].Height:=230
         , middleanchor:=guiWidth-4*15-middleWidth
         , groupbox_height:=953
+
+    Sections[3].YAnchor:=Sections[2].Height-15
+        , Sections[3].XAnchor:=Sections[2].XAnchor
+        , Sections[3].Height:=(guiHeight-Sections[3].YAnchor)+3
+        , Sections[3].Width:=Sections[2].Width
     global StatusBarMainWindow
         , vUsedConfigLocation
         , vStarterRScriptLocation
@@ -234,7 +240,7 @@ guiCreate() {
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
-    Names:=["1. Configuration File","2. R Starter Script Configuration","3. Miscellaneous"]
+    Names:=["1. Configuration File","2. R Starter Script Configuration","3. Excel Sheet Peek","4. Preview"]
     ;gui GC: Show, % "w" guiWidth " h" guiHeight
 
     for each, section in Sections {
@@ -316,23 +322,23 @@ guiCreate() {
             }
         )
 
-    gui add, text, % "y15 x" Sections[3].XAnchor+5 " h0 w0", rightanchor
+    gui add, text, % "y15 x" Sections[4].XAnchor+5 " h0 w0", rightanchor
 
-    gui add, text, % "y20 x" Sections[3].XAnchor+5 " h40 w" Sections[3].Width - 3*5, R-Script-Preview
-    ; global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[3].XAnchor+5 " w" Sections[3].Width - 3*5 " h" (Sections[3].Height-45-3*5)/4 ,"GC", HighlightBound=Func("HighlightR"))
-    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[3].XAnchor+5 " w" Sections[3].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
-    ;gui add, edit,% "y45 x" Sections[3].XAnchor+5 " h" (Sections[3].Height-45-3*5)/4  "disabled vvRCRScript w" Sections[3].Width - 3*5,   % "<RScript-preview -'.R'-File>"
-    gui add, text, % "y" (45+489+5) " x" Sections[3].XAnchor+5 " h40 w" Sections[3].Width - 3*5, Configuration-Preview
+    gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, R-Script-Preview
+    ; global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h" (Sections[4].Height-45-3*5)/4 ,"GC", HighlightBound=Func("HighlightR"))
+    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
+    ;gui add, edit,% "y45 x" Sections[4].XAnchor+5 " h" (Sections[4].Height-45-3*5)/4  "disabled vvRCRScript w" Sections[4].Width - 3*5,   % "<RScript-preview -'.R'-File>"
+    gui add, text, % "y" (45+489+5) " x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, Configuration-Preview
     buttonHeight:=40
-    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[3].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[3].Width - 3*5, HighlightBound=Func("HighlightR"))
-    ;gui add, edit,% "y" ((45+(Sections[3].Height*2.2-45-3*5)/4 + 15)+15) " x" Sections[3].XAnchor+5 " h" (Sections[3].Height-45-3*5)/4 " disabled vvRCConfiguration w" Sections[3].Width - 3*5,   % "<Configuration-preview -'.ini'-File>"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwnd x" Sections[3].XAnchor+5 " ggenerateRScript", % "Generate R-Script"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfiguration x" Sections[3].XAnchor+95, % "Preview Configuration"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[3].XAnchor+185, % "Generate Configuration"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gfEditSettings hwndEditSettings x" Sections[3].XAnchor+275, % "Open &program settings"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndExitProgram x" Sections[3].XAnchor+365, % "Exit Program"
+    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, HighlightBound=Func("HighlightR"))
+    ;gui add, edit,% "y" ((45+(Sections[4].Height*2.2-45-3*5)/4 + 15)+15) " x" Sections[4].XAnchor+5 " h" (Sections[4].Height-45-3*5)/4 " disabled vvRCConfiguration w" Sections[4].Width - 3*5,   % "<Configuration-preview -'.ini'-File>"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateRScript x" Sections[4].XAnchor+5, % "Generate R-Script"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfiguration x" Sections[4].XAnchor+95, % "Preview Configuration"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[4].XAnchor+185, % "Generate Configuration"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gfEditSettings hwndEditSettings x" Sections[4].XAnchor+275, % "Open &program settings"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndExitProgram x" Sections[4].XAnchor+365, % "Exit Program"
     if (globalLogicSwitches.bIsAuthor) {
-        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndrecompile x" Sections[3].XAnchor+455, % "Recompile"
+        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gexitApp hwndrecompile x" Sections[4].XAnchor+455, % "Recompile"
     }
 
     gui add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow
@@ -355,21 +361,23 @@ guiCreate() {
         , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
         , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
+        , onGenerateRScript:=Func("generateRScript").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
-        onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir)
-        oncreateNewStarterScript := Func("createNewStarterScript").Bind(A_ScriptDir)
+        onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,gw)
+        oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
     } else {
-        onNewConfiguration := Func("createConfiguration").Bind("D:/")
-        oncreateNewStarterScript := Func("createNewStarterScript").Bind("D:/")
+        onNewConfiguration := Func("createConfiguration").Bind("D:/",gw)
+        oncreateRScript := Func("createRScript").Bind("D:/")
     }
     if (globalLogicSwitches.bIsAuthor) {
         onRecompile := Func("prepare_release")
     }
+    guiControl GC:+g, %generateRScript%, % onGenerateRScript
     guiControl GC:+g, %PreviewConfiguration%, % onPreviewConfiguration
     guiControl GC:+g, %generateConfiguration%, % onGenerateConfiguration
     guiControl GC:+g, %EditConfiguration%, % onEditConfiguration
     guiControl GC:+g, %NewConfiguration%, % onNewConfiguration
-    guiControl GC:+g, %newStarterScript%, % oncreateNewStarterScript
+    guiControl GC:+g, %newStarterScript%, % oncreateRScript
     guiControl GC:+g, %editStarterScript%, % onEditStarterScript
 
 
@@ -386,7 +394,7 @@ guiCreate() {
             ,dynGUI:dynGUI
             ,Sections:Sections}
 }
-generateRScript() {
+generateRScript(Arg:="") {
     return
 }
 guiShow2(gw) {
@@ -416,11 +424,19 @@ guiShow(gw) {
     gui GC: show,% "w" gw["guiWidth"]*2 " h" gw["guiHeight"]*0.5  , % script.name " - Create new Configuration"
     useGroupbox:=1
     for each, section in gw.Sections {
-        Sections[each].Name:=Names[A_Index]
         if (useGroupbox) {
-            gui add, groupbox,% " y3 h" gw["guiHeight"]-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
+            if section.HasKey("YAnchor") {
+                gui add, groupbox,% " y" section.YAnchor " h" section.Height-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
+            } else {
+                gui add, groupbox,% " y3 h" section.Height-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
+            }
+            ;gui add, groupbox,% " y3 h" gw["guiHeight"]-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
         } else {
-            gui add, text,% " y3 h15 w" section.Width " x" section.XAnchor-5, % section.name
+            if section.HasKey("YAnchor") {
+                gui add, text,% " y" section.YAnchor " h15 w" section.Width " x" section.XAnchor-5, % section.name
+            } else {
+                gui add, text,% " y3 h15 w" section.Width " x" section.XAnchor-5, % section.name
+            }
         }
     }
     gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
@@ -603,6 +619,10 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
                 rPath:=R_Path
             } else if (rCount=0) {                ;; create a new one
                 FileSelectFile rPath, S8, % File[1], % "Please create the Rscript-file you want to use.", *.R
+                if !RegexMatch(rPath,"\.R$")  {
+                    rPath.= ".R"
+                }
+                writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
             }
         } else { ; file
             rPath:=File[1]
@@ -625,6 +645,8 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
 
     }
+    dynGUI.GFA_Evaluation_RScript_Location:=rPath
+    dynGUI.GFA_Evaluation_Configfile_Location:=configPath
     return  
 }
 fillRC1(Code) {
@@ -658,7 +680,7 @@ handleConfig(dynGUI,writetoFile:=false) {
         fillRC2(dynGUI.ConfigString)
     }
     if (writetoFile) {
-
+        writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
     }
     return
 }
@@ -695,7 +717,7 @@ fCallBack_StatusBarMainWindow() {
             ListLines Off
             ; KeyHistory
         }
-        else if (!(script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug) || ((script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug)
+        else if (!(script.authorID!=A_ComputerName)) || ((script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug)
         {
             SoundBeep 1750, 150
             SoundBeep 1750, 150
@@ -733,7 +755,9 @@ generateConfigFile(Folder) {
     }
 
 }
-createConfiguration(Path) {
+*/
+createConfiguration(Path,AA) {
+    global
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
@@ -743,22 +767,36 @@ createConfiguration(Path) {
         SearchPath:=Path
     }
     gui -AlwaysOnTop
-    FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
+    FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
     if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
-        Chosen:=Chosen "\GFA_conf_AG.ini"
+        if !RegexMatch(Chosen,"\.ini$") {
+            Chosen.=".ini" 
+        }
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+            dynGUI.loadConfigFromFile(Chosen)
+                , dynGUI.validateLoadedConfig()
+                , dynGUI.populateLoadedConfig()
         }
     }
-    global GFA_configurationFile:=Chosen
+    GFA_configurationFile:=Chosen
+        , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
     if (Chosen!="") {
-        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
-        fillRC1(Code)
+        ;OutputDebug % gw.RCodeTemplate
+        ;m(gw)
+        SplitPath % Chosen,, Chosen
+        WINDOWS:=strreplace(Chosen,"\","/")
+        MAC:=strreplace(Chosen,"\","/")
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+        ;OutputDebug % gw.RCodeTemplate
+        fillRC1(gw.RCodeTemplate)
     }
     return Chosen
 }
@@ -772,11 +810,11 @@ editConfiguration(configurationFile) {
         run % configurationFile
     } else {
         if (globalLogicSwitches.DEBUG) {
-            GFA_configurationFile:=createConfiguration(A_ScriptDir)
+            GFA_configurationFile:=createConfiguration(A_ScriptDir,gw)
 
         } else {
 
-            GFA_configurationFile:=createConfiguration("D:/")
+            GFA_configurationFile:=createConfiguration("D:/",gw)
         }
     }
     gui GC: default
@@ -792,25 +830,56 @@ editRScript(rScriptFile) {
         run % rScriptFile
     } else {
         if (globalLogicSwitches.DEBUG) {
-            GFA_rScriptFile:=createRScriptFile(A_ScriptDir)
+            GFA_rScriptFile:=createRScript(A_ScriptDir)
 
         } else {
 
-            GFA_rScriptFile:=createRScriptFile("D:/")
+            GFA_rScriptFile:=createRScript("D:/")
         }
     }
     gui GC: default
     return
 }
-createRScriptFile(Path) {
-
+createRScript(Path) {
+    gui Submit, NoHide
+    if (gw.dynGUI.GFA_Evaluation_RScript_Location!="") {
+        writeFile(gw.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+    } 
+    if (!globalLogicSwitches.DEBUG) {
+        SearchPath:="C://"
+    }
+    if (!FileExist(Path)) {
+        SearchPath:="C://"
+    } else {
+        SearchPath:=Path
+    }
+    gui -AlwaysOnTop
+    ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
+    FileSelectFile Chosen, S8, % SearchPath, % "Please create the .R-file you want to use.", *.R
+    if (!globalLogicSwitches.DEBUG || script.config.settings.AlwaysOnTop) {
+        gui +AlwaysOnTop
+    }
+    if (Chosen!="") {
+        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+        Chosen:=Chosen "\GFA_conf_AG.ini"
+        guicontrol % "GC:",vUsedConfigLocation, % Chosen
+        if (!FileExist(Chosen)) {
+            writeFile(Chosen,"`n","UTF-8-RAW",,true)
+        }
+    }
+    global GFA_configurationFile:=Chosen
+    if (Chosen!="") {
+        gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER%",Chosen)
+        fillRC1(Code)
+    }
+    return Chosen
 }
 selectConfigLocation(SearchPath) {
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
     gui -AlwaysOnTop
-    FileSelectFolder Chosen,% SearchPath ,3, % "Select configuration file to populate."
+    FileSelectFile Chosen, 3, % SearchPath, % "Please select the ini-file you want to use.", *.R
     if (!globalLogicSwitches.DEBUG) {
         gui +AlwaysOnTop
     }

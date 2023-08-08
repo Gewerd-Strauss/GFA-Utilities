@@ -27,8 +27,8 @@ setupdefaultconfig(Switch) {
             [Version]
             ;Version Type: Text
             ;Version Hidden:
-            build=124
-            GFC_version=0.2.1
+            build=125
+            GFC_version=0.3.2
             [Settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
@@ -121,7 +121,7 @@ setupdefaultconfig(Switch) {
                 FileCreateDir % configDirectory
             }
             DefaultConfig:=DerefAHKVariables(DefaultConfig)
-            writeFile(script.scriptconfigfile,DefaultConfig,"UTF-8",,true)
+            writeFile(script.scriptconfigfile,DefaultConfig,"UTF-16",,true)
             return
         }
     } else if (Switch=2) {
@@ -132,7 +132,7 @@ setupdefaultconfig(Switch) {
             }
             gfcGUIconfig:=LTrim(gfcGUIconfig)
                 , gfcGUIconfig:=DerefAHKVariables(gfcGUIconfig)
-            writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-8",,true)
+            writeFile(script.gfcGUIconfigfile,gfcGUIconfig,"UTF-16",,true)
             return
         }
     }
