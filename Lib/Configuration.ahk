@@ -28,7 +28,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=126
-            GFC_version=1.3.3
+            GFC_version=1.3.4
             [Settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
@@ -60,10 +60,15 @@ setupdefaultconfig(Switch) {
             ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
             ;GFA_Evaluation_InstallationPath
             ;GFA_Evaluation_InstallationPath
-            CheckUpdatesOnScriptStart=0
+            CheckUpdatesOnScriptStart=1
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
-            ;CheckUpdatesOnScriptStart Default:0
+            ;CheckUpdatesOnScriptStart Default:1
+            UpdateChannel=stable
+            ;UpdateChannel Do you want to check for updates to the stable release, or keep up to date with the development-version?
+            ;UpdateChannel Type: DropDown development||stable
+            ;UpdateChannel Default: stable
+            ;UpdateChannel 
 
 
         )
