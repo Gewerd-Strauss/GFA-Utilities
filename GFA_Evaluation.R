@@ -208,7 +208,7 @@ getMeanofVectorElements <- function(Vector, Elements) {
 }
 checkExistence <-function(Path=""){
     if (isFALSE(file.exists(Path))) {
-        if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+        if (isFALSE(hasName(Conditions,"IsIncluded"))) {
             print(paste0("Warning: File ",Path," does not exist"))
         }
         return(FALSE)
@@ -585,7 +585,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                       p.value = shapiro.test(plant_area)$p.value)
         
         if (isNormallyDistributed(norm)) {
-            if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
                 #print("Data is normally distributed. Checking for uniform variance with Bartlett's Test, using outlier-less data. Executing T-Test.")
             }
             #print(norm)
@@ -611,7 +611,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             #     add_significance("p") %>%
             #     add_xy_position(x = "Gruppe")
         } else {
-            if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
                 #print("Data is not normally distributed. Checking for uniform variance with Levene-Test, using outlier-less data. Executing Wilcoxon-Mann-Whitney Test.")
                 #print(norm)
             }
@@ -627,8 +627,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         XLSX_Path <- str_c(folder_path,"\\ROutput\\GFResults_" 
                            ,str_trim(curr_Day)
                            ,".xlsx")
-        if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
-        }
         if (isTRUE(as.logical(saveExcel))) {
             write_xlsx(
                 list("Data" = Data
@@ -657,7 +655,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         Palette_Lines <- unlist(stringr::str_split(ini$Experiment$Palette_Lines,","))
         
         if (hasName(ini$General,"Theme")) {
-            if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
                 #print("Set theme")
             }
             Theme_Index <- ini$General$Theme
@@ -667,7 +665,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
         if (Theme_Index>numberofThemes) {
             Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
                 #print("Generating all themes. Set to a value below")
             }
         } else {
@@ -1005,14 +1003,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         object <- list()
     }
     ini <- ini::read.ini(path)
-    #folder_path <- r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\)" 
-    #folder_path <- r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)"
-    #folder_path <- r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)"
-    # Exp2.1_Verification
-    #folder_path <- r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1_Verification\pa_original\)"
-    # Exp2.2
-    #folder_path <- r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.2\GFA\)"
-    
     if (isFALSE(exists("Conditions",where = -1))) {
         Conditions <- {}
     }
@@ -1030,11 +1020,9 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     #todo: figure out an algorithm or user interface for doing this here
     
     # calculate group sizes
-    #PotsPerGroup <- dlg_Input("How many POTS are in each group?",default = ini$Experiment$PotsPerGroup)$res
     PotsPerGroup <- ini$Experiment$PotsPerGroup
     Number <- as.integer(PotsPerGroup)
     
-    #UniqueGroups <- dlg_Input("add all unique group-names, separated by comma ','",default=ini$Experiment$UniqueGroups)$res
     UniqueGroups <- ini$Experiment$UniqueGroups
     UniqueGroups <- as.character(UniqueGroups)
     numberofGroups <- length(strsplit(UniqueGroups,",")[1][[1]])
@@ -1054,7 +1042,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_dailies <- data_all_CA
     data_all_CA <- as.data.frame(data_all_CA);
     data_all_CA <- assignDaysToVariables(Files,data_all_CA,ini)
-    data_all_CA <- createFactors(data_all_CA,grps) #TODO: FIX THIS NOT BEING A FACTOR? WHY IS GROUP_BY "NA" IN THE PLOT WHEN IMPORTING FROM CSV?
+    data_all_CA <- createFactors(data_all_CA,grps)
     Colnames <- calculateColnames(Files,List,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
         data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
@@ -1358,8 +1346,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                               position = position_dodge(width=0.75))
         }
     }
-    
-    if (exists(ini$Experiment$FixateAxes)) {
+    if (hasName(ini$Experiment,"FixateAxes")) {
         if (isTRUE(as.logical(ini$Experiment$FixateAxes))) {
             d <- ini$Experiment$YLimits
             e <- exists(d)
