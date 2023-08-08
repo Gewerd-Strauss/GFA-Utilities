@@ -688,7 +688,7 @@ handleCheckboxes(Param:="") {
         , template:=strreplace(template,"%bSaveRData%",vSaveRData)
         , template:=strreplace(template,"%bSaveExcel%",vSaveExcel)
         , fillRC1(template)
-    return
+    return template
 }
 handleConfig(dynGUI,writetoFile:=false) {
     dynGUI.generateConfig(0)
