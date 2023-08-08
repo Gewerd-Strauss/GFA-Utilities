@@ -74,3 +74,36 @@ st_removeDuplicates(string, delim="`n")
 }
 
 
+/*
+Pad
+Add character(s) to either side of the input string.
+
+string = What text you want to add stuff to either side.
+left   = The text you want to add to the left side.
+right  = The text you want to add to the right side.
+Lcount = How many times do you want to repeat adding to the left side.
+Rcount = How many times do you want to repeat adding to the right side.
+
+example: st_pad("aaa", "+", "-^", 5)
+output: +++++aaa-^
+*/
+st_pad(string, left="0", right="", LCount=1, RCount=1)
+{
+   if (LCount>0)
+   {
+      if (LCount>1)
+         loop, %LCount%
+            Lout.=left
+         Else
+            Lout:=left
+   }
+   if (RCount>0)
+   {
+      if (RCount>1)
+         loop, %RCount%
+            Rout.=right
+         Else
+            Rout.=right
+   }
+   Return Lout string Rout
+}
