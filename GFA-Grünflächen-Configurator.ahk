@@ -441,11 +441,27 @@ guiShow(gw) {
     }
     gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
+    guicontrol GC: hide, % "vExcelSheetPreview"
     dynGUI.guiVisible:=true
     handleCheckboxes(Param)
     handleConfig(dynGUI,false)
+    ;handleExcelSheets(dynGUI.Arguments)
+    Tabs:=[]
+    TabName:="Example-Excel-File No. "
+    loop, 12 {
+        Tabs[A_Index]:=TabName A_Index
+    }
+    loop, % Tabs.Count(){
+        TabNames.=Tabs[A_Index]
+        if (A_Index=1) {
+            TabNames.="||"
+        } else {
+            TabNames.="|"
+        }
+    }
     return
 }
+
 guiHide() {
     global
     dynGUI.guiVisible:=false
