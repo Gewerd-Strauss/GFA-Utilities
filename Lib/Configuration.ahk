@@ -81,16 +81,16 @@ setupdefaultconfig(Switch) {
             %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctffrlOptions:xlsx,csv|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Debug:Checkbox|Type:boolean|Default:0|String:"Do you want to print debug information?"|Tab3Parent:1. General Configuration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
+            %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:1. General Configuration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; figure
             %A_Tab%Facet2D:Checkbox|Type:boolean|Default:0|String:"Do you want to facet the plot, f.e. over a treatment? Manual options: TRUE/FALSE"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Facet2DVar:Edit|Type:String|Default:""|String:"Which Variable do you want to facet by?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
-            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w600|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w600|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w600|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,whiter|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w600|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,whiter|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
