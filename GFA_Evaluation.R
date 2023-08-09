@@ -208,9 +208,6 @@ getMeanofVectorElements <- function(Vector, Elements) {
 }
 checkExistence <-function(Path=""){
     if (isFALSE(file.exists(Path))) {
-        if (isFALSE(hasName(Conditions,"IsIncluded"))) {
-            print(paste0("Warning: File ",Path," does not exist"))
-        }
         return(FALSE)
     } else {
         return(TRUE)
@@ -585,9 +582,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                       p.value = shapiro.test(plant_area)$p.value)
         
         if (isNormallyDistributed(norm)) {
-            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
-                #print("Data is normally distributed. Checking for uniform variance with Bartlett's Test, using outlier-less data. Executing T-Test.")
-            }
             #print(norm)
             BT   <- bartlett.test(plant_area ~ Gruppe, wo_outliers)
             BT <- do.call("rbind", BT)
@@ -611,10 +605,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             #     add_significance("p") %>%
             #     add_xy_position(x = "Gruppe")
         } else {
-            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
-                #print("Data is not normally distributed. Checking for uniform variance with Levene-Test, using outlier-less data. Executing Wilcoxon-Mann-Whitney Test.")
-                #print(norm)
-            }
             levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
             
             #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
@@ -655,9 +645,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         Palette_Lines <- unlist(stringr::str_split(ini$Experiment$Palette_Lines,","))
         
         if (hasName(ini$General,"Theme")) {
-            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
-                #print("Set theme")
-            }
             Theme_Index <- ini$General$Theme
         }  else {
             Theme_Index <- 1   
@@ -665,9 +652,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
         if (Theme_Index>numberofThemes) {
             Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            if (isFALSE(hasName(Conditions,"IsIncluded"))) {
-                #print("Generating all themes. Set to a value below")
-            }
         } else {
             Conditions$GenerateAllThemes <- FALSE
         }
@@ -1082,9 +1066,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
     if (Theme_Index>numberofThemes) {
         Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-        if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
-            print("Generating all themes. Set to a value below")
-        }
     } else {
         Conditions$GenerateAllThemes <- FALSE
     }
