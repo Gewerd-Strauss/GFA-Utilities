@@ -1552,18 +1552,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     Titles <- list(plot_Title=plot_Title,plot_Subtitle=plot_Subtitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
-    
-    rm(d,filename,folder_path,Palette_Boxplot,Palette_Lines)
-    rm(Number,numberofThemes,e,ErrorString)
-    rm(Group,grps,numberofGroups,PotsPerGroffup,UniqueGroups)
-    rm(path)
-    rm(Datesr,Files)
-    rm(x_label,y_label,unit_x,unit_y,scale_y_lowerEnd,scale_y_upperEnd
-       ,TitleDates,TitleTimeSpan,SortedTitleTimespan,plot_Subtitle,plot_Title
-       ,Limits,
-       Theme,Themes,Theme_Index,curr_Theme,curr_ThemeIndex,set_theme)
-    
-    rm(Colnames,Conditions)
     if (returnDays) {
         return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,scaleXdates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
