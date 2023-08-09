@@ -1346,7 +1346,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         GFA_SummaryPlot <- GFA_SummaryPlot + 
             ggtitle(plot_Title,plot_Subtitle)
     }
-    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))
+    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
     
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
         if (Conditions$UseRelativeColnames) { ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
