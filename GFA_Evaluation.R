@@ -430,7 +430,6 @@ getMaximumDateRange  <- function(Colnames) {
     min <- format(min,"%d.%m.%Y")
     max <- max(updated)
     max <- format(max,"%d.%m.%Y")
-    #print(CharacterString)
     return(list(min,max))
 }
 RemoveOutputFiles <- function(Files="",Output_prefix="") {
@@ -555,7 +554,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                 fun=labelOutliers,
                 hjust = -1
             )
-        #print(GFA_p_Outlier) # use this to use the old version of the outlier-plot. 
         
         
         #print(p_Outlier2) # this will label the outlier with its value. 
@@ -875,7 +873,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         } else {
             GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
         }
-        #print(GFA_plot_box)
         
         # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
         if (Conditions$PlotSampleSize) {
@@ -888,7 +885,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             }
         }
         GFA_plot_box <- GFA_plot_box + ggpubr::theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
-        print(GFA_plot_box)
         if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
             clen <- str_length(str_c(folder_path,"ROutput\\",filename))
             deslen <- 256
@@ -1222,8 +1218,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
         
         scale_y_upperEnd <- as.integer(ini$Experiment$ForcedUpperY)
-        d <- ini$Experiment$YLimits
-        e <- exists(d)
         Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
     } else {
         
@@ -1252,7 +1246,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
         facetFormula <- "Facet"
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(Facet ~ factor(Group,levels=unlist(unique(data_pivot_CA$Group))),space = "fixed")
-        print(GFA_SummaryPlot)
     } else {
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(. ~ factor(Group,levels=unlist(stringr::str_split(ini$Experiment$GroupsOrder,","))),space = "fixed")
     }
@@ -1306,9 +1299,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                           show.legend = F) # set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
     }
     
-    if (isFALSE(Conditions$UseRelativeColnames)) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))
-    }
     GFA_SummaryPlot <- GFA_SummaryPlot +labs(x=x_label
                                              , y=y_label
                                              ,fill = if_else(Conditions$Language
@@ -1329,8 +1319,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     if (hasName(ini$Experiment,"FixateAxes")) {
         if (isTRUE(as.logical(ini$Experiment$FixateAxes))) {
-            d <- ini$Experiment$YLimits
-            e <- exists(d)
             Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
@@ -1423,7 +1411,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                 filename <- str_c(filename2,".jpg")
             }
         }
-        print(GFA_SummaryPlot)
+        #print(GFA_SummaryPlot)
         rm(new,old,clen,deslen,lendiff)
         if (isTRUE(as.logical(saveFigures))) {
             ggsave(file=filename
@@ -1471,7 +1459,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
        ,TitleDates,TitleTimeSpan,SortedTitleTimespan,plot_Subtitle,plot_Title
        ,Limits,
        Theme,Themes,Theme_Index,curr_Theme,curr_ThemeIndex,set_theme)
-    
     
     rm(Colnames,Conditions)
     if (returnDays) {
