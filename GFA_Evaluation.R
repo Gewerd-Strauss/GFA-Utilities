@@ -1270,25 +1270,31 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))
     
-    ## x-scale must be relative to date-diff's.
-    ##
-    scaleXdates <- sort(as.Date.character(unlist(Colnames),format = "%d.%m.%Y"))
-    scaleXdates2 <- sort(as.Date.character(unlist(sort(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)))),format = "%d.%m.%Y"))
-    scaleXdates_formatted <- format(scaleXdates, "%d.%m.%Y")
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
-        scaleXdatesdiffs <- sort(unlist(calculateColnames(Files,List,ini,T)))
-        scaleXdates_formatted <- paste(scaleXdates_formatted, " - ",scaleXdatesdiffs)
-    }
-    if (Conditions$UseRelativeColnames) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=sort(as.integer(unlist(Colnames)))) #todo: figure out if I can use this properly
+        if (Conditions$UseRelativeColnames) { ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
+            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
+            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
+            GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels) #todo: figure out if I can use this properly
+        } else {                              ## date-scale  <-  scale needs dates, labels need format "{date} - {age}"
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F))
+            GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)))]
+            GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels) #todo: figure out if I can use this properly
+        }
+        
     } else {
-        
-        GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=scaleXdates,labels = scaleXdates_formatted) #todo: figure out if I can use this properly
-        
+        if (Conditions$UseRelativeColnames) { ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
+            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
+            GFA_summary_Labels <- paste(GFA_summary_Breaks)
+            GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels) #todo: figure out if I can use this properly
+        } else {                              ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+            GFA_summary_Labels <- paste(format(GFA_summary_Breaks, "%d.%m.%Y"))
+            GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels) #todo: figure out if I can use this properly
+        }
     }
     GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                             limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
-    
     if (Conditions$PlotMeanLine) {
         GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun = mean,
                                                           geom = "line",
