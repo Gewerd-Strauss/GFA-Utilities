@@ -135,16 +135,17 @@ main() {
             `t`tif (grepl("linux-gnu", R.version$os))
             `t`t`tos <- "linux"
             `t}
-            `ttolower(os)
+            `treturn(tolower(os))
             }
-            if (get_os()) {
-            `t# MAC:
-            `tsource("`%GFA_EVALUATIONUTILITY`%")
-            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            } else {
+
+            source("`%GFA_EVALUATIONUTILITY`%")
+            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names
             `t# WINDOWS: 
-            `tsource("`%GFA_EVALUATIONUTILITY`%")
             `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            } else {
+            `t# MAC:
+            #`tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
         )
         /*MAC additions:
