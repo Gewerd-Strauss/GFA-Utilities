@@ -112,6 +112,84 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
     }
     return(DailyAnalyses)
 }
+checkSign <- function(x) {
+    return(ifelse(x >= 0, T, F))
+}
+fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive_sign=F) {
+    if (str_count(number,"e")) {
+        if (str_count(number,"e-")) {
+            split <- strsplit(as.character(number),split = "e-")
+            Power <- split[[1]][[2]]
+            value <- split[[1]][[1]]
+            value <- round(as.numeric(value),number_of_decimals)
+            if (renderpositive_sign) {
+                if (checkSign(value)) {
+                    str <- str_c("$+",value," \\times 10^{-",Power,"}$")
+                } else {
+                    str <- str_c("$",value," \\times 10^{-",Power,"}$")
+                }
+            } else {
+                str <- str_c("$",value," \\times 10^{-",Power,"}$")
+            }
+        } else {
+            split <- strsplit(as.character(number),split = "e+")
+            if (length(split)==1) {
+                Power <- split[[1]][[2]]
+                Power <- str_replace(Power,'\\+',"")
+                value <- split[[1]][[1]]
+                value <- round(as.numeric(value),number_of_decimals)
+                if (renderpositive_sign) {
+                    if (checkSign(value)) {
+                        str <- str_c("$+",value," \\times 10^{",Power,"}$")
+                    } else {
+                        str <- str_c("$",value," \\times 10^{",Power,"}$")
+                    }
+                } else {
+                    str <- str_c("$",value," \\times 10^{",Power,"}$")
+                }
+                
+                #print(str)
+                return(str)
+            }
+            Power <- split[[1]][[2]]
+            Power <- str_replace(Power,'\\+',"")
+            if (isFALSE((Power>20) || (-20>Power))) {
+                #print("normal")
+                return(format_power(number,format=fp_format))
+            }
+            value <- split[[1]][[1]]
+            value <- round(as.numeric(value),number_of_decimals)
+            if (renderpositive_sign) {
+                if (checkSign(value)) {
+                    str <- str_c("$+",value," \\times 10^{",Power,"}$")
+                } else {
+                    str <- str_c("$",value," \\times 10^{",Power,"}$")
+                }
+            } else {
+                str <- str_c("$",value," \\times 10^{",Power,"}$")
+            }
+        }
+    } else {
+        value <- round(as.numeric(number),number_of_decimals)
+        value <- fixdecimalplaces(number,number_of_decimals)
+        if (renderpositive_sign) {
+            if (checkSign(value)) {
+                str <- str_c("$+",value,"$")
+            } else {
+                str <- str_c("$",value,"$")
+            }
+        } else {
+            str <- str_c("$",value,"$")
+        }
+    }
+    #print("custom")
+    return(str)
+}
+fixdecimalplaces <- function(x, k){
+    
+    a <- trimws(format(round(x, k), nsmall=k))
+    return(a)
+}
 getRelative_change <- function(this,last,Object=FALSE) {
     # Funktion berechnet die relative Veränderung zwischen zwei Werten.
     
