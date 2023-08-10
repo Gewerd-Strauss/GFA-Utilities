@@ -95,14 +95,12 @@ setupdefaultconfig(Switch) {
             %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,whiter|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,white|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%ShowTitle:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above each figure?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; axes
@@ -117,7 +115,12 @@ setupdefaultconfig(Switch) {
             %A_Tab%XLabel:Edit|Type:String|Default:"Time since repotting"|String:"Set the xlabel-string for the summary plot."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%XLabel_Daily:Edit|Type:String|Default:"Treatment Groups"|String:"Set the xlabel-string for the daily analyses."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%YLabel:Edit|Type:String|Default:"green plant area"|String:"Set the ylabel-string for the summary plot and daily analyses."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-
+            %A_Tab%;;
+            %A_Tab%;;; Statistics on Plot
+            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularSampleSize2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
         )
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
