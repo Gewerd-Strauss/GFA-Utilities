@@ -583,6 +583,78 @@ getMaximumDateRange  <- function(Colnames) {
     max <- format(max,"%d.%m.%Y")
     return(list(min,max))
 }
+getBreaks <- function(ini,Limits) {
+    # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
+    if (hasName(ini$General,"breakstepsize")) {
+        breakstepsize <- ini$General$breakstepsize
+        if (Limits[[2]] %% 4) {
+            nbreaks <- 4
+        } else {
+            nbreaks <- 5
+        }
+    } else {
+        maximum <- Limits[[2]]
+        if (maximum<100) {
+            breakstepsize <- 20
+            if (Limits[[2]] %% 4) {
+                nbreaks <- 4
+            } else {
+                nbreaks <- 5
+            }
+        }
+        if (maximum<=100) {
+            breakstepsize <- 25
+            nbreaks <- 4
+        }
+        if (maximum<=150) {
+            breakstepsize <- 50
+            nbreaks <- 3
+        }
+        if (maximum<=300) {
+            breakstepsize <- 100
+            nbreaks <- 3
+        }
+        if (maximum<=500) {
+            breakstepsize <- 125
+            nbreaks <- 4
+        }
+        if (maximum<=750) {
+            breakstepsize <- 125
+            nbreaks <- 6
+        }
+        if (maximum<=1000) {
+            breakstepsize <- 250
+            nbreaks <- 4
+        }
+        if (maximum<=1500) {
+            breakstepsize <- 300
+            nbreaks <- 5
+        }
+        if (maximum<=2500) {
+            breakstepsize <- 500
+            nbreaks <- 5
+        }
+        if (maximum>2500) {
+            wrnopt <- getOption("warn")
+            options(warn = 1)
+            warning(str_c("getBreaks() [user-defined]: your largest y-value "
+                          , Limits[[2]]
+                          , " exceeds 2500, which is the last step for which the author of this script predefined"
+                          , "\nthe number of displayed numbers and the steps inbetween them."
+                          , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
+                          , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
+                          , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
+            options(warn = wrnopt)
+            breakstepsize=Limits[[2]]/10
+            nbreaks=10
+            return(list(breakstepsize=breakstepsize
+                        , breaknumber=nbreaks))
+        }
+        
+    }
+    return(list(breakstepsize=breakstepsize
+             , breaknumber=nbreaks))
+}
 RemoveOutputFiles <- function(Files="",Output_prefix="") {
     Files_out <- Files[!stringr::str_detect(Files,pattern=Output_prefix)]
     return(Files_out)
@@ -946,47 +1018,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             font("legend.title", size = 10, color = "black") +
             ggtitle(plot_Title
                     , plot_Subtitle)
-        if (hasName(ini$General,"Breakstepsize")) {
-            Breakstepsize <- ini$General$Breakstepsize
-            if (Limits[[2]] %% 4) {
-                nbreaks <- 4
-            } else {
-                nbreaks <- 5
-            }
-        } else {
-            maximum <- Limits[[2]]
-            if (maximum<100) {
-                Breakstepsize <- 20
-                if (Limits[[2]] %% 4) {
-                    nbreaks <- 4
-                } else {
-                    nbreaks <- 5
-                }
-            }
-            if (maximum>=100) {
-                Breakstepsize <- 25
-                nbreaks <- 4
-            }
-            if (maximum>=150) {
-                Breakstepsize <- 50
-                nbreaks <- 3
-            }
-            if (maximum>=300) {
-                Breakstepsize <- 100
-                nbreaks <- 3
-            }
-            if (maximum>=500) {
-                Breakstepsize <- 125
-                nbreaks <- 4
-            }
-            if (maximum>=1000) {
-                Breakstepsize <- 250
-                nbreaks <- 4
-            }
-        }
-        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],Breakstepsize),n.breaks = nbreaks, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                          limits = c(Limits[[1]],Limits[[2]]))
+        breaks <- getBreaks(ini,Limits)
         
+        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$breakstepsize,breaks$breakstepsize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                          limits = c(Limits[[1]],breaks$breaknumber*breaks$breakstepsize))
         
         stat.test$p.scient <- formatPValue(stat.test$p)
         #GFA_plot_box2 <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
@@ -1347,16 +1382,16 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     scale_y_lowerEnd <- 0
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-        
-        scale_y_upperEnd <- as.integer(ini$Experiment$ForcedUpperY)
         Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
+        scale_y_upperEnd <- as.integer(Limits[[2]])
     } else {
-        
         scale_y_upperEnd <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)
         Limits <- c(scale_y_lowerEnd,scale_y_upperEnd)
     }
-    if (Conditions$UseRelativeColnames) {
-        
+    if (Limits[[2]]<round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
+        Limits[[2]] <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+    }
+    if (as.logical(ini$General$RelativeColnames)) {
         data_pivot_CA$Days <- as.numeric(data_pivot_CA$Days)
     } else {
         data_pivot_CA$Days <- factor(data_pivot_CA$Days, ordered = T)
@@ -1424,9 +1459,13 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels) #todo: figure out if I can use this properly
         }
     }
-    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                            limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
-    if (Conditions$PlotMeanLine) {
+    breaks <- getBreaks(ini,Limits)
+    
+    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$breakstepsize,breaks$breakstepsize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                      limits = c(Limits[[1]],breaks$breaknumber*breaks$breakstepsize))
+#    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+#                                                            limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
+    if (as.logical(ini$General$PlotMeanLine)) {
         GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun = mean,
                                                           geom = "line",
                                                           linewidth = 0.8,
