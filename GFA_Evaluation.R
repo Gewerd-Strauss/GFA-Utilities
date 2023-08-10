@@ -592,74 +592,81 @@ getMaximumDateRange  <- function(Colnames) {
 }
 getBreaks <- function(ini,Limits) {
     # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$General,"breakstepsize")) {
-        breakstepsize <- ini$General$breakstepsize
-        if (Limits[[2]] %% 4) {
-            nbreaks <- 4
-        } else {
-            nbreaks <- 5
-        }
+    if (hasName(ini$Experiment,"FixxateAxes")) {
+        if (hasName(ini$Experiment,"BreakStepSize")) {
+            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+            nbreaks <- Limits[[2]]/BreakStepSize
+        }    
     } else {
-        maximum <- Limits[[2]]
-        if (maximum<100) {
-            breakstepsize <- 20
+        if (hasName(ini$Experiment,"BreakStepSize")) {
+            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
             if (Limits[[2]] %% 4) {
                 nbreaks <- 4
             } else {
                 nbreaks <- 5
             }
+        } else {
+            maximum <- Limits[[2]]
+            if (maximum<100) {
+                BreakStepSize <- 20
+                if (Limits[[2]] %% 4) {
+                    nbreaks <- 4
+                } else {
+                    nbreaks <- 5
+                }
+            }
+            if (maximum>2500) {
+                wrnopt <- getOption("warn")
+                options(warn = 1)
+                warning(str_c("getBreaks() [user-defined]: your largest y-value "
+                              , Limits[[2]]
+                              , " exceeds 2500, which is the last step for which the author of this script predefined"
+                              , "\nthe number of displayed numbers and the steps inbetween them."
+                              , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
+                              , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
+                              , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
+                options(warn = wrnopt)
+                BreakStepSize=Limits[[2]]/10
+                nbreaks=10
+                return(list(BreakStepSize=BreakStepSize
+                            , breaknumber=nbreaks))
+            }
+            if (maximum<=2500) {
+                BreakStepSize <- 500
+                nbreaks <- 5
+            }
+            if (maximum<=1500) {
+                BreakStepSize <- 300
+                nbreaks <- 5
+            }
+            if (maximum<=1000) {
+                BreakStepSize <- 250
+                nbreaks <- 4
+            }
+            if (maximum<=750) {
+                BreakStepSize <- 125
+                nbreaks <- 6
+            }
+            if (maximum<=500) {
+                BreakStepSize <- 125
+                nbreaks <- 4
+            }
+            if (maximum<=300) {
+                BreakStepSize <- 100
+                nbreaks <- 3
+            }
+            if (maximum<=150) {
+                BreakStepSize <- 50
+                nbreaks <- 3
+            }
+            if (maximum<=100) {
+                BreakStepSize <- 25
+                nbreaks <- 4
+            }
+            
         }
-        if (maximum<=100) {
-            breakstepsize <- 25
-            nbreaks <- 4
-        }
-        if (maximum<=150) {
-            breakstepsize <- 50
-            nbreaks <- 3
-        }
-        if (maximum<=300) {
-            breakstepsize <- 100
-            nbreaks <- 3
-        }
-        if (maximum<=500) {
-            breakstepsize <- 125
-            nbreaks <- 4
-        }
-        if (maximum<=750) {
-            breakstepsize <- 125
-            nbreaks <- 6
-        }
-        if (maximum<=1000) {
-            breakstepsize <- 250
-            nbreaks <- 4
-        }
-        if (maximum<=1500) {
-            breakstepsize <- 300
-            nbreaks <- 5
-        }
-        if (maximum<=2500) {
-            breakstepsize <- 500
-            nbreaks <- 5
-        }
-        if (maximum>2500) {
-            wrnopt <- getOption("warn")
-            options(warn = 1)
-            warning(str_c("getBreaks() [user-defined]: your largest y-value "
-                          , Limits[[2]]
-                          , " exceeds 2500, which is the last step for which the author of this script predefined"
-                          , "\nthe number of displayed numbers and the steps inbetween them."
-                          , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
-                          , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
-                          , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
-            options(warn = wrnopt)
-            breakstepsize=Limits[[2]]/10
-            nbreaks=10
-            return(list(breakstepsize=breakstepsize
-                        , breaknumber=nbreaks))
-        }
-        
     }
-    return(list(breakstepsize=breakstepsize
+    return(list(BreakStepSize=BreakStepSize
              , breaknumber=nbreaks))
 }
 RemoveOutputFiles <- function(Files="",Output_prefix="") {
@@ -1036,8 +1043,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                     , plot_Subtitle)
         breaks <- getBreaks(ini,Limits)
         
-        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$breakstepsize,breaks$breakstepsize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                          limits = c(Limits[[1]],breaks$breaknumber*breaks$breakstepsize))
+        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$BreakStepSize,breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                          limits = c(Limits[[1]],breaks$breaknumber*breaks$BreakStepSize))
         
         stat.test$p.scient <- formatPValue(stat.test$p)
         #GFA_plot_box2 <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
@@ -1477,8 +1484,12 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     breaks <- getBreaks(ini,Limits)
     
-    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$breakstepsize,breaks$breakstepsize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                      limits = c(Limits[[1]],breaks$breaknumber*breaks$breakstepsize))
+    #print(breaks)
+    #print(ini$Experiment$YLimits)
+    Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
+    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                      limits = c(Limits[[1]],Limits[[2]]))
+    #print(GFA_SummaryPlot)
 #    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
 #                                                            limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
     if (as.logical(ini$General$PlotMeanLine)) {
@@ -1495,23 +1506,23 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                              , y=y_label
                                              ,fill = if_else(as.logical(ini$General$language=='German')
                                                              , "Gruppen"
-                                                             , "Groups")
-    )
-    if (ini$General$PlotSampleSize) {
-        if (as.logical(ini$General$Debug)) {
-            #todo: only label those differing in size, then put the general sample size in the subtitle
-            GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
-                                                              geom = "text", 
-                                                              hjust = 0.5, 
-                                                              size = 2.5, 
-                                                              fontface = "bold",
-                                                              position = position_dodge(width=0.75))
-        }
-    }
-    if (hasName(ini$Experiment,"FixateAxes")) {
-        if (isTRUE(as.logical(ini$Experiment$FixateAxes))) {
+                                                             , "Groups"))
+    
+    if (hasName(ini$Experiment,"ForceAxes")) {
+        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+            if (hasName(ini$Experiment,"BreakStepSize")) {
+                if (isTRUE(is.numeric(as.numeric(ini$Experiment$BreakStepSize)))) {
+                    StepSize <- as.numeric(ini$Experiment$BreakStepSize)
+                    
+                } else {
+                    StepSize <- 25
+                }
+            } else {
+                    StepSize <- 25
+                
+            }
             Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],StepSize), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
         }
     }
@@ -1524,7 +1535,18 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         GFA_SummaryPlot <- GFA_SummaryPlot + theme(plot.subtitle = element_text(size=8))
     }
     
-    
+    if (ini$General$PlotSampleSize) {
+        #if (as.logical(ini$General$Debug)) {
+            #todo: only label those differing in size, then put the general sample size in the subtitle
+            #GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
+            #                                                  geom = "text", 
+            #                                                  hjust = 0.5, 
+            #                                                  size = 2.5, 
+            #                                                  fontface = "bold",
+            #                                                  position = position_dodge(width=0.75)
+            #                                                  ,fun.args = list(ypos=Limits))
+        #}
+    }
     
     GFA_SummaryPlot + grids("y",linetype=1)
     
