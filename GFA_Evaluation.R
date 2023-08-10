@@ -384,8 +384,10 @@ importCSV_Data1 <- function(Files,List,ini) {
     for (file in Files) {
         if (ini$General$used_filesuffix=="csv") {
             csv1 <- read.csv(file,sep=";")
-            csv1$plant_area <- str_replace(csv1$plant_area,",",".")
-            csv1$plant_area <- as.numeric(csv1$plant_area)
+            if (hasName(csv1,"plant_area")) {
+                csv1$plant_area <- str_replace(csv1$plant_area,",",".")
+                csv1$plant_area <- as.numeric(csv1$plant_area)
+            }
             if (hasName(csv1,"plant_area_drought")) {
                 csv1$plant_area_drought <- str_replace(csv1$plant_area_drought,",",".")
                 csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
@@ -406,6 +408,10 @@ importCSV_Data1 <- function(Files,List,ini) {
                 csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count,",",".")
                 csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
             }
+            if (hasName(csv1,"drought_fraction")) {
+                csv1$drought_fraction <- str_replace(csv1$drought_fraction,",",".")
+                csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+            }
             csv <- csv1
             #file <- csv2xlsx(file)
             #csv <- read_xlsx(file)
@@ -422,7 +428,8 @@ importCSV_Data1 <- function(Files,List,ini) {
                 if (hasName(csv,"plants_in_pot")) {
                     csv$plant_area_normalised <- csv$plant_area/csv$plants_in_pot
                 } else {
-                    print(str_c("importCSV_Data1: ","Error occured: While intending to usea normalised plant_area-vector, the script was unable to find a table column named 'plant_area_normalised', nor was it able to normalise on its own because you did not provide the then-required vector 'plants_in_pot'. The script will exit prematurely. Please provide either of the two vectors mentioned above and restart the script."))
+                        Error <- simpleError(str_c(str_c(" Data-file: '",curr_file,"' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."),ErrorString ,sep = "\n"))
+                        stop(Error)
                 }
             }
             List <- cbind(List,csv$plant_area_normalised);
@@ -682,8 +689,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             #Data <- as.data.frame(importCSV_Data1(curr_file,""))
             if (ini$General$used_filesuffix=="csv") {
                 csv1 <- read.csv(curr_file,sep=";")
-                csv1$plant_area <- str_replace(csv1$plant_area,",",".")
-                csv1$plant_area <- as.numeric(csv1$plant_area)
+                if (hasName(csv1,"plant_area")) {
+                    csv1$plant_area <- str_replace(csv1$plant_area,",",".")
+                    csv1$plant_area <- as.numeric(csv1$plant_area)
+                }
                 if (hasName(csv1,"plant_area_drought")) {
                     csv1$plant_area_drought <- str_replace(csv1$plant_area_drought,",",".")
                     csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
@@ -723,7 +732,14 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                 Data$plant_area_nonnormalised <- Data$plant_area
                 Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normal          #ised area is loaded for the develoment-plot so I can use that logic here instead. 
             } else {
-                #List <- cbind(1:length(Data$plant_area),Data$plant_area)
+                if (!hasName(Data,"plant_area")) {
+                    if (hasName(Data,"plant_area_complete")) {
+                        Data$plant_area <- Data$plant_area_complete
+                    } else {
+                        Error <- simpleError(str_c(str_c(" Data-file: '",curr_file,"' does not contain either the column 'plant_area' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"),ErrorString ,sep = "\n"))
+                        stop(Error)
+                    }
+                }
             }
             break
         }
