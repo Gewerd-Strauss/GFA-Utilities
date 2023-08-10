@@ -512,14 +512,66 @@ validateINI <- function(ini_List) {
     # axis_units_x          
     # axis_units_y          
     
-    
+    Experiment <- list(Name="character"
+                       ,Facet2D="logical"
+                       ,Facet2DVar="character"
+                       ,T0="character"
+                       ,PotsPerGroup="double"
+                       ,UniqueGroups="character"
+                       ,GroupsOrder="character"
+                       ,RefGroup="character"
+                       ,FixateAxes="logical"
+                       ,ForceAxes="logical"
+                       ,XLabel="character"
+                       ,XLabel_Daily="character"
+                       ,YLabel="character"
+                       ,YLimits="character"
+                       ,Normalise="logical"
+                       ,Filename_Prefix="character"
+                       ,Palette_Boxplot="character"
+                       ,Palette_Lines="character"
+                       ,Palette_Boxplot2="character"
+                       ,Palette_Lines2="character")
+    General <- list( ShowNatallboxplots="logical"
+                     ,ShowTitle="logical"
+                     ,PlotMeanLine="logical"
+                     ,PlotSampleSize="logical"
+                     ,Debug="logical"
+                     ,Theme="double"
+                     ,language="character"
+                     ,used_filesuffix="character"
+                     ,axis_units_x="character"
+                     ,axis_units_y="character"
+                     ,RelativeColnames="logical"
+                     ,ShowBothColnames="logical")
     #T0
+    optional_arguments <- str_c("XLabel_Daily")
     ret <- FALSE
     bIsDateValid <- is.dmy(ini_List$Experiment$T0)
+    LogicalSubSet <- c("F","T","FALSE","TRUE",1,0)
+    #if (ini_List$Experiment$Facet2D!="FALSE") && 
     if (isFALSE(bIsDateValid)) {
         ret <- "'Date' in 'configfile'->'Experiment'->'T0' is not valid"
     }
-    
+    for (i in seq_along(ini_List$Experiment)) {
+        name <- names(ini_List$Experiment)[[i]]
+        value <- ini_List$Experiment[[i]]
+        if (Experiment[[name]]=="logical") {
+            if (isFALSE(testSubset(value,LogicalSubSet))) {
+                ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected values: '1/0/T/F/TRUE/FALSE'\n\tPlease correct the contents of the key")
+            }
+            
+        } else if (Experiment[[name]]=="character") {
+            if (isFALSE(testSubset(typeof(value),"character"))) {
+                ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'character'\n\tPlease correct the contents of the key")
+            }
+            
+        } else if ((Experiment[[name]]=="double") || (Experiment[[name]]=="numeric")) {
+            if (isTRUE(is.na(as.numeric(value)))) {
+                ret <- str_c(ret,"\nConfig Key\t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'double/numeric'\n\tCould not be converted to numeric. Please correct the contents of the key")
+            }
+        } 
+    }
     return(ret)
 }
 getMaximumDateRange  <- function(Colnames) {
@@ -1086,7 +1138,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # Error out if ini is invalid.
     ErrorString <- validateINI(ini)
     if (isFALSE((typeof(ErrorString)=="logical"))) {
-        Error <- simpleError(str_c("\nIni does not contain all required information. Please double-Check the config file 'GFA_conf.ini':" , ErrorString,sep = "\n"))
+        Error <- simpleError(str_c(str_c("\nIni does not contain all required information. Please double-Check the config file: '",path,"'"),ErrorString ,sep = "\n"))
         stop(Error)
     }
     
