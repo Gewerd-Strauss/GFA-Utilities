@@ -845,8 +845,11 @@ createConfiguration(Path,AA) {
         ;OutputDebug % gw.RCodeTemplate
         ;m(gw)
         SplitPath % Chosen,, Chosen
-        WINDOWS:=strreplace(Chosen,"\","/")
-        MAC:=strreplace(Chosen,"\","/")
+        if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
+            Chosen.="\"
+        }
+        WINDOWS:=strreplace(Chosen,"/","\")
+        MAC:=strreplace(Chosen,"/","\")
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
         ;OutputDebug % gw.RCodeTemplate
@@ -951,8 +954,11 @@ createRScript(Path) {
         if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
             SplitPath % gw.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
         }
-        WINDOWS:=strreplace(configLocationFolder,"\","/")
-        MAC:=strreplace(configLocationFolder,"\","/")
+        if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/")) {
+            configLocationFolder.="\"
+        }
+        WINDOWS:=strreplace(configLocationFolder,"/","\")
+        MAC:=strreplace(configLocationFolder,"/","\")
         Code:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
         Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
         Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
