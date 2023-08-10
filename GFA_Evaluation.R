@@ -41,7 +41,7 @@ calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=
         Date <- str_extract(file,"\\d+\\.\\d+\\.\\d+")
         Date <- as.Date.character(Date,format = "%d.%m.%Y")
         Conditions <- {}
-        Conditions$UseRelativeColnames <- as.logical(ini$General$RelativeColnames)
+        #as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
         if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
             TimeSinceT0[Ind] <- as.character.Date(Date,"%d.%m.%Y")
             #todo: figure out how to format them as date instead of character ._.
@@ -826,22 +826,13 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             Palette_Lines <- unlist(stringr::str_split(ini$Experiment$Palette_Lines2,","))
         }
         
-        
-        
-        # coerce boolean checks into logical
-        Conditions$Language <- as.logical(ini$General$language=='German')
-        Conditions$Normalise  <- as.logical(ini$Experiment$Normalise)
-        Conditions$UseRelativeColnames <- as.logical(ini$General$RelativeColnames)
-        Conditions$PlotMeanLine <- as.logical(ini$General$PlotMeanLine)
-        Conditions$PlotSampleSize <- as.logical(ini$General$PlotSampleSize)
-        
         # assemble label strings
         unit_x <- stringr::str_split(ini$General$axis_units_x,",")
         unit_y <- stringr::str_split(ini$General$axis_units_y,",")
-        unit_x <- if_else(Conditions$Language
+        unit_x <- if_else(as.logical(ini$General$language=='German')
                           , true=unit_x[[1]][1]
                           , false=unit_x[[1]][2])
-        unit_y <- if_else(Conditions$Language
+        unit_y <- if_else(as.logical(ini$General$language=='German')
                           , true=unit_y[[1]][1]
                           , false=unit_y[[1]][2])
         
@@ -849,28 +840,28 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
             plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (",str_trim(curr_Day),")")
         } else {
-            plot_Title <- if_else(Conditions$Language
+            plot_Title <- if_else(as.logical(ini$General$language=='German')
                                   , true=str_c("Grünfläche (",  str_trim(curr_Day) ,")")
                                   , false=str_c("Green area (", str_trim(curr_Day) ,")"))
         }
         if (as.logical(ini$General$Debug)) {
             plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
                                    , "\nT0: ", ini$Experiment$T0
-                                   # , "\nrelative column names: ", Conditions$UseRelativeColnames
-                                   , "\nNormalised: NOT IMPLEMENTED ", Conditions$Normalise
+                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                   , "\nNormalised: NOT IMPLEMENTED ", as.logical(ini$Experiment$Normalise)
                                    , "\nPots per Group: ", PotsPerGroup
                                    , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                    , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                   , "\n  Sample-Size: ", Conditions$PlotSampleSize
+                                   , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
                                    , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
             
-            #, "\n  Lines: ", Conditions$PlotMeanLine
+            #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
         } else {
             if (isFALSE(is.null(ini$Experiment$YLabel))) {
                 plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (",str_trim(curr_Day),")")
             } else {
                 plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
-                                       , if_else(Conditions$Language
+                                       , if_else(as.logical(ini$General$language=='German')
                                                  , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                               ,"\nSample-Size: ", PotsPerGroup)
                                                  , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
@@ -884,10 +875,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         if (isFALSE(is.null(ini$Experiment$YLabel))) {
             x_label <- str_c(ini$Experiment$XLabel[[1]]," [",unit_x,"]")
         } else {
-            x_label <- if_else(Conditions$Language
+            x_label <- if_else(as.logical(ini$General$language=='German')
                                , true=str_c("Versuchs-Gruppen")
                                , false=str_c("Treatment groups")
-                               , missing=if_else(Conditions$UseRelativeColnames
+                               , missing=if_else(as.logical(ini$General$RelativeColnames)
                                                  , true=str_c("Versuchs-Gruppen")
                                                  , false=str_c("Treatment groups")))
             
@@ -896,12 +887,12 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         if (isFALSE(is.null(ini$Experiment$YLabel))) {
             y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
         } else {
-            y_label <- if_else(Conditions$Normalise, 
-                               if_else(Conditions$Language
+            y_label <- if_else(as.logical(ini$Experiment$Normalise), 
+                               if_else(as.logical(ini$General$language=='German')
                                        , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
                                        , false=str_c("normalised green plant area [",unit_y,"]")
                                        , missing=str_c("normalised green plant area [",unit_y,"]")),
-                               if_else(Conditions$Language
+                               if_else(as.logical(ini$General$language=='German')
                                        , true=str_c("Grünfläche  [",unit_y,"]")
                                        , false=str_c("Green plant area [",unit_y,"]")
                                        , missing=str_c("Green plant area [",unit_y,"]")))
@@ -912,11 +903,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                           , ", "
                           , str_trim(curr_Day)
                           , ") "
-                          , if_else(Conditions$Normalise
+                          , if_else(as.logical(ini$Experiment$Normalise)
                                     , "norm"
                                     , "non-norm")
                           , "_"
-                          , if_else(Conditions$UseRelativeColnames
+                          , if_else(as.logical(ini$General$RelativeColnames)
                                     , "relColNms"
                                     , "absColNms")
                           , "_"
@@ -1019,7 +1010,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         }
         
         # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
-        if (Conditions$PlotSampleSize) {
+        if (as.logical(ini$General$PlotSampleSize)) {
             if (as.logical(ini$General$Debug)) {
                 GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
                                                             , geom = "text"
@@ -1091,6 +1082,7 @@ library(plyr)
 library(ini)
 library(tools)
 library(openxlsx)
+library(checkmate)
 GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
     
     path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
@@ -1135,7 +1127,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     #ini <- ini::read.ini(filepath = "GFA_conf.ini",)
     Files <- getFilesInFolder(folder_path,ini$General$used_filesuffix,'GFResults_',T)
     
-    # Error out if ini is invalid.
+    # Error out if loaded config is invalid.
     ErrorString <- validateINI(ini)
     if (isFALSE((typeof(ErrorString)=="logical"))) {
         Error <- simpleError(str_c(str_c("\nIni does not contain all required information. Please double-Check the config file: '",path,"'"),ErrorString ,sep = "\n"))
@@ -1143,9 +1135,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     
-    #todo: figure out an algorithm or user interface for doing this here
     
-    # calculate group sizes
+    # calculate group sizes and set up the group name vectors for the data_all_CA-object
     PotsPerGroup <- ini$Experiment$PotsPerGroup
     Number <- as.integer(PotsPerGroup)
     
@@ -1245,20 +1236,14 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     
-    # coerce boolean checks into logical
-    Conditions$Language <- as.logical(ini$General$language=='German')
-    Conditions$Normalise  <- as.logical(ini$Experiment$Normalise)
-    Conditions$UseRelativeColnames <- as.logical(ini$General$RelativeColnames)
-    Conditions$PlotMeanLine <- as.logical(ini$General$PlotMeanLine)
-    Conditions$PlotSampleSize <- as.logical(ini$General$PlotSampleSize)
     
     # assemble label strings
     unit_x <- stringr::str_split(ini$General$axis_units_x,",")
     unit_y <- stringr::str_split(ini$General$axis_units_y,",")
-    unit_x <- if_else(Conditions$Language
+    unit_x <- if_else(as.logical(ini$General$language=='German')
                       , true=unit_x[[1]][1]
                       , false=unit_x[[1]][2])
-    unit_y <- if_else(Conditions$Language
+    unit_y <- if_else(as.logical(ini$General$language=='German')
                       , true=unit_y[[1]][1]
                       , false=unit_y[[1]][2])
     
@@ -1268,28 +1253,28 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     TitleDates <- calculateColnames(Files,List,ini,T,T)
     TitleDates  <- getMaximumDateRange(TitleDates)
     #todo: subtitle: Give experiment number (2.1 vs 2.2)
-    plot_Title <- if_else(Conditions$Language
+    plot_Title <- if_else(as.logical(ini$General$language=='German')
                           , true=str_c("Entwicklung der Grünfläche (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
                           , false=str_c("Green area development (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
     if (as.logical(ini$General$Debug)) {
         plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
                                , "\nT0: ", ini$Experiment$T0
-                               # , "\nrelative column names: ", Conditions$UseRelativeColnames
+                               # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                , "\nSample-Size: ", PotsPerGroup
                                , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                               , "\n  Sample-Size: ", Conditions$PlotSampleSize
+                               , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
                                , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
                                , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
         
-        #, "\n  Lines: ", Conditions$PlotMeanLine
+        #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
     } else {
         
         plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
-                               #, if_else(Conditions$Language
+                               #, if_else(as.logical(ini$General$language=='German')
                                #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
-                               , if_else(Conditions$Language
+                               , if_else(as.logical(ini$General$language=='German')
                                          , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                       ,"\nSample-Size: ", PotsPerGroup)
                                          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
@@ -1305,16 +1290,16 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
         x_label <- str_c(ini$Experiment$XLabel[[1]]," [",unit_x,"]")
     } else {
-        x_label <- if_else(Conditions$Language
-                           , true=if_else(Conditions$UseRelativeColnames
+        x_label <- if_else(as.logical(ini$General$language=='German')
+                           , true=if_else(as.logical(ini$General$RelativeColnames)
                                           , true=str_c("Pflanzenalter [",unit_x,"]")
                                           , false=str_c("Messtage")
                                           , missing=str_c("Pflanzenalter [",unit_x,"]"))
-                           , false=if_else(Conditions$UseRelativeColnames
+                           , false=if_else(as.logical(ini$General$RelativeColnames)
                                            , true=str_c("Plant age [",unit_x,"]")
                                            , false=str_c("Dates of measurement")
                                            , missing=str_c("Plant age [",unit_x,"]"))
-                           , missing=if_else(Conditions$UseRelativeColnames
+                           , missing=if_else(as.logical(ini$General$RelativeColnames)
                                              , true=str_c("Plant age [",unit_x,"]")
                                              , false=str_c("Dates of measurement")
                                              , missing=str_c("Plant age [",unit_x,"]")))
@@ -1325,12 +1310,12 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     if (isFALSE(is.null(ini$Experiment$YLabel))) {
         y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
     } else {
-        y_label <- if_else(Conditions$Normalise, 
-                           if_else(Conditions$Language
+        y_label <- if_else(as.logical(ini$Experiment$Normalise), 
+                           if_else(as.logical(ini$General$language=='German')
                                    , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
                                    , false=str_c("normalised green plant area [",unit_y,"]")
                                    , missing=str_c("normalised green plant area [",unit_y,"]")),
-                           if_else(Conditions$Language
+                           if_else(as.logical(ini$General$language=='German')
                                    , true=str_c("Grünfläche  [",unit_y,"]")
                                    , false=str_c("Green plant area [",unit_y,"]")
                                    , missing=str_c("Green plant area [",unit_y,"]")))
@@ -1346,11 +1331,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                       , " - "
                       , TitleDates[length(TitleDates)]
                       , ") "
-                      , if_else(Conditions$Normalise
+                      , if_else(as.logical(ini$Experiment$Normalise)
                                 , "norm"
                                 , "non-norm")
                       , "_"
-                      , if_else(Conditions$UseRelativeColnames
+                      , if_else(as.logical(ini$General$RelativeColnames)
                                 , "relColNms"
                                 , "absColNms")
                       , "_"
@@ -1417,7 +1402,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
     
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
-        if (Conditions$UseRelativeColnames) { ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
+        if (as.logical(ini$General$RelativeColnames)) { ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
             GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels) #todo: figure out if I can use this properly
@@ -1429,7 +1414,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         }
         
     } else {
-        if (Conditions$UseRelativeColnames) { ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
+        if (as.logical(ini$General$RelativeColnames)) { ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
             GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels) #todo: figure out if I can use this properly
@@ -1453,12 +1438,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     GFA_SummaryPlot <- GFA_SummaryPlot +labs(x=x_label
                                              , y=y_label
-                                             ,fill = if_else(Conditions$Language
+                                             ,fill = if_else(as.logical(ini$General$language=='German')
                                                              , "Gruppen"
                                                              , "Groups")
     )
-    #Conditions$PlotSampleSize <- T
-    if (Conditions$PlotSampleSize) {
+    if (ini$General$PlotSampleSize) {
         if (as.logical(ini$General$Debug)) {
             #todo: only label those differing in size, then put the general sample size in the subtitle
             GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
@@ -1605,14 +1589,14 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     Titles <- list(plot_Title=plot_Title,plot_Subtitle=plot_Subtitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
     if (returnDays) {
-        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,scaleXdates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,"",ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
-        return(list(GFA_SummaryPlot,Titles,0,scaleXdates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,0,"",ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
-#ret <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\GFA_Dev_Treatments\)",F,F,F,F)
-#print(ret)
 cat("\014") ## clear console
+plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 1)
+#plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 0,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
 #remove (list=ls()) ## clear environment variables
 
 #plot_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",returnDays = F)
