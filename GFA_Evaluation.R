@@ -598,7 +598,7 @@ getMaximumDateRange  <- function(Colnames) {
 }
 getBreaks <- function(ini,Limits) {
     # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$Experiment,"FixxateAxes")) {
+    if (hasName(ini$Experiment,"FixateAxes")) {
         if (hasName(ini$Experiment,"BreakStepSize")) {
             BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
             nbreaks <- Limits[[2]]/BreakStepSize
@@ -1683,10 +1683,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
 }
 cat("\014") ## clear console
-GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",T)
+#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",T)
 #GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",T)
-GFA_1[[1]]
-GFA_1[[3]]
+#GFA_1[[1]]
+#GFA_1[[3]]
 #GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",F)
 #GFA_2[[1]]
 #plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 1)
