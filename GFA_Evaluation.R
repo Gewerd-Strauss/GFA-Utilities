@@ -454,10 +454,10 @@ isNormallyDistributed <- function(norm_obj,Threshold=0.05) {
     boolean <- (Count==Count_Threshold) #Evaluate threshold comparison
     return(boolean)
 }
-labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularSampleSize){
+labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularN){
     Value <- length(x)
     Threshold <- as.numeric(PotsPerGroup)
-    if (as.logical(ShowOnlyIrregularSampleSize)) {
+    if (as.logical(ShowOnlyIrregularN)) {
         if (Value<Threshold) {
             df <- data.frame(y = as.numeric(y)
                              ,label = paste0("n=",Value))
@@ -1072,7 +1072,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         if (as.logical(ini$General$PlotSampleSize)) {
             #if (as.logical(ini$General$Debug)) {
                 GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularSampleSize)
+                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
                                                             , geom = "text"
                                                             , hjust = 0.5
                                                             , size = 2.5
@@ -1342,7 +1342,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                ,""
                                ,"")
     }
-    if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularSampleSize)) {
+    if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularN)) {
             plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size")
     }
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
@@ -1551,7 +1551,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         #if (as.logical(ini$General$Debug)) {
             #todo: only label those differing in size, then put the general sample size in the subtitle
             GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
-                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularSampleSize),
+                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN),
                                                               geom = "text", 
                                                               hjust = 0.5, 
                                                               size = 2.5, 
