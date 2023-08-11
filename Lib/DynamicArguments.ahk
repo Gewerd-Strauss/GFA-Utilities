@@ -329,7 +329,7 @@ Class dynamicGUI {
             }
         }
         WideControlWidth:=330
-        gui %GUI_ID% add, Tab3,% "vvTab3 h900 w" Tab3Width, % Tab3String
+        gui %GUI_ID% add, Tab3,% "vvTab3 hwndhwndDA" " h900 w" Tab3Width, % Tab3String
         if (this.StepsizedGuishow) {
             gui %GUI_ID% show
         }
@@ -519,9 +519,10 @@ Class dynamicGUI {
                 continue
             }
             if (Tab.Height>maxTabHeight) {
-                maxTabHeight:=Tab.Height + 80
+                maxTabHeight:=Tab.Height
             }
         }
+        maxTabHeight+=80
         GuiControl Move, vTab3, % "h" maxTabHeight
         maxTabHeight+=25
         GuiControl Choose, vTab3, 1
