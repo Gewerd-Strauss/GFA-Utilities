@@ -27,8 +27,8 @@ setupdefaultconfig(Switch) {
             [Version]
             ;Version Type: Text
             ;Version Hidden:
-            build=126
-            GFC_version=1.3.4
+            build=127
+            GFC_version=1.4.4
             [Settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
@@ -108,6 +108,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ForceAxes:Checkbox|Type:boolean|Default:0|String:"Do you want to force the Y-Axis scaling? This requires setting 'YLimits'"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%YLimits:Edit|Type:String|Default:"0,150"|String:"Set the minimum and maximum limit for the Y-Axis. Does not take effect if 'ForceAxes' is false. Used for all plots"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%BreakStepSize:Edit|Type:Integer|Default:25|String:Set the spacing between numbered breaks on the Y-Axis. Requires ForceAxes=T"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%axis_units_x:Edit|Type:String|Default:Tage,days|String:"Set the unit of the X-axis. "|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis. "|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General

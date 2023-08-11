@@ -454,10 +454,10 @@ isNormallyDistributed <- function(norm_obj,Threshold=0.05) {
     boolean <- (Count==Count_Threshold) #Evaluate threshold comparison
     return(boolean)
 }
-labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularSampleSize){
+labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularN){
     Value <- length(x)
     Threshold <- as.numeric(PotsPerGroup)
-    if (as.logical(ShowOnlyIrregularSampleSize)) {
+    if (as.logical(ShowOnlyIrregularN)) {
         if (Value<Threshold) {
             df <- data.frame(y = as.numeric(y)
                              ,label = paste0("n=",Value))
@@ -598,7 +598,7 @@ getMaximumDateRange  <- function(Colnames) {
 }
 getBreaks <- function(ini,Limits) {
     # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$Experiment,"FixxateAxes")) {
+    if (hasName(ini$Experiment,"FixateAxes")) {
         if (hasName(ini$Experiment,"BreakStepSize")) {
             BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
             nbreaks <- Limits[[2]]/BreakStepSize
@@ -1072,7 +1072,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         if (as.logical(ini$General$PlotSampleSize)) {
             #if (as.logical(ini$General$Debug)) {
                 GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularSampleSize)
+                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
                                                             , geom = "text"
                                                             , hjust = 0.5
                                                             , size = 2.5
@@ -1342,7 +1342,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                ,""
                                ,"")
     }
-    if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularSampleSize)) {
+    if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularN)) {
             plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size")
     }
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
@@ -1521,8 +1521,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             }
             breaks <- getBreaks(ini,Limits)
             Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],StepSize), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                    limits = c(Limits[[1]],Limits[[2]]))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
         } else {
@@ -1531,7 +1529,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
-            
         }
     } else {
         # define breaks and labels for the y-scale
@@ -1539,7 +1536,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
         GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                 limits = c(Limits[[1]],Limits[[2]]))
-        
     }
     
     
@@ -1555,7 +1551,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         #if (as.logical(ini$General$Debug)) {
             #todo: only label those differing in size, then put the general sample size in the subtitle
             GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
-                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularSampleSize),
+                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN),
                                                               geom = "text", 
                                                               hjust = 0.5, 
                                                               size = 2.5, 
@@ -1683,10 +1679,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
 }
 cat("\014") ## clear console
-GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",T)
+#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",T)
 #GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",T)
-GFA_1[[1]]
-GFA_1[[3]]
+#GFA_1[[1]]
+#GFA_1[[3]]
 #GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",F)
 #GFA_2[[1]]
 #plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 1)
