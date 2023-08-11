@@ -105,9 +105,10 @@ main() {
 
     ;script.Save(script.scriptconfigfile)
     global gw:=guiCreate()
-    hwnd:=guiShow(gw)
+    global maingui_hwnd:=guiShow(gw)
         , f5:=Func("guiShow2").Bind(gw)
         , f6:=Func("prepare_release")
+    ;guiResize(gw,true)
     Menu Tray, Add, Show/Hide GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
@@ -167,7 +168,6 @@ main() {
 guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
-
     if (globalLogicSwitches.DEBUG) {
 
         ttip([globalLogicSwitches.bIsAuthor,globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG])
@@ -208,7 +208,7 @@ guiCreate() {
         , HeightMinusMargins:=guiHeight - 4*YMarginWidth + 0
         , SectionWidth:=WidthMinusMargins/NumberofSections + 0
         , SectionHeight:=guiHeight
-        , Sections:={}
+        , Sections:=[]
         , middleanchor:=guiWidth-4*15-middleWidth
         , groupbox_height:=953
     loop, % NumberofSections {
@@ -220,7 +220,7 @@ guiCreate() {
     }
     Sections[4]:={XAnchor:Sections[3].XAnchor,YAnchor:Sections[3].YAnchor,Width:Sections[3].Width,Height:Sections[3].Height}
 
-    ShiftSection1:=250
+    ShiftSection1:=((script.config.Settings.SizeSetting="1080p")?50:(script.config.Settings.SizeSetting="1080p")?250:250)
         , ShiftSection2:=250
         , Sections[1].Width:=Sections[1].Width-ShiftSection1
         , Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
@@ -246,6 +246,7 @@ guiCreate() {
         , vRCConfiguration
     gui GC: new
     gui GC: +AlwaysOnTop +LabelGC +HWNDGCHWND
+    gui GC: +Resize +MinSize
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
@@ -266,6 +267,7 @@ guiCreate() {
     gui add, edit,% "yp w160 hwnddropFilesEdit disabled -vscroll -hscroll x" Sections[1].XAnchor+180,% "Drop config file or config destination folder here"
     gui add, edit,% "y100 x" Sections[1].XAnchor+5 " r1 disabled vvUsedConfigLocation w" Sections[1].Width - 3*5,   % "<Location of Configuration-'.ini'-File>"
     global dynGUI:= new gfcGUI("Experiment::blank",script.gfcGUIconfigfile,"-<>-",FALSE)
+    dynGUI.GFA_Evaluation_Configfile_Location:=GFA_Evaluation_RScript_Location:=""
     dynGUI.guiVisible:=false
         , dynGUI.GCHWND:=GCHWND
         , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
@@ -336,11 +338,9 @@ guiCreate() {
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, R-Script-Preview
     ; global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h" (Sections[4].Height-45-3*5)/4 ,"GC", HighlightBound=Func("HighlightR"))
     global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
-    ;gui add, edit,% "y45 x" Sections[4].XAnchor+5 " h" (Sections[4].Height-45-3*5)/4  "disabled vvRCRScript w" Sections[4].Width - 3*5,   % "<RScript-preview -'.R'-File>"
     gui add, text, % "y" (45+489+5) " x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, Configuration-Preview
     buttonHeight:=40
     global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, HighlightBound=Func("HighlightR"))
-    ;gui add, edit,% "y" ((45+(Sections[4].Height*2.2-45-3*5)/4 + 15)+15) " x" Sections[4].XAnchor+5 " h" (Sections[4].Height-45-3*5)/4 " disabled vvRCConfiguration w" Sections[4].Width - 3*5,   % "<Configuration-preview -'.ini'-File>"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateRScript x" Sections[4].XAnchor+5, % "Generate R-Script"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfiguration x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfiguration x" Sections[4].XAnchor+185, % "Generate Configuration"
@@ -397,10 +397,21 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
+    gui gc: +Resize
     return {guiWidth:guiWidth
             ,guiHeight:guiHeight
             ,dynGUI:dynGUI
-            ,Sections:Sections}
+            ,Sections:Sections
+            ,XMarginWidth:XMarginWidth
+            ,YMarginWidth:YMarginWidth}
+}
+guiShow3(gw,ShowThirdPane:=true) {
+    if (showThirdPane) {
+        gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
+    } else {
+        gui GC: show,% "w" (gw["guiWidth"]-(gw["Sections"][4]["Width"]+gw.XMarginWidth*2)) " h" gw["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
+    }
+    return
 }
 guiShow2(gw) {
     global
@@ -445,7 +456,11 @@ guiShow(gw) {
         }
     }
     gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
-    gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
+    if (gw.dynGUI.GFA_Evaluation_Configfile_Location="") {
+        gui GC: show,% "w" (gw["guiWidth"]-(gw["Sections"][4]["Width"]+gw.XMarginWidth*2)) " h" gw["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
+    } else {
+        gui GC: show,% "w" gw["guiWidth"] " h" gw["guiHeight"] " Center" , % script.name " - Create new Configuration"
+    }
     guicontrol GC: hide, % "vExcelSheetPreview"
     dynGUI.guiVisible:=true
     handleCheckboxes(Param)
@@ -464,6 +479,7 @@ guiShow(gw) {
             TabNames.="|"
         }
     }
+    gui gc: default
     return
 }
 
@@ -473,9 +489,28 @@ guiHide() {
     GCEscape()
     return 
 }
+guiResize(gw,bHideLastThird) {
+    if (gw.dynGUI.GFA_Evaluation_Configfile_Location="") || (gw.dynGUI.GFA_Evaluation_RScript_Location="") {
+        guiShow3(gw,false)
+    } else {
+        guiShow3(gw,true)
+    }
+    return
+}
+GCSize() {
+    global
+    gui GC: default
+    w:=A_GuiWidth/gw["guiWidth"]
+    h:=A_GuiHeight/gw["guiHeight"]
+    ttip(["triggering " A_ThisLabel,w,h])
+    ;AutoXYWH("x y w0.001*", "vRC1")
+    ;AutoXYWH("w" w " h" h)
+    return
+}
 GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 
     global dynGUI
+    global gw
     if (A_GuiControl="Drop config file or config destination folder here") {    ;; ini-file
 
         if (File.Count()>1) {
@@ -686,9 +721,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
     }
     if (rPath!="") {
         dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        guiResize(gw,false)
     }
     if (configPath!="") {
         dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        guiResize(gw,false)
     }
     return  
 }
@@ -764,6 +801,8 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
         script.Update()
         gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
+        gui % "GC: Default"
+        gui % "GC: +OwnDialogs"
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) { ; part 2  -  Author
         script.About()
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
@@ -805,6 +844,8 @@ fCallBack_StatusBarMainWindow() {
 
     }
     gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
+    gui GC: Default
+    gui GC: +OwnDialogs
     return
 }
 ~!Esc::Reload
@@ -841,6 +882,7 @@ createConfiguration(Path,AA) {
     }
     GFA_configurationFile:=Chosen
         , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
+    guiResize(gw,false)
     if (Chosen!="") {
         ;OutputDebug % gw.RCodeTemplate
         ;m(gw)
@@ -888,9 +930,7 @@ editRScript(rScriptFile) {
     } else {
         if (globalLogicSwitches.DEBUG) {
             GFA_rScriptFile:=createRScript(A_ScriptDir)
-
         } else {
-
             GFA_rScriptFile:=createRScript("D:/")
         }
     }
@@ -948,6 +988,7 @@ createRScript(Path) {
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
+        guiResize(gw,false)
     }
     if (Chosen!="") {
         gw.RCodeTemplate:=handleCheckboxes()
@@ -989,6 +1030,7 @@ selectConfigLocation(SearchPath) {
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         }
+        guiResize(gw,false)
     }
     global GFA_configurationFile:=Chosen
     return Chosen
@@ -1025,3 +1067,4 @@ prepare_release() {
 #Include <RichCode>
 #Include <HasVal>
 #Include <Obj2Str>
+#Include <AutoXYWH>

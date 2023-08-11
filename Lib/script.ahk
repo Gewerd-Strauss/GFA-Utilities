@@ -568,6 +568,7 @@ class script {
 
     Update(vfile:="", rfile:="",bSilentCheck:=false,Backup:=true,DataOnly:=false)
     {
+        dfg:=A_DefaultGui
         ; Error Codes
         static ERR_INVALIDVFILE := 1
             ,ERR_INVALIDRFILE       := 2
@@ -609,17 +610,12 @@ class script {
             }
             if !bScriptObj_IsConnected && this.reqInternet ;; if internet is required - abort script
             {
-                gui +OwnDialogs
-                OnMessage(0x44, "OnMsgBoxScriptObj")
                 MsgBox 0x11,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
-                OnMessage(0x44, "")
-
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
                     reload
                 }
-
             }
 
 
@@ -638,18 +634,28 @@ class script {
 
         }
 
-        if !(http.responseText)
-        {
+        if !(http.responseText) {
             Progress OFF
             try
                 throw exception("There was an error trying to download the ZIP file for the update.`n","script.Update()","The server did not respond.")
             Catch, e 
-                msgbox 8240,% this.Name " > scriptObj -  No response from server", % e.Message "`n`nCheck again later`, or contact the author/provider. Script will resume normal operation."
+                msgbox 8240,% this.Name " > Update() - No response from server", % e.Message "`n`nCheck again later`, or contact the author/provider. Script will resume normal operation.", 3.5
+            gui %dfg%: Default
+            return
         }
         regexmatch(this.version, "\d+\.\d+\.\d+", loVersion)		;; as this.version is not updated automatically, instead read the local version file
 
         ; FileRead, loVersion,% A_ScriptDir "\version.ini"
         d:=http.responseText
+        if (InStr(http.responseText,"404")) {
+            Progress OFF
+            try
+                throw exception("The remote file containing the version to compare against could not be found.`n","script.Update()","Server not found.")
+            Catch, e 
+                msgbox 8240,% this.Name " > Update() - remote not found", % e.Message "`n`nCheck again later`, or contact the author/provider. Script will resume normal operation.",3.5
+            gui %dfg%: Default
+            return
+        }
         regexmatch(http.responseText, "\d+\.\d+\.\d+", remVersion)
         if (!bSilentCheck)
         {
@@ -664,7 +670,7 @@ class script {
             try
                 throw exception("Invalid version.`n The update-routine of this script works with SemVer.","script.Update()","For more information refer to the documentation in the file`n" )
             catch, e 
-                msgbox 8240,% " > scriptObj - Invalid Version", % e.What ":" e.Message "`n`n" e.Extra "'" e.File "'."
+                msgbox 8240,% " > scriptObj - Invalid Version", % e.What ":" e.Message "`n`n" e.Extra "'" e.File "'.`n`nlocal version: " loVersion "`nremote version: " remVersion
         }
         ; Compare against current stated version
         ver1 := strsplit(loVersion, ".")
@@ -701,7 +707,7 @@ class script {
         if (!newversion)
         {
             if (!bSilentCheck)
-                msgbox 8256, No new version available, You are using the latest version.`n`nScript will continue running.
+                msgbox 8256, No new version available, You are using the latest version.`n`nScript will continue running.,2.5
             return
         }
         else
@@ -753,7 +759,6 @@ class script {
                 FileDelete % Backup_Temp
                 FileCreateDir % Backup_Temp
             }
-            ; Gui +OwnDialogs
             MsgBox 0x34, `% this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
             IfMsgBox Yes 
             {
