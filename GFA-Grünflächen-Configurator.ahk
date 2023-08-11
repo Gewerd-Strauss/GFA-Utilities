@@ -1113,3 +1113,4 @@ prepare_release() {
 #Include <HasVal>
 #Include <Obj2Str>
 #Include <AutoXYWH>
+#Include <History>
