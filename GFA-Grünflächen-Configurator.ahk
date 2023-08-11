@@ -135,16 +135,17 @@ main() {
             `t`tif (grepl("linux-gnu", R.version$os))
             `t`t`tos <- "linux"
             `t}
-            `ttolower(os)
+            `treturn(tolower(os))
             }
-            if (get_os()) {
-            `t# MAC:
-            `tsource("`%GFA_EVALUATIONUTILITY`%")
-            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            } else {
+
+            source("`%GFA_EVALUATIONUTILITY`%")
+            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names
             `t# WINDOWS: 
-            `tsource("`%GFA_EVALUATIONUTILITY`%")
             `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            } else {
+            `t# MAC:
+            #`tsource("`%GFA_EVALUATIONUTILITY`%")
+            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
         )
         /*MAC additions:
@@ -844,8 +845,11 @@ createConfiguration(Path,AA) {
         ;OutputDebug % gw.RCodeTemplate
         ;m(gw)
         SplitPath % Chosen,, Chosen
-        WINDOWS:=strreplace(Chosen,"\","/")
-        MAC:=strreplace(Chosen,"\","/")
+        if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
+            Chosen.="\"
+        }
+        WINDOWS:=strreplace(Chosen,"/","\")
+        MAC:=strreplace(Chosen,"/","\")
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
         gw.RCodeTemplate:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
         ;OutputDebug % gw.RCodeTemplate
@@ -950,8 +954,11 @@ createRScript(Path) {
         if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
             SplitPath % gw.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
         }
-        WINDOWS:=strreplace(configLocationFolder,"\","/")
-        MAC:=strreplace(configLocationFolder,"\","/")
+        if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/")) {
+            configLocationFolder.="\"
+        }
+        WINDOWS:=strreplace(configLocationFolder,"/","\")
+        MAC:=strreplace(configLocationFolder,"/","\")
         Code:=strreplace(gw.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
         Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
         Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
