@@ -220,8 +220,15 @@ guiCreate() {
     }
     Sections[4]:={XAnchor:Sections[3].XAnchor,YAnchor:Sections[3].YAnchor,Width:Sections[3].Width,Height:Sections[3].Height}
 
-    ShiftSection1:=((script.config.Settings.SizeSetting="1080p")?50:(script.config.Settings.SizeSetting="1080p")?250:250)
-        , ShiftSection2:=250
+    if (script.config.Settings.SizeSetting="1080p") {
+        ShiftSection1:=0
+    } else if (script.config.Settings.SizeSetting="1440p") {
+        ShiftSection1:=50
+    } else {
+        ShiftSection1:=0
+    }
+    ;ShiftSection1:=((script.config.Settings.SizeSetting="1080p")?50:(script.config.Settings.SizeSetting="1080p")?250:250)
+    ShiftSection2:=250
         , Sections[1].Width:=Sections[1].Width-ShiftSection1
         , Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
         , Sections[2].Width:=Sections[2].Width-ShiftSection2
@@ -252,7 +259,7 @@ guiCreate() {
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
-    Names:=["1. Configuration File","2. R Starter Script Configuration","3. Auxiliary Utilities","4. Preview"]
+    Names:=["1. Configuration File","2. R Starter Script Configuration","4. Auxiliary Utilities","3. Preview"]
     ;gui GC: Show, % "w" guiWidth " h" guiHeight
 
     for each, section in Sections {
@@ -284,6 +291,9 @@ guiCreate() {
     gui add, checkbox, y145 xp hwndCheckSaveFigures vvSaveFigures, Do you want to save 'Figures' to disk?
     gui add, checkbox, y165 xp hwndCheckSaveRData   vvSaveRData, Do you want to save 'RData' to disk?
     gui add, checkbox, y185 xp hwndCheckSaveExcel   vvSaveExcel, Do you want to save 'Excel' to disk?
+    gui add, text, % "x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+15 " h0 w0", middlebottomanchor
+    gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations||Convert csv to excel||Rename Images
+    gui tab, Load previous configurations
 
     ;; right
     RESettings2 :=
@@ -334,6 +344,10 @@ guiCreate() {
             }
         )
 
+    gui tab, Convert csv to excel
+    gui tab, Rename Images
+    gui tab, Load previous configurations ;; refocus first tab
+    gui tab
     gui add, text, % "y15 x" Sections[4].XAnchor+5 " h0 w0", rightanchor
 
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, R-Script-Preview
@@ -490,11 +504,15 @@ guiHide() {
     GCEscape()
     return 
 }
-guiResize(guiObject,bHideLastThird) {
-    if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") || (guiObject.dynGUI.GFA_Evaluation_RScript_Location="") {
-        guiShow3(guiObject,false)
+guiResize(guiObject,bHideLastThird,normalOperation:=true) {
+    if (normalOperation) {
+        if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") || (guiObject.dynGUI.GFA_Evaluation_RScript_Location="") {
+            guiShow3(guiObject,false)
+        } else {
+            guiShow3(guiObject,true)
+        }
     } else {
-        guiShow3(guiObject,true)
+        ;gui GC: show,% "w" guiObject["guiWidth"]/2 " h" guiObject["guiHeight"]/2 " x0 y0" , % script.name " - Create new Configuration"
     }
     return
 }
@@ -519,6 +537,8 @@ GCSize() {
     }
     AutoXYWH("w", RC.HWND)
     AutoXYWH("wh", RC2.HWND)
+    AutoXYWH("h", hwndLV1)
+    AutoXYWH("h", hwndTab3_2)
     ;guicontrol, MoveDraw, previewConfigurationButton
 
     ;AutoXYWH("w1 h1", hwndDA)
@@ -583,6 +603,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             dynGUI.validateLoadedConfig()
             dynGUI.populateLoadedConfig()
             handleConfig(dynGUI,false)
+            IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
+            SplitPath % configPath,, OutDir
+            SplitPath % OutDir,, , ,OutDir,
+            gui listview, hwndLV1
+            LV_Add("",ExperimentName_Key,OutDir,configPath)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
         if (configPath!="") {
