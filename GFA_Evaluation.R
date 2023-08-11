@@ -1521,8 +1521,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             }
             breaks <- getBreaks(ini,Limits)
             Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],StepSize), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                    limits = c(Limits[[1]],Limits[[2]]))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
         } else {
@@ -1531,7 +1529,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                     limits = c(Limits[[1]],Limits[[2]]))
-            
         }
     } else {
         # define breaks and labels for the y-scale
@@ -1539,7 +1536,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
         GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                                 limits = c(Limits[[1]],Limits[[2]]))
-        
     }
     
     
