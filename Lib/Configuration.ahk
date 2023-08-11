@@ -28,7 +28,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=127
-            GFC_version=1.4.4
+            GFC_version=1.4.5
             [Settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
