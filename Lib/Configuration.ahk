@@ -49,6 +49,11 @@ setupdefaultconfig(Switch) {
             ;SizeSetting Determine how to scale the GUI: Auto will calculate the GUI-dimensions based on your main monitor's size. '1080p' and '1440p' will force a scaling based on that assumption.
             ;SizeSetting Type: DropDown 1080p|1440p||auto
             ;SizeSetting Default: auto
+            ConfigHistoryLimit=25
+            ;ConfigHistoryLimit Type: Integer
+            ;ConfigHistoryLimit How many previous config files do you want to keep in your history?
+            ;ConfigHistoryLimit Files that got moved are automatically removed
+            ;ConfigHistoryLimit Default: 25
             bRunAsAdmin=0
             ;bRunAsAdmin Do you want to always start the script with Administrator-privileges?
             ;bRunAsAdmin Type: Checkbox
@@ -69,7 +74,8 @@ setupdefaultconfig(Switch) {
             ;UpdateChannel Type: DropDown development||stable
             ;UpdateChannel Default: stable
             ;UpdateChannel 
-
+            [LastConfigsHistory]
+            ;LastConfigsHistory Hidden:
 
         )
     gfcGUIconfig=
