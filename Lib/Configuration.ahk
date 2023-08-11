@@ -120,8 +120,8 @@ setupdefaultconfig(Switch) {
             %A_Tab%;;; Statistics on Plot
             %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularSampleSize2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
         )
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
