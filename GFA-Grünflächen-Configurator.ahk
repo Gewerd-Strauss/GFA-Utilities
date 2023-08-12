@@ -956,17 +956,19 @@ createConfiguration(Path,AA) {
                 , dynGUI.populateLoadedConfig()
                 , handleConfig(dynGUI,false)
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
-            SplitPath % Chosen,, OutDir
-            SplitPath % OutDir,, , ,OutDir,
-            gui listview, hwndLV1
-            LV_Add("",ExperimentName_Key,OutDir,Chosen)
+            SplitPath % Chosen,,,, FileName
+            itemLocation:=LV_EX_FindStringEx( hwndLV_History, Chosen)
+            if !itemLocation && !IsObject(itemLocation){
+                gui listview, hwndLV_History
+                LV_Add("",ExperimentName_Key,FileName,Chosen)
+            }
         }
     }
     GFA_configurationFile:=Chosen
         , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
     guiResize(guiObject,false)
     if (Chosen!="") {
-        ;OutputDebug % guiObject.RCodeTemplate
+
         SplitPath % Chosen,, Chosen
         if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
             Chosen.="\"
@@ -1112,10 +1114,9 @@ selectConfigLocation(SearchPath) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
-            SplitPath % Chosen,, OutDir
-            SplitPath % OutDir,, , ,OutDir,
-            gui listview, hwndLV1
-            LV_Add("",ExperimentName_Key,OutDir,Chosen)
+            SplitPath % Chosen,,,, FileName
+            gui listview, hwndLV_History
+            LV_Add("",ExperimentName_Key,FileName,Chosen)
         }
         guiResize(guiObject,false)
     }
