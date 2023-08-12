@@ -294,7 +294,25 @@ guiCreate() {
     gui add, text, % "x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+15 " h0 w0", middlebottomanchor
     gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations||Convert csv to excel||Rename Images
     gui tab, Load previous configurations
+    gui add, Listview, % "hwndhwndLV1 x+5 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5) " w" (Sections[3].Width - 3*5 - 3*5), Key in Config|Directory|Full Path
 
+
+    HistoryString:=""
+    LV_Delete()
+    for each, File in script.config.LastConfigsHistory {
+        if (FileExist(File)) {
+            SplitPath % File, , OutDir, , FileName
+            SplitPath % OutDir,OutFileName
+            IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
+            HistoryString.=((each=1)?"/|":"|") FileName "(" OutFileName ")" " -<>- " File
+            if (each=1) {
+                HistoryString.="|"
+            }
+            LV_Add("",ExperimentName_Key,OutDir,File)
+        } else {
+            script.config.LastConfigsHistory.RemoveAt(each,1)
+        }
+    }
     ;; right
     RESettings2 :=
         ( LTrim Join Comments
