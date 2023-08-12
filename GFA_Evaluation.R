@@ -1144,8 +1144,14 @@ library(tools)
 library(openxlsx)
 library(checkmate)
 GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
-    
-    path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
+    if (!dir.exists(folder_path) || file.exists(folder_path)) {
+        folder_path <- dirname(folder_path)
+        folder_path <- str_c(folder_path,"\\")
+        folder_path <- str_replace_all(folder_path,"/","\\\\")
+        path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
+    } else {
+        path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
+    }
     if (isFALSE(checkExistence(path))) {
         Experiment <- list(Name="Experiment 2"
                            ,Facet2D="F"
@@ -1679,8 +1685,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
 }
 cat("\014") ## clear console
-#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",T)
-#GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",T)
+#GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini)",F)
+#GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",F)
 #GFA_1[[1]]
 #GFA_1[[3]]
 #GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",F)
