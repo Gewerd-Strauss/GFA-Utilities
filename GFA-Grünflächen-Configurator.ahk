@@ -725,6 +725,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             dynGUI.validateLoadedConfig()
             dynGUI.populateLoadedConfig()
             handleConfig(dynGUI,false)
+            IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
+            SplitPath % configPath,, OutDir
+            SplitPath % OutDir,, , ,OutDir,
+            gui listview, hwndLV1
+            LV_Add("",ExperimentName_Key,OutDir,configPath)
         }
         guicontrol % "GC:",vUsedConfigLocation, % configPath
         if (configPath!="") {
@@ -942,6 +947,11 @@ createConfiguration(Path,AA) {
                 , dynGUI.validateLoadedConfig()
                 , dynGUI.populateLoadedConfig()
                 , handleConfig(dynGUI,false)
+            IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
+            SplitPath % Chosen,, OutDir
+            SplitPath % OutDir,, , ,OutDir,
+            gui listview, hwndLV1
+            LV_Add("",ExperimentName_Key,OutDir,Chosen)
         }
     }
     GFA_configurationFile:=Chosen
@@ -1092,6 +1102,12 @@ selectConfigLocation(SearchPath) {
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+            IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
+            SplitPath % Chosen,, OutDir
+            SplitPath % OutDir,, , ,OutDir,
+            gui listview, hwndLV1
+            LV_Add("",ExperimentName_Key,OutDir,Chosen)
         }
         guiResize(guiObject,false)
     }
