@@ -251,8 +251,10 @@ guiCreate() {
         , vSaveExcel
         , vRCRScript
         , vRCConfiguration
+        , hwndLV_History
+        , vToggleLVReport
     gui GC: new
-    gui GC: +AlwaysOnTop +LabelGC +HWNDGCHWND
+    gui GC:  +LabelGC +HWNDGCHWND
     minW:=(guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2))
     minH:=guiObject["guiHeight"]
     gui GC: +Resize +MinSize%minW%x%minH%
@@ -294,25 +296,31 @@ guiCreate() {
     gui add, text, % "x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+15 " h0 w0", middlebottomanchor
     gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations||Convert csv to excel||Rename Images
     gui tab, Load previous configurations
-    gui add, Listview, % "hwndhwndLV1 x+5 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5) " w" (Sections[3].Width - 3*5 - 3*5), Key in Config|Directory|Full Path
-
+    gui add, checkbox, % "hwndCheckToggleLVReport gtoggle_ReportTip x+5 y+5 vvToggleLVReport", % "Toggle Report-View on the ListView below?"
+    gui add, Listview, % "hwndhwndLV_History +LV0x400 +LV0x10000 xp y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
     HistoryString:=""
     LV_Delete()
+    SetExplorerTheme(hwndLV_History)
+    TThwnd := DllCall("SendMessage", "ptr", hwndLV_History, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in script.config.LastConfigsHistory {
         if (FileExist(File)) {
             SplitPath % File, , OutDir, , FileName
-            SplitPath % OutDir,OutFileName
             IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
-            HistoryString.=((each=1)?"/|":"|") FileName "(" OutFileName ")" " -<>- " File
-            if (each=1) {
-                HistoryString.="|"
-            }
-            LV_Add("",ExperimentName_Key,OutDir,File)
+            LV_Add("",ExperimentName_Key,FileName,File)
         } else {
             script.config.LastConfigsHistory.RemoveAt(each,1)
         }
     }
+
+
+    LV_EX_SetTileViewLines(hwndLV_History, 2, 310)
+    LV_EX_SetTileInfo(hwndLV_History, 0, 2,3, 4)
+    ; WM_NOTIFY handler
+    OnMessage(0x4E, "On_WM_NOTIFY")
+    WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
+    ; TODO: Logic for filling this LV is missing in the remaining update-logic; as well as extensive testing with a couple of config files
+    ;script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Settings.HistoryLimit)
     ;; right
     RESettings2 :=
         ( LTrim Join Comments
@@ -322,7 +330,7 @@ guiCreate() {
             "FGColor": 0xEDEDCD,
             "BGColor": 0x3F3F3F,
             "Font": {"Typeface": "Consolas", "Size": 11},
-            "WordWrap": False,
+            "WordWrap": True,
 
             "UseHighlighter": True,
             "HighlightDelay": 200,
@@ -364,8 +372,8 @@ guiCreate() {
 
     gui tab, Convert csv to excel
     gui tab, Rename Images
-    gui tab, Load previous configurations ;; refocus first tab
-    gui tab
+    GuiControl Choose, vTab3, % "Load previous configuration"
+    gui tab,
     gui add, text, % "y15 x" Sections[4].XAnchor+5 " h0 w0", rightanchor
 
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, R-Script-Preview
@@ -555,7 +563,7 @@ GCSize() {
     }
     AutoXYWH("w", RC.HWND)
     AutoXYWH("wh", RC2.HWND)
-    AutoXYWH("h", hwndLV1)
+    AutoXYWH("h", hwndLV_History)
     AutoXYWH("h", hwndTab3_2)
     ;guicontrol, MoveDraw, previewConfigurationButton
 
