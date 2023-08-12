@@ -1149,3 +1149,4 @@ prepare_release() {
 #Include <AutoXYWH>
 #Include <History>
 #Include <LV_EX>
+#Include <SetExplorerTheme>
