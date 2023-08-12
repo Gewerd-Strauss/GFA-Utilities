@@ -17,4 +17,5 @@ Gewerd Strauss  -      ttip                                                     
 Gewerd Strauss  -      partial, self-written subset of ScriptObj                            - https://gist.github.com/Gewerd-Strauss/8ee61682aef45c0d124b19afaeedc2fe
 Gewerd Strauss  -      main script, 
 maestrith       -      URLDownloadToVar                                                     - https://www.autohotkey.com/boards/viewtopic.php?t=3291
+just me         -      LV_EX, reg. license                                                  - https://github.com/AHK-just-me/LV_EX, https://raw.githubusercontent.com/AHK-just-me/LV_EX/master/LICENSE
 

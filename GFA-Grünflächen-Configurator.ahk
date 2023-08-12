@@ -1148,3 +1148,4 @@ prepare_release() {
 #Include <Obj2Str>
 #Include <AutoXYWH>
 #Include <History>
+#Include <LV_EX>
