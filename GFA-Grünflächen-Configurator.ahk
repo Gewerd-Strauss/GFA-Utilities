@@ -247,7 +247,7 @@ guiCreate() {
         , vStarterRScriptLocation
         , vreturnDays
         , vSaveFigures
-        , vSaveRData
+        , vsaveRDATA
         , vSaveExcel
         , vRCRScript
         , vRCConfiguration
@@ -291,7 +291,7 @@ guiCreate() {
     gui add, edit,% "y100 x" Sections[2].XAnchor+5 " r1 disabled vvStarterRScriptLocation w" Sections[2].Width - 3*5,   % "<Location of Starter-'.R'-Script>"
     gui add, checkbox, y125 xp hwndCheckreturnDays  vvreturnDays, Do you want to evaluate every day on its own?
     gui add, checkbox, y145 xp hwndCheckSaveFigures vvSaveFigures, Do you want to save 'Figures' to disk?
-    gui add, checkbox, y165 xp hwndCheckSaveRData   vvSaveRData, Do you want to save 'RData' to disk?
+    gui add, checkbox, y165 xp hwndChecksaveRDATA   vvsaveRDATA, Do you want to save 'RData' to disk?
     gui add, checkbox, y185 xp hwndCheckSaveExcel   vvSaveExcel, Do you want to save 'Excel' to disk?
     gui add, text, % "x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+15 " h0 w0", middlebottomanchor
     gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations||Convert csv to excel||Rename Images
@@ -435,7 +435,7 @@ guiCreate() {
 
     guiControl GC:+g, %CheckreturnDays%, % onCheckreturnDays
     guiControl GC:+g, %CheckSaveFigures%, % onCheckSaveFigures
-    guiControl GC:+g, %CheckSaveRData%, % onCheckSaveRData
+    guiControl GC:+g, %ChecksaveRDATA%, % onChecksaveRDATA
     guiControl GC:+g, %CheckSaveExcel%, % onCheckSaveExcel
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
