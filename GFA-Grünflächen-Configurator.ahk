@@ -1017,11 +1017,11 @@ editConfiguration(configurationFile) {
 editRScript(rScriptFile) {
     global
     gui Submit,NoHide
-
-    if (FileExist(GFA_rScriptFile)) {
-        run % GFA_rScriptFile
-    } else if (FileExist(rScriptFile)) {
+    if (FileExist(rScriptFile)) {
         run % rScriptFile
+    } else if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
+        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+        GFA_rScriptFile:=createRScript(OutDir,true,true)
     } else {
         if (globalLogicSwitches.DEBUG) {
             GFA_rScriptFile:=createRScript(A_ScriptDir)
@@ -1032,9 +1032,10 @@ editRScript(rScriptFile) {
     gui GC: default
     return
 }
-createRScript(Path) {
+createRScript(Path,forceSelection:=false,overwrite:=false) {
     global
     static Chosen
+    static inputPath
     gui Submit, NoHide
 
 
@@ -1067,8 +1068,7 @@ createRScript(Path) {
     }
     gui -AlwaysOnTop
     ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
-    if (Chosen="") {
-
+    if (Chosen="" || forceSelection) {
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (!globalLogicSwitches.DEBUG || script.config.settings.AlwaysOnTop) {
