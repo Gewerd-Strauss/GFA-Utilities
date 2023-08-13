@@ -48,6 +48,7 @@ script := { base: script.base
         , blank: "" }
 
 globalLogicSwitches.Debug:=DEBUG
+#Include <OnError>
 main()
 CodeTimer("Startup Time")
 return
