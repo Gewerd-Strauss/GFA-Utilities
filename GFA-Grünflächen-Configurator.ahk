@@ -606,41 +606,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         } else { ; file
             configPath:=File[1]
         }
-        if (configPath="") {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", % "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either."
-            Gui -OwnDialogs
-            return
-        }
-        if RegexMatch(configPath,"\.R$")  {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
-            Gui -OwnDialogs
-            return
-        }
-        if !RegexMatch(configPath,"\.ini$") {
-            configPath.= ".ini"
-        }
-        if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
-            dynGUI.generateConfig(0)
-            written_config:=dynGUI.ConfigObject
-            t_script:=new script()
-            t_script.Save(configPath,written_config)
-        } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
-            dynGUI.loadConfigFromFile(configPath)
-            dynGUI.validateLoadedConfig()
-            dynGUI.populateLoadedConfig()
-            handleConfig(dynGUI,false)
-            IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
-            SplitPath % configPath,, OutDir
-            SplitPath % OutDir,, , ,OutDir,
-            gui listview, hwndLV1
-            LV_Add("",ExperimentName_Key,OutDir,configPath)
-        }
-        guicontrol % "GC:",vUsedConfigLocation, % configPath
-        if (configPath!="") {
-            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
-        }
+        loadConfig_Main(configPath,dynGUI)
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -711,41 +677,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         } else { ; file
             configPath:=File[1]
         }
-        if (configPath="") {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", You have closed the selection-window without selecting an existing or creating a new config-file. Please do either.
-            Gui -OwnDialogs
-            return
-        }
-        if RegexMatch(configPath,"\.R$")  {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
-            Gui -OwnDialogs
-            return
-        } else if !RegexMatch(configPath,"\.ini$") {
-            configPath.= ".ini"
-        }
-        if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
-            dynGUI.generateConfig(0)
-            written_config:=dynGUI.ConfigObject
-            t_script:=new script()
-            t_script.Save(configPath,written_config)
-        } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
-            dynGUI.loadConfigFromFile(configPath)
-            dynGUI.validateLoadedConfig()
-            dynGUI.populateLoadedConfig()
-            handleConfig(dynGUI,false)
-            IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
-            SplitPath % configPath,, OutDir
-            SplitPath % OutDir,, , ,OutDir,
-            gui listview, hwndLV1
-            LV_Add("",ExperimentName_Key,OutDir,configPath)
-        }
-        guicontrol % "GC:",vUsedConfigLocation, % configPath
-        if (configPath!="") {
-            dynGUI.GFA_Evaluation_Configfile_Location:=configPath
-        }
-
+        loadConfig_Main(configPath,dynGUI)
 
         if (File.Count()>1) {
             Gui +OwnDialogs
@@ -823,6 +755,72 @@ fillRC2(INI) {
         , RC2.Value:= INI
     return
 }
+loadConfig_Main(configPath,dynGUI) {
+    global hwndLV_History
+    global guiObject
+    if (configPath="") {
+        Gui +OwnDialogs
+        MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", % "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either."
+        Gui -OwnDialogs
+        return
+    }
+    if RegexMatch(configPath,"\.R$")  {
+        Gui +OwnDialogs
+        MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
+        Gui -OwnDialogs
+        return
+    }
+    if !RegexMatch(configPath,"\.ini$") {
+        configPath.= ".ini"
+    }
+    if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
+        dynGUI.generateConfig(0)
+        written_config:=dynGUI.ConfigObject
+        t_script:=new script()
+        t_script.Save(configPath,written_config)
+    } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
+        dynGUI.loadConfigFromFile(configPath)
+        dynGUI.validateLoadedConfig()
+        dynGUI.populateLoadedConfig()
+        handleConfig(dynGUI,false)
+        IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
+        SplitPath % configPath,,,, FileName
+        itemLocation:=LV_EX_FindStringEx( hwndLV_History, configPath)
+        if !itemLocation && !IsObject(itemLocation){
+            gui listview, hwndLV_History
+            LV_Add("",ExperimentName_Key,FileName,configPath)
+        }
+    }
+    guicontrol % "GC:",vUsedConfigLocation, % configPath
+    if (configPath!="") {
+        dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        guiResize(guiObject,false)
+        SplitPath % configPath,, Chosen
+        if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
+            Chosen.="\"
+        }
+        WINDOWS:=strreplace(Chosen,"/","\")
+        MAC:=strreplace(Chosen,"/","\")
+        String:=guiObject.RCodeTemplate
+        needle:="GFA_main\(r""\(\%.+\%\)"","
+        needle:="GFA_main\((r.+""),"
+        rep1:="GFA_main(r""("
+        rep2:=")"","
+        Matches:=RegexMatchAll(String, "iU)" needle)
+        for _, match in Matches {                                                  ;; star, top
+            match_ := match[0]
+            if (_<2) {
+                String:=strreplace(String,match_,rep1 WINDOWS rep2)
+            } else {
+                String:=strreplace(String,match_,rep1 MAC rep2)
+            }
+        }
+        guiObject.RCodeTemplate:=String
+        handleCheckboxesWrapper(Param:="")
+    }
+    return
+}
+
 handleCheckboxesWrapper(Param:="") {
     fillRC1(handleCheckboxes(Param))
 }
@@ -1173,3 +1171,4 @@ prepare_release() {
 #Include <History>
 #Include <LV_EX>
 #Include <SetExplorerTheme>
+#Include <RegexMatchAll>
