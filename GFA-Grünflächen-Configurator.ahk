@@ -412,6 +412,7 @@ guiCreate() {
         , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
         , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
         , onGenerateRScript:=Func("createRScript").Bind("D:/")
+        , onLoadConfigFromLV:=Func("loadConfigFromLV").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,guiObject)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -429,6 +430,7 @@ guiCreate() {
     guiControl GC:+g, %NewConfigurationBtn%, % onNewConfiguration
     guiControl GC:+g, %newStarterScriptBtn%, % oncreateRScript
     guiControl GC:+g, %editStarterScriptBtn%, % onEditStarterScript
+    guiControl GC:+g, %hwndLV_History%, % onLoadConfigFromLV
 
 
     guiControl GC:+g, %CheckreturnDays%, % onCheckreturnDays
