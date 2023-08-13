@@ -407,10 +407,10 @@ guiCreate() {
         , onEditStarterScript := Func("editRScript").Bind("")
         , onPreviewConfiguration := Func("handleConfig").Bind(dynGUI,false)
         , onGenerateConfiguration := Func("handleConfig").Bind(dynGUI,true)
-        , onCheckreturnDays:=Func("handleCheckboxes").Bind("")
-        , onCheckSaveFigures:=Func("handleCheckboxes").Bind("")
-        , onCheckSaveRData:=Func("handleCheckboxes").Bind("")
-        , onCheckSaveExcel:=Func("handleCheckboxes").Bind("")
+        , onCheckreturnDays:=Func("handleCheckboxesWrapper").Bind("")
+        , onCheckSaveFigures:=Func("handleCheckboxesWrapper").Bind("")
+        , onChecksaveRDATA:=Func("handleCheckboxesWrapper").Bind("")
+        , onCheckSaveExcel:=Func("handleCheckboxesWrapper").Bind("")
         , onGenerateRScript:=Func("createRScript").Bind("D:/")
         , onLoadConfigFromLV:=Func("loadConfigFromLV").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
@@ -823,6 +823,10 @@ fillRC2(INI) {
         , RC2.Value:= INI
     return
 }
+handleCheckboxesWrapper(Param:="") {
+    fillRC1(handleCheckboxes(Param))
+}
+
 handleCheckboxes(Param:="") {
     global
     gui GC: submit, nohide
