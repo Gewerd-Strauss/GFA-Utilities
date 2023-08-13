@@ -987,10 +987,22 @@ createConfiguration(Path,AA) {
         }
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
-        guiObject.RCodeTemplate:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-        guiObject.RCodeTemplate:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-        ;OutputDebug % guiObject.RCodeTemplate
-        fillRC1(guiObject.RCodeTemplate)
+        String:=guiObject.RCodeTemplate
+        needle:="GFA_main\(r""\(\%.+\%\)"","
+        needle:="GFA_main\((r.+""),"
+        rep1:="GFA_main(r""("
+        rep2:=")"","
+        Matches:=RegexMatchAll(String, "iU)" needle)
+        for _, match in Matches {                                                  ;; star, top
+            match_ := match[0]
+            if (_<2) {
+                String:=strreplace(String,match_,rep1 WINDOWS rep2)
+            } else {
+                String:=strreplace(String,match_,rep1 MAC rep2)
+            }
+        }
+        guiObject.RCodeTemplate:=String
+        handleCheckboxesWrapper(Param:="")
     }
     return Chosen
 }
