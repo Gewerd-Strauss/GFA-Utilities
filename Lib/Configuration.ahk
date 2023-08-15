@@ -90,7 +90,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%Normalise:Checkbox|Type:boolean|Default:1|String:"Do you want to normalise your leaf area?"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Normalise_text:text|Type:String|Default:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|String:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctffrlOptions:xlsx,csv|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctrlOptions:xlsx,csv|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:1. General Configuration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
