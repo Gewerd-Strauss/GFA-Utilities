@@ -18,7 +18,7 @@ toggle_ReportTip() {
     GuiControlGet vToggleLVReport
     GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_History
     if (vToggleLVReport) {
-        LV_ModifyCol()
+        LV_ModifyCol(1,"auto")
     } else {
         LV_ModifyCol(1,"auto")   
         LV_ModifyCol(3,"auto")   
