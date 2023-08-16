@@ -1144,11 +1144,35 @@ library(tools)
 library(openxlsx)
 library(checkmate)
 GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
-    if (!dir.exists(folder_path) || file.exists(folder_path)) {
+    ## first validate that the path given as 'folder_path' points to supported inputs
+    if (file_test("-f", folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")) {          ## folder_path is a a file with fileending .ini
+        path <- folder_path
         folder_path <- dirname(folder_path)
-        folder_path <- str_c(folder_path,"\\")
         folder_path <- str_replace_all(folder_path,"/","\\\\")
-        path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        folder_path <- str_c(folder_path,"\\")
+    } else if (file_test("-f",folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")!=1) {   ## folder_path is a a file with a different fileending
+        testpath <- dirname(folder_path)
+        testpath <- str_replace_all(testpath,"/","\\\\")
+        testfile <- str_c(testpath,str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        if (file.exists(path)) {
+            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            folder_path <- str_c(folder_path,"\\")
+        } else {
+            ErrorString <- ""
+            Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
+            stop(Error)
+        }
+        rm(testfile,testpath)
+    } else if (file_test("-d",folder_path) && !file_test("-f",folder_path) && !str_count(folder_path,".ini")) {    ## folder_path is a directory path and not a file
+        folder_path <- str_replace_all(folder_path,"/","\\\\")
+        path <- stringr::str_c(folder_path,str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        if (file.exists(path)) {
+            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+        } else {
+            ErrorString <- ""
+            Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
+            stop(Error)
+        }
     } else {
         path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
     }
