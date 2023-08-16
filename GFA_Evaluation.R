@@ -1192,15 +1192,15 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                           limits = c(Limits[[1]],Limits[[2]]))
         
         stat.test$p.scient <- formatPValue(stat.test$p)
-        #GFA_plot_box2 <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
-        #                                                  , label = "{p} {p.adj.signif}"
-        #                                                  , size = 2.5
-        #                                                  , remove.bracket = TRUE
-        #                                                  , y.position = Limits[[2]]-1)
+        if (hasName(ini$Fontsizes,"Fontsize_Significance")) {
+            pval_size <- as.numeric(ini$Fontsizes$Fontsize_Significance)
+        } else {
+            pval_size <- 2.5
+        }
         GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
                                                           , label = "{p.scient} {p.adj.signif}"
-                                                          , size = 2.5
-                                                          , remove.bracket = TRUE
+                                                          , size = pval_size
+                                                          , remove.bracket = T
                                                           , y.position = Limits[[2]]-Limits[[2]]*0.10)
         GFA_plot_box <- GFA_plot_box + 
             guides(fill=guide_legend(title="Groups")) +
@@ -1214,14 +1214,18 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
         
         # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
         if (as.logical(ini$General$PlotSampleSize)) {
-            #if (as.logical(ini$General$Debug)) {
-                GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
-                                                            , geom = "text"
-                                                            , hjust = 0.5
-                                                            , size = 2.5
-                                                            , fontface = "bold")
-            #}
+            if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+                n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+            } else {
+                n_size <- 2.5
+            }
+            GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
+                                                        , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.05)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.05),Limits[[2]]-(Limits[[2]]*0.025)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                        , geom = "text"
+                                                        , hjust = 0.5
+                                                        , size = n_size
+                                                        , fontface = "bold"
+                                                        , position = position_dodge(width=0.75))
         }
         GFA_plot_box <- GFA_plot_box + ggpubr::theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
         if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
@@ -1702,16 +1706,19 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     if (ini$General$PlotSampleSize) {
         #todo: make filter to only display cases where less than intetned number of samples are plotted, e.g. where length(x)<PotsPerGroup. Other casese are given a blank string to print.
-        #if (as.logical(ini$General$Debug)) {
-            #todo: only label those differing in size, then put the general sample size in the subtitle
-            GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
-                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN),
-                                                              geom = "text", 
-                                                              hjust = 0.5, 
-                                                              size = 2.5, 
-                                                              fontface = "bold",
-                                                              position = position_dodge(width=0.75))
-        #}
+        #todo: only label those differing in size, then put the general sample size in the subtitle
+        if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+            n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+        } else {
+            n_size <- 2.5
+        }
+        GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n
+                                                          , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.numeric(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                          , geom = "text"
+                                                          , size = n_size
+                                                          , hjust = 0.5
+                                                          , fontface = "bold")
+        
     }
     GFA_SummaryPlot + grids("y",linetype=1)
     
