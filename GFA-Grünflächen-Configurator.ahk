@@ -321,7 +321,7 @@ guiCreate() {
     OnMessage(0x4E, "On_WM_NOTIFY")
     WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
     ; TODO: Logic for filling this LV is missing in the remaining update-logic; as well as extensive testing with a couple of config files
-    ;script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Settings.HistoryLimit)
+    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Settings.ConfigHistoryLimit)
     ;; right
     RESettings2 :=
         ( LTrim Join Comments
