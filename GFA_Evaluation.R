@@ -113,6 +113,158 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
     }
     return(DailyAnalyses)
 }
+
+calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
+    strictLimitsValidation <- T
+    if (hasName(ini$Experiment,"ForceAxes")) {                                          ## The user wants to force the axis to a specific range
+        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+            if (hasName(ini$Experiment,"BreakStepSize")) {
+                if (isTRUE(is.numeric(as.numeric(ini$Experiment$BreakStepSize)))) {
+                    StepSize <- as.numeric(ini$Experiment$BreakStepSize)
+                } else {
+                    StepSize <- 25
+                }
+            } else {
+                StepSize <- 25
+            }
+            temp <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
+            breaks <- getBreaks(ini,Limits)
+            if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user is smaller than the dataset's maximum.
+                if (strictLimitsValidation) {
+                    
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,1"
+                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                  , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, and thus the upper y-limit will be forced to its next-larger multiple")
+                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
+                                  , "\nAdjustments have been made, the user-defined Limits will NOT take effect."))
+                    options(warn = wrnopt)
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
+                } else {
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,2"
+                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                  , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, but a user has set the internal logic-switch 'strictLimitsValidation' of this function to false.")
+                                  , "\nAs a result, the aforementioned user-defined upper y-limit will NOT be adjusted and WILL take effect."
+                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
+                                  , "\nNo adjustments have been made, the user-defined Limits will take effect"))
+                    options(warn = wrnopt)
+                    Limits <- temp
+                    if (Limits[[2]]<min(as.vector(data),na.rm = T)) {
+                        Error <- simpleError(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,3"
+                                                   , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                                   , str_c("\nlies below the smallest value (",floor(min(as.vector(data),na.rm = T)),") of your dataset. This is not valid for ggplot, and will always throw an error.")
+                                                   , str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
+                                                   , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
+                        stop(Error)
+                    }
+                }
+            }
+            rm(temp)
+        } else {
+            # define breaks and labels for the y-scale                                  ## Limits is always larger than then dataset here.
+            breaks <- getBreaks(ini,Limits)
+            if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
+                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,4"
+                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                  , "\nand has been rounded up to the nearest multiple of it."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
+                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,5"
+                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                  , " would underscale the upper y limit."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                }
+            } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){          ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
+                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,6"
+                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                  , "\nand has been rounded up to the nearest multiple of it."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,7"
+                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                  , " would underscale the upper y limit."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                }
+            } else {                                                                    ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
+                
+            }
+        }
+    } else {                                                                    ## get breaks based on the data only. Thus, the limit will always be large enough, now we only need to validate the breaks themselves.
+        # define breaks and labels for the y-scale
+        breaks <- getBreaks(ini,Limits)
+        if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                    ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
+            if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
+                wrnopt <- getOption("warn")
+                options(warn = 1)
+                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,8"
+                              , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                              , "\nand has been rounded up to the nearest multiple of it."
+                              , "\nThe number of breaks have been adjusted accordingly."))
+                options(warn = wrnopt)
+                Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
+            } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                wrnopt <- getOption("warn")
+                options(warn = 1)
+                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,9"
+                              , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                              , " would underscale the upper y limit."
+                              , "\nThe number of breaks have been adjusted accordingly."))
+                options(warn = wrnopt)
+                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+            }
+        } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){              ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
+            if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
+                wrnopt <- getOption("warn")
+                options(warn = 1)
+                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,10"
+                              , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                              , "\nand has been rounded up to the nearest multiple of it."
+                              , "\nThe number of breaks have been adjusted accordingly."))
+                options(warn = wrnopt)
+                Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
+                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+            } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                wrnopt <- getOption("warn")
+                options(warn = 1)
+                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,11"
+                              , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                              , " would underscale the upper y limit."
+                              , "\nThe number of breaks have been adjusted accordingly."))
+                options(warn = wrnopt)
+                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+            }
+        } else {                                                                        ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
+            
+        }
+    }
+    return(list(Limits=Limits,breaks=breaks))
+}
+
+
 writeChangetoFile <- function(DailyAnalyses) {
     for (Object in DailyAnalyses) {
         write.xlsx(
@@ -598,79 +750,72 @@ getMaximumDateRange  <- function(Colnames) {
 }
 getBreaks <- function(ini,Limits) {
     # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$Experiment,"FixateAxes")) {
-        if (hasName(ini$Experiment,"BreakStepSize")) {
-            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
-            nbreaks <- Limits[[2]]/BreakStepSize
-        }    
+    if (hasName(ini$Experiment,"BreakStepSize")) {
+        BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+        if (Limits[[2]] %% 4) {
+            nbreaks <- 4
+        } else {
+            nbreaks <- 5
+        }
     } else {
-        if (hasName(ini$Experiment,"BreakStepSize")) {
-            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+        maximum <- Limits[[2]]
+        if (maximum<100) {
+            BreakStepSize <- 20
             if (Limits[[2]] %% 4) {
                 nbreaks <- 4
             } else {
                 nbreaks <- 5
             }
-        } else {
-            maximum <- Limits[[2]]
-            if (maximum<100) {
-                BreakStepSize <- 20
-                if (Limits[[2]] %% 4) {
-                    nbreaks <- 4
-                } else {
-                    nbreaks <- 5
-                }
-            }
-            if (maximum>2500) {
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("getBreaks() [user-defined]: your largest y-value "
-                              , Limits[[2]]
-                              , " exceeds 2500, which is the last step for which the author of this script predefined"
-                              , "\nthe number of displayed numbers and the steps inbetween them."
-                              , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
-                              , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
-                              , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
-                options(warn = wrnopt)
-                BreakStepSize=Limits[[2]]/10
-                nbreaks=10
-                return(list(BreakStepSize=BreakStepSize
-                            , breaknumber=nbreaks))
-            }
-            if (maximum<=2500) {
-                BreakStepSize <- 500
-                nbreaks <- 5
-            }
-            if (maximum<=1500) {
-                BreakStepSize <- 300
-                nbreaks <- 5
-            }
-            if (maximum<=1000) {
-                BreakStepSize <- 250
-                nbreaks <- 4
-            }
-            if (maximum<=750) {
-                BreakStepSize <- 125
-                nbreaks <- 6
-            }
-            if (maximum<=500) {
-                BreakStepSize <- 125
-                nbreaks <- 4
-            }
-            if (maximum<=300) {
-                BreakStepSize <- 100
-                nbreaks <- 3
-            }
-            if (maximum<=150) {
-                BreakStepSize <- 50
-                nbreaks <- 3
-            }
-            if (maximum<=100) {
-                BreakStepSize <- 25
-                nbreaks <- 4
-            }
-            
         }
+        if (maximum>2500) {
+            wrnopt <- getOption("warn")
+            options(warn = 1)
+            warning(str_c("getBreaks() [user-defined]: your largest y-value "
+                          , Limits[[2]]
+                          , " exceeds 2500, which is the last step for which the author of this script predefined"
+                          , "\nthe number of displayed numbers and the steps inbetween them."
+                          , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
+                          , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
+                          , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
+            options(warn = wrnopt)
+            BreakStepSize=Limits[[2]]/10
+            nbreaks=10
+            return(list(BreakStepSize=BreakStepSize
+                        , breaknumber=nbreaks))
+        }
+        if (maximum<=2500) {
+            BreakStepSize <- 500
+            nbreaks <- 5
+        }
+        if (maximum<=1500) {
+            BreakStepSize <- 300
+            nbreaks <- 5
+        }
+        if (maximum<=1000) {
+            BreakStepSize <- 250
+            nbreaks <- 4
+        }
+        if (maximum<=750) {
+            BreakStepSize <- 125
+            nbreaks <- 6
+        }
+        if (maximum<=500) {
+            BreakStepSize <- 125
+            nbreaks <- 4
+        }
+        if (maximum<=300) {
+            BreakStepSize <- 100
+            nbreaks <- 3
+        }
+        if (maximum<=150) {
+            BreakStepSize <- 50
+            nbreaks <- 3
+        }
+        if (maximum<=100) {
+            BreakStepSize <- 25
+            nbreaks <- 4
+        }
+        
     }
     return(list(BreakStepSize=BreakStepSize
              , breaknumber=nbreaks))
@@ -679,7 +824,7 @@ RemoveOutputFiles <- function(Files="",Output_prefix="") {
     Files_out <- Files[!stringr::str_detect(Files,pattern=Output_prefix)]
     return(Files_out)
 }
-RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
+RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
     # Create objects
     
     ret <- list()           # for returning all results from this functions
@@ -753,8 +898,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         }
         Day_Index <- Day_Index + 1
         Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
-        Gruppe1 <- rep(grps,numberofGroups/length(grps),numberofGroups)
-        Gruppe  <- rep(grps,each=PotsPerGroup)
+        Gruppe  <- rep(groups_as_ordered_in_datafile,each=PotsPerGroup)
         # green pixels per day
         Data$Gruppe <- Gruppe
         Data$Nummer <- Nummer
@@ -765,7 +909,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             Facet <- rep(treatments2, each = PotsPerGroup)
             Data$Facet <- Facet
         }
-        Data$Gruppe <- factor(Data$Gruppe,levels = grps)
+        Data$Gruppe <- factor(Data$Gruppe,levels = groups_as_ordered_in_datafile)
         
         
         
@@ -866,12 +1010,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                 , file = XLSX_Path
                 , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
         }
-        scale_y_lowerEnd <- 0
-        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-            scale_y_upperEnd <- as.integer(ini$Experiment$ForcedUpperY)
-        } else {
-            scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-        }
+        
+        
         
         #Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
         #Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
@@ -1012,21 +1152,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
                           , Theme_Index
                           , ").jpg")
         
-        #facet_grid(. ~ factor(Group,levels=c("UU","G14","G21","G28","G35","GMax")),space = "fixed")+
-        #facet_grid(. ~ factor(Group,levels=unlist(stringr::str_split(ini$Experiment$GroupsOrder,","))),space = "fixed")+
-        Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-            
-            #scale_y_upperEnd <- as.integer(ini$Experiment$ForcedUpperY)
-            scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-            Limits[[2]] <- scale_y_upperEnd
-        } else {
-            
-            scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-            Limits[[2]] <- scale_y_upperEnd
-        }
-        #$Gruppe = factor(Data$Gruppe,levels=ini$Experiment$GroupsOrder)
-        Data$Gruppe = factor(Data$Gruppe,levels=unlist(stringr::str_split(ini$Experiment$GroupsOrder,",")))
+        Data$Gruppe = factor(Data$Gruppe,levels=unlist(stringr::str_split(ini$Experiment$GroupsOrderX,",")))
         GFA_plot_box <-  ggboxplot(Data, x= "Gruppe"
                                    , y = "plant_area"
                                    , fill = "Gruppe"
@@ -1042,21 +1168,39 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             font("legend.title", size = 10, color = "black") +
             ggtitle(plot_Title
                     , plot_Subtitle)
-        breaks <- getBreaks(ini,Limits)
         
-        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],breaks$breaknumber*breaks$BreakStepSize,breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                          limits = c(Limits[[1]],breaks$breaknumber*breaks$BreakStepSize))
+        scale_y_lowerEnd <- 0
+        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+            if (hasName(ini$Experiment,"YLimits")) {
+                Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
+            } else {
+                Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+            }
+            scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+            Limits[[2]] <- scale_y_upperEnd
+        } else {
+            scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+            Limits[[2]] <- scale_y_upperEnd
+        }
+        if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
+            Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+        }
+        Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
+        Limits <- Yscale_Data$Limits
+        breaks <- Yscale_Data$breaks
+        GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                          limits = c(Limits[[1]],Limits[[2]]))
         
         stat.test$p.scient <- formatPValue(stat.test$p)
-        #GFA_plot_box2 <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
-        #                                                  , label = "{p} {p.adj.signif}"
-        #                                                  , size = 2.5
-        #                                                  , remove.bracket = TRUE
-        #                                                  , y.position = Limits[[2]]-1)
+        if (hasName(ini$Fontsizes,"Fontsize_Significance")) {
+            pval_size <- as.numeric(ini$Fontsizes$Fontsize_Significance)
+        } else {
+            pval_size <- 2.5
+        }
         GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
                                                           , label = "{p.scient} {p.adj.signif}"
-                                                          , size = 2.5
-                                                          , remove.bracket = TRUE
+                                                          , size = pval_size
+                                                          , remove.bracket = T
                                                           , y.position = Limits[[2]]-Limits[[2]]*0.10)
         GFA_plot_box <- GFA_plot_box + 
             guides(fill=guide_legend(title="Groups")) +
@@ -1070,14 +1214,18 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         
         # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
         if (as.logical(ini$General$PlotSampleSize)) {
-            #if (as.logical(ini$General$Debug)) {
-                GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
-                                                            , geom = "text"
-                                                            , hjust = 0.5
-                                                            , size = 2.5
-                                                            , fontface = "bold")
-            #}
+            if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+                n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+            } else {
+                n_size <- 2.5
+            }
+            GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
+                                                        , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.05)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.05),Limits[[2]]-(Limits[[2]]*0.025)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                        , geom = "text"
+                                                        , hjust = 0.5
+                                                        , size = n_size
+                                                        , fontface = "bold"
+                                                        , position = position_dodge(width=0.75))
         }
         GFA_plot_box <- GFA_plot_box + ggpubr::theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
         if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
@@ -1144,11 +1292,35 @@ library(tools)
 library(openxlsx)
 library(checkmate)
 GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
-    if (!dir.exists(folder_path) || file.exists(folder_path)) {
+    ## first validate that the path given as 'folder_path' points to supported inputs
+    if (file_test("-f", folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")) {          ## folder_path is a a file with fileending .ini
+        path <- folder_path
         folder_path <- dirname(folder_path)
-        folder_path <- str_c(folder_path,"\\")
         folder_path <- str_replace_all(folder_path,"/","\\\\")
-        path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        folder_path <- str_c(folder_path,"\\")
+    } else if (file_test("-f",folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")!=1) {   ## folder_path is a a file with a different fileending
+        testpath <- dirname(folder_path)
+        testpath <- str_replace_all(testpath,"/","\\\\")
+        testfile <- str_c(testpath,str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        if (file.exists(path)) {
+            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            folder_path <- str_c(folder_path,"\\")
+        } else {
+            ErrorString <- ""
+            Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
+            stop(Error)
+        }
+        rm(testfile,testpath)
+    } else if (file_test("-d",folder_path) && !file_test("-f",folder_path) && !str_count(folder_path,".ini")) {    ## folder_path is a directory path and not a file
+        folder_path <- str_replace_all(folder_path,"/","\\\\")
+        path <- stringr::str_c(folder_path,str_replace('\\GFA_conf.ini',"\\\\","\\"))
+        if (file.exists(path)) {
+            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+        } else {
+            ErrorString <- ""
+            Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
+            stop(Error)
+        }
     } else {
         path <- stringr::str_c(folder_path,stringr::str_replace('\\GFA_conf.ini',"\\\\","\\"))
     }
@@ -1210,8 +1382,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     UniqueGroups <- as.character(UniqueGroups)
     numberofGroups <- length(strsplit(UniqueGroups,",")[1][[1]])
     Number <- rep(1:Number, times = numberofGroups)
-    grps <- unlist(strsplit(UniqueGroups, split = ','))
-    Group <- rep(grps, each = PotsPerGroup)
+    groups_as_ordered_in_datafile <- unlist(strsplit(UniqueGroups, split = ','))
+    Group <- rep(groups_as_ordered_in_datafile, each = PotsPerGroup)
     
     
     data_all_CA <- cbind(Group,Number)
@@ -1225,7 +1397,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_dailies <- data_all_CA
     data_all_CA <- as.data.frame(data_all_CA);
     data_all_CA <- assignDaysToVariables(Files,data_all_CA,ini)
-    data_all_CA <- createFactors(data_all_CA,grps)
+    data_all_CA <- createFactors(data_all_CA,groups_as_ordered_in_datafile)
     Colnames <- calculateColnames(Files,List,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
         data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
@@ -1237,9 +1409,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         GroupNoFacet <- as.character(GroupNoFacet)
         numberofGroups <- length(strsplit(GroupNoFacet,",")[1][[1]])
         Number <- rep(1:Number, times = numberofGroups)
-        newgrps <- unlist(strsplit(GroupNoFacet, split = ','))
-        Group <- rep(newgrps, each = PotsPerGroup)
-        data_all_CA$Group <- Group
+        newgroups_as_ordered_in_datafile <- unlist(strsplit(GroupNoFacet, split = ','))
+        Group <- rep(newgroups_as_ordered_in_datafile, each = PotsPerGroup)
         data_pivot_CA <- pivot_longer(data_all_CA,cols=4:(length(data_all_CA)-0),names_to = "Days")
         data_pivot_CA$Group <- factor(data_pivot_CA$Group)
         data_pivot_CA$Facet <- factor(data_pivot_CA$Facet)
@@ -1409,17 +1580,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                       , ").jpg")
     
     
-    scale_y_lowerEnd <- 0
-    if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-        Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-        scale_y_upperEnd <- as.integer(Limits[[2]])
-    } else {
-        scale_y_upperEnd <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)
-        Limits <- c(scale_y_lowerEnd,scale_y_upperEnd)
-    }
-    if (Limits[[2]]<round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
-        Limits[[2]] <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
-    }
+    
     if (as.logical(ini$General$RelativeColnames)) {
         data_pivot_CA$Days <- as.numeric(data_pivot_CA$Days)
     } else {
@@ -1515,123 +1676,26 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # rescale the y-axis if we chose to force specific limits upon it. 
     # THe code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
     strictLimitsValidation <- T
-    if (hasName(ini$Experiment,"ForceAxes")) {                                          ## The user wants to force the axis to a specific range
-        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-            if (hasName(ini$Experiment,"BreakStepSize")) {
-                if (isTRUE(is.numeric(as.numeric(ini$Experiment$BreakStepSize)))) {
-                    StepSize <- as.numeric(ini$Experiment$BreakStepSize)
-                } else {
-                    StepSize <- 25
-                }
-            } else {
-                    StepSize <- 25
-            }
-            temp <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
-            breaks <- getBreaks(ini,Limits)
-            if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user is smaller than the dataset's maximum.
-                if (strictLimitsValidation) {
-                    
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                  , str_c("\nlies below the maximum (",max(as.vector(data_pivot_CA$value),na.rm = T),") value of your dataset. By default, this is not allowed, and thus the upper y-limit will be forced to its next-larger multiple")
-                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
-                                  , "\nAdjustments have been made, the user-defined Limits will NOT take effect."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
-                } else {
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                  , str_c("\nlies below the maximum (",max(as.vector(data_pivot_CA$value),na.rm = T),") value of your dataset. By default, this is not allowed, but a user has set the internal logic-switch 'strictLimitsValidation' of this function to false.")
-                                  , "\nAs a result, the aforementioned user-defined upper y-limit will NOT be adjusted and WILL take effect."
-                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
-                                  , "\nNo adjustments have been made, the user-defined Limits will take effect"))
-                    options(warn = wrnopt)
-                    Limits <- temp
-                    if (Limits[[2]]<min(as.vector(data_pivot_CA$value),na.rm = T)) {
-                        Error <- simpleError(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                                    , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                                    , str_c("\nlies below the smallest value (",floor(min(as.vector(data_pivot_CA$value),na.rm = T)),") of your dataset. This is not valid for ggplot, and will always throw an error.")
-                                                    , str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data_pivot_CA$value),na.rm = T)),").")
-                                                    , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
-                        stop(Error)
-                    }
-                }
-            }
-            rm(temp)
-            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                    limits = c(Limits[[1]],Limits[[2]]))
+    scale_y_lowerEnd <- 0
+    if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+        if (hasName(ini$Experiment,"YLimits")) {
+            Limits <- as.numeric(unlist(stringr::str_split(ini$Experiment$YLimits,",")))
         } else {
-            # define breaks and labels for the y-scale                                  ## Limits is always larger than then dataset here.
-            breaks <- getBreaks(ini,Limits)
-            if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
-                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                                  , "\nand has been rounded up to the nearest multiple of it."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
-                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                                  , " would underscale the upper y limit."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-                }
-            } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){          ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
-                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                                  , "\nand has been rounded up to the nearest multiple of it."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                                  , " would underscale the upper y limit."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-                }
-                #Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
-                #breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize
-            } else {
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("GFA_main() [user-defined]: Task: y-scaling"
-                              , "\nThe scale-spacing defined by the user-defined function 'getBreaks()'"
-                              , " would restrict the plot to a lower limit than the data it contains."
-                              , "\nThe script will fall back by gradually increasing the Limit"
-                              , "\nYou may try again after coercing it to numeric."))
-                options(warn = wrnopt)
-            }
-            GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                    limits = c(Limits[[1]],Limits[[2]]))
+            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
         }
+        scale_y_upperEnd <- as.integer(Limits[[2]])
     } else {
-        # define breaks and labels for the y-scale
-        breaks <- getBreaks(ini,Limits)
-        Limits[[2]] <- breaks$breaknumber*breaks$BreakStepSize
-        GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                limits = c(Limits[[1]],Limits[[2]]))
+        scale_y_upperEnd <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)
+        Limits <- c(scale_y_lowerEnd,scale_y_upperEnd)
     }
-    
+    if (Limits[[2]]<round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
+        Limits[[2]] <- round_any(ceiling(max(as.vector(data_pivot_CA$value),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+    }
+    Yscale_Data <- calculateLimitsandBreaksforYAxis(data_pivot_CA$value,Limits,ini)
+    Limits <- Yscale_Data$Limits
+    breaks <- Yscale_Data$breaks
+    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                            limits = c(Limits[[1]],Limits[[2]]))
     
     
     if (ini$General$Debug) {
@@ -1642,16 +1706,19 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     if (ini$General$PlotSampleSize) {
         #todo: make filter to only display cases where less than intetned number of samples are plotted, e.g. where length(x)<PotsPerGroup. Other casese are given a blank string to print.
-        #if (as.logical(ini$General$Debug)) {
-            #todo: only label those differing in size, then put the general sample size in the subtitle
-            GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n, 
-                                                              fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN),
-                                                              geom = "text", 
-                                                              hjust = 0.5, 
-                                                              size = 2.5, 
-                                                              fontface = "bold",
-                                                              position = position_dodge(width=0.75))
-        #}
+        #todo: only label those differing in size, then put the general sample size in the subtitle
+        if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+            n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+        } else {
+            n_size <- 2.5
+        }
+        GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n
+                                                          , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.numeric(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                          , geom = "text"
+                                                          , size = n_size
+                                                          , hjust = 0.5
+                                                          , fontface = "bold")
+        
     }
     GFA_SummaryPlot + grids("y",linetype=1)
     
@@ -1743,7 +1810,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
-        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
+        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
         GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
