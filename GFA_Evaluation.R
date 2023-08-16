@@ -469,7 +469,7 @@ checkExistence <-function(Path=""){
 }
 createFactors <- function(List,Groups) {
     # Diese Function formatiert die Spalte List$Group zum datentyp "Faktor" um. Notwendig um die Daten im GGPLot anhand der Gruppe zu unterteilen.
-    List$Group <- factor(List$Group,levels=Groups)
+    List$Group <- factor(List$Group,levels=unique(Groups))
     #List$Group <- factor(List$Group,levels=Da)
     # Listas.factor()
     return(List)
