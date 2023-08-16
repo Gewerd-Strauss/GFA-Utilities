@@ -750,79 +750,72 @@ getMaximumDateRange  <- function(Colnames) {
 }
 getBreaks <- function(ini,Limits) {
     # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$Experiment,"FixateAxes")) {
-        if (hasName(ini$Experiment,"BreakStepSize")) {
-            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
-            nbreaks <- Limits[[2]]/BreakStepSize
-        }    
+    if (hasName(ini$Experiment,"BreakStepSize")) {
+        BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+        if (Limits[[2]] %% 4) {
+            nbreaks <- 4
+        } else {
+            nbreaks <- 5
+        }
     } else {
-        if (hasName(ini$Experiment,"BreakStepSize")) {
-            BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+        maximum <- Limits[[2]]
+        if (maximum<100) {
+            BreakStepSize <- 20
             if (Limits[[2]] %% 4) {
                 nbreaks <- 4
             } else {
                 nbreaks <- 5
             }
-        } else {
-            maximum <- Limits[[2]]
-            if (maximum<100) {
-                BreakStepSize <- 20
-                if (Limits[[2]] %% 4) {
-                    nbreaks <- 4
-                } else {
-                    nbreaks <- 5
-                }
-            }
-            if (maximum>2500) {
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("getBreaks() [user-defined]: your largest y-value "
-                              , Limits[[2]]
-                              , " exceeds 2500, which is the last step for which the author of this script predefined"
-                              , "\nthe number of displayed numbers and the steps inbetween them."
-                              , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
-                              , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
-                              , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
-                options(warn = wrnopt)
-                BreakStepSize=Limits[[2]]/10
-                nbreaks=10
-                return(list(BreakStepSize=BreakStepSize
-                            , breaknumber=nbreaks))
-            }
-            if (maximum<=2500) {
-                BreakStepSize <- 500
-                nbreaks <- 5
-            }
-            if (maximum<=1500) {
-                BreakStepSize <- 300
-                nbreaks <- 5
-            }
-            if (maximum<=1000) {
-                BreakStepSize <- 250
-                nbreaks <- 4
-            }
-            if (maximum<=750) {
-                BreakStepSize <- 125
-                nbreaks <- 6
-            }
-            if (maximum<=500) {
-                BreakStepSize <- 125
-                nbreaks <- 4
-            }
-            if (maximum<=300) {
-                BreakStepSize <- 100
-                nbreaks <- 3
-            }
-            if (maximum<=150) {
-                BreakStepSize <- 50
-                nbreaks <- 3
-            }
-            if (maximum<=100) {
-                BreakStepSize <- 25
-                nbreaks <- 4
-            }
-            
         }
+        if (maximum>2500) {
+            wrnopt <- getOption("warn")
+            options(warn = 1)
+            warning(str_c("getBreaks() [user-defined]: your largest y-value "
+                          , Limits[[2]]
+                          , " exceeds 2500, which is the last step for which the author of this script predefined"
+                          , "\nthe number of displayed numbers and the steps inbetween them."
+                          , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
+                          , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
+                          , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
+            options(warn = wrnopt)
+            BreakStepSize=Limits[[2]]/10
+            nbreaks=10
+            return(list(BreakStepSize=BreakStepSize
+                        , breaknumber=nbreaks))
+        }
+        if (maximum<=2500) {
+            BreakStepSize <- 500
+            nbreaks <- 5
+        }
+        if (maximum<=1500) {
+            BreakStepSize <- 300
+            nbreaks <- 5
+        }
+        if (maximum<=1000) {
+            BreakStepSize <- 250
+            nbreaks <- 4
+        }
+        if (maximum<=750) {
+            BreakStepSize <- 125
+            nbreaks <- 6
+        }
+        if (maximum<=500) {
+            BreakStepSize <- 125
+            nbreaks <- 4
+        }
+        if (maximum<=300) {
+            BreakStepSize <- 100
+            nbreaks <- 3
+        }
+        if (maximum<=150) {
+            BreakStepSize <- 50
+            nbreaks <- 3
+        }
+        if (maximum<=100) {
+            BreakStepSize <- 25
+            nbreaks <- 4
+        }
+        
     }
     return(list(BreakStepSize=BreakStepSize
              , breaknumber=nbreaks))
