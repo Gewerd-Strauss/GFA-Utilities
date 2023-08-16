@@ -824,7 +824,7 @@ RemoveOutputFiles <- function(Files="",Output_prefix="") {
     Files_out <- Files[!stringr::str_detect(Files,pattern=Output_prefix)]
     return(Files_out)
 }
-RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
+RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
     # Create objects
     
     ret <- list()           # for returning all results from this functions
@@ -898,8 +898,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
         }
         Day_Index <- Day_Index + 1
         Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
-        Gruppe1 <- rep(grps,numberofGroups/length(grps),numberofGroups)
-        Gruppe  <- rep(grps,each=PotsPerGroup)
+        Gruppe  <- rep(groups_as_ordered_in_datafile,each=PotsPerGroup)
         # green pixels per day
         Data$Gruppe <- Gruppe
         Data$Nummer <- Nummer
@@ -910,7 +909,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder
             Facet <- rep(treatments2, each = PotsPerGroup)
             Data$Facet <- Facet
         }
-        Data$Gruppe <- factor(Data$Gruppe,levels = grps)
+        Data$Gruppe <- factor(Data$Gruppe,levels = groups_as_ordered_in_datafile)
         
         
         
@@ -1379,8 +1378,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     UniqueGroups <- as.character(UniqueGroups)
     numberofGroups <- length(strsplit(UniqueGroups,",")[1][[1]])
     Number <- rep(1:Number, times = numberofGroups)
-    grps <- unlist(strsplit(UniqueGroups, split = ','))
-    Group <- rep(grps, each = PotsPerGroup)
+    groups_as_ordered_in_datafile <- unlist(strsplit(UniqueGroups, split = ','))
+    Group <- rep(groups_as_ordered_in_datafile, each = PotsPerGroup)
     
     
     data_all_CA <- cbind(Group,Number)
@@ -1394,7 +1393,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_dailies <- data_all_CA
     data_all_CA <- as.data.frame(data_all_CA);
     data_all_CA <- assignDaysToVariables(Files,data_all_CA,ini)
-    data_all_CA <- createFactors(data_all_CA,grps)
+    data_all_CA <- createFactors(data_all_CA,groups_as_ordered_in_datafile)
     Colnames <- calculateColnames(Files,List,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
         data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
@@ -1406,9 +1405,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         GroupNoFacet <- as.character(GroupNoFacet)
         numberofGroups <- length(strsplit(GroupNoFacet,",")[1][[1]])
         Number <- rep(1:Number, times = numberofGroups)
-        newgrps <- unlist(strsplit(GroupNoFacet, split = ','))
-        Group <- rep(newgrps, each = PotsPerGroup)
-        data_all_CA$Group <- Group
+        newgroups_as_ordered_in_datafile <- unlist(strsplit(GroupNoFacet, split = ','))
+        Group <- rep(newgroups_as_ordered_in_datafile, each = PotsPerGroup)
         data_pivot_CA <- pivot_longer(data_all_CA,cols=4:(length(data_all_CA)-0),names_to = "Days")
         data_pivot_CA$Group <- factor(data_pivot_CA$Group)
         data_pivot_CA$Facet <- factor(data_pivot_CA$Facet)
@@ -1805,7 +1803,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
-        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,grps,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
+        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
         GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
