@@ -120,9 +120,9 @@ library(tidyverse)
     #library(tidyverse)
     #library(forcats)
     #library(purrr)
-    #library(readr)
+    library(readr)
+        # guess_encoding
     #library(tibble)
-
 library(readxl)
     # read_xlsx
 library(ini)
@@ -1779,7 +1779,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
 #----- MAIN SCRIPT
 #
 #
-GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
+GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteEncoding="") {
     ## first validate that the path given as 'folder_path' points to supported inputs
     if (file_test("-f", folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")) {          ## folder_path is a a file with fileending .ini
         path <- folder_path
@@ -1846,10 +1846,28 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                          ,ShowBothColnames="T")
         object <- list()
     }
-    ini <- ini::read.ini(path)
     if (isFALSE(exists("Conditions",where = -1))) {
         Conditions <- {}
     }
+    encoding <- guess_encoding(path)
+    encoding <- encoding[[1]][[1]] # guess the most likely encoding
+    if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
+        print(paste0("Most likely encoding of the config-file: ",encoding))
+    }
+    if (isFALSE(as.logical(overwriteEncoding==""))) {                           ## The user has chosen to manually overwrite the fileencoding to be used for loading the config file
+        encoding <- overwriteEncoding
+    }
+    ini <- ini::read.ini(path,encoding)                                         ## UTF-16 encoding is required so that umlaute are not fucked - 
+    if (length(ini)==0) {
+        Error <- simpleError(str_c("GFA_main() [user-defined]: Task: loading configuration from ini-file,1"
+                                   , str_c("\nThe configuration file (", path,")")
+                                   , str_c("\ncould not be loaded. The best assumption for its file-encoding is ",encoding,", but using this returned an empty object.")
+                                   , str_c("\nPlease double-check the encoding of the configuration-file")))
+                                   #, str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
+                                   #, "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
+        stop(Error)
+    }
+    
     #ini <- ini::read.ini(filepath = "GFA_conf.ini",)
     Files <- getFilesInFolder(folder_path,ini$General$used_filesuffix,'GFResults_',T)
     

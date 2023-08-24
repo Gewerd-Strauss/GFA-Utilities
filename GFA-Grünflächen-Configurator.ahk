@@ -865,7 +865,7 @@ handleConfig(dynGUI,writetoFile:=false) {
             Gui -OwnDialogs
         }
         try {
-            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.settings.INI_Encoding,,1)
         } catch e {
             throw Exception( "`n" CallStack() )
         }
@@ -964,7 +964,7 @@ createConfiguration(Path,AA) {
         }
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
         } else {
             dynGUI.loadConfigFromFile(Chosen)
                 , dynGUI.validateLoadedConfig()
@@ -1143,7 +1143,7 @@ selectConfigLocation(SearchPath) {
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
