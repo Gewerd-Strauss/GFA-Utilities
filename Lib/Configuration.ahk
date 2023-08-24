@@ -81,53 +81,57 @@ setupdefaultconfig(Switch) {
     gfcGUIconfig=
         (LTRIM
             Experiment::blank
-            %A_Tab%;; 1. General configuration
-            %A_Tab%T0:DateTime|Type:String|Default:{A_Now}|String:"Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%GroupsOrder:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%RefGroup:Edit|Type:String|Default:UU|String:"Set the reference group for all statistical tests"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Normalise:Checkbox|Type:boolean|Default:1|String:"Do you want to normalise your leaf area?"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Normalise_text:text|Type:String|Default:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|String:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctrlOptions:xlsx,csv|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|Tab3Parent:1. General Configuration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:1. General Configuration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
+            %A_Tab%;; 1. Grouping
+            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%UniqueGroups2:Text|Type:String|Default:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|String:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%GroupsOrderX:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots along X-axis"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%GroupsOrderY:Edit|Type:String|Default:|String:"Set the comma-separated order of groups in the plots along Y-Axis (only for facetting)"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%RefGroup:Edit|Type:String|Default:UU|String:"Set the reference group for all statistical tests"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Facet2D:Checkbox|Type:boolean|Default:0|String:"Do you want to facet the plot, f.e. over a treatment? Manual options: TRUE/FALSE"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Facet2DVar:Edit|Type:String|Default:""|String:"Which Variable do you want to facet by?"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
+            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,white|Tab3Parent:1. Grouping|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%;;
+            %A_Tab%;; 2. General Configuration
+            %A_Tab%T0:DateTime|Type:String|Default:{A_Now}|String:"Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Normalise:Checkbox|Type:boolean|Default:1|String:"Do you want to normalise your leaf area?"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Normalise_text:text|Type:String|Default:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|String:"This accesses the data-column 'plant_area_normalised'. For more info, check the documentation."|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctrlOptions:xlsx,csv|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;; figure
-            %A_Tab%Facet2D:Checkbox|Type:boolean|Default:0|String:"Do you want to facet the plot, f.e. over a treatment? Manual options: TRUE/FALSE"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Facet2DVar:Edit|Type:String|Default:""|String:"Which Variable do you want to facet by?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
-            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines2:Edit|Type:String|Default:#FFF5F0,#FEE0D2,#FCBBA1,#FC9272,#FB6A4A,#EF3B2C,#CB181D,#A50F15,white|Tab3Parent:2. Figure|Link:"https://www.google.com"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
-            %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%ShowTitle:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above each figure?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:3. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%ShowTitle:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above each figure?"|Tab3Parent:3. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
-            %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:2. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:3. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:3. Figure|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; axes
-            %A_Tab%RelativeColnames:Checkbox|Type:boolean|Default:1|String:"Do you want to display the X-positions as 'days since T0'?"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ForceAxes:Checkbox|Type:boolean|Default:0|String:"Do you want to force the Y-Axis scaling? This requires setting 'YLimits'"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%YLimits:Edit|Type:String|Default:"0,150"|String:"Set the minimum and maximum limit for the Y-Axis. Does not take effect if 'ForceAxes' is false. Used for all plots"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%BreakStepSize:Edit|Type:Integer|Default:25|String:Set the spacing between numbered breaks on the Y-Axis. Requires ForceAxes=T"|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%axis_units_x:Edit|Type:String|Default:Tage,days|String:"Set the unit of the X-axis. "|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis. "|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%axis_units_y_Daily:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis (for the daily plots)."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%XLabel:Edit|Type:String|Default:"Time since repotting"|String:"Set the xlabel-string for the summary plot."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%XLabel_Daily:Edit|Type:String|Default:"Treatment Groups"|String:"Set the xlabel-string for the daily analyses."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%YLabel:Edit|Type:String|Default:"green plant area"|String:"Set the ylabel-string for the summary plot and daily analyses."|Tab3Parent:3. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%RelativeColnames:Checkbox|Type:boolean|Default:1|String:"Do you want to display the X-positions as 'days since T0'?"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ForceAxes:Checkbox|Type:boolean|Default:0|String:"Do you want to force the Y-Axis scaling? This requires setting 'YLimits'"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%YLimits:Edit|Type:String|Default:"0,150"|String:"Set the minimum and maximum limit for the Y-Axis. Does not take effect if 'ForceAxes' is false. Used for all plots"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%BreakStepSize:Edit|Type:Integer|Default:25|String:Set the spacing between numbered breaks on the Y-Axis. Requires ForceAxes=T"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%axis_units_x:Edit|Type:String|Default:Tage,days|String:"Set the unit of the X-axis. "|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis. "|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%axis_units_y_Daily:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis (for the daily plots)."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%XLabel:Edit|Type:String|Default:"Time since repotting"|String:"Set the xlabel-string for the summary plot."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%XLabel_Daily:Edit|Type:String|Default:"Treatment Groups"|String:"Set the xlabel-string for the daily analyses."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%YLabel:Edit|Type:String|Default:"green plant area"|String:"Set the ylabel-string for the summary plot and daily analyses."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
             %A_Tab%;;; Statistics on Plot
-            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:4. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
         )
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
