@@ -65,6 +65,17 @@ setupdefaultconfig(Switch) {
             ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
             ;GFA_Evaluation_InstallationPath
             ;GFA_Evaluation_InstallationPath
+            INI_Encoding=UTF-16
+            ;INI_Encoding Type: DropDown UTF-8|UTF-16||UTF-8-RAW
+            ;INI_Encoding Select which encoding to use when generating the configuration-files for the R-Script.
+            ;INI_Encoding 
+            ;INI_Encoding MODIFYING FILE-ENCODINGS IS NOT TRIVIAL, and it is not recommended to change this setting unless you absolutely must.
+            ;INI_Encoding 
+            ;INI_Encoding 
+            ;INI_Encoding You should KNOW WHAT YOU ARE DOING, and absolutely make a backup of any config-file you want to edit after changing encodings.
+            ;INI_Encoding Note that 'UTF-8' specifically is 'UTF-8 with BOM', whereas 'UTF-8-RAW' is a BOM-less UTF-8-encoding. 
+            ;INI_Encoding 
+            ;INI_Encoding Default: UTF-16
             CheckUpdatesOnScriptStart=1
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
