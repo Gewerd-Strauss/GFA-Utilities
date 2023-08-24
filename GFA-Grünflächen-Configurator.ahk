@@ -865,7 +865,7 @@ handleConfig(dynGUI,writetoFile:=false) {
             Gui -OwnDialogs
         }
         try {
-            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,"UTF-8-RAW",,1)
+            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.settings.INI_Encoding,,1)
         } catch e {
             throw Exception( "`n" CallStack() )
         }
