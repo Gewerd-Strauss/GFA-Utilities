@@ -143,11 +143,11 @@ main() {
             source("`%GFA_EVALUATIONUTILITY`%")
             if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names
             `t# WINDOWS: 
-            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            `tplot_1 <- GFA_main(folder_path = r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {
             `t# MAC:
             #`tsource("`%GFA_EVALUATIONUTILITY`%")
-            `tplot_1 <- GFA_main(r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            `tplot_1 <- GFA_main(folder_path = r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
         )
         /*MAC additions:
@@ -228,7 +228,6 @@ guiCreate() {
     } else {
         ShiftSection1:=0
     }
-    ;ShiftSection1:=((script.config.Settings.SizeSetting="1080p")?50:(script.config.Settings.SizeSetting="1080p")?250:250)
     ShiftSection2:=250
         , Sections[1].Width:=Sections[1].Width-ShiftSection1
         , Sections[2].XAnchor:=Sections[2].XAnchor-ShiftSection1
@@ -806,12 +805,13 @@ loadConfig_Main(configPath,dynGUI) {
         if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
             Chosen.="\"
         }
+        Chosen:=configPath
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
         needle:="GFA_main\(r""\(\%.+\%\)"","
-        needle:="GFA_main\((r.+""),"
-        rep1:="GFA_main(r""("
+        needle:="GFA_main\((folder_path = r.+""),"
+        rep1:="GFA_main(folder_path = r""("
         rep2:=")"","
         Matches:=RegexMatchAll(String, "iU)" needle)
         for _, match in Matches {                                                  ;; star, top
