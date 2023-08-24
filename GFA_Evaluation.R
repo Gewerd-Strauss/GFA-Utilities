@@ -1273,7 +1273,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , "_"
                               , Theme_Index
                               , ").jpg")
-            
+            Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
             GFA_plot_box <-  ggboxplot(Data, x= "interactions"
                                        , y = "plant_area"
                                        , fill = "interactions"

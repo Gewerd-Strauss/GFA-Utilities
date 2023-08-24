@@ -89,7 +89,11 @@
                             . "`nErroneous old value: " Argument.Value
                             . "`nSuggested new Value: " cleanedVal
                             . "`n"
-                            . "`nConfirm to use the new value, decline to keep the old value. Keeping the old value will cause errors when running the R-Script, and should only be done if you intend on fixing the error yourself and are unhappy with the suggested solution"
+                            . "`nConfirm to use the new value, decline to keep the old value."
+                            . "`nKeeping the old value will likely cause errors when running the R-Script,"
+                            . "`nexcept if you want to facet your Y-Axis."
+                            . "`n"
+                            . "`n`If you are do not intend on faceting your plot, this will most likely cause issues."
                         IfMsgBox Yes, {
                             Argument.Value:=cleanedVal
                             guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
@@ -250,13 +254,14 @@
                     . conflicting_keys_vals
                     . "`n`nPlease resolve the issue by only using the same values for the keys 'RefGroup, " conflicting_keys "' and confirm again."
                     . "`nYou can disregard this message if you chose to facet your Plot across the y-axis. However in this case you should be aware"
-                    . "`nthat this program cannot ensure the reference group you have given will be valid."
+                    . " that this program cannot ensure the reference group you have given will be valid."
                     . "`n"
+                    . "`nUse the new  value?"
                 IfMsgBox Yes, {
                     Argument.Value:=cleanedVal
                     guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
                 } Else IfMsgBox No, {
-                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
+                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % this.Arguments.RefGroup.Value
 
                 }
             }
