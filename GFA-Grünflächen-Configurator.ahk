@@ -307,7 +307,10 @@ guiCreate() {
     for each, File in script.config.LastConfigsHistory {
         if (FileExist(File)) {
             SplitPath % File, , OutDir, , FileName
+            oldFileEnc:=A_FileEncoding
+            FileEncoding % script.config.Settings.INI_Encoding
             IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
+            FileEncoding % oldFileEnc
             LV_Add("",ExperimentName_Key,FileName,File)
         } else {
             script.config.LastConfigsHistory.RemoveAt(each,1)
