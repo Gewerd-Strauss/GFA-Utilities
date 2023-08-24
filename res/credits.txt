@@ -20,4 +20,4 @@ maestrith       -      URLDownloadToVar                                         
 just me         -      LV_EX, reg. license                                                  - https://github.com/AHK-just-me/LV_EX, https://raw.githubusercontent.com/AHK-just-me/LV_EX/master/LICENSE
 just me         -      SetExplorerTheme                                                     - https://www.autohotkey.com/boards/viewtopic.php?p=49416#p49416
 kczx3           -      tooltip in History-LV                                                - https://www.autohotkey.com/boards/viewtopic.php?t=28792
-
+wolf_II         -      checkDecimalsOnEdit                                                  - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
