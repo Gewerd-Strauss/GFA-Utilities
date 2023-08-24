@@ -5,7 +5,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             reload
         } else {
-            gui GC: +AlwaysOnTop
+            gui % "GC: "((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
     }
@@ -13,7 +13,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
             reload
         } else {
-            gui GC: +AlwaysOnTop
+            gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
 }

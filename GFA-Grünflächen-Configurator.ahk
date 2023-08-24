@@ -498,7 +498,6 @@ guiShow(guiObject) {
             }
         }
     }
-    gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
     if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") {
         ;gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
         gui GC: show,%   "AutoSize x0 y0" , % script.name " - Create new Configuration"
@@ -524,6 +523,10 @@ guiShow(guiObject) {
         }
     }
     gui gc: default
+    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+    if (globalLogicSwitches.DEBUG) {
+        gui -AlwaysOnTop
+    }
     return
 }
 
@@ -890,7 +893,7 @@ fCallBack_StatusBarMainWindow() {
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
         script.Update()
-        gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
+        gui % "GC: "((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
         gui % "GC: Default"
         gui % "GC: +OwnDialogs"
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) { ; part 2  -  Author
@@ -933,7 +936,7 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=9)) { ; part 8
 
     }
-    gui % "GC: "(script.config.settings.AlwaysOnTop)?"+":"-" "AlwaysOnTop"
+    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     gui GC: Default
     gui GC: +OwnDialogs
     return
@@ -952,11 +955,6 @@ createConfiguration(Path,AA) {
     }
     gui -AlwaysOnTop
     FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
-    ; if (!globalLogicSwitches.DEBUG && script.config.settings.AlwaysOnTop) {
-    ;     gui +AlwaysOnTop
-    ; } else {
-    ;     gui -AlwaysOnTop
-    ; }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if !RegexMatch(Chosen,"\.ini$") {
@@ -1007,6 +1005,7 @@ createConfiguration(Path,AA) {
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper(Param:="")
     }
+    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     return Chosen
 }
 editConfiguration(configurationFile) {
@@ -1081,14 +1080,9 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             SearchPath:=Path
         }
     }
-    ;gui -AlwaysOnTop
-    ;    FileSelectFolder Chosen,% SearchPath ,3, % "Select RScriptFile file to populate."
     if (Chosen="" || forceSelection) {
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
-    ;if (!globalLogicSwitches.DEBUG && script.config.settings.AlwaysOnTop) {
-    ;    gui +AlwaysOnTop
-    ;}
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
         ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
         throw Exception("You tried editing an R-script which is in a different folder than your previously selected configuration-file. ", , "As your newly selected R-Script resides in a different foler which still contains a configuration file, be aware that the script may not handle this scenario well or at all. Data loss may occur, it is not advised to do so. If you want to edit the script of a different GFA, it is advised to first select a config-file which resides in the same folder as the script you want to edit.")
@@ -1131,11 +1125,7 @@ selectConfigLocation(SearchPath) {
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
-    ; gui -AlwaysOnTop
     FileSelectFile Chosen, 3, % SearchPath, % "Please select the ini-file you want to use.", *.R
-    ; if (!globalLogicSwitches.DEBUG) {
-    ;     gui +AlwaysOnTop
-    ; }
 
     SplitPath % Chosen
     if (Chosen!="") {
