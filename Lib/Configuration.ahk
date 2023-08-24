@@ -93,7 +93,7 @@ setupdefaultconfig(Switch) {
         (LTRIM
             Experiment::blank
             %A_Tab%;; 1. Grouping
-            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|ctrlOptions:number|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%UniqueGroups2:Text|Type:String|Default:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|String:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderX:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots along X-axis"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
