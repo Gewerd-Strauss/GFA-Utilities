@@ -964,7 +964,7 @@ createConfiguration(Path,AA) {
         }
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
         } else {
             dynGUI.loadConfigFromFile(Chosen)
                 , dynGUI.validateLoadedConfig()
