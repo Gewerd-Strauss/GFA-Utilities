@@ -1103,23 +1103,48 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         guiResize(guiObject,false)
     }
     if (Chosen!="") {
-        guiObject.RCodeTemplate:=handleCheckboxes()
-        if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
-            SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
-        }
-        if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/")) {
-            configLocationFolder.="\"
-        }
-        WINDOWS:=strreplace(configLocationFolder,"/","\")
-        MAC:=strreplace(configLocationFolder,"/","\")
-        Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-        Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
-        Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-        fillRC1(Code)
-        try {
-            writeFile(Chosen,Code,"UTF-8-RAW",,true)
-        } catch e {
-            throw Exception( "`n" CallStack() )
+        if (overwrite) {
+            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            ;if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
+            ;    SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
+            ;}
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+            try {
+                writeFile(Chosen,Code,"UTF-8-RAW",,true)
+            } catch e {
+                throw Exception( "`n" CallStack() )
+            }
+        } else {
+
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            ;if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
+            ;    SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
+            ;}
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+            try {
+                writeFile(Chosen,Code,"UTF-8-RAW",,true)
+            } catch e {
+                throw Exception( "`n" CallStack() )
+            }
         }
     }
     return Chosen
