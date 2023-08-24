@@ -254,7 +254,7 @@ calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
             }
             temp <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
             breaks <- getBreaks(ini,Limits)
-            if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user is smaller than the dataset's maximum.
+            if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user (in the config, thus in 'temp') is smaller than the dataset's maximum.
                 if (strictLimitsValidation) {
                     
                     wrnopt <- getOption("warn")
@@ -284,6 +284,15 @@ calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
                                                    , str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
                                                    , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
                         stop(Error)
+                    }
+                }
+            } else {                                                                   ## The upper y-limit selected by the user is within 10% of the data's maximum - this can become really bad if we want to plot statistics
+                if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
+                    breaks$breaknumber <- breaks$breaknumber + 1
+                    if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
+                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
+                        breaks$breaknumber <- breaks$breaknumber + 1
                     }
                 }
             }
@@ -1310,6 +1319,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             }
             if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
                 Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+            }
+            if ((Limits[[2]]-(Limits[[2]]*0.10))<=max(as.vector(Data$plant_area))) {                            ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
+                Limits[[2]] <- max(as.vector(Data$plant_area)) + (max(as.vector(Data$plant_area)))*0.10
+                Limits[[2]] <- round_any(Limits[[2]],25,f = ceiling)
             }
             Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
             Limits <- Yscale_Data$Limits
