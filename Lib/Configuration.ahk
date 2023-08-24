@@ -143,6 +143,10 @@ setupdefaultconfig(Switch) {
             %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%;;
+            %A_Tab%;;; Fontsizes
+            %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Fontsizes
+
         )
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
