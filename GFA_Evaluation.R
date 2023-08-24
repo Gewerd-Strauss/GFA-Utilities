@@ -1300,8 +1300,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
                 GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
             } else {
-                GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
-                GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
+                GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot,labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
+                GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
                 
             }
             scale_y_lowerEnd <- 0
