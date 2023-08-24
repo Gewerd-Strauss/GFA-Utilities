@@ -1143,7 +1143,7 @@ selectConfigLocation(SearchPath) {
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
