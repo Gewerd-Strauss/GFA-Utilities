@@ -278,7 +278,19 @@
         for param, _obj in this.Arguments {
             this.ArgumentsValidate[param]:={}
             for param_key, param_val in _obj {
-                this.ArgumentsValidate[param][param_key]:=param_val
+                KeyNotPresent:=true
+                for section, section_contents in t_script.config {
+                    if (section_contents.HasKey(param)) {
+                        KeyNotPresent:=false
+                    }
+                }
+                if (KeyNotPresent) {
+                    ;; TODO:: BUG:: fix that keys present in ne config leak over to another config if they are not defined there?!
+                    this.ArgumentsValidate[param][param_key]:=param_val
+                    this.ArgumentsValidate[param]["Value"]:=""
+                } else {
+                    this.ArgumentsValidate[param][param_key]:=param_val
+                }
             }
         }
         for section,_obj in t_script.config {
@@ -309,6 +321,8 @@
                     } else {
                         OutputDebug % "Key " current_key " is not part of the default config, and will be assumed invalid or corrupted"
                     }
+                } else {
+                    this.ArgumentsValidate[current_key].Value:=""
                 }
             }
 
