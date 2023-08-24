@@ -254,13 +254,14 @@
                     . conflicting_keys_vals
                     . "`n`nPlease resolve the issue by only using the same values for the keys 'RefGroup, " conflicting_keys "' and confirm again."
                     . "`nYou can disregard this message if you chose to facet your Plot across the y-axis. However in this case you should be aware"
-                    . "`nthat this program cannot ensure the reference group you have given will be valid."
+                    . " that this program cannot ensure the reference group you have given will be valid."
                     . "`n"
+                    . "`nUse the new  value?"
                 IfMsgBox Yes, {
                     Argument.Value:=cleanedVal
                     guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
                 } Else IfMsgBox No, {
-                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
+                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % this.Arguments.RefGroup.Value
 
                 }
             }
