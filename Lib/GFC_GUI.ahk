@@ -244,12 +244,21 @@
                 for key,val in Arr {
                     conflicting_keys_vals.="`n" key ": " st_concat(", "," & ", val)
                 }
-                guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
-                MsgBox 0x40010, % script.name " - " A_ThisFunc
+                MsgBox 0x40014, % script.name " - " A_ThisFunc
                     , % "The value you have entered for the key 'RefGroup' is not present in the values you entered for the following keys: "
                     . "`n`n" "RefGroup: " this.Arguments.RefGroup.Value
                     . conflicting_keys_vals
                     . "`n`nPlease resolve the issue by only using the same values for the keys 'RefGroup, " conflicting_keys "' and confirm again."
+                    . "`nYou can disregard this message if you chose to facet your Plot across the y-axis. However in this case you should be aware"
+                    . "`nthat this program cannot ensure the reference group you have given will be valid."
+                    . "`n"
+                IfMsgBox Yes, {
+                    Argument.Value:=cleanedVal
+                    guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
+                } Else IfMsgBox No, {
+                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
+
+                }
             }
         }
 
