@@ -2047,15 +2047,13 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
                                , if_else(as.logical(ini$General$language=='German')
-                                         , true=str_c("\nUmtopfen: ", ini$Experiment$T0
-                                                      ,"\nSample-Size: ", PotsPerGroup)
-                                         , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
-                                                       ,"\nSample-Size: ", PotsPerGroup))
+                                         , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                         , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
                                ,""
                                ,"")
     }
     if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularN)) {
-            plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size")
+            plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size: ", PotsPerGroup)
     }
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
         x_label <- str_c(ini$Experiment$XLabel[[1]]," [",unit_x,"]")
