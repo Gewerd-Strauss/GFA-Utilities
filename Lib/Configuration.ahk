@@ -93,7 +93,7 @@ setupdefaultconfig(Switch) {
         (LTRIM
             Experiment::blank
             %A_Tab%;; 1. Grouping
-            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group"|ctrlOptions:number|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%UniqueGroups2:Text|Type:String|Default:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|String:"If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderX:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots along X-axis"|Tab3Parent:1. Grouping|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
@@ -129,7 +129,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ForceAxes:Checkbox|Type:boolean|Default:0|String:"Do you want to force the Y-Axis scaling? This requires setting 'YLimits'"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%YLimits:Edit|Type:String|Default:"0,150"|String:"Set the minimum and maximum limit for the Y-Axis. Does not take effect if 'ForceAxes' is false. Used for all plots"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
-            %A_Tab%BreakStepSize:Edit|Type:Integer|Default:25|String:Set the spacing between numbered breaks on the Y-Axis. Requires ForceAxes=T"|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%BreakStepSize:Edit|Type:number|Default:25|String:Set the spacing between numbered breaks on the Y-Axis. Requires ForceAxes=T"|ctrlOptions: gcheckDecimalsOnEdit|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%axis_units_x:Edit|Type:String|Default:Tage,days|String:"Set the unit of the X-axis. "|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis. "|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
@@ -143,6 +143,10 @@ setupdefaultconfig(Switch) {
             %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:5. Statistics and its displaying|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%;;
+            %A_Tab%;;; Fontsizes
+            %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Fontsizes
+
         )
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {

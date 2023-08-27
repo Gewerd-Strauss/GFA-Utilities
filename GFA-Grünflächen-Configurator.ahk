@@ -1210,3 +1210,4 @@ prepare_release() {
 #Include <LV_EX>
 #Include <SetExplorerTheme>
 #Include <RegexMatchAll>
+#Include <checkDecimalsOnEdit>

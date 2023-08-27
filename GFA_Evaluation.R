@@ -1330,8 +1330,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
-            if (hasName(ini$Fontsizes,"Fontsize_Significance")) {
-                pval_size <- as.numeric(ini$Fontsizes$Fontsize_Significance)
+            if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
+                pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
             } else {
                 pval_size <- 2.5
             }
@@ -1699,8 +1699,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
             stat.test$p.scient <- formatPValue(stat.test$p)
-            if (hasName(ini$Fontsizes,"Fontsize_Significance")) {
-                pval_size <- as.numeric(ini$Fontsizes$Fontsize_Significance)
+            if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
+                pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
             } else {
                 pval_size <- 2.5
             }
