@@ -654,7 +654,7 @@ getFilesInFolder <- function(folder,filesuffix="csv",out_prefix="GFResults_",rec
     }
     otp <- out_prefix
     lapply(Files,checkExistence)
-    Files <- RemoveOutputFiles(as.list(Files),out_prefix)
+    Files <- RemoveOutputFiles(as.list(Files),"ROutput")
     return(Files)
 }
 getLastNElementsOfPalette <- function(palette,n) {
