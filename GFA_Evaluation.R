@@ -2364,7 +2364,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     ChosenDays <- as.character(str_flatten_comma(unlist(Dates)))
     
     
-    if (returnDays) {    # Evaluate daily analyses
+    if (isTRUE(as.logical(returnDays))) {    # Evaluate daily analyses
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
