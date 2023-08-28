@@ -51,6 +51,8 @@ globalLogicSwitches.Debug:=DEBUG
 #Include <OnError>
 main()
 CodeTimer("Startup Time")
+sleep 3500
+tooltip
 return
 
 main() {
