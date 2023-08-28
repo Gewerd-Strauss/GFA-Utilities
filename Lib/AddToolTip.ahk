@@ -53,7 +53,7 @@
 ; #endregion:Description
 
 ; #region:Code
-AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                                        			;-- very easy to use function to add a tooltip to a control
+AddToolTip(_CtrlHwnd, _TipText, _Modify = 0,GuiHwnd:="") {                                                        			;-- very easy to use function to add a tooltip to a control
 
     Static TTHwnds, GuiHwnds, Ptr
         , LastGuiHwnd
@@ -122,9 +122,10 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                  
 
         Return
     }
-
-    If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
-        Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
+    if (GuiHwnd="") {
+        If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
+            Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
+    }
 
     ; If this GUI is the same one as the potential previous one
     ; else look through the list of previous GUIs this function

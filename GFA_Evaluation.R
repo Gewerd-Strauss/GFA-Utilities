@@ -163,8 +163,8 @@ calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=
     Ind <- 1
     strLen_max <- 0
     for (file in Files){
-        Date <- str_extract(file,"\\d+\\.\\d+\\.\\d+")
-        Date <- as.Date.character(Date,format = "%d.%m.%Y")
+        Date <- str_extract(file,"\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
+        Date <- as.Date.character(Date,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
         Conditions <- {}
         #as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
         if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
@@ -654,7 +654,7 @@ getFilesInFolder <- function(folder,filesuffix="csv",out_prefix="GFResults_",rec
     }
     otp <- out_prefix
     lapply(Files,checkExistence)
-    Files <- RemoveOutputFiles(as.list(Files),out_prefix)
+    Files <- RemoveOutputFiles(as.list(Files),"ROutput")
     return(Files)
 }
 getLastNElementsOfPalette <- function(palette,n) {
@@ -970,7 +970,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
     Day_Index <- 0
     for (curr_Day in ChosenDays) {
         for (curr_file in Files) {
-            if (isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) {
+            if ((isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) && (isFALSE(as.logical(str_count(curr_file,format(as.Date(str_trim(curr_Day),tryFormats = c("%Y-%m-%d","%d.%m.%Y",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)))))))){
                 next
             }
             
@@ -1134,8 +1134,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
             }
-            XLSX_Path <- str_c(folder_path,"\\ROutput\\GFResults_" 
-                               ,str_trim(curr_Day)
+            XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
+                               , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                                ,".xlsx")
             if (isTRUE(as.logical(saveExcel))) {
                 write.xlsx(
@@ -1207,11 +1207,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             TitleTimeSpan <- calculateColnames(Files,List,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (",str_trim(curr_Day),")")
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
                 plot_Title <- if_else(as.logical(ini$General$language=='German')
-                                      , true=str_c("Grünfläche (",  str_trim(curr_Day) ,")")
-                                      , false=str_c("Green area (", str_trim(curr_Day) ,")"))
+                                      , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                                      , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
             }
             if (as.logical(ini$General$Debug)) {
                 plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
@@ -1224,8 +1224,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
             } else {
-                if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (",str_trim(curr_Day),")")
+                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
                     plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
@@ -1264,11 +1264,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                            , false=str_c("Green plant area [",unit_y,"]")
                                            , missing=str_c("Green plant area [",unit_y,"]")))
             }
-            filename <- str_c("GF-Einzelanalyse"
+            filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
                               , " ("
                               , ini$Experiment$Name
                               , ", "
-                              , str_trim(curr_Day)
+                              , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                               , ") "
                               , if_else(as.logical(ini$Experiment$Normalise)
                                         , "norm"
@@ -1501,8 +1501,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                     add_significance("p") %>%
                     add_xy_position(x = "Gruppe")
             }
-            XLSX_Path <- str_c(folder_path,"\\ROutput\\GFResults_" 
-                               ,str_trim(curr_Day)
+            XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
+                               ,format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                                ,".xlsx")
             if (isTRUE(as.logical(saveExcel))) {
                 write.xlsx(
@@ -1553,14 +1553,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                             labs_pubr(10),
                             theme_pubclean(base_size = 10),
                             clean_theme())
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
             
-            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
             # Select the required number of colours from a sequencial color palette
             Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
             Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
             Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
             Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
             if (hasName(ini$Experiment,"Palette_Boxplot2")) {
@@ -1582,11 +1579,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             TitleTimeSpan <- calculateColnames(Files,List,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (",str_trim(curr_Day),")")
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
                 plot_Title <- if_else(as.logical(ini$General$language=='German')
-                                      , true=str_c("Grünfläche (",  str_trim(curr_Day) ,")")
-                                      , false=str_c("Green area (", str_trim(curr_Day) ,")"))
+                                      , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                                      , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")"))
             }
             if (as.logical(ini$General$Debug)) {
                 plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
@@ -1602,7 +1599,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
             } else {
                 if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (",str_trim(curr_Day),")")
+                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
                     plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
@@ -1640,11 +1637,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                            , false=str_c("Green plant area [",unit_y,"]")
                                            , missing=str_c("Green plant area [",unit_y,"]")))
             }
-            filename <- str_c("GF-Einzelanalyse"
+            filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
                               , " ("
                               , ini$Experiment$Name
                               , ", "
-                              , str_trim(curr_Day)
+                              , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                               , ") "
                               , if_else(as.logical(ini$Experiment$Normalise)
                                         , "norm"
@@ -1659,7 +1656,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , Theme_Index
                               , ").jpg")
             
-            Data$Gruppe = factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
+            Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
             GFA_plot_box <-  ggboxplot(Data, x= "Gruppe"
                                        , y = "plant_area"
                                        , fill = "Gruppe"
@@ -1689,8 +1686,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
                 Limits[[2]] <- scale_y_upperEnd
             }
-            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
-                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset. 
+                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a lower value, ggplot will fail.
             }
             Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
             Limits <- Yscale_Data$Limits
@@ -1882,8 +1879,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     #ini <- ini::read.ini(filepath = "GFA_conf.ini",)
-    Files <- getFilesInFolder(folder_path,ini$General$used_filesuffix,'GFResults_',T)
-    
+    Files <- getFilesInFolder(folder_path,ini$General$used_filesuffix,str_c(ini$Experiment$Filename_Prefix,'Results_'),T)
     # Error out if loaded config is invalid.
     ErrorString <- validateINI(ini)
     if (isFALSE((typeof(ErrorString)=="logical"))) {
@@ -1996,7 +1992,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # Select the required number of colours from a sequencial color palette
     Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
     Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-    
     # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
     Palette_Boxplot <- replace(Palette_Boxplot,list = numberofGroups,"white") 
     Palette_Lines <- replace(Palette_Lines,list = numberofGroups,"#112734")
@@ -2091,13 +2086,13 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     
     
-    filename <- str_c("GF-Verlauf"
+    filename <- str_c(ini$Experiment$Filename_Prefix,"Verlauf"
                       , " (" 
                       , ini$Experiment$Name
                       , ", "
-                      , TitleDates[1]
+                      , format(as.Date(TitleDates[[1]],"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                       , " - "
-                      , TitleDates[length(TitleDates)]
+                      , format(as.Date(TitleDates[[length(TitleDates)]],"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                       , ") "
                       , if_else(as.logical(ini$Experiment$Normalise)
                                 , "norm"
@@ -2170,7 +2165,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
         } else {                                                                                                        ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
             GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
-            GFA_summary_Labels <- paste(format(GFA_summary_Breaks, "%d.%m.%Y"))
+            GFA_summary_Labels <- paste(format(GFA_summary_Breaks, ini$Experiment$figure_date_format))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
     }

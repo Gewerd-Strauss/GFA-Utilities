@@ -375,13 +375,18 @@ Class dynamicGUI {
                             if (Value.Max!="") && (Value.Min!="") {
                                 Value.ctrlOptions.= A_Space
                                 gui %GUI_ID% add, Edit,
-                                gui %GUI_ID% add, UpDown, % "h20 w80 Range" Value.Min "-" Value.Max " vv" Parameter, % Value.Default + 0
+                                gui %GUI_ID% add, UpDown, % "h20 w80 Range" Value.Min "-" Value.Max " vv" Parameter " hwndDA" Parameter, % Value.Default + 0
                                 ControlHeight+=20
                                 GuiControl %GUI_ID% Move, vTab3, % "h" TabHeight + ControlHeight + 16
                                 TabHeight+=ControlHeight
                                 GuiControl %GUI_ID% Move, vTab3, % "h" TabHeight + 16
                                 if (this.StepsizedGuishow) {
                                     gui %GUI_ID% show
+                                }
+                                if Value.HasKey("TTIP") {
+                                    if AddToolTip(Deref("%DA" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                                    }
                                 }
                                 continue
                             }
@@ -395,7 +400,7 @@ Class dynamicGUI {
                             Value.ctrlOptions.= " h35"
                             ControlHeight+=35
                         }
-                        gui %GUI_ID% add, % "edit", % Value.ctrlOptions " vv" Parameter, % (Value.Value="NULL"?:Value.Value)
+                        gui %GUI_ID% add, % "edit", % Value.ctrlOptions " vv" Parameter " hwndDA" Parameter, % (Value.Value="NULL"?:Value.Value)
                         GuiControl Move, vTab3, % "h" TabHeight + ControlHeight + 32
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -409,7 +414,7 @@ Class dynamicGUI {
                         }
                         ControlHeight+=20
                         ;GuiControl Move, vTab3, % "h" TabHeight + ControlHeight
-                        gui %GUI_ID% add, edit, % Value.ctrlOptions " vv" Parameter " disabled w200 yp+30 h60", % Value.Value
+                        gui %GUI_ID% add, edit, % Value.ctrlOptions " vv" Parameter " hwndDA" Parameter " disabled w200 yp+30 h60", % Value.Value
                         ControlHeight+=90
                         ;GuiControl Move, vTab3, % "h" TabHeight + ControlHeight
                         gui %GUI_ID% add, button, yp+70 hwndSelectFile, % "Select &File"
@@ -432,6 +437,12 @@ Class dynamicGUI {
                         } else {
                             gui %GUI_ID%  add, text,h20, % Value.String
                         }
+                        if (RegexMatch(Value.ctrlOptions,"^r(?<Rows>\d+)\,.+$",v)) {
+                            Value.ctrlOptions2:=vRows
+                            Value.ctrlOptions:=RegExReplace(Value.ctrlOptions, "r\d+\,")
+                        } else {
+                            Value.ctrlOptions2:=0
+                        }
                         if Instr(Value.ctrlOptions,",") && !Instr(Value.ctrlOptions,"|") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,",","|")
                         }
@@ -447,12 +458,12 @@ Class dynamicGUI {
                         if !Instr(Value.ctrlOptions,Value.Default "||") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.ctrlOptions "|")
                         }
-                        Threshold:=5
+                        Threshold:=(Value.ctrlOptions2>0?Value.ctrlOptions2:5)
                             , tmpctrlOptions:=LTrim(RTrim(strreplace(Value.ctrlOptions,"||","|"),"|"),"|")
                             , tmpctrlOptions_arr:=strsplit(tmpctrlOptions,"|")
                             , Count:=tmpctrlOptions_arr.Count()
                             , shown_rows:=(Count<=1?1:(Count>Threshold?Threshold:Count))
-                        gui %GUI_ID% add, % Value.Control, % "  vv" Parameter " r" shown_rows , % Value.ctrlOptions
+                        gui %GUI_ID% add, % Value.Control, % "  vv" Parameter " hwndDA" Parameter " r" shown_rows , % Value.ctrlOptions
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
                         }
@@ -465,7 +476,7 @@ Class dynamicGUI {
                         }
                         AHKVARIABLES := { "A_ScriptDir": A_ScriptDir, "A_ScriptName": A_ScriptName, "A_ScriptFullPath": A_ScriptFullPath, "A_ScriptHwnd": A_ScriptHwnd, "A_LineNumber": A_LineNumber, "A_LineFile": A_LineFile, "A_ThisFunc": A_ThisFunc, "A_ThisLabel": A_ThisLabel, "A_AhkVersion": A_AhkVersion, "A_AhkPath": A_AhkPath, "A_IsUnicode": A_IsUnicode, "A_IsCompiled": A_IsCompiled, "A_ExitReason": A_ExitReason, "A_YYYY": A_YYYY, "A_MM": A_MM, "A_DD": A_DD, "A_MMMM": A_MMMM, "A_MMM": A_MMM, "A_DDDD":A_DDDD,"A_DDD":A_DDD,"A_WDay":A_WDay,"A_YDay":A_YDay,"A_YWeek":A_YWeek,"A_Hour":A_Hour,"A_Min":A_Min,"A_Sec":A_Sec,"A_MSec":A_MSec,"A_Now":A_Now,"A_NowUTC":A_NowUTC,"A_TickCount":A_TickCount,"A_IsSuspended":A_IsSuspended,"A_IsPaused":A_IsPaused,"A_IsCritical":A_IsCritical,"A_BatchLines":A_BatchLines,"A_ListLines":A_ListLines,"A_TitleMatchMode":A_TitleMatchMode,"A_TitleMatchModeSpeed":A_TitleMatchModeSpeed,"A_DetectHiddenWindows":A_DetectHiddenWindows,"A_DetectHiddenText":A_DetectHiddenText,"A_AutoTrim":A_AutoTrim,"A_StringCaseSense":A_StringCaseSense,"A_FileEncoding":A_FileEncoding,"A_FormatInteger":A_FormatInteger,"A_FormatFloat":A_FormatFloat,"A_SendMode":A_SendMode,"A_SendLevel":A_SendLevel,"A_StoreCapsLockMode":A_StoreCapsLockMode,"A_KeyDelay":A_KeyDelay,"A_KeyDuration":A_KeyDuration,"A_KeyDelayPlay":A_KeyDelayPlay,"A_KeyDurationPlay":A_KeyDurationPlay,"A_WinDelay":A_WinDelay,"A_ControlDelay":A_ControlDelay,"A_MouseDelay":A_MouseDelay,"A_MouseDelayPlay":A_MouseDelayPlay,"A_DefaultMouseSpeed":A_DefaultMouseSpeed,"A_CoordModeToolTip":A_CoordModeToolTip,"A_CoordModePixel":A_CoordModePixel,"A_CoordModeMouse":A_CoordModeMouse,"A_CoordModeCaret":A_CoordModeCaret,"A_CoordModeMenu":A_CoordModeMenu,"A_RegView":A_RegView,"A_IconHidden":A_IconHidden,"A_IconTip":A_IconTip,"A_IconFile":A_IconFile,"A_IconNumber":A_IconNumber,"A_TimeIdle":A_TimeIdle,"A_TimeIdlePhysical":A_TimeIdlePhysical,"A_TimeIdleKeyboard":A_TimeIdleKeyboard,"A_TimeIdleMouse":A_TimeIdleMouse,"A_DefaultGUI":A_DefaultGUI,"A_DefaultListView":A_DefaultListView,"A_DefaultTreeView":A_DefaultTreeView,"A_Gui":A_Gui,"A_GuiControl":A_GuiControl,"A_GuiWidth":A_GuiWidth,"A_GuiHeight":A_GuiHeight,"A_GuiX":A_GuiX,"A_GuiY":A_GuiY,"A_GuiEvent":A_GuiEvent,"A_GuiControlEvent":A_GuiControlEvent,"A_EventInfo":A_EventInfo,"A_ThisMenuItem":A_ThisMenuItem,"A_ThisMenu":A_ThisMenu,"A_ThisMenuItemPos":A_ThisMenuItemPos,"A_ThisHotkey":A_ThisHotkey,"A_PriorHotkey":A_PriorHotkey,"A_PriorKey":A_PriorKey,"A_TimeSinceThisHotkey":A_TimeSinceThisHotkey,"A_TimeSincePriorHotkey":A_TimeSincePriorHotkey,"A_EndChar":A_EndChar,"A_ComSpec":A_ComSpec,"A_Temp":A_Temp,"A_OSType":A_OSType,"A_OSVersion":A_OSVersion,"A_Is64bitOS":A_Is64bitOS,"A_PtrSize":A_PtrSize,"A_Language":A_Language,"A_ComputerName":A_ComputerName,"A_UserName":A_UserName,"A_WinDir":A_WinDir,"A_ProgramFiles":A_ProgramFiles,"A_AppData":A_AppData,"A_AppDataCommon":A_AppDataCommon,"A_Desktop":A_Desktop,"A_DesktopCommon":A_DesktopCommon,"A_DesktopCommon":A_DesktopCommon}
 
-                        gui %GUI_ID%  add, DateTime, % Value.ctrlOptions " h30 vv" Parameter, % "dd.MM.yyyy"
+                        gui %GUI_ID%  add, DateTime, % Value.ctrlOptions " h30 vv" Parameter " hwndDA" Parameter, % "dd.MM.yyyy"
                         guicontrol %GUI_ID%,v%Parameter%,% DA_DateParse(DA_FormatEx(Value.Value, AHKVARIABLES))
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -474,7 +485,7 @@ Class dynamicGUI {
                         if Value.HasKey("Link") {
                             if (Value.Control="Checkbox") { 
                                 gui %GUI_ID% add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space
-                                gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions "yp-8 xp+8 h30 vv" Parameter, % Value.String
+                                gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions "yp-8 xp+8 h30 vv" Parameter " hwndDA" Parameter, % Value.String
                                 gui %GUI_ID% add, text, h0 w0 xp-8 yp+20
                                 if (this.StepsizedGuishow) {
                                     gui %GUI_ID% show
@@ -484,12 +495,17 @@ Class dynamicGUI {
                                 gui %GUI_ID% add, text, % Value.ctrlOptions " h30 vv" Parameter "D", % Value.String
                             }
                         } else {
-                            gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter, % Value.String
+                            gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter " hwndDA" Parameter, % Value.String
                             if (this.StepsizedGuishow) {
                                 gui %GUI_ID% show
                             }
                         }
                         ControlHeight+=30
+                    }
+                    if Value.HasKey("TTIP") {
+                        if AddToolTip(Deref("%DA" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                        }
                     }
                     if (Value.Control="Checkbox") {
                         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:49:09 AM ; case sensitivity
