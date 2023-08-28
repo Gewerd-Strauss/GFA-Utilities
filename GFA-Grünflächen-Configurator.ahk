@@ -1059,8 +1059,8 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
 
 
     OutDrive:=0
-    SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,,,, OutDrive
-    if FileExist(OutDrive) { ;; can't believe this is necessary...
+    SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,OutDir,,, OutDrive
+    if (FileExist(OutDrive) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir)) { ;; can't believe this is necessary...
         writeFile(dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
     } else {
         if FileExist(dynGUI.GFA_Evaluation_Configfile_Location) {
