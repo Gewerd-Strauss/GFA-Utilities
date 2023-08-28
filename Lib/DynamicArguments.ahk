@@ -437,6 +437,12 @@ Class dynamicGUI {
                         } else {
                             gui %GUI_ID%  add, text,h20, % Value.String
                         }
+                        if (RegexMatch(Value.ctrlOptions,"^r(?<Rows>\d+)\,.+$",v)) {
+                            Value.ctrlOptions2:=vRows
+                            Value.ctrlOptions:=RegExReplace(Value.ctrlOptions, "r\d+\,")
+                        } else {
+                            Value.ctrlOptions2:=0
+                        }
                         if Instr(Value.ctrlOptions,",") && !Instr(Value.ctrlOptions,"|") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,",","|")
                         }
@@ -452,7 +458,7 @@ Class dynamicGUI {
                         if !Instr(Value.ctrlOptions,Value.Default "||") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.ctrlOptions "|")
                         }
-                        Threshold:=5
+                        Threshold:=(Value.ctrlOptions2>0?Value.ctrlOptions2:5)
                             , tmpctrlOptions:=LTrim(RTrim(strreplace(Value.ctrlOptions,"||","|"),"|"),"|")
                             , tmpctrlOptions_arr:=strsplit(tmpctrlOptions,"|")
                             , Count:=tmpctrlOptions_arr.Count()
