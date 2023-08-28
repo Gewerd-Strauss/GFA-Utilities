@@ -1150,10 +1150,18 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                     , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
             }
             
-            
-            
-            Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
-            Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
+            # Select the required number of colours from a sequencial color palette
+            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+            if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
+            }
+            if (hasName(ini$Experiment,"Palette_Lines")) {
+                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+            }
             
             if (hasName(ini$General,"Theme")) {
                 Theme_Index <- ini$General$Theme
@@ -1519,14 +1527,18 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             
             
-            #Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            #Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            
             # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-            #Palette_Boxplot <- replace(Palette_Boxplot,list = numberofGroups,"white") 
-            #Palette_Lines <- replace(Palette_Lines,list = numberofGroups,"#112734")
-            Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
-            Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+            # Select the required number of colours from a sequencial color palette
+            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+            if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
+            }
+            if (hasName(ini$Experiment,"Palette_Lines")) {
+                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+            }
             
             if (hasName(ini$General,"Theme")) {
                 Theme_Index <- ini$General$Theme
