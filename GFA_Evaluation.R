@@ -970,7 +970,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
     Day_Index <- 0
     for (curr_Day in ChosenDays) {
         for (curr_file in Files) {
-            if (isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) {
+            if ((isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) && (isFALSE(as.logical(str_count(curr_file,format(as.Date(str_trim(curr_Day),tryFormats = c("%Y-%m-%d","%d.%m.%Y",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)))))))){
                 next
             }
             
