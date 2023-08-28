@@ -163,8 +163,8 @@ calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=
     Ind <- 1
     strLen_max <- 0
     for (file in Files){
-        Date <- str_extract(file,"\\d+\\.\\d+\\.\\d+")
-        Date <- as.Date.character(Date,format = "%d.%m.%Y")
+        Date <- str_extract(file,"\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
+        Date <- as.Date.character(Date,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
         Conditions <- {}
         #as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
         if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
