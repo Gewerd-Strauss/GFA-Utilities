@@ -1553,14 +1553,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                             labs_pubr(10),
                             theme_pubclean(base_size = 10),
                             clean_theme())
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
             
-            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
             # Select the required number of colours from a sequencial color palette
             Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
             Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
             Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
             Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
             if (hasName(ini$Experiment,"Palette_Boxplot2")) {
@@ -1644,7 +1641,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , " ("
                               , ini$Experiment$Name
                               , ", "
-                              , str_trim(curr_Day)
+                              , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                               , ") "
                               , if_else(as.logical(ini$Experiment$Normalise)
                                         , "norm"
@@ -1659,7 +1656,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , Theme_Index
                               , ").jpg")
             
-            Data$Gruppe = factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
+            Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
             GFA_plot_box <-  ggboxplot(Data, x= "Gruppe"
                                        , y = "plant_area"
                                        , fill = "Gruppe"
@@ -1689,8 +1686,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
                 Limits[[2]] <- scale_y_upperEnd
             }
-            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
-                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset. 
+                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a lower value, ggplot will fail.
             }
             Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
             Limits <- Yscale_Data$Limits
@@ -2093,9 +2090,9 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                       , " (" 
                       , ini$Experiment$Name
                       , ", "
-                      , TitleDates[1]
+                      , format(as.Date(TitleDates[[1]],"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                       , " - "
-                      , TitleDates[length(TitleDates)]
+                      , format(as.Date(TitleDates[[length(TitleDates)]],"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
                       , ") "
                       , if_else(as.logical(ini$Experiment$Normalise)
                                 , "norm"
