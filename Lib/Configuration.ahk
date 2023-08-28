@@ -114,6 +114,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%language:DDL|Type:String|Default:"English"|String:"Select language for auto-generated labels"|ctrlOptions:English,German|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctrlOptions:xlsx,csv|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
+            %A_Tab%filename_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for saved files. Editing allowed"|TTIP:Does not control the date format on the figure. For that, see option 'figure_date_format'.|ctrlOptions:r5,`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:2. GeneralConfiguration|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:"https://www.youtube.com"|Linktext:?|ConfigSection:General
             %A_Tab%;;; figure
             %A_Tab%;;
@@ -134,6 +135,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis. "|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_y_Daily:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis (for the daily plots)."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:General
+            %A_Tab%figure_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for dates on the x-axis. Editing allowed"|TTIP:[RelativeColNames==TRUE]\nDoes not take effect\n\n\n[RelativeColNames==FALSE]\nSet the format for dates on the x-axis\n\nDoes not control the date format for the saved files. For that, see option 'filename_date_format'.|ctrlOptions:`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%XLabel:Edit|Type:String|Default:"Time since repotting"|String:"Set the xlabel-string for the summary plot."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%XLabel_Daily:Edit|Type:String|Default:"Treatment Groups"|String:"Set the xlabel-string for the daily analyses."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
             %A_Tab%YLabel:Edit|Type:String|Default:"green plant area"|String:"Set the ylabel-string for the summary plot and daily analyses."|Tab3Parent:4. Axes|Link:"https://www.google.com"|Linktext:?|ConfigSection:Experiment
