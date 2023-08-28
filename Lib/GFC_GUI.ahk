@@ -338,7 +338,11 @@
     populateLoadedConfig() {
 
         for Parameter,Value in this.Arguments {
-            guicontrol % "GC:",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+            if (Value.Control="DDL" || Value.Control="DropDownList" || Value.Control="ComboBox") {
+                guicontrol % "GC:" "ChooseString",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+            } else {
+                guicontrol % "GC:",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+            }
         }
     }
 
