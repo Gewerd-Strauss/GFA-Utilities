@@ -1084,14 +1084,20 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         } else {
             SearchPath:=Path
         }
+    } else {
+        if (FileExist(vStarterRScriptLocation)) {
+            Chosen:=vStarterRScriptLocation
+            forceSelection:=false
+        }
     }
     if (Chosen="" || forceSelection) {
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
         ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-        throw Exception("You tried editing an R-script which is in a different folder than your previously selected configuration-file. ", , "As your newly selected R-Script resides in a different foler which still contains a configuration file, be aware that the script may not handle this scenario well or at all. Data loss may occur, it is not advised to do so. If you want to edit the script of a different GFA, it is advised to first select a config-file which resides in the same folder as the script you want to edit.")
+        ;throw Exception("You tried editing an R-script which is in a different folder than your previously selected configuration-file. ", , "As your newly selected R-Script resides in a different foler which still contains a configuration file, be aware that the script may not handle this scenario well or at all. Data loss may occur, it is not advised to do so. If you want to edit the script of a different GFA, it is advised to first select a config-file which resides in the same folder as the script you want to edit.")
         ;throw Exception("`n" CallStack())
+        FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
@@ -1099,6 +1105,9 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             Chosen:=Chosen ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % Chosen
+        if (Chosen!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=Chosen
+        }
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"`n","UTF-8-RAW",,true)
         }
