@@ -294,10 +294,12 @@ guiCreate() {
     gui add, checkbox, y165 xp hwndChecksaveRDATA   vvsaveRDATA, Do you want to save 'RData' to disk?
     gui add, checkbox, y185 xp hwndCheckSaveExcel   vvSaveExcel, Do you want to save 'Excel' to disk?
     gui add, text, % "x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+15 " h0 w0", middlebottomanchor
-    gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations||Convert csv to excel||Rename Images
+    gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Load previous configurations|Rename Images
     gui tab, Load previous configurations
     gui add, checkbox, % "hwndCheckToggleLVReport gtoggle_ReportTip x+5 y+5 vvToggleLVReport", % "Toggle Report-View on the ListView below?"
-    gui add, Listview, % "hwndhwndLV_History +LV0x400 +LV0x10000 xp y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
+    gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+240", % "csv2xlsx"
+    AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you can use this button to automatically create xlsx-files for any csv-file which does not have an xlsx-version.",, GCHWND)
+    gui add, Listview, % "hwndhwndLV_History +LV0x400 +LV0x10000 xp-240 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
     HistoryString:=""
     LV_Delete()
@@ -372,8 +374,6 @@ guiCreate() {
             }
             }
         )
-
-    gui tab, Convert csv to excel
     gui tab, Rename Images
     GuiControl Choose, vTab3, % "Load previous configuration"
     gui tab,
@@ -416,6 +416,7 @@ guiCreate() {
         , onCheckSaveExcel:=Func("handleCheckboxesWrapper").Bind("")
         , onGenerateRScript:=Func("createRScript").Bind("D:/")
         , onLoadConfigFromLV:=Func("loadConfigFromLV").Bind(dynGUI)
+        , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,guiObject)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -434,6 +435,7 @@ guiCreate() {
     guiControl GC:+g, %newStarterScriptBtn%, % oncreateRScript
     guiControl GC:+g, %editStarterScriptBtn%, % onEditStarterScript
     guiControl GC:+g, %hwndLV_History%, % onLoadConfigFromLV
+    guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
 
 
     guiControl GC:+g, %CheckreturnDays%, % onCheckreturnDays
@@ -1212,3 +1214,4 @@ prepare_release() {
 #Include <RegexMatchAll>
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
+#Include <csv2xlsx>
