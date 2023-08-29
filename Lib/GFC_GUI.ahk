@@ -345,7 +345,89 @@
             }
         }
     }
+    generateDocumentationString() {
+        String:=""
+        DocArray:={}
+        DocArguments:={}
+        DocArguments:=this.shallowCopy(DocArguments)
+        for Parameter, Argument in DocArguments {
+            if (!IsObject(DocArray[Argument.Tab3Parent])) {
+                DocArray[Argument.Tab3Parent]:={}
+            }
+            Parametertemplate=
+                (LTRIM
+                    #### ```%Parameter`%``
+                    Parameter       ```%Parameter`%`` [Section:```%ConfigSection`%``]%A_Space%%A_Space%
+                    Value           ```%Value`%``%A_Space%%A_Space%
+                    Default         ```%Default`%``%A_Space%%A_Space%
+                    Type            ```%Type`%``%A_Space%%A_Space%
+                    Options         ```%ctrlOptions`%``%A_Space%%A_Space%
+                    Instruction     ```%String`%``%A_Space%%A_Space%
+                    Elaboration     ```%TTIP`%``%A_Space%%A_Space%
 
+                )
+            if (Argument.Type="boolean") {
+                Argument.ctrlOptions:="TRUE/FALSE"
+            }
+            if (!Argument.HasKey("ctrlOptions")) {
+                Argument.ctrlOptions:="/"
+            }
+            for Key,Arg in Argument {
+                if InStr(Parametertemplate,a:="%" Key "%") {
+                    if (Key="ctrlOptions") {
+                        trimmedOpts:=false
+                        if (RegexMatch(Arg,"w\d+")) {
+                            Arg:=RegExReplace(Arg," w\d+","/")
+                            trimmedOpts:=true
+                        }
+                        if (RegexMatch(Arg,"h\d+")) {
+                            Arg:=RegExReplace(Arg," h35","/")
+                            trimmedOpts:=true
+                        }
+                        if (RegexMatch(Arg,"w\d+")) {
+                            Arg:=RegExReplace(Arg," w\d+","/")
+                            trimmedOpts:=true
+                        }
+                        if (RegexMatch(Arg,"g\w+")) {
+                            Arg:=RegExReplace(Arg," g\w+","/")
+                            trimmedOpts:=true
+                        }
+                    } 
+                    if (Argument.HasKey("TTIP")) {
+                        Parametertemplate:=strreplace(Parametertemplate,"``%TTIP%``","``" Argument.TTIP "``")
+                    } else {
+                        Parametertemplate:=strreplace(Parametertemplate,"``%TTIP%``")
+                    }
+                    Parametertemplate:=strreplace(Parametertemplate,"%" Key "%",(Arg!=""?Arg:"/"))
+                }
+                Parametertemplate:=strreplace(Parametertemplate,"%Parameter%",Parameter)
+                Parametertemplate:=strreplace(Parametertemplate,"//","/")
+                DocArray[Argument.Tab3Parent][Parameter]:=Parametertemplate
+            }
+
+        }
+        String:=""
+        for each, TabElements in DocArray {
+            Str:="`n`n`n### " each "`n"
+            for Parameter, Parameterstring in TabElements {
+                Str.= Parameterstring "`n`n"
+            }
+            String.=Str
+        }
+        return String
+    }
+    shallowCopy(Object) {
+        for Parameter, Argument in this.Arguments {
+            if (!Object.HasKey(Parameter)) {
+                Object[Parameter]:={}
+            }
+            for Key, _ in Argument
+                if (!Object[Parameter].HasKey(Key)) {
+                    Object[Parameter][Key]:=Argument[Key]
+                }
+        }
+        return Object
+    }
 }
 removeDuplicates(vText,Delim:=",",bSort:=0) {
     vOutput := ""

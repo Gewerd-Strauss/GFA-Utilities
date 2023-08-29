@@ -108,6 +108,13 @@ main() {
 
     ;script.Save(script.scriptconfigfile)
     global guiObject:=guiCreate()
+    if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
+        if (globalLogicSwitches.bIsAuthor) {
+            ttip("generating parameter documentation string")
+            String:=guiObject.dynGUI.generateDocumentationString()
+            Clipboard:=String
+        }
+    }
     global maingui_hwnd:=guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
@@ -172,7 +179,6 @@ guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
     if (globalLogicSwitches.DEBUG) {
-
         ttip([globalLogicSwitches.bIsAuthor,globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG])
     }
     ;; get Screen dimensions
@@ -1226,3 +1232,6 @@ prepare_release() {
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
 #Include <csv2xlsx>
+#Include <UriHandling>
+#Include <WinHttpRequest>
+

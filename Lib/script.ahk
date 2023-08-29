@@ -119,55 +119,8 @@ class script {
         */
         if this.HasKey("metadata") {
             Lines:=strsplit(this.metadata,"`n")
-            MetadataArray:={}
-            for _, Line in Lines {
-                Key:=Trim(strsplit(Line, " - ",,2).1)
-                Value:=Trim(strsplit(Line," - ",,2).2)
-                if RegexMatch(Value,"http(s)?:\/\/") {
-                    Value:=RegexReplace(Value,"http(s)?:\/\/")
-                }
-                MetadataArray[Key]:=RegexReplace(Value,"\r")
-            }
-            ;; what an abomination
-            MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
-                ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
-            MetadataArray.version:=(MetadataArray.version!=""
-                ? MetadataArray.version :( this.version))
-            MetadataArray.author :=(MetadataArray.author!=""
-                ? MetadataArray.author :( author ? author : this.author))
-            MetadataArray.credits :=(MetadataArray.credits!=""
-                ? MetadataArray.credits :( credits ? credits : this.credits))
-            MetadataArray.ghtext :=(MetadataArray.ghtext!=""
-                ? MetadataArray.ghtext :( ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")))
-            MetadataArray.ghlink :=(MetadataArray.ghlink!=""
-                ? MetadataArray.ghlink :( ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")))
-            MetadataArray.doctext :=(MetadataArray.doctext!=""
-                ? MetadataArray.doctext :( doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")))
-            MetadataArray.doclink :=(MetadataArray.doclink!=""
-                ? MetadataArray.doclink :( doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")))
-            MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
-                ? MetadataArray.offdoclink :( offdoclink ? offdoclink : this.offdoclink))
-            MetadataArray.forumtext :=(MetadataArray.forumtext!=""
-                ? MetadataArray.forumtext :( forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")))
-            MetadataArray.forumlink :=(MetadataArray.forumlink!=""
-                ? MetadataArray.forumlink :( forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")))
-            MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
-                ? MetadataArray.homepagetext :( homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")))
-            MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
-                ? MetadataArray.homepagelink :( homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")))
-            MetadataArray.donateLink :=(MetadataArray.donateLink!=""
-                ? MetadataArray.donateLink :( donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")))
-            MetadataArray.email :=(MetadataArray.email!=""
-                ? MetadataArray.email :( email ? email : this.email))
-            ;for Key, Value in MetaDataArray {
-            ;    html:=strreplace(html, Key, Trim(Value))
-            ;    Value=%Value%
-            ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
-            ;
-            ;}
             Key:=Value:=""
             ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
-
         } else {
             scriptName := scriptName ? scriptName : this.name
                 , version := version ? version : this.version
@@ -186,6 +139,7 @@ class script {
                 , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
                 , email := email ? email : this.email
         }
+        MetadataArray:=this.metadataArr
         About_template:=""
 
         gui aboutScript:new, +HWNDscriptAbout +alwaysontop +toolwindow, % "About " this.name
@@ -467,6 +421,76 @@ class script {
         }
         FileRead text, % Path
         this.metadata:=text
+        if this.HasKey("metadata") {
+            Lines:=strsplit(this.metadata,"`n")
+            MetadataArray:={}
+            for _, Line in Lines {
+                Key:=Trim(strsplit(Line, " - ",,2).1)
+                Value:=Trim(strsplit(Line," - ",,2).2)
+                if RegexMatch(Value,"http(s)?:\/\/") {
+                    Value:=RegexReplace(Value,"http(s)?:\/\/")
+                }
+                MetadataArray[Key]:=RegexReplace(Value,"\r")
+            }
+            ;; what an abomination
+            MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
+                ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
+            MetadataArray.version:=(MetadataArray.version!=""
+                ? MetadataArray.version :( this.version))
+            MetadataArray.author :=(MetadataArray.author!=""
+                ? MetadataArray.author :( author ? author : this.author))
+            MetadataArray.credits :=(MetadataArray.credits!=""
+                ? MetadataArray.credits :( credits ? credits : this.credits))
+            MetadataArray.ghtext :=(MetadataArray.ghtext!=""
+                ? MetadataArray.ghtext :( ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")))
+            MetadataArray.ghlink :=(MetadataArray.ghlink!=""
+                ? MetadataArray.ghlink :( ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")))
+            MetadataArray.doctext :=(MetadataArray.doctext!=""
+                ? MetadataArray.doctext :( doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")))
+            MetadataArray.doclink :=(MetadataArray.doclink!=""
+                ? MetadataArray.doclink :( doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")))
+            MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
+                ? MetadataArray.offdoclink :( offdoclink ? offdoclink : this.offdoclink))
+            MetadataArray.forumtext :=(MetadataArray.forumtext!=""
+                ? MetadataArray.forumtext :( forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")))
+            MetadataArray.forumlink :=(MetadataArray.forumlink!=""
+                ? MetadataArray.forumlink :( forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")))
+            MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
+                ? MetadataArray.homepagetext :( homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")))
+            MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
+                ? MetadataArray.homepagelink :( homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")))
+            MetadataArray.donateLink :=(MetadataArray.donateLink!=""
+                ? MetadataArray.donateLink :( donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")))
+            MetadataArray.email :=(MetadataArray.email!=""
+                ? MetadataArray.email :( email ? email : this.email))
+            ;for Key, Value in MetaDataArray {
+            ;    html:=strreplace(html, Key, Trim(Value))
+            ;    Value=%Value%
+            ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
+            ;
+            ;}
+            Key:=Value:=""
+            ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
+
+        } else {
+            scriptName := scriptName ? scriptName : this.name
+                , version := version ? version : this.version
+                , author := author ? author : this.author
+                , credits := credits ? credits : this.credits
+                , creditslink := creditslink ? creditslink : RegExReplace(this.creditslink, "http(s)?:\/\/")
+                , ghtext := ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")
+                , ghlink := ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")
+                , doctext := doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")
+                , doclink := doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")
+                , offdoclink := offdoclink ? offdoclink : this.offdoclink
+                , forumtext := forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")
+                , forumlink := forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")
+                , homepagetext := homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")
+                , homepagelink := homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")
+                , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
+                , email := email ? email : this.email
+        }
+        this.metadataArr:=MetadataArray
     }
 
     __Init() {

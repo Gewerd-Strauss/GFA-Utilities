@@ -1018,7 +1018,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                     }
                 }
                 Data$plant_area_nonnormalised <- Data$plant_area
-                Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normal          #ised area is loaded for the develoment-plot so I can use that logic here instead. 
+                Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead. 
             } else {
                 if (!hasName(Data,"plant_area")) {
                     if (hasName(Data,"plant_area_complete")) {
@@ -1088,7 +1088,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             #print(p_Outlier2) # this will label the outlier with its value. 
             
-            #TODO: figure out what to group_by by... 
             Outliers <- Data %>%
                 group_by(interactions) %>%
                 identify_outliers("plant_area") 
@@ -1115,7 +1114,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
                 Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
@@ -1127,7 +1125,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1170,7 +1167,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
             if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
+                Conditions$GenerateAllThemes <- TRUE
             } else {
                 Conditions$GenerateAllThemes <- FALSE
             }
@@ -1463,7 +1460,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             #print(p_Outlier2) # this will label the outlier with its value. 
             
-            #TODO: figure out what to group_by by... 
             Outliers <- Data %>%
                 group_by(Gruppe) %>%
                 identify_outliers("plant_area") 
@@ -1490,7 +1486,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
                 Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
@@ -1502,7 +1497,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1547,7 +1541,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
             if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
+                Conditions$GenerateAllThemes <- TRUE
             } else {
                 Conditions$GenerateAllThemes <- FALSE
             }
@@ -1978,7 +1972,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
     if (Theme_Index>numberofThemes) {
-        Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
+        Conditions$GenerateAllThemes <- TRUE
     } else {
         Conditions$GenerateAllThemes <- FALSE
     }
