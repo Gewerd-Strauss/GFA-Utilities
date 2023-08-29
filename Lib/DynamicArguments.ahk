@@ -366,6 +366,8 @@ Class dynamicGUI {
                     if (Value.Control="Edit") {
                         GuiControl Choose, vTab3, % Tab
                         if Value.HasKey("Link") {
+                            Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                            Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
                             gui %GUI_ID%  add, Link,% "h20  hwndDALink" Parameter, % "<a href=" Value.Link ">?</a>" A_Space Value.String
                         } else {
                             gui %GUI_ID%  add, text,% "h20  hwndDALink" Parameter, % Value.String
@@ -411,6 +413,8 @@ Class dynamicGUI {
                         ;GuiControl Move, vTab3, % "h" TabHeight
                     } else if (Value.Control="File") {
                         if Value.HasKey("Link") {
+                            Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                            Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
                             gui %GUI_ID%  add, Link,% "h20 hwndDALink", % "<a href=" Value.Link ">?</a>" A_Space Value.String
                         } else {
                             gui %GUI_ID%  add, text,% TabHeight+20 " hwndDALink", % Value.String
@@ -436,6 +440,8 @@ Class dynamicGUI {
                         }
                     } else if (Value.Control="DDL") || (Value.Control="ComboBox") {
                         if Value.HasKey("Link") {
+                            Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                            Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
                             gui %GUI_ID%  add, Link,% "hwndDALink h20", % "<a href=" Value.Link ">?</a>" A_Space Value.String
                         } else {
                             gui %GUI_ID%  add, text,% "hwndDALink h20", % Value.String
@@ -473,6 +479,8 @@ Class dynamicGUI {
                         ControlHeight+=75
                     } else if (Value.Control="DateTime"){
                         if Value.HasKey("Link") {
+                            Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                            Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
                             gui %GUI_ID%  add, Link,% "hwndDALink h20", % "<a href=" Value.Link ">?</a>" A_Space Value.String
                         } else {
                             gui %GUI_ID%  add, text,% "hwndDALink h20", % Value.String
@@ -487,7 +495,9 @@ Class dynamicGUI {
                     } else {
                         if Value.HasKey("Link") {
                             if (Value.Control="Checkbox") { 
-                                gui %GUI_ID% add, Link,% "hwndDALink h20", % "<a href=" Value.Link ">?</a>" A_Space
+                                Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                                Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
+                                gui %GUI_ID% add, Link,% "hwndDALink h20", % "<a href=""" Value.Link """>?</a>" A_Space
                                 gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions "yp-8 xp+8 h30 vv" Parameter " hwndDA" Parameter, % Value.String
                                 gui %GUI_ID% add, text, h0 w0 xp-8 yp+20
                                 if (this.StepsizedGuishow) {
