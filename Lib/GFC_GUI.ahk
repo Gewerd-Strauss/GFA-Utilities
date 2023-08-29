@@ -356,12 +356,14 @@
             }
             Parametertemplate=
                 (LTRIM
-                    ### ```%Parameter`%``
+                    #### ```%Parameter`%``
                     Parameter       ```%Parameter`%`` [Section:```%ConfigSection`%``]%A_Space%%A_Space%
                     Value           ```%Value`%``%A_Space%%A_Space%
                     Default         ```%Default`%``%A_Space%%A_Space%
                     Type            ```%Type`%``%A_Space%%A_Space%
                     Options         ```%ctrlOptions`%``%A_Space%%A_Space%
+                    Instruction     ```%String`%``%A_Space%%A_Space%
+                    Elaboration     ```%TTIP`%``%A_Space%%A_Space%
 
                 )
             if (Argument.Type="boolean") {
@@ -390,18 +392,23 @@
                             Arg:=RegExReplace(Arg," g\w+","/")
                             trimmedOpts:=true
                         }
+                    } 
+                    if (Argument.HasKey("TTIP")) {
+                        Parametertemplate:=strreplace(Parametertemplate,"``%TTIP%``","``" Argument.TTIP "``")
+                    } else {
+                        Parametertemplate:=strreplace(Parametertemplate,"``%TTIP%``")
                     }
-                    Parametertemplate:=strreplace(Parametertemplate,"%" Key "%",Arg)
+                    Parametertemplate:=strreplace(Parametertemplate,"%" Key "%",(Arg!=""?Arg:"/"))
                 }
-                Parametertemplate:=strreplace(Parametertemplate,"//","/")
                 Parametertemplate:=strreplace(Parametertemplate,"%Parameter%",Parameter)
+                Parametertemplate:=strreplace(Parametertemplate,"//","/")
                 DocArray[Argument.Tab3Parent][Parameter]:=Parametertemplate
             }
 
         }
         String:=""
         for each, TabElements in DocArray {
-            Str:="`n`n`n## " each "`n"
+            Str:="`n`n`n### " each "`n"
             for Parameter, Parameterstring in TabElements {
                 Str.= Parameterstring "`n`n"
             }
