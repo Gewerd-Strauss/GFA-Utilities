@@ -1232,3 +1232,6 @@ prepare_release() {
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
 #Include <csv2xlsx>
+#Include <UriHandling>
+#Include <WinHttpRequest>
+
