@@ -25,3 +25,4 @@ wolf_II         -      checkDecimalsOnEdit                                      
 AHK v1 Docs     -      Deref, reg. License                                                  - https://www.autohotkey.com/docs/v1/lib/RegExMatch.htm#ExDeref, https://www.autohotkey.com/docs/v1/license.htm
 JayC            -      SelectFolder                                                         - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=120019&p=532694&hilit=select+folder#p532681
 Lexikos         -      StdErr_Write, reg. License                                           - http://www.autohotkey.com/board/topic/50306-can-a-script-write-to-stderr/?hl=errorstdout#entry314658,https://www.autohotkey.com/board/topic/36032-lexikos-default-copyright-license/
+just me         -       ClipboardSetFiles (considered PD by author)                         - https://www.autohotkey.com/boards/viewtopic.php?p=63914#p63914

@@ -1236,4 +1236,5 @@ prepare_release() {
 #Include <WinHttpRequest>
 #Include <SelectFolder>
 #Include <StdErr_Write>
+#Include <ClipboardSetFiles>
 
