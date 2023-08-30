@@ -1107,8 +1107,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     }
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
         ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-        ;throw Exception("You tried editing an R-script which is in a different folder than your previously selected configuration-file. ", , "As your newly selected R-Script resides in a different foler which still contains a configuration file, be aware that the script may not handle this scenario well or at all. Data loss may occur, it is not advised to do so. If you want to edit the script of a different GFA, it is advised to first select a config-file which resides in the same folder as the script you want to edit.")
-        ;throw Exception("`n" CallStack())
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (Chosen!="") {
@@ -1145,7 +1143,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
             } catch e {
-                throw Exception( "`n" CallStack() )
+                throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
         } else {
 
@@ -1166,7 +1164,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
             } catch e {
-                throw Exception( "`n" CallStack() )
+                throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
         }
     }
