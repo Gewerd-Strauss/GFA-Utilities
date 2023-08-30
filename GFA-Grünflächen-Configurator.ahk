@@ -101,7 +101,7 @@ main() {
     if (bUpdateGeneratedFiles) {
         FileDelete % script.AboutPath
         script.About(1)
-        ExitApp
+        exitApp()
 
     }
     script_TraySetup(IconString)
@@ -1208,7 +1208,7 @@ exitApp() {
 
 prepare_release() {
     RunWait % A_ScriptDir "\Excludes\build.ahk"
-    ExitApp
+    exitApp()
 }
 #Include <script>
 #Include <Base64PNG_to_HICON>
