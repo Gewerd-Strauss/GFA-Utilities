@@ -1237,4 +1237,5 @@ prepare_release() {
 #Include <SelectFolder>
 #Include <StdErr_Write>
 #Include <ClipboardSetFiles>
+#Include <CountFilesR>
 
