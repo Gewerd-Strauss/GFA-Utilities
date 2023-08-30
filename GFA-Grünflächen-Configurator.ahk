@@ -1243,4 +1243,5 @@ prepare_release() {
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
 #Include <renameImages>
+#Include <cJSON>
 

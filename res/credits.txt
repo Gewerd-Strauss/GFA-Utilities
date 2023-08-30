@@ -26,3 +26,4 @@ AHK v1 Docs     -      Deref, reg. License                                      
 JayC            -      SelectFolder                                                         - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=120019&p=532694&hilit=select+folder#p532681
 Lexikos         -      StdErr_Write, reg. License                                           - http://www.autohotkey.com/board/topic/50306-can-a-script-write-to-stderr/?hl=errorstdout#entry314658,https://www.autohotkey.com/board/topic/36032-lexikos-default-copyright-license/
 just me         -       ClipboardSetFiles (considered PD by author)                         - https://www.autohotkey.com/boards/viewtopic.php?p=63914#p63914
+G33kDude        -       cJSON,reg. License                                                  - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
