@@ -101,7 +101,7 @@ main() {
     if (bUpdateGeneratedFiles) {
         FileDelete % script.AboutPath
         script.About(1)
-        ExitApp
+        exitApp()
 
     }
     script_TraySetup(IconString)
@@ -866,7 +866,7 @@ handleConfig(dynGUI,writetoFile:=false) {
             script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,dynGUI.GFA_Evaluation_Configfile_Location)
             script.save(script.configfile,,true)
         } catch e {
-            throw Exception( "`n" CallStack() )
+            throw Exception( "Failed to write config with encoding '" script.config.Configurator_Settings.INI_Encoding "' to path '" dynGUI.GFA_Evaluation_Configfile_Location "'`n`n" CallStack(),-1)
         }
     }
     return
@@ -1086,8 +1086,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     }
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
         ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-        ;throw Exception("You tried editing an R-script which is in a different folder than your previously selected configuration-file. ", , "As your newly selected R-Script resides in a different foler which still contains a configuration file, be aware that the script may not handle this scenario well or at all. Data loss may occur, it is not advised to do so. If you want to edit the script of a different GFA, it is advised to first select a config-file which resides in the same folder as the script you want to edit.")
-        ;throw Exception("`n" CallStack())
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (Chosen!="") {
@@ -1124,7 +1122,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
             } catch e {
-                throw Exception( "`n" CallStack() )
+                throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
         } else {
 
@@ -1145,7 +1143,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
             } catch e {
-                throw Exception( "`n" CallStack() )
+                throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
         }
     }
@@ -1211,7 +1209,7 @@ exitApp() {
 
 prepare_release() {
     RunWait % A_ScriptDir "\Excludes\build.ahk"
-    ExitApp
+    exitApp()
 }
 #Include <script>
 #Include <Base64PNG_to_HICON>
@@ -1246,4 +1244,5 @@ prepare_release() {
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
 #Include <renameImages>
+#Include <cJSON>
 

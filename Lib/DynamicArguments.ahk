@@ -67,7 +67,6 @@ Class dynamicGUI {
         }
         this.AssumeDefaults()
             , this._Adjust()
-            , this.ArgumentsBackup:=this.Arguments.Clone()
     }
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
