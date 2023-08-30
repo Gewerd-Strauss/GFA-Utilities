@@ -1238,4 +1238,5 @@ prepare_release() {
 #Include <StdErr_Write>
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
+#Include <renameImages>
 
