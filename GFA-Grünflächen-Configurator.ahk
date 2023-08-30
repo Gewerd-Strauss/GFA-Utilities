@@ -106,7 +106,7 @@ main() {
     }
     script_TraySetup(IconString)
 
-    ;script.Save(script.scriptconfigfile)
+    ;script.Save(script.scriptconfigfile,,true)
     global guiObject:=guiCreate()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
@@ -863,6 +863,8 @@ handleConfig(dynGUI,writetoFile:=false) {
         }
         try {
             writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
+            script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,dynGUI.GFA_Evaluation_Configfile_Location)
+            script.save(script.configfile,,true)
         } catch e {
             throw Exception( "`n" CallStack() )
         }

@@ -31,7 +31,9 @@ loadConfigFromLV(dynGUI) {
     configPath:=getSelectedLVEntries()
     ;if !FileExist()
     loadConfig_Main(configPath,dynGUI)
+    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
     updateConfigLV(hwndLV_History)
+    script.save(script.scriptconfigfile,,true)
     return
 }
 getSelectedLVEntries() {
