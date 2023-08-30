@@ -1,10 +1,13 @@
 
 MyErrorHandler(oError) {
+    global guiObject
+    static errorlog_path
     static init := MyErrorHandler(false)
     if (!oError && !IsSet(init)) {
+        elp:=A_ScriptDir "\Errorlog.txt"
         OnError(A_ThisFunc, 1)
-        static errorlog_path:=A_ScriptDir "\Errorlog.txt"
-        FileDelete % errorlog_path
+        FileDelete % elp
+        errorlog_path:=elp
         return true
     }
     message := "Error: " oError.Message "`n`n"
