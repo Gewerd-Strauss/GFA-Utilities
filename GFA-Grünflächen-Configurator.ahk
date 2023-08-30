@@ -1235,4 +1235,5 @@ prepare_release() {
 #Include <UriHandling>
 #Include <WinHttpRequest>
 #Include <SelectFolder>
+#Include <StdErr_Write>
 
