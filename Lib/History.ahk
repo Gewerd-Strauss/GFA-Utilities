@@ -16,7 +16,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
 toggle_ReportTip() {
     global
     GuiControlGet vToggleLVReport
-    GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_History
+    GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_ConfigHistory
     if (vToggleLVReport) {
         LV_ModifyCol(1,"auto")
     } else {
@@ -26,13 +26,13 @@ toggle_ReportTip() {
     return
 }
 loadConfigFromLV(dynGUI) {
-    global hwndLV_History
+    global hwndLV_ConfigHistory
     ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
     configPath:=getSelectedLVEntries()
     ;if !FileExist()
     loadConfig_Main(configPath,dynGUI)
     script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
-    updateConfigLV(hwndLV_History)
+    updateConfigLV(hwndLV_ConfigHistory)
     script.save(script.scriptconfigfile,,true)
     return
 }
@@ -50,7 +50,7 @@ getSelectedLVEntries() {
 }
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
-    Global hwndLV_History, TThwnd
+    Global hwndLV_ConfigHistory, TThwnd
     Static NMHDRSize := A_PtrSize * 3
     Static offText := NMHDRSize + A_PtrSize
     Static offItem := NMHDRSize + (A_PtrSize * 2) + 4
@@ -61,7 +61,7 @@ On_WM_NOTIFY(W, L, M, H) {
     Code := NumGet(L + (A_PtrSize * 2), "Int")
     HCTL := NumGet(L + 0, 0, "UPtr")
     ; HCTL is one of our listviews
-    If (HCTL = hwndLV_History) {
+    If (HCTL = hwndLV_ConfigHistory) {
         ; LVN_GETINFOTIPW, LVN_GETINFOTIPA
         If (Code = LVN_GETINFOTIP) {
 

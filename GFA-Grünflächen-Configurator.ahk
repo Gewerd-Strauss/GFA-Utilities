@@ -259,7 +259,7 @@ guiCreate() {
         , vSaveExcel
         , vRCRScript
         , vRCConfiguration
-        , hwndLV_History
+        , hwndLV_ConfigHistory
         , vToggleLVReport
     gui GC: new
     gui GC:  +LabelGC +HWNDGCHWND
@@ -309,9 +309,9 @@ guiCreate() {
     gui add, button, % "hwndrenameImagesBtn yp xp+60", % "rename Images"
     AddToolTip(CheckToggleLVReport,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view gives more details on a specific file")
     AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
-    gui add, Listview, % "hwndhwndLV_History +LV0x400 +LV0x10000 xp-190 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
+    gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-190 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
-    updateConfigLV(hwndLV_History) 
+    updateConfigLV(hwndLV_ConfigHistory) 
 
     ;; right
     RESettings2 :=
@@ -422,7 +422,7 @@ guiCreate() {
     guiControl GC:+g, %NewConfigurationBtn%, % onNewConfiguration
     guiControl GC:+g, %newStarterScriptBtn%, % oncreateRScript
     guiControl GC:+g, %editStarterScriptBtn%, % onEditStarterScript
-    guiControl GC:+g, %hwndLV_History%, % onLoadConfigFromLV
+    guiControl GC:+g, %hwndLV_ConfigHistory%, % onLoadConfigFromLV
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
 
@@ -562,7 +562,7 @@ GCSize() {
     }
     AutoXYWH("w", RC.HWND)
     AutoXYWH("wh", RC2.HWND)
-    AutoXYWH("h", hwndLV_History)
+    AutoXYWH("h", hwndLV_ConfigHistory)
     AutoXYWH("h", hwndTab3_2)
     ;guicontrol, MoveDraw, previewConfigurationButton
 
@@ -753,7 +753,7 @@ fillRC2(INI) {
     return
 }
 loadConfig_Main(configPath,dynGUI) {
-    global hwndLV_History
+    global hwndLV_ConfigHistory
     global guiObject
     if (configPath="") {
         Gui +OwnDialogs
@@ -782,9 +782,9 @@ loadConfig_Main(configPath,dynGUI) {
         handleConfig(dynGUI,false)
         IniRead ExperimentName_Key, % configPath, Experiment, Name, % "Name not specified"
         SplitPath % configPath,,,, FileName
-        itemLocation:=LV_EX_FindStringEx( hwndLV_History, configPath)
+        itemLocation:=LV_EX_FindStringEx( hwndLV_ConfigHistory, configPath)
         if !itemLocation && !IsObject(itemLocation){
-            gui listview, hwndLV_History
+            gui listview, hwndLV_ConfigHistory
             LV_Add("",ExperimentName_Key,FileName,configPath)
         }
     }
@@ -966,9 +966,9 @@ createConfiguration(Path,AA) {
                 , handleConfig(dynGUI,false)
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
-            itemLocation:=LV_EX_FindStringEx( hwndLV_History, Chosen)
+            itemLocation:=LV_EX_FindStringEx( hwndLV_ConfigHistory, Chosen)
             if !itemLocation && !IsObject(itemLocation){
-                gui listview, hwndLV_History
+                gui listview, hwndLV_ConfigHistory
                 LV_Add("",ExperimentName_Key,FileName,Chosen)
             }
         }
@@ -1165,7 +1165,7 @@ selectConfigLocation(SearchPath) {
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
-            gui listview, hwndLV_History
+            gui listview, hwndLV_ConfigHistory
             LV_Add("",ExperimentName_Key,FileName,Chosen)
         }
         guiResize(guiObject,false)
@@ -1173,10 +1173,10 @@ selectConfigLocation(SearchPath) {
     global GFA_configurationFile:=Chosen
     return Chosen
 }
-updateConfigLV(hwndLV_History) {
+updateConfigLV(hwndLV_ConfigHistory) {
     LV_Delete()
-    SetExplorerTheme(hwndLV_History)
-    TThwnd := DllCall("SendMessage", "ptr", hwndLV_History, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    SetExplorerTheme(hwndLV_ConfigHistory)
+    TThwnd := DllCall("SendMessage", "ptr", hwndLV_ConfigHistory, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in script.config.LastConfigsHistory {
         if (FileExist(File)) {
             SplitPath % File, , OutDir, , FileName
@@ -1189,8 +1189,8 @@ updateConfigLV(hwndLV_History) {
             script.config.LastConfigsHistory.RemoveAt(each,1)
         }
     }
-    LV_EX_SetTileViewLines(hwndLV_History, 2, 310)
-    LV_EX_SetTileInfo(hwndLV_History, 0, 2,3, 4)
+    LV_EX_SetTileViewLines(hwndLV_ConfigHistory, 2, 310)
+    LV_EX_SetTileInfo(hwndLV_ConfigHistory, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
     WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
