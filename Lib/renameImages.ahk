@@ -4,10 +4,10 @@
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir,
             GFAR_createGUI(dynGUI.Arguments.PotsPerGroup.Value,dynGUI.Arguments.UniqueGroups.Value,OutDir,dynGUI)
         } else {
-            throw exception("Config-file does not exist`n" CallStack(),,A_ThisFunc) 
+            throw exception("Config-file does not exist`n"  CallStack(),-1)
         }
     } else {
-        throw exception("No config-file selected`n" CallStack(),,A_ThisFunc " [Line " A_LineNumber "]")
+        throw exception("No config-file selected`n" CallStack(),-1)
     }
 }
 
@@ -54,7 +54,6 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
 }
 
 GFARReselectFolder(SearchstartLocation) {
-
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
     try {
         ; A_DefaultGui
@@ -62,7 +61,6 @@ GFARReselectFolder(SearchstartLocation) {
         if FileExist(SelectedFolder) {
             LastRunCount:=CountFiles(SelectedFolder)
         }
-
     } catch e {
         ttip(e)
     }
