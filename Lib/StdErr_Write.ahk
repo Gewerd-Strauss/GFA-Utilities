@@ -23,8 +23,14 @@
 ;;;    month<1 || month>12 ? StdErr_Write(A_LineNumber,"The variable month must have a value between 1 and 12.","month := " month)
 ;;; 
 
-StdErr_Write(LineNumber, text, spec = "") {
-    text := A_ScriptFullPath " (" LineNumber ") : ==>  " . text
+StdErr_Write(LineNumber:="", text:="", spec = "") {
+    if IsObject(LineNumber) {
+        text:=LineNumber.Message
+        spec:=LineNumber.What
+        File:=LineNumber.File
+        LineNumber:=LineNumber.Line
+    }
+    text := (File!=""?File:A_ScriptFullPath) " (" LineNumber ") : ==>  " . text
     text .= spec?"`n     Specifically: " spec "`n":
     if A_IsUnicode
         return StdErr_Write_("astr", text, StrLen(text))
