@@ -311,31 +311,8 @@ guiCreate() {
     AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
     gui add, Listview, % "hwndhwndLV_History +LV0x400 +LV0x10000 xp-190 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
-    HistoryString:=""
-    LV_Delete()
-    SetExplorerTheme(hwndLV_History)
-    TThwnd := DllCall("SendMessage", "ptr", hwndLV_History, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
-    for each, File in script.config.LastConfigsHistory {
-        if (FileExist(File)) {
-            SplitPath % File, , OutDir, , FileName
-            oldFileEnc:=A_FileEncoding
-            FileEncoding % script.config.Configurator_settings.INI_Encoding
-            IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
-            FileEncoding % oldFileEnc
-            LV_Add("",ExperimentName_Key,FileName,File)
-        } else {
-            script.config.LastConfigsHistory.RemoveAt(each,1)
-        }
-    }
+    updateConfigLV(hwndLV_History) 
 
-
-    LV_EX_SetTileViewLines(hwndLV_History, 2, 310)
-    LV_EX_SetTileInfo(hwndLV_History, 0, 2,3, 4)
-    ; WM_NOTIFY handler
-    OnMessage(0x4E, "On_WM_NOTIFY")
-    WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
-    ; TODO: Logic for filling this LV is missing in the remaining update-logic; as well as extensive testing with a couple of config files
-    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit)
     ;; right
     RESettings2 :=
         ( LTrim Join Comments
@@ -1195,6 +1172,32 @@ selectConfigLocation(SearchPath) {
     }
     global GFA_configurationFile:=Chosen
     return Chosen
+}
+updateConfigLV(hwndLV_History) {
+    LV_Delete()
+    SetExplorerTheme(hwndLV_History)
+    TThwnd := DllCall("SendMessage", "ptr", hwndLV_History, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    for each, File in script.config.LastConfigsHistory {
+        if (FileExist(File)) {
+            SplitPath % File, , OutDir, , FileName
+            oldFileEnc:=A_FileEncoding
+            FileEncoding % script.config.Configurator_settings.INI_Encoding
+            IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
+            FileEncoding % oldFileEnc
+            LV_Add("",ExperimentName_Key,FileName,File)
+        } else {
+            script.config.LastConfigsHistory.RemoveAt(each,1)
+        }
+    }
+
+
+    LV_EX_SetTileViewLines(hwndLV_History, 2, 310)
+    LV_EX_SetTileInfo(hwndLV_History, 0, 2,3, 4)
+    ; WM_NOTIFY handler
+    OnMessage(0x4E, "On_WM_NOTIFY")
+    WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
+    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit)
+    return
 }
 #if bRunFromVSC
 NumpadDot::reload
