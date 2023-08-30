@@ -548,7 +548,7 @@ class script {
         this.config:=Result
         return (this.config.Count()?true:-1) ; returns true if this.config contains values. returns -1 otherwhise to distinguish between a missing config file and an empty config file
     }
-    Save(INI_File:="",Object:="")
+    Save(INI_File:="",Object:="",SeparateWrites:=false)
     {
         if (INI_File="")
             INI_File:=this.configfile
@@ -569,11 +569,16 @@ class script {
                 Pairs := ""
                 for Key, Value in Entry
                 {
-                    WriteInd++
-                    if !Instr(Pairs,Key "=" Value "`n")
-                        Pairs .= Key "=" Value "`n"
+                    if (!SeparateWrites) {
+                        if !Instr(Pairs,Key "=" Value "`n")
+                            Pairs .= Key "=" Value "`n"
+                    } else {
+                        IniWrite % Value, % INI_File ".ini", % SectionName, % Key
+                    }
                 }
-                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+                if (!SeparateWrites) {
+                    IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+                }
             }
         } else {
             for SectionName, Entry in this.config
@@ -581,11 +586,16 @@ class script {
                 Pairs := ""
                 for Key, Value in Entry
                 {
-                    WriteInd++
-                    if !Instr(Pairs,Key "=" Value "`n")
-                        Pairs .= Key "=" Value "`n"
+                    if (!SeparateWrites) {
+                        if !Instr(Pairs,Key "=" Value "`n")
+                            Pairs .= Key "=" Value "`n"
+                    } else {
+                        IniWrite % Value, % INI_File ".ini", % SectionName, % Key
+                    }
                 }
-                IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+                if (!SeparateWrites) {
+                    IniWrite %Pairs%, % INI_File ".ini", %SectionName%
+                }
             }
         }
     }
