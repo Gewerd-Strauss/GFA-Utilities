@@ -5,7 +5,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             reload
         } else {
-            gui % "GC: "((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+            gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
     }
@@ -13,7 +13,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
             reload
         } else {
-            gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+            gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
 }
@@ -29,7 +29,7 @@ setupdefaultconfig(Switch) {
             ;Version Hidden:
             build=127
             GFC_version=1.4.5
-            [Settings]
+            [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
             ;bDebugSwitch Type: Checkbox
@@ -85,6 +85,41 @@ setupdefaultconfig(Switch) {
             ;UpdateChannel Type: DropDown development||stable
             ;UpdateChannel Default: stable
             ;UpdateChannel 
+            [GFA_Renamer_settings]
+
+            filetype=jpg
+            ;filetype Type: DropDown png||jpg
+            ;filetype Set the image filetype that the Image-renamer considers.
+            ;filetype You cannot choose multiple filetypes at once
+            ;filetype Default: JPG
+
+            PutFilesOnClipboard=1
+            ;PutFilesOnClipboard Type: Checkbox
+            ;PutFilesOnClipboard CheckboxName: Put renamed files onto the clipboard?
+            ;PutFilesOnClipboard This allows you to f.e. directly paste them onto a stick so you can transfer them for analysis.
+            ;PutFilesOnClipboard Default: 1
+
+            CopyFiles=1
+            ;CopyFiles Type: Checkbox
+            ;CopyFiles CheckboxName: copy Files to the clipboard instead of cutting them?
+            ;CopyFiles If you want to copy ("Ctrl+C") the resulting files, set this to 1. If you want to cut them ("Ctrl+X"), set this to 0.
+            ;CopyFiles This has no effect if you set 'PutFilesOnClipboard' to 0.
+            ;CopyFiles Default: 1
+
+            CopyParentDirectory=1
+            ;CopyParentDirectory Type: Checkbox
+            ;CopyParentDirectory CheckboxName: Put the parent directory containing the resulting files on the clipboard instead?
+            ;CopyParentDirectory This makes it easier to copy the images to a stick all-together because you do not need to create a folder for them first
+            ;CopyParentDirectory Default: 1
+            [TestSet]
+            ;TestSet Hidden:
+            ; only edit this if you know what you are doing.
+            ;; The URL below points to the newest version of the gist. If this may ever change in a way you do not want, you can replace it with
+            ; "https://gist.github.com/Gewerd-Strauss/d944d8abc295253ced401493edd377f2/archive/0d46c65c3993b1e8eef113776b68190e0802deb5.zip"
+            ; to grab the first set that was published for this.
+            URL=https://gist.github.com/Gewerd-Strauss/d944d8abc295253ced401493edd377f2/archive/main.zip
+            Names= G14,G21,G28,G35,G42,UU
+            PlantsPerGroup= 7
             [LastConfigsHistory]
             ;LastConfigsHistory Hidden:
 
