@@ -24,17 +24,26 @@ MyErrorHandler(oError) {
         message .= Format("`n> {}:{} : [{}]", stack.File, stack.Line, stack.What)
     }
     message .= "`n> Auto-execute" ; `message` will have the format of your choosing
+    JSON_DUMP:=JSON.Dump({ZZZ000_Arguments:guiObject.dynGUI.Arguments
+            ,RCode_Template:guiObject.RCodeTemplate
+            ,Configurator_Settings:script.config.Configurator_settings
+            ,Renamer_Settings:script.config.GFA_Renamer_settings
+            ,Version:script.version
+            ,confVersion:script.config.Version}, pretty := 1)
     if A_IsCompiled {
-        FileAppend % message, % errorlog_path
+        a:=(script.config.Configurator_settings.bDebugSwitch?JSON_DUMP:"JSON NOT DUMPED")
+        FileAppend % message "`n`n" a, % errorlog_path
         MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
 
     } else {
         if (IsDebug()) {
-            FileAppend % message, *       ; throow to the db-console
+            a:=(script.config.Configurator_settings.bDebugSwitch?JSON_DUMP:"JSON NOT DUMPED")
+            FileAppend % message "`n`n" a, *       ; throow to the db-console
 
         } else {
             MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
-            FileAppend % message, % errorlog_path
+            a:=(script.config.Configurator_settings.bDebugSwitch?JSON_DUMP:"JSON NOT DUMPED")
+            FileAppend % message "`n`n" a, % errorlog_path
         }
     }
     return true                   ; Exit thread, prevent standard Exception thrown
