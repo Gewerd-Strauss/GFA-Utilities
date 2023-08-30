@@ -887,7 +887,7 @@ handleConfig(dynGUI,writetoFile:=false) {
         try {
             writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
         } catch e {
-            throw Exception( "`n" CallStack() )
+            throw Exception( "Failed to write config with encoding '" script.config.Configurator_Settings.INI_Encoding "' to path '" dynGUI.GFA_Evaluation_Configfile_Location "'`n`n" CallStack(),-1)
         }
     }
     return
