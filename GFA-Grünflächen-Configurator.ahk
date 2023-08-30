@@ -1191,8 +1191,6 @@ updateConfigLV(hwndLV_History) {
             script.config.LastConfigsHistory.RemoveAt(each,1)
         }
     }
-
-
     LV_EX_SetTileViewLines(hwndLV_History, 2, 310)
     LV_EX_SetTileInfo(hwndLV_History, 0, 2,3, 4)
     ; WM_NOTIFY handler
