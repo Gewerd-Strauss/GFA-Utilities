@@ -1234,4 +1234,5 @@ prepare_release() {
 #Include <csv2xlsx>
 #Include <UriHandling>
 #Include <WinHttpRequest>
+#Include <SelectFolder>
 

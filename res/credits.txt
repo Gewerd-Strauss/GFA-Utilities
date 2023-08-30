@@ -23,3 +23,4 @@ just me         -      SetExplorerTheme                                         
 kczx3           -      tooltip in History-LV                                                - https://www.autohotkey.com/boards/viewtopic.php?t=28792
 wolf_II         -      checkDecimalsOnEdit                                                  - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
 AHK v1 Docs     -      Deref, reg. License                                                  - https://www.autohotkey.com/docs/v1/lib/RegExMatch.htm#ExDeref, https://www.autohotkey.com/docs/v1/license.htm
+JayC            -      SelectFolder                                                         - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=120019&p=532694&hilit=select+folder#p532681
