@@ -5,7 +5,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             reload
         } else {
-            gui % "GC: "((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+            gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
     }
@@ -13,7 +13,7 @@
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
             reload
         } else {
-            gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+            gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
 }
@@ -29,7 +29,7 @@ setupdefaultconfig(Switch) {
             ;Version Hidden:
             build=127
             GFC_version=1.4.5
-            [Settings]
+            [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
             ;bDebugSwitch Type: Checkbox

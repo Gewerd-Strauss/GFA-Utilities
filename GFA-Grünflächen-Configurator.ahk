@@ -82,19 +82,19 @@ main() {
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, bSilentReturn:=1)
-    if (script.config.settings.bRunAsAdmin) {
+    if (script.config.Configurator_settings.bRunAsAdmin) {
         RunAsAdmin()
     }
-    globalLogicSwitches.bIsDebug:=script.config.settings.bDebugSwitch + 0
+    globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
     script.version:=script.config.version.GFC_version
         , script.loadCredits(script.resfolder "\credits.txt")
         , script.loadMetadata(script.resfolder "\meta.txt")
         , IconString:=A_ScriptDir "\res\icon.ico"
     ;, IconString:="iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARISURBVGhD7dtLbxNXGMbxbFh2yRIpzkWQgpIUKFAVibCBknIJqCFOZNIbJg0Xp7ikkAAh4SJoCxUENiBgW6ktUldIKQURbmpAIkSiqlqg6gcAvsLLPPPKVjp5bM/xnAllMpb+K4/PeX9yjj1epGKmPpqcBmdAcLqPwcrKSol6cCo3BkczOJUbg6MZnMqNwdEMTuXG4GgGp3JjcDSDU7kG4OzvJ+TAs3NT6p04Kd1XB6TtbJc0fbZGaupq6etNqplX666VPNflrH1QesdP0b2/evAtfb03OJVrAext7x/fS9vwNlnwXiNdp1gLljXI5jNpdw22trdQwZnRI3TTQvX/NSwth1NSVVNF15tcorpKNgylZN+fp+lahfry7jG6njc4lWsAxp8W27RU237pk7kNdXRNNLe+TtJX9tHXlmr7yEG6pjc4lWsATl3aRTf1E96JhhWLp6xZv3yh9Nw+Sl/jp87LPVPWZMGpXANw89etdFO/ZcdOyPwl9fn18M6aHhNvH/a1/WfGQsGpXAPwwlVL6aYmdV89INW11e6ZTV/ZS68xadHqZXRWb3Aq1wCMMjcP041NWru/XdYPdNDnTMqMHpVEIkHn9Aancg3BH2Q30c1Nyj46Lnsef0OfM2lVz0Y6IwtO5RqCcUOQfXCcDuC39P1dkh4r/wMQZW4e8/V1lwtO5RqC0crPm+kQfup/Oizt1zZJ8teN0v/kLL3GTys+WU1nKxScyi0DjFIXd9JBSpWZOCRtI+vdMhMD9JpS4euRzVQsOJVbJhh/2uXciKTHdubBW8d20GuKhT3LuVeHU7llghG+R/E1wwYrVOetzjy4c/Rjek2h8ANlXuPbdJZSwancAGCEd3rL5QwdkNVxvTUP7vjN/41MytkjyK8wOJUbEJwLH2S4fWTDTi55rSUPTo600GsmhzVXbm2me5oEp3ItgRHuoNbs+Uh23yv8MzKHzbX/2TC9Dms097a6a7K9TINTuRbBuRJVCVmy7n3ZMJiST3/IundEvY9OSt/fZ6aA+5yfkHgO1+BavAavxRps7XKDU7khgIvlfSfZNWEEp3JjcLi9seCXdypea2ymYsGp3BjsLzbEdMZmKhacyg0AfnGjQv4Zchqcppy9nl9/jWD073dksJDCXrl92UzFglO5ZYJznR96Kz9E2GEvNoOf4FRuQPAX7bPpcGHUlZxNZ/ATnMoNCF7UOEee3+ID2u7dd+bQGfwEp3IDgtH4j7PogDZ7+NMsurff4HS1ziMw+MI0nOMg5xfBqVwL4O6O8M8xPivY3n6DU7kWwIudc8yGtFmQ84vgVK4FMArzHGNttqdJcLpa52EFfPFIeOcYnxFsT5PgVK4lcJjnGGuzPU2CU7mWwGGe46DnF8GpXEtgNP6z/XNs4/wiOF2t87AGDuMcY022l2lwKtci+P8cnMqNwdEMTuXG4GgGp3JjcDSDU7kz5j/TKppeAamEQurI/tgFAAAAAElFTkSuQmCC"
-    if (script.requiresInternet(script.vfile,true) && script.config.Settings.CheckUpdatesOnScriptStart) {
-        if (script.config.Settings.UpdateChannel="stable") {
+    if (script.requiresInternet(script.vfile,true) && script.config.Configurator_settings.CheckUpdatesOnScriptStart) {
+        if (script.config.Configurator_settings.UpdateChannel="stable") {
             script.Update(script.vfile,script.rfile,1)
-        } else if (script.config.Settings.UpdateChannel="development") {
+        } else if (script.config.Configurator_settings.UpdateChannel="development") {
             script.Update(script.vfile_dev,script.rfile_dev,1)
         }
     }
@@ -186,23 +186,23 @@ guiCreate() {
     ABottom2:=ABottom
     SysGet A, MonitorWorkArea,2
 
-    if (script.config.Settings.SizeSetting="auto") { ; auto
+    if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
             , guiWidth:=A_ScreenWidth - 2*30
-    } else if (script.config.Settings.SizeSetting="1440p") { ; 1440p
+    } else if (script.config.Configurator_settings.SizeSetting="1440p") { ; 1440p
         guiWidth:=2560 - 2*30
             , guiHeight:=1392 - 2*30
-    } else if (script.config.Settings.SizeSetting="1080p") { ; 1080p
+    } else if (script.config.Configurator_settings.SizeSetting="1080p") { ; 1080p
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
     ttip(["guiWidth: " guiWidth
             ,"guiHeight: " guiHeight
             ,script.config.SizeSetting
-            ,"is1080: " (script.config.Settings.SizeSetting="1080p")
-            ,"is1440: " (script.config.Settings.SizeSetting="1440p")
-            ,"isauto: " (script.config.Settings.SizeSetting="auto")
+            ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
+            ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
+            ,"isauto: " (script.config.Configurator_settings.SizeSetting="auto")
             ,"height-mwa 1440p: " 1392 - 2*30
             ,"guiWidth 1440p: " 2560 - 2*30
             ,"guiWidth  1080p: " 1920 - 2*30
@@ -229,9 +229,9 @@ guiCreate() {
     }
     Sections[4]:={XAnchor:Sections[3].XAnchor,YAnchor:Sections[3].YAnchor,Width:Sections[3].Width,Height:Sections[3].Height}
 
-    if (script.config.Settings.SizeSetting="1080p") {
+    if (script.config.Configurator_settings.SizeSetting="1080p") {
         ShiftSection1:=0
-    } else if (script.config.Settings.SizeSetting="1440p") {
+    } else if (script.config.Configurator_settings.SizeSetting="1440p") {
         ShiftSection1:=50
     } else {
         ShiftSection1:=0
@@ -317,7 +317,7 @@ guiCreate() {
         if (FileExist(File)) {
             SplitPath % File, , OutDir, , FileName
             oldFileEnc:=A_FileEncoding
-            FileEncoding % script.config.Settings.INI_Encoding
+            FileEncoding % script.config.Configurator_settings.INI_Encoding
             IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
             FileEncoding % oldFileEnc
             LV_Add("",ExperimentName_Key,FileName,File)
@@ -333,7 +333,7 @@ guiCreate() {
     OnMessage(0x4E, "On_WM_NOTIFY")
     WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
     ; TODO: Logic for filling this LV is missing in the remaining update-logic; as well as extensive testing with a couple of config files
-    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Settings.ConfigHistoryLimit)
+    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit)
     ;; right
     RESettings2 :=
         ( LTrim Join Comments
@@ -535,7 +535,7 @@ guiShow(guiObject) {
         }
     }
     gui gc: default
-    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+    gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
@@ -759,7 +759,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 fillRC1(Code) {
     global
     gui GC: default
-    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
     RC.Settings.Highlighter:= "HighlightR"
         , RC.Value:= Code
     return
@@ -881,7 +881,7 @@ handleConfig(dynGUI,writetoFile:=false) {
             Gui -OwnDialogs
         }
         try {
-            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.settings.INI_Encoding,,1)
+            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
         } catch e {
             throw Exception( "`n" CallStack() )
         }
@@ -906,13 +906,13 @@ fCallBack_StatusBarMainWindow() {
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
         script.Update()
-        gui % "GC: "((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+        gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
         gui % "GC: Default"
         gui % "GC: +OwnDialogs"
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) { ; part 2  -  Author
         script.About()
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
-        script.config.settings.bDebugSwitch:=!script.config.settings.bDebugSwitch
+        script.config.Configurator_settings.bDebugSwitch:=!script.config.Configurator_settings.bDebugSwitch
 
         if (!(script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug) || ((script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug)
         { ;; public display
@@ -949,7 +949,7 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=9)) { ; part 8
 
     }
-    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+    gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     gui GC: Default
     gui GC: +OwnDialogs
     return
@@ -975,7 +975,7 @@ createConfiguration(Path,AA) {
         }
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
+            writeFile(Chosen,"",script.config.Configurator_settings.INI_Encoding,,true)
         } else {
             dynGUI.loadConfigFromFile(Chosen)
                 , dynGUI.validateLoadedConfig()
@@ -1018,7 +1018,7 @@ createConfiguration(Path,AA) {
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper(Param:="")
     }
-    gui % "GC: " ((script.config.settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
+    gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     return Chosen
 }
 editConfiguration(configurationFile) {
@@ -1135,7 +1135,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
             Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
             Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
             fillRC1(Code)
             try {
@@ -1156,7 +1156,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
             Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
             Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
             fillRC1(Code)
             try {
@@ -1180,7 +1180,7 @@ selectConfigLocation(SearchPath) {
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"",script.config.settings.INI_Encoding,,true)
+            writeFile(Chosen,"",script.config.Configurator_settings.INI_Encoding,,true)
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
