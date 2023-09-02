@@ -25,6 +25,9 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui Font, s10
     gui add, text,vCHSNFLDR_STRING,% "Please drag and drop the folder you want to use on this window.`n`nChosen folder:"
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
+    if (SelectedFolder="") {
+        return
+    }
     try {
         LastRunCount:=false
         if FileExist(SelectedFolder) {
