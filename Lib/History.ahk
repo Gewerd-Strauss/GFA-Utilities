@@ -103,6 +103,18 @@ getSelectedLVEntries() {
     }
     return sCurrText3
 }
+getSelectedLVEntries2() {
+    vRowNum:=0
+    sel:=[]
+    loop {
+        vRowNum:=LV_GetNext(vRowNum)
+        if not vRowNum {
+            break ; The above returned zero, so there are no more selected rows.
+        }
+        LV_GetText(sCurrText2,vRowNum,2)
+    }
+    return sCurrText2
+}
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
     Global hwndLV_ConfigHistory, TThwnd
