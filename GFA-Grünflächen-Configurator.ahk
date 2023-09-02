@@ -108,29 +108,6 @@ main() {
 
     ;script.Save(script.scriptconfigfile,,true)
     global guiObject:=guiCreate()
-    if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("generating parameter documentation string")
-            String:=guiObject.dynGUI.generateDocumentationString()
-            Clipboard:=String
-        }
-    }
-    global maingui_hwnd:=guiShow(guiObject)
-        , f5:=Func("guiShow2").Bind(guiObject)
-        , f6:=Func("prepare_release")
-    guiResize(guiObject,true)
-    Menu Tray, Add, Show/Hide GUI, % f5
-    if (globalLogicSwitches.bIsAuthor) {
-        menu Tray, Add, Recompile, % f6
-    }
-    /*
-    ; TODO: write code-shell-template
-    1. include the GFA_lib from the path given in the settings
-    2. do the same with the mac-valid transformation
-    3. determine what thte path must look like if it lies on a NAS
-    4. upon code confirmation, insert the chosen checkboxes into the respective placeholder positions of the template
-    5. upon ini generation, populate the ini-RC.
-    */
     template=
         (LTRIM
             get_os <- function(){
@@ -168,7 +145,22 @@ main() {
     `tplot_2 <- GFA_main(r"(/Bex-Biotec Hauptordner/Projekte - offen/Praktikum/Claudius/Exp2_Trockenstress Cornetto/Exp2.3/GFA/)",returnDays = T)
     */
     guiObject.RCodeTemplate:=template
-        , handleCheckboxes()
+    if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
+        if (globalLogicSwitches.bIsAuthor) {
+            ttip("generating parameter documentation string")
+            String:=guiObject.dynGUI.generateDocumentationString()
+            Clipboard:=String
+        }
+    }
+    global maingui_hwnd:=guiShow(guiObject)
+        , f5:=Func("guiShow2").Bind(guiObject)
+        , f6:=Func("prepare_release")
+    guiResize(guiObject,true)
+    Menu Tray, Add, Show/Hide GUI, % f5
+    if (globalLogicSwitches.bIsAuthor) {
+        menu Tray, Add, Recompile, % f6
+    }
+    handleCheckboxes()
         , handleConfig(guiObject.dynGUI,false)
         , fillRC1(template)
         , fillRC2(guiObject.dynGUI.ConfigString)
