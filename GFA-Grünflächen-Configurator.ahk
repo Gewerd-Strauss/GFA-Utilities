@@ -697,7 +697,9 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
                     if !RegexMatch(rPath,"\.R$")  {
                         rPath.= ".R"
                     }
-                    writeFile(rPath,"`n",Encoding:="UTF-8-RAW",,true)
+                    if !FileExist(rPath) {
+                        writeFile(rPath,"",Encoding:="UTF-8-RAW",,true)
+                    }
                 }
             }
         } else { ; file
@@ -1051,7 +1053,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     OutDrive:=0
     SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,OutDir,,, OutDrive
     if (FileExist(OutDrive) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir)) { ;; can't believe this is necessary...
-        writeFile(dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+        of:=fileOpen(dynGUI.GFA_Evaluation_RScript_Location,"r","UTF-8-RAW")
+        current_contents:=of.Read()
+        current_contents:=strreplace(current_contents,"`r`n","`n")
+        of.Close()
     } else {
         if FileExist(dynGUI.GFA_Evaluation_Configfile_Location) {
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
@@ -1084,8 +1089,37 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
-        ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-        FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
+        HeuristicRScript_config_match:=determineHeuristicScriptRelationByPath(Chosen,dynGUI.GFA_Evaluation_Configfile_Location,dynGUI)
+        if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) && (!HeuristicRScript_config_match) {
+            ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
+            Gui +OwnDialogs
+            MsgBox 0x40034, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
+                , % "The script thinks that the given config file:"
+                . "`n"
+                . "`n'" dynGUI.GFA_Evaluation_Configfile_Location "'"
+                . "`n"
+                . "`nand the selected location for the RScript:"
+                . "`n"
+                . "`n'" Chosen "'"
+                . "`n"
+                . "`ndo not match."
+                . (HeuristicRScript_config_match>-1?"`nDo you still want to write to the shown rscript-location? THIS MIGHT RESULT IN LOSS OF DATA, as the entire R-Script File will be overwritten.":"")
+                . (HeuristicRScript_config_match==-1?"`nYou are trying to edit an rscript-file which lies in a folder other than the one the current configuration-file lies in. You must decide if you want to use this path, or not.":"")
+                . (HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":"")
+                . (HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":"")
+                . (HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":"")
+            Gui -OwnDialogs
+            if (HeuristicRScript_config_match<0) { ;; errors are critical, so throw them and interrupt flow
+                str:=(HeuristicRScript_config_match==-1?"`nYou are trying to edit an rscript-file which lies in a folder other than the one the current configuration-file lies in. You must decide if you want to use this path, or not.":(HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":(HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":(HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":""))))
+                throw Exception(str "`n" CallStack(), -1)
+            } else {
+                IfMsgBox Yes, {
+                    Chosen:=Chosen
+                } else IfMsgBox No, {
+                    FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
+                }
+            }
+        }
     }
     if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
@@ -1097,7 +1131,9 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             dynGUI.GFA_Evaluation_RScript_Location:=Chosen
         }
         if (!FileExist(Chosen)) {
-            writeFile(Chosen,"`n","UTF-8-RAW",,true)
+            writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+            ;; placehoplder, will need to generate the to-be-written string first, then we can compare
         }
         guiResize(guiObject,false)
     }
@@ -1115,6 +1151,11 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
             Code:=FormatEx(guiObject.RCodeTemplate,RC1Object)
+            if ((StrLen(current_contents)>0) && (current_contents!="")) {
+                if (Code!=current_contents) {
+                    Code:=compareRScripts(Code,current_contents,guiObject.dynGUI.GCHWND)
+                }
+            }
             fillRC1(Code)
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
