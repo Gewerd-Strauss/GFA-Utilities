@@ -188,8 +188,8 @@ GFARSubmit() {
     gui add, Button, yp xp+80 hwndGFAR_ExcludeOpenLastImage,Open &Last image
     GuiControl +g, %GFAR_ExcludeOpenLastImage%, % GFAR_LastImage
 
-    GFAR_OpenFolder:=Func("GFAR_ExcludeOpenPath").Bind(Folder)
-    GFAR_OpenSelectedImage:=Func("GFAR_ExcludeInspectSelection").Bind(Folder)
+    GFAR_OpenFolder:=Func("GFAR_ExcludeOpenPath").Bind(gfarFolder)
+    GFAR_OpenSelectedImage:=Func("GFAR_ExcludeInspectSelection").Bind(gfarFolder)
     gui add, Button, yp xp+130 hwndGFAR_ExcludeOpenFolder,Open &Folder
     gui add, Button, yp xp+130 hwndGFAR_ExcludeInspect, Open &Selected Image
     GuiControl +g, %GFAR_ExcludeOpenFolder%, % GFAR_OpenFolder
