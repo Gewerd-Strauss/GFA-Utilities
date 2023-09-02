@@ -629,11 +629,16 @@ class script {
             exception({code: ERR_INVALIDRFILE, msg: "Invalid Zip`n`nThe remote file parameter must point to a zip file."})
 
         ; Check if we are connected to the internet
-        http := comobjcreate("WinHttp.WinHttpRequest.5.1")
-            , http.Open("GET", "https://www.google.com", true)
-            , http.Send()
+        try {
+
+            http := comobjcreate("WinHttp.WinHttpRequest.5.1")
+                , http.Open("GET", "https://www.google.com", true)
+                , http.Send()
+        } catch e {
+
+        }
         try
-            http.WaitForResponse(1)
+            http.WaitForResponse(25)
         catch e
         {
             bScriptObj_IsConnected:=this.reqInternet(vfile)
