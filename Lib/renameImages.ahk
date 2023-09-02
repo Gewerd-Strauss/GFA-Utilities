@@ -7,7 +7,7 @@
             throw exception("Config-file does not exist`n"  CallStack(),-1)
         }
     } else {
-        throw exception("No config-file selected`n" CallStack(),-1)
+        ttip("No configuration file has been selected yet.")
     }
 }
 
