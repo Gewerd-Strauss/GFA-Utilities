@@ -36,6 +36,61 @@ loadConfigFromLV(dynGUI) {
     script.save(script.scriptconfigfile,,true)
     return
 }
+loadRScriptFromLV(dynGUI,guiObject) {
+    global hwndLV_RScriptHistory
+    global generateRScriptBtn
+    gui Listview, % hwndLV_RScriptHistory
+    ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
+    Chosen:=getSelectedLVEntries2()
+    /*
+    */
+    if (Chosen!="") {
+        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+        if (!InStr(Chosen,".R")) {
+            Chosen:=Chosen ".R"
+        }
+        onGenerateRScript:=Func("createRScript").Bind(Chosen)
+        guiControl GC:+g, %generateRScriptBtn%, % onGenerateRScript
+        guicontrol % "GC:",vStarterRScriptLocation, % Chosen
+        if (Chosen!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=Chosen
+        }
+        if (!FileExist(Chosen)) {
+            writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+        }
+        guiResize(guiObject,true)
+    }
+    if (Chosen!="") {
+        if (overwrite) {
+            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+        } else {
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+        }
+    }
+    return
+}
 getSelectedLVEntries() {
     vRowNum:=0
     sel:=[]
