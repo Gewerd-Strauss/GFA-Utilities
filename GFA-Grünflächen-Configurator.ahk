@@ -1152,6 +1152,142 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     }
     return Chosen
 }
+compareRScripts(new_contents,current_contents,HWND) {
+    global compare_contents_UseNew:=""
+    if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
+        SysGet A, MonitorWorkArea
+        guiHeight:=ABottom - 2*30
+            , guiWidth:=A_ScreenWidth - 2*30
+    } else if (script.config.Configurator_settings.SizeSetting="1440p") { ; 1440p
+        guiWidth:=2560 - 2*30
+            , guiHeight:=1392 - 2*30
+    } else if (script.config.Configurator_settings.SizeSetting="1080p") { ; 1080p
+        guiWidth:=1920 - 2*30
+            , guiHeight:=1032 - 2*30
+    }
+    RCWidth:=(guiWidth-3*15)/2
+
+    gui compare_contents: destroy
+    gui compare_contents: new
+    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu -ToolWindow -caption +Border +AlwaysOnTop
+    gui %HWND%:+Disabled
+    RESettings2 :=
+        ( LTrim Join Comments
+            {
+            "TabSize": 4,
+            "Indent": "`t",
+            "FGColor": 0xEDEDCD,
+            "BGColor": 0x3F3F3F,
+            "Font": {"Typeface": "Consolas", "Size": 11},
+            "WordWrap": True,
+
+            "UseHighlighter": True,
+            "HighlightDelay": 200,
+            "Colors": {
+            "Comments":     0x7F9F7F,
+            "Functions":    0x7CC8CF,
+            "Keywords":     0xE4EDED,
+            "Multiline":    0x7F9F7F,
+            "Numbers":      0xF79B57,
+            "Punctuation":  0x97C0EB,
+            "Strings":      0xCC9893,
+
+            ; AHK
+            "A_Builtins":   0xF79B57,
+            "Commands":     0xCDBFA3,
+            "Directives":   0x7CC8CF,
+            "Flow":         0xE4EDED,
+            "KeyNames":     0xCB8DD9,
+
+            ; CSS
+            "ColorCodes":   0x7CC8CF,
+            "Properties":   0xCDBFA3,
+            "Selectors":    0xE4EDED,
+
+            ; HTML
+            "Attributes":   0x7CC8CF,
+            "Entities":     0xF79B57,
+            "Tags":         0xCDBFA3,
+
+            ; JS
+            "Builtins":     0xE4EDED,
+            "Constants":    0xF79B57,
+            "Declarations": 0xCDBFA3
+
+            ; INI
+            }
+            }
+        )
+
+    gui add, text, x15 y15 w0 h0, % "anchor"
+    gui add, text, x15 y25 h15, % "Old Code"
+    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "&Keep old contents"
+    ;gui add, text,%  "x" 15 + RCWidth + 15 "y15 w0 h0", % "anchor"
+    gui add, text,%  "x" 15 + RCWidth + 15 " y25 h15", % "New Code"
+    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "&Overwrite with new contents"
+    RC_Old.Settings.Highlighter:= "HighlightR"
+        , RC_Old.Value:= current_contents
+    RC_New.Settings.Highlighter:= "HighlightR"
+        , RC_New.Value:= new_contents
+    gui compare_contents: show,% "w" guiWidth " h" guiHeight " x0 y0 AutoSize" , % script.name " - Select script contents to keep"
+    WinWait % script.name " - Select script contents to keep"
+    WinWaitClose % script.name " - Select script contents to keep"
+    gui %HWND%:-Disabled
+    if (compare_contents_UseNew) {
+        return new_contents
+    } else {
+        return current_contents
+    }
+
+}
+compareKeepOld() {
+    gui compare_contents: Submit
+    global compare_contents_UseNew:=false
+    gui compare_contents: destroy
+    return
+}
+compareUseNew() {
+    gui compare_contents: Submit
+    global compare_contents_UseNew:=true
+    gui compare_contents: destroy
+    return
+}
+determineHeuristicScriptRelationByPath(rscript_path,config_path,dynGUI) {
+    ;; function _ATTEMPTS_ to heuristically determine if the rscript path selected corresponds to the config file in its folder, by checking if it would find the same config file again.
+    ;; it returns true if the functiona determined the two paths to be unrelated, aka they should not be matched against each other.
+    SplitPath % rscript_path, rscript_name, rscript_folder,, rscript_name_cleaned, rscript_Drive
+    SplitPath % config_path, config_name, config_folder,, config_name_cleaned, config_Drive
+    ;; check if directories are the same
+    if !(rscript_folder==config_folder) {       ;; they differ, so we might be dealing with different locations. Next, check if the script's location already contains a config file which contains a few relevant config keys
+        ret:=-1     ;; if there is no config file in the rscript-folder, so they might be related.
+        Loop, Files, % rscript_folder "\*.ini",R
+        {
+            IniRead rscript_groups, % A_LoopFileFullPath, % "Experiment", % "UniqueGroups", % "Groups not specified"
+            if (isObject(dynGUI.Arguments)) {
+                if (dynGUI.Arguments.HasKey("UniqueGroups")) {
+                    dynGUIGroups:=dynGUI.Arguments.UniqueGroups.Value
+                    if (dynGUIGroups="") {
+                        ret:=-4         ;; dynGUI.Arguments.UniqueGroups.Value is empty
+                    } else if (rscript_groups=dynGUIGroups) {
+                        ret:=true       ;; they match, so we assume they are related, and can go forth. 
+                        break
+                    } else {
+                        ret:=false      ;; they do not match, so we assume they are NOT related
+                    }
+                } else {
+                    ret:=-3             ;; dyngui.Arguments.Uniquegroups is not populated
+                }
+            } else {
+                ret:=-2                 ;; dynGUI.Arguments is not an object - somehow
+            }
+        }
+        return ret
+    } else {        ;; they match, so return true
+        return true
+    }
+}
 selectConfigLocation(SearchPath) {
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
