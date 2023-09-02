@@ -27,12 +27,13 @@ toggle_ReportTip() {
 }
 loadConfigFromLV(dynGUI) {
     global hwndLV_ConfigHistory
+    gui Listview, % hwndLV_ConfigHistory
     ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
     configPath:=getSelectedLVEntries()
     ;if !FileExist()
     loadConfig_Main(configPath,dynGUI)
     script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
-    updateConfigLV(hwndLV_ConfigHistory)
+    updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
     script.save(script.scriptconfigfile,,true)
     return
 }

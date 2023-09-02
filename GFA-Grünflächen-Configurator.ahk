@@ -299,7 +299,7 @@ guiCreate() {
     AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
     gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-190 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
-    updateConfigLV(hwndLV_ConfigHistory) 
+    updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
 
     ;; right
     RESettings2 :=
@@ -350,6 +350,8 @@ guiCreate() {
             }
         )
     gui tab, R Scripts
+    gui add, Listview, % "hwndhwndLV_RScriptHistory +LV0x400 +LV0x10000 xp y+11 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), File Name|Full Path
+    updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
     GuiControl Choose, vTab3, % "Configurations and Image-renaming"
     gui tab,
     gui add, text, % "y15 x" Sections[4].XAnchor+5 " h0 w0", rightanchor
@@ -398,6 +400,7 @@ guiCreate() {
         , onCheckSaveExcel:=Func("handleCheckboxesWrapper").Bind("")
         , onGenerateRScript:=Func("createRScript").Bind("D:/")
         , onLoadConfigFromLV:=Func("loadConfigFromLV").Bind(dynGUI)
+        , onLoadRScriptFromLV:=Func("loadRScriptFromLV").Bind(dynGUI,guiObject)
         , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
         , onrenameImages := Func("renameImages").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
@@ -418,6 +421,7 @@ guiCreate() {
     guiControl GC:+g, %newStarterScriptBtn%, % oncreateRScript
     guiControl GC:+g, %editStarterScriptBtn%, % onEditStarterScript
     guiControl GC:+g, %hwndLV_ConfigHistory%, % onLoadConfigFromLV
+    guiControl GC:+g, %hwndLV_RScriptHistory%, % onLoadRScriptFromLV
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
 
@@ -521,7 +525,7 @@ guiHide() {
 }
 guiResize(guiObject,bHideLastThird,normalOperation:=true) {
     if (normalOperation) {
-        if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") || (guiObject.dynGUI.GFA_Evaluation_RScript_Location="") {
+        if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") && (guiObject.dynGUI.GFA_Evaluation_RScript_Location="") {
             guiShow3(guiObject,false)
         } else {
             guiShow3(guiObject,true)
@@ -554,6 +558,7 @@ GCSize() {
     AutoXYWH("w", RC.HWND)
     AutoXYWH("wh", RC2.HWND)
     AutoXYWH("h", hwndLV_ConfigHistory)
+    AutoXYWH("h", hwndLV_RScriptHistory)
     AutoXYWH("h", hwndTab3_2)
     ;guicontrol, MoveDraw, previewConfigurationButton
 
@@ -1097,9 +1102,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         if (overwrite) {
             ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
             guiObject.RCodeTemplate:=handleCheckboxes()
-            ;if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
-            ;    SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
-            ;}
             configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
             if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
                 configLocationFolder.="\"
@@ -1118,9 +1120,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         } else {
 
             guiObject.RCodeTemplate:=handleCheckboxes()
-            ;if InStr(dynGUI.GFA_Evaluation_Configfile_Location,".ini") {
-            ;    SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location, , configLocationFolder
-            ;}
             configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
             if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
                 configLocationFolder.="\"
@@ -1300,28 +1299,33 @@ selectConfigLocation(SearchPath) {
     global GFA_configurationFile:=Chosen
     return Chosen
 }
-updateConfigLV(hwndLV_ConfigHistory) {
+updateLV(hwnd,Object) {
+    gui Listview, % hwnd
     LV_Delete()
-    SetExplorerTheme(hwndLV_ConfigHistory)
-    TThwnd := DllCall("SendMessage", "ptr", hwndLV_ConfigHistory, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
-    for each, File in script.config.LastConfigsHistory {
+    SetExplorerTheme(hwnd)
+    TThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File, , OutDir, , FileName
             oldFileEnc:=A_FileEncoding
             FileEncoding % script.config.Configurator_settings.INI_Encoding
             IniRead ExperimentName_Key, % File, % "Experiment", % "Name", % "Name not specified"
             FileEncoding % oldFileEnc
-            LV_Add("",ExperimentName_Key,FileName,File)
+            if (InStr(File,".ini")) {
+                LV_Add("",ExperimentName_Key,FileName,File)
+            } else if (InStr(File,".R")) {
+                LV_Add("",FileName,File)
+            }
         } else {
-            script.config.LastConfigsHistory.RemoveAt(each,1)
+            Object.RemoveAt(each,1)
         }
     }
-    LV_EX_SetTileViewLines(hwndLV_ConfigHistory, 2, 310)
-    LV_EX_SetTileInfo(hwndLV_ConfigHistory, 0, 2,3, 4)
+    LV_EX_SetTileViewLines(hwnd, 2, 310)
+    LV_EX_SetTileInfo(hwnd, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
     WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
-    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit)
+    Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
 #if bRunFromVSC
@@ -1343,7 +1347,6 @@ prepare_release() {
 #Include <DynamicArguments>
 #Include <isDebug>
 #Include <MWAGetMonitor>
-#Include <OnError>
 #Include <OnExit>
 #Include <Quote>
 #Include <st_stringthings_functions>
