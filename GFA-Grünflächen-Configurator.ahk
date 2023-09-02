@@ -269,7 +269,8 @@ guiCreate() {
     gui add, edit,% "yp w160 hwnddropFilesEdit disabled -vscroll -hscroll x" Sections[1].XAnchor+180,% "Drop config file or config destination folder here"
     gui add, text,% "y100 x" Sections[1].XAnchor+5 "w0 h0"
     global dynGUI:= new gfcGUI("Experiment::blank",script.gfcGUIconfigfile,"-<>-",FALSE)
-    dynGUI.GFA_Evaluation_Configfile_Location:=GFA_Evaluation_RScript_Location:=""
+    dynGUI.GFA_Evaluation_Configfile_Location:=""
+    dynGUI.GFA_Evaluation_RScript_Location:=""
     dynGUI.guiVisible:=false
         , dynGUI.GCHWND:=GCHWND
         , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
