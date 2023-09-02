@@ -382,7 +382,12 @@ guiCreate() {
     SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
     SB_SetText("Report a bug",6)
     SB_SetText("Documentation",7)
-
+    guiObject:={guiWidth:guiWidth
+            ,guiHeight:guiHeight
+            ,dynGUI:dynGUI
+            ,Sections:Sections
+            ,XMarginWidth:XMarginWidth
+            ,YMarginWidth:YMarginWidth}
     onEditConfiguration := Func("editConfiguration").Bind("")
         , onEditStarterScript := Func("editRScript").Bind("")
         , onPreviewConfiguration := Func("handleConfig").Bind(dynGUI,false)
@@ -424,12 +429,7 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
-    return {guiWidth:guiWidth
-            ,guiHeight:guiHeight
-            ,dynGUI:dynGUI
-            ,Sections:Sections
-            ,XMarginWidth:XMarginWidth
-            ,YMarginWidth:YMarginWidth}
+    return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
     if (showThirdPane) {
