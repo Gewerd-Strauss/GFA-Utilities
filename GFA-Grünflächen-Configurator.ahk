@@ -244,7 +244,10 @@ guiCreate() {
         , vRCRScript
         , vRCConfiguration
         , hwndLV_ConfigHistory
+        , hwndLV_RScriptHistory
+        , generateRScriptBtn
         , vToggleLVReport
+        , vToggleLVReport2
     gui GC: new
     gui GC:  +LabelGC +HWNDGCHWND
     minW:=(guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2))
