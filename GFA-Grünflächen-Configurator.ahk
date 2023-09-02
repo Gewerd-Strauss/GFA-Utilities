@@ -126,14 +126,14 @@ main() {
             `treturn(tolower(os))
             }
 
-            source("`%GFA_EVALUATIONUTILITY`%")
+            source("{GFA_EVALUATIONUTILITY}")
             if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names
             `t# WINDOWS: 
-            `tplot_1 <- GFA_main(folder_path = r"(`%GFA_CONFIGLOCATIONFOLDER_WINDOWS`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {
             `t# MAC:
-            #`tsource("`%GFA_EVALUATIONUTILITY`%")
-            `tplot_1 <- GFA_main(folder_path = r"(`%GFA_CONFIGLOCATIONFOLDER_MAC`%)",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            source("{GFA_EVALUATIONUTILITY}")
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
         )
     guiObject.RCodeTemplate:=template
@@ -737,7 +737,9 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 fillRC1(Code) {
     global
     gui GC: default
-    Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+    RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:dynGUI.GFA_Evaluation_Configfile_Location
+            , GFA_CONFIGLOCATIONFOLDER_MAC:dynGUI.GFA_Evaluation_Configfile_Location}
+    Code:=FormatEx(Code,{GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")})
     RC.Settings.Highlighter:= "HighlightR"
         , RC.Value:= Code
     return
@@ -1109,9 +1111,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                    , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                    ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+            Code:=FormatEx(guiObject.RCodeTemplate,RC1Object)
             fillRC1(Code)
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
@@ -1127,9 +1130,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                    , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                    ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+            Code:=FormatEx(Code,RC1Object)
             fillRC1(Code)
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
