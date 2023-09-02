@@ -25,6 +25,18 @@ toggle_ReportTip() {
     }
     return
 }
+toggle_ReportTip2() {
+    global
+    GuiControlGet vToggleLVReport2
+    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % global hwndLV_RScriptHistory
+    if (vToggleLVReport2) {
+        LV_ModifyCol(1,"auto")
+    } else {
+        LV_ModifyCol(1,"auto")   
+        LV_ModifyCol(3,"auto")   
+    }
+    return
+}
 loadConfigFromLV(dynGUI) {
     global hwndLV_ConfigHistory
     gui Listview, % hwndLV_ConfigHistory

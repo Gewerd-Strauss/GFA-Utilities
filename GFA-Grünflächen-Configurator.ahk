@@ -350,6 +350,7 @@ guiCreate() {
             }
         )
     gui tab, R Scripts
+    gui add, checkbox, % "hwndCheckToggleLVReport2 gtoggle_ReportTip2 x+5 y+5 vvToggleLVReport2", % "Toggle Report-View?"
     gui add, Listview, % "hwndhwndLV_RScriptHistory +LV0x400 +LV0x10000 xp y+11 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), File Name|Full Path
     updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
     GuiControl Choose, vTab3, % "Configurations and Image-renaming"
