@@ -1140,6 +1140,13 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (Chosen!="") {
+        configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+        if ((StrLen(configLocationFolder)=0) || (configLocationFolder="")) {
+            ttip("No config location selected so far. Please first select a config file before creating/editing an R-Script.")
+            return
+        }
+    }
+    if (Chosen!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if (!InStr(Chosen,".R")) {
             Chosen:=Chosen ".R"
