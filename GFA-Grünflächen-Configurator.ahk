@@ -369,7 +369,8 @@ guiCreate() {
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfigurationBtn x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfigurationBtn x" Sections[4].XAnchor+185, % "Generate Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndEditSettingsBtn gfEditSettings  x" Sections[4].XAnchor+275, % "Open &program settings"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndExitProgramBtn gexitApp x" Sections[4].XAnchor+365, % "Exit Program"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndOpenRScriptBtn x" Sections[4].XAnchor+365, % "Open current script"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndExitProgramBtn gexitApp x" Sections[4].XAnchor+455, % "Exit Program"
     if (globalLogicSwitches.bIsAuthor) {
         gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gprepare_release hwndrecompileBtn x" Sections[4].XAnchor+545, % "Recompile"
     }
@@ -405,6 +406,7 @@ guiCreate() {
         , onLoadRScriptFromLV:=Func("loadRScriptFromLV").Bind(dynGUI,guiObject)
         , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
         , onrenameImages := Func("renameImages").Bind(dynGUI)
+        , onOpencurrentScript := Func("runRScript").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,guiObject)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -426,6 +428,7 @@ guiCreate() {
     guiControl GC:+g, %hwndLV_RScriptHistory%, % onLoadRScriptFromLV
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
+    guiControl GC:+g, %openRScriptBtn%, % onOpencurrentScript
 
 
     guiControl GC:+g, %CheckreturnDays%, % onCheckreturnDays
@@ -435,6 +438,7 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
+    AddToolTip(openRScriptBtn,"Open the currently selected R-Script (see section 3, top). This program will`nattempt to open the script via the program associated with '.R'-files. If this`ndoes not work, it will recover by opening the containing folder instead.")
     return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
@@ -549,6 +553,8 @@ GCSize() {
     AutoXYWH("w", hwndStarterRScriptLocation)
     AutoXYWH("w", hwndUsedConfigLocation)
     AutoXYWH("y", EditSettingsBtn, ExitProgramBtn)
+    AutoXYWH("y", OpenRScriptBtn)
+    AutoXYWH("y", "Open current script")
     AutoXYWH("y", "Generate Configuration")
     AutoXYWH("y", "Generate R-Script")
     AutoXYWH("y", "Preview Configuration")
@@ -1275,6 +1281,39 @@ compareRScripts(new_contents,current_contents,HWND) {
         return current_contents
     }
 
+}
+runRScript(dynGUI) {
+    if (dynGUI.HasKey("GFA_Evaluation_RScript_Location")) {
+        if (dynGUI.GFA_Evaluation_RScript_Location!="") {
+            if (FileExist(dynGUI.GFA_Evaluation_RScript_Location)) {
+                try {
+                    run % "*edit " dynGUI.GFA_Evaluation_RScript_Location
+                    if (ErrorLevel!=0) {
+                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        if (ErrorLevel!=0) {
+                            SplitPath % dynGUI.GFA_Evaluation_RScript_Location, , OutDir
+                            Run %  OutDir
+                        }
+                    }
+                } catch e {
+                    if (ErrorLevel!=0) {
+                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        if (ErrorLevel!=0) {
+                            SplitPath % dynGUI.GFA_Evaluation_RScript_Location,, OutDir
+                            Run %  OutDir
+                        }
+                    }
+                }
+            } else {
+                ttip("The selected R-Script does not exist.")
+            }
+        } else {
+            ttip("No R-Script has been selected yet.")
+        }
+    } else {
+        ttip("No R-Script has been selected yet.")
+    }
+    return
 }
 compareKeepOld() {
     gui compare_contents: Submit
