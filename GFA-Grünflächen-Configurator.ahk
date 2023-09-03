@@ -1070,7 +1070,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
 
     OutDrive:=0
     SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,OutDir,,, OutDrive
-    if (FileExist(OutDrive) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir)) { ;; can't believe this is necessary...
+    if (FileExist(dynGUI.GFA_Evaluation_RScript_Location) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir)) { ;; can't believe this is necessary...
         of:=fileOpen(dynGUI.GFA_Evaluation_RScript_Location,"r","UTF-8-RAW")
         current_contents:=of.Read()
         current_contents:=strreplace(current_contents,"`r`n","`n")
