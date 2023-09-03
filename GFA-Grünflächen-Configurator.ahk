@@ -437,7 +437,30 @@ guiCreate() {
     if (globalLogicSwitches.bIsAuthor) {
         guiControl GC:+g, %recompile%, % onRecompile
     }
+    AddToolTip(newConfigurationBtn,"Create a new configuration-file in a desired folder.")
+    AddToolTip(editConfigurationBtn,"Edit an existing configuration-file.")
+
+    AddToolTip(newStarterScriptBtn,"Create a new RScript-file in a desired folder.")
+    AddToolTip(editStarterScriptBtn,"Edit an existing RScript-file.")
+
+    AddToolTip(CheckreturnDays,"Do you want to generate statistical data and a close-up  plot for each individual day?")
+    AddToolTip(CheckSaveFigures,"Do you want to save generated figures to file?")
+    AddToolTip(ChecksaveRDATA,"Do you want to save the R-Workspace to file after the **function 'GFA_Evaluation'** has run?`n`nNote: This will not save data not generated during the execution of this function.")
+    AddToolTip(CheckSaveExcel,"Do you want to save statistical data to an xlsx-file?")
+
+
+
+    AddToolTip(CheckToggleLVReport,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
+    AddToolTip(CheckToggleLVReport2,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
+    AddToolTip(renameImagesBtn,"It is recommended to rename images prior to analysis,`nand to do so with consistent naming scheme so that the resulting data is always sorted in the same manner.")
+    AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
+
+    AddToolTip(generateRScriptBtn,"Write the RScript to the selected file.")
+    AddToolTip(PreviewConfigurationBtn,"Preview the configuration options selected in section 1 without writing them to a file.")
+    AddToolTip(generateConfigurationBtn,"Write the configuration options selected in section 1 to a file.")
+    AddToolTip(EditSettingsBtn,"Open the settings for this program itself.")
     AddToolTip(openRScriptBtn,"Open the currently selected R-Script (see section 3, top). This program will`nattempt to open the script via the program associated with '.R'-files. If this`ndoes not work, it will recover by opening the containing folder instead.")
+    AddToolTip(ExitProgramBtn,"Exit this program")
     return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
