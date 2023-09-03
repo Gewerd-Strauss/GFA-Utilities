@@ -48,7 +48,6 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     ;gui, add, text,vvUsedStick, % "used Stick: " (device_name!=""? "'" device_name "'": "Device '" script.config.GFA_Renamer_settings.USB_Stick_Name "' could not be found.")
     gui add, Button, vSubmitButton gGFARSubmit, &Submit
     gui add, Button, yp xp+64 hwndhwndgfarreselectfolder, Select &Different Folder
-    onOpenConfig:=Func("GFARopenConfig").Bind(script.configfile)
     onReselectFolder:=Func("GFARReselectFolder").Bind(SearchStartLocation)
     guicontrol +g,%hwndgfarreselectfolder%,% onReselectFolder
     gui font, s7
@@ -97,7 +96,6 @@ GFARSubmit() {
     script.config.LastRun.Names:=gfarNames
     script.config.LastRun.PlantsPerGroup:=gfarPlantsPerGroup
     if (InStr(gfarPlantsPerGroup,",")) { ;; we have designated group sizes
-        totalNumber:=0
         Counts:=strsplit(gfarPlantsPerGroup,",")
         GroupNames:=strsplit(gfarNames,",")
         if (Counts.Count() != GroupNames.Count()) {
@@ -105,7 +103,7 @@ GFARSubmit() {
             MsgBox 0x40010,% script.name " - Critical error: Parameters incompatible",% "You provided a list of varying number of pots/plants per group: `n" gfarPlantsPerGroup "`n for " Counts.Count() " groups`, but also provided names for " GroupNames.Count() " groups:`n" gfarNames "`n`nPlease fix this error by aligning both."
             return
         }
-        for each, Name in Groupnames {
+        for each, Name in GroupNames {
             loop, % Counts[each] {
                 Arr.push(Name " (" A_Index ")")
             }
@@ -114,19 +112,13 @@ GFARSubmit() {
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
-            Reset:=true
             GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,,bReset,gfarNames)
-            Reset:=false
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
-            if (bReset) {
-
-            }
         }
     } else {
 
         LoopCount:=gfarPlantsPerGroup*strsplit(gfarNames,",").Count()
-        Reset:=true
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
@@ -134,12 +126,8 @@ GFARSubmit() {
             Reset:=false
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
-            if (bReset) {
-
-            }
         }
     }
-    ;ttip(repeatElementIofarrayNKtimes())
     TrueNumberOfFiles:=0
     ImagePaths:=[]
 
@@ -253,7 +241,7 @@ f_UpdateLV(Array,Array2) {
 GFAR_ExcludeOpenPath(Path) {
     gui GFAR_Exclude: -AlwaysOnTop
 
-    Run % Path, , , vPID
+    Run % Path
     gui GFAR_Exclude: +AlwaysOnTop
 
     return
@@ -314,7 +302,7 @@ GFAR_ExcludeSubmit() {
             Sel_Arr:=strsplit(Sel_String,"||")
             Delim:=(SubStr(Folder, -1 )!="\"?"\":"")
             RenamedImage:=Folder Delim Sel_Arr[3] "." script.config.GFA_Renamer_settings.filetype
-            scriptWorkingDir:=renameFile(RenamedImage,Sel_Arr[2],true,Sel_Index,Sel.Count())
+            scriptWorkingDir:=renameFile(RenamedImage,Sel_Arr[2],Sel_Index,Sel.Count())
             LogBody.=RenamedImage " - " Sel_Arr[2] "`n"
             FilestoCopy.=scriptWorkingDir "\" Arr[A_Index] "." script.config.GFA_Renamer_settings.filetype "`n"
             Count_CopiedImages++ ;; for every file that is renamed,
@@ -334,7 +322,7 @@ GFAR_ExcludeSubmit() {
                 FileDelete % RenamedImage
                 continue
             }
-            scriptWorkingDir:=renameFile(RenamedImage,Sel_Arr[2],true,Sel_Index,Sel.Count())
+            scriptWorkingDir:=renameFile(RenamedImage,Sel_Arr[2],Sel_Index,Sel.Count())
             LogBody.=RenamedImage " - " Sel_Arr[2] "`n"
             FilestoCopy.=scriptWorkingDir "\" Sel_Arr[2] "." script.config.GFA_Renamer_settings.filetype "`n"
             Count_CopiedImages++ ;; for every file that is renamed,
@@ -369,8 +357,6 @@ GFAR_ExcludeSubmit() {
         : "- The folder containing the renamed images will open once this message box is closed.`n`nA log mapping each image to its new name is given in the file '__gfa_renamer_log.txt' within the output directory 'GFAR_WD'. The original image files are preserved in the original folder."
     MsgBox 0x40, % script.name " - Script finished",% FinalInfoBox_String
     OnMessage(0x44, "")
-    scriptWorkingDir2:=""
-    scriptWorkingDir2:=scriptWorkingDir
     GFAR_ExcludeEscape()
     return
 }
@@ -407,9 +393,8 @@ f_GetCheckedLVEntries() {
     return sel
 }
 
-renameFile(Path,Name,Backup:=true,CurrentIndex:="",TotalCount:="") {
-    static HasBackuped:=false
-    SplitPath % Path, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive
+renameFile(Path,Name,CurrentIndex:="",TotalCount:="") {
+    SplitPath % Path,, OutDir, OutExtension
     if !Instr(FileExist(scriptWorkingDir:=OutDir "\" "GFAR_WD"),"D")
         FileCreateDir % scriptWorkingDir
     ttip(["Renaming (" CurrentIndex "/" TotalCount ")",[Path,Name]])
