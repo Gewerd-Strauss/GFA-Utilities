@@ -1148,7 +1148,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         if (overwrite) {
             ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
             guiObject.RCodeTemplate:=handleCheckboxes()
-            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
             if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
                 configLocationFolder.="\"
             }
