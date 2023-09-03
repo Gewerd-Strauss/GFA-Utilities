@@ -101,6 +101,9 @@ loadRScriptFromLV(dynGUI,guiObject) {
             Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
             fillRC1(Code)
         }
+        script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
+        updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+        script.save(script.scriptconfigfile,,true)
     }
     return
 }
