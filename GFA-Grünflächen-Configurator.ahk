@@ -792,7 +792,7 @@ loadConfig_Main(configPath,dynGUI) {
         SplitPath % configPath,,,, FileName
         itemLocation:=LV_EX_FindStringEx( hwndLV_ConfigHistory, configPath)
         if !itemLocation && !IsObject(itemLocation){
-            gui listview, hwndLV_ConfigHistory
+            gui listview,% hwndLV_ConfigHistory
             LV_Add("",ExperimentName_Key,FileName,configPath)
         }
     }
@@ -976,7 +976,7 @@ createConfiguration(Path,AA) {
             SplitPath % Chosen,,,, FileName
             itemLocation:=LV_EX_FindStringEx( hwndLV_ConfigHistory, Chosen)
             if !itemLocation && !IsObject(itemLocation){
-                gui listview, hwndLV_ConfigHistory
+                gui listview,% hwndLV_ConfigHistory
                 LV_Add("",ExperimentName_Key,FileName,Chosen)
             }
         }
@@ -1377,7 +1377,7 @@ selectConfigLocation(SearchPath) {
         } else {
             IniRead ExperimentName_Key, % Chosen, Experiment, Name, % "Name not specified"
             SplitPath % Chosen,,,, FileName
-            gui listview, hwndLV_ConfigHistory
+            gui listview,% hwndLV_ConfigHistory
             LV_Add("",ExperimentName_Key,FileName,Chosen)
         }
         guiResize(guiObject,false)
