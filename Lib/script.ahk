@@ -78,7 +78,7 @@ class script {
         when instatiating the class, and the about GUI will be filled out automatically.
 
         */
-        static doc, aboutClose, Butt
+        static doc, 
         /*
 
         html =
@@ -117,11 +117,7 @@ class script {
 
         )
         */
-        if this.HasKey("metadata") {
-            Lines:=strsplit(this.metadata,"`n")
-            Key:=Value:=""
-            ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
-        } else {
+        if !this.HasKey("metadata") {
             scriptName := scriptName ? scriptName : this.name
                 , version := version ? version : this.version
                 , author := author ? author : this.author
@@ -148,7 +144,7 @@ class script {
         gui add, activex, w600 r29 vdoc, htmlFile
         hasKey:=this.HasKey("AboutPath")
         FE:=FileExist(this.AboutPath)
-        if (this.HasKey("AboutPath") && !FileExist(this.AboutPath)) || !this.HasKey("AboutPath") || bGenerateOnly {
+        if (hasKey && !FE) || !hasKey || bGenerateOnly {
 
             if (MetadataArray.creditslink and MetadataArray.credits) || IsObject(MetadataArray.credits) || RegexMatch(MetadataArray.credits,"(?<Author>(\w|)*)(\s*\-\s*)(?<Snippet>(\w|\|)*)\s*\-\s*(?<URL>.*)")
             {
@@ -157,7 +153,7 @@ class script {
                 {
                     CreditsLines:=strsplit(credits,"`n")
                     Credits:={}
-                    for k,v in CreditsLines
+                    for _,v in CreditsLines
                     {
                         if ((InStr(v,"author1") && InStr(v,"snippetName1") && InStr(v,"URL1")) || (InStr(v,"snippetName2|snippetName3")) || (InStr(v,"author2,author3") && Instr(v, "URL2,URL3")))
                             continue
@@ -318,11 +314,9 @@ class script {
         Hotkey Escape, closeAboutScript
         hotkey if
         gui Show,
-        WinGetPos x,y,w,h, % "Ahk_id" scriptAbout
-        ControlGetPos cx,cy,cw,ch,, % "Ahk_id" AboutCloseButton
-        SysGet cyborder, 8
+        WinGetPos ,,y,w,h, % "Ahk_id" scriptAbout
+        ControlGetPos ,,,cw,,, % "Ahk_id" AboutCloseButton
         SysGet sizeframe, 33
-        SysGet title, 31
         GuiControl move, % AboutCloseButton, % "x" w/2-(cw/2+sizeframe)
         Return
 
@@ -523,16 +517,16 @@ class script {
                 msgbox 8240,% this.Name " > scriptObj -  No Save File found", % "No save file was found.`nPlease reinitialise settings if possible."
             return false
         }
-        SplitPath INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
-        if !Instr(d:=FileExist(INI_File_Dir),"D:")
+        SplitPath INI_File, INI_File_File, INI_File_Dir
+        if !Instr(FileExist(INI_File_Dir),"D:")
             FileCreateDir % INI_File_Dir
         if !FileExist(INI_File_File ".ini") ;; check for ini-file file ending
             FileAppend,, % INI_File ".ini"
         SetWorkingDir INI-Files
         IniRead SectionNames, % INI_File ".ini"
-        for each, Section in StrSplit(SectionNames, "`n") {
+        for _, Section in StrSplit(SectionNames, "`n") {
             IniRead OutputVar_Section, % INI_File ".ini", %Section%
-            for each, Haystack in StrSplit(OutputVar_Section, "`n")
+            for __, Haystack in StrSplit(OutputVar_Section, "`n")
             {
                 If (Instr(Haystack,"="))
                 {
@@ -552,14 +546,14 @@ class script {
     {
         if (INI_File="")
             INI_File:=this.configfile
-        SplitPath INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
+        SplitPath INI_File, INI_File_File, INI_File_Dir
         if (d_fWriteINI_st_count(INI_File,".ini")>0)
         {
             INI_File:=d_fWriteINI_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
             if (d_fWriteINI_st_count(INI_File,".ini")>0)
                 INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
         }
-        if !Instr(d:=FileExist(INI_File_Dir),"D:")
+        if !Instr(FileExist(INI_File_Dir),"D:")
             FileCreateDir % INI_File_Dir
         if !FileExist(INI_File_File ".ini") ; check for ini-file file ending
             FileAppend,, % INI_File ".ini"
@@ -685,7 +679,6 @@ class script {
         regexmatch(this.version, "\d+\.\d+\.\d+", loVersion)		;; as this.version is not updated automatically, instead read the local version file
 
         ; FileRead, loVersion,% A_ScriptDir "\version.ini"
-        d:=http.responseText
         if (InStr(http.responseText,"404")) {
             Progress OFF
             try
@@ -777,9 +770,8 @@ class script {
             }
 
             ; Create temporal dirs
-            ghubname := (InStr(rfile, "github") ? regexreplace(a_scriptname, "\..*$") "-latest\" : "")
             filecreatedir % Update_Temp := a_temp "\" regexreplace(a_scriptname, "\..*$")
-            filecreatedir % zipDir := Update_Temp "\uzip"
+            filecreatedir % Update_Temp "\uzip"
 
             ; ; Create lock file
             ; fileappend % a_now, % lockFile := Update_Temp "\lock"
@@ -806,7 +798,6 @@ class script {
                     , items1 := shell.Namespace(file).Items								;; and copy over any files not contained in a subfolder
                 for item_ in items1 
                 {
-
                     ;; if DataOnly ;; figure out how to detect and skip files based on directory, so that one can skip updating script and settings and so on, and only query the scripts' data-files 
                     root := item_.Path
                         , items:=shell.Namespace(root).Items
