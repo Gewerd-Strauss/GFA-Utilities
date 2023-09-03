@@ -1022,10 +1022,14 @@ createConfiguration(Path,AA) {
 editConfiguration(configurationFile) {
     global
     gui Submit,NoHide
-
-    if (FileExist(GFA_configurationFile)) {
-        run % GFA_configurationFile
-    } else if (FileExist(configurationFile)) {
+    ;; we do the InStr-Check this way because for some reason this sometimes returns 'A', and sometimes returns 'N', even though both times the file is correct and does exist. No clue why, but this is what it is.
+    if (InStr("AN",FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {      ;; if you have a config-file selected, run createConfiguration on that location
+        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+        GFA_configurationFile:=createConfiguration(OutDir,guiObject)
+    } else if (InStr("AN",FileExist(dynGUI.GFA_Evaluation_RScript_Location)) && (dynGUI.GFA_Evaluation_RScript_Location!="")) {      ;; if you have a script-file selected, run createConfiguration on that location
+        SplitPath % dynGUI.GFA_Evaluation_RScript_Location,, OutDir
+        GFA_configurationFile:=createConfiguration(OutDir,guiObject)
+    } else if (InStr("AN",FileExist(configurationFile)) && (configurationFile!="")) {
         run % configurationFile
     } else {
         if (globalLogicSwitches.DEBUG) {
