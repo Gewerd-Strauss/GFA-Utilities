@@ -109,7 +109,6 @@ loadRScriptFromLV(dynGUI,guiObject) {
 }
 getSelectedLVEntries() {
     vRowNum:=0
-    sel:=[]
     loop {
         vRowNum:=LV_GetNext(vRowNum)
         if not vRowNum {
@@ -121,7 +120,6 @@ getSelectedLVEntries() {
 }
 getSelectedLVEntries2() {
     vRowNum:=0
-    sel:=[]
     loop {
         vRowNum:=LV_GetNext(vRowNum)
         if not vRowNum {
