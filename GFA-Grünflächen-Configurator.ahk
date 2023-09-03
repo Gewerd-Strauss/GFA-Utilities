@@ -143,7 +143,7 @@ main() {
     global maingui_hwnd:=guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
-    guiResize(guiObject,true)
+    guiResize(guiObject)
     Menu Tray, Add, Show/Hide GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
@@ -541,7 +541,7 @@ guiHide() {
     GCEscape()
     return 
 }
-guiResize(guiObject,bHideLastThird,normalOperation:=true) {
+guiResize(guiObject,normalOperation:=true) {
     if (normalOperation) {
         if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") && (guiObject.dynGUI.GFA_Evaluation_RScript_Location="") {
             guiShow3(guiObject,false)
@@ -745,11 +745,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
     }
     if (rPath!="") {
         dynGUI.GFA_Evaluation_RScript_Location:=rPath
-        guiResize(guiObject,false)
+        guiResize(guiObject)
     }
     if (configPath!="") {
         dynGUI.GFA_Evaluation_Configfile_Location:=configPath
-        guiResize(guiObject,false)
+        guiResize(guiObject)
     }
     return  
 }
@@ -807,7 +807,7 @@ loadConfig_Main(configPath,dynGUI) {
     guicontrol % "GC:",vUsedConfigLocation, % configPath
     if (configPath!="") {
         dynGUI.GFA_Evaluation_Configfile_Location:=configPath
-        guiResize(guiObject,false)
+        guiResize(guiObject)
         SplitPath % configPath,, Chosen
         if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
             Chosen.="\"
@@ -991,7 +991,7 @@ createConfiguration(Path,AA) {
     }
     GFA_configurationFile:=Chosen
         , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
-    guiResize(guiObject,false)
+    guiResize(guiObject)
     if (Chosen!="") {
 
         SplitPath % Chosen,, Chosen
@@ -1162,7 +1162,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         } else {
             ;; placehoplder, will need to generate the to-be-written string first, then we can compare
         }
-        guiResize(guiObject,false)
+        guiResize(guiObject)
     }
     if (Chosen!="") {
         if (overwrite) {
@@ -1411,7 +1411,7 @@ selectConfigLocation(SearchPath) {
             gui listview,% hwndLV_ConfigHistory
             LV_Add("",ExperimentName_Key,FileName,Chosen)
         }
-        guiResize(guiObject,false)
+        guiResize(guiObject)
     }
     global GFA_configurationFile:=Chosen
     return Chosen

@@ -72,7 +72,7 @@ loadRScriptFromLV(dynGUI,guiObject) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         } else {
         }
-        guiResize(guiObject,true)
+        guiResize(guiObject)
     }
     if (Chosen!="") {
         if (overwrite) {
