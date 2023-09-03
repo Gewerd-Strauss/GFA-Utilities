@@ -1209,7 +1209,7 @@ compareRScripts(new_contents,current_contents,HWND) {
 
     gui compare_contents: destroy
     gui compare_contents: new
-    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu -ToolWindow -caption +Border +AlwaysOnTop
+    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
     gui %HWND%:+Disabled
     RESettings2 :=
         ( LTrim Join Comments
