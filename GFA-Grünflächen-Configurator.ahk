@@ -863,19 +863,10 @@ handleConfig(dynGUI,writetoFile:=false) {
         fillRC2(dynGUI.ConfigString)
     }
     if (writetoFile) {
-        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive
-        if FileExist(OutDrive) { ;; can't believe this is necessary...
-            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
-        } else {
-            if (globalLogicSwitches.bIsDebug || globalLogicSwitches.Debug) { 
-                Elaboration:="CallStack: " A_ThisFunc
-            } 
-            Gui +OwnDialogs
-            MsgBox 0x40010
-                ,% script.name " - Error occured: no config-file destination defined"
-                ,% "You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration."
-                . Elaboration
-            Gui -OwnDialogs
+        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive     ;; we do it this way because we can also write a new, so-far nonexistant, file to disk. In that case, doing FileExist() on its whole path would fail.
+        if (FileExist(OutDrive) || dynGUI.GFA_Evaluation_Configfile_Location="") { ;; can't believe this is necessary...
+            ttip("You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration.")
+            return
         }
         try {
             writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
