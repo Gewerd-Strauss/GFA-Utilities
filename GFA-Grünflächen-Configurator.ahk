@@ -1479,7 +1479,7 @@ exitApp() {
 }
 
 prepare_release() {
-    RunWait % A_ScriptDir "\Excludes\build.ahk"
+    Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
 }
 #Include <script>
