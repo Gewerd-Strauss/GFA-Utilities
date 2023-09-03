@@ -295,8 +295,7 @@ guiCreate() {
     gui add, checkbox, % "hwndCheckToggleLVReport gtoggle_ReportTip x+5 y+5 vvToggleLVReport", % "Toggle Report-View?"
     gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+130", % "csv&2xlsx"
     gui add, button, % "hwndrenameImagesBtn yp xp+60", % "rename &Images"
-    AddToolTip(CheckToggleLVReport,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view gives more details on a specific file")
-    AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
+
     gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-190 y+5 h" ht:=(Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
     updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
@@ -565,8 +564,6 @@ GCSize() {
     AutoXYWH("y", "Generate Configuration")
     AutoXYWH("y", "Generate R-Script")
     AutoXYWH("y", "Preview Configuration")
-    ;AutoXYWH("y", EditSettingsBtn)
-    ;AutoXYWH("y", "Exit Program")
     if (globalLogicSwitches.bIsAuthor) {
         AutoXYWH("y", recompileBtn)
     }
