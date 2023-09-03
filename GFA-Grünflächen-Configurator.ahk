@@ -1103,7 +1103,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             forceSelection:=false
         }
     }
-    if (Chosen="" || forceSelection) {
+    if (Chosen="" || forceSelection || InStr("Edit existing R-StarterScript|||New &R-StarterScript",A_GuiControl)) {
         FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
     }
     if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {
