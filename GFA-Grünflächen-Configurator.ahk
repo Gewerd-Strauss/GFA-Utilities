@@ -443,14 +443,14 @@ guiCreate() {
     AddToolTip(CheckToggleLVReport,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
     AddToolTip(CheckToggleLVReport2,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
     AddToolTip(renameImagesBtn,"It is recommended to rename images prior to analysis,`nand to do so with consistent naming scheme so that the resulting data is always sorted in the same manner.")
-    AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author",, GCHWND)
+    AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author.",, GCHWND)
 
     AddToolTip(generateRScriptBtn,"Write the RScript to the selected file.")
     AddToolTip(PreviewConfigurationBtn,"Preview the configuration options selected in section 1 without writing them to a file.")
     AddToolTip(generateConfigurationBtn,"Write the configuration options selected in section 1 to a file.")
     AddToolTip(EditSettingsBtn,"Open the settings for this program itself.")
     AddToolTip(openRScriptBtn,"Open the currently selected R-Script (see section 3, top). This program will`nattempt to open the script via the program associated with '.R'-files. If this`ndoes not work, it will recover by opening the containing folder instead.")
-    AddToolTip(ExitProgramBtn,"Exit this program")
+    AddToolTip(ExitProgramBtn,"Exit this program.")
     return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
