@@ -1058,6 +1058,11 @@ editRScript(rScriptFile) {
             GFA_rScriptFile:=createRScript("D:/")
         }
     }
+    if (GFA_rScriptFile!="") {
+        script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,GFA_rScriptFile)
+        updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+        script.save(script.scriptconfigfile,,true)
+    }
     gui GC: default
     return
 }
@@ -1183,6 +1188,11 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             fillRC1(Code)
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
+                if (Chosen!="") {
+                    script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
+                    updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+                    script.save(script.scriptconfigfile,,true)
+                }
             } catch e {
                 throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
@@ -1202,6 +1212,11 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             fillRC1(Code)
             try {
                 writeFile(Chosen,Code,"UTF-8-RAW",,true)
+                if (GFA_rScriptFile!="") {
+                    script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,GFA_rScriptFile)
+                    updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+                    script.save(script.scriptconfigfile,,true)
+                }
             } catch e {
                 throw Exception( "Failed to write script-file with encoding 'UTF-8-RAW' to path '" Chosen "'`n`n" CallStack(),-1)
             }
