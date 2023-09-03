@@ -541,11 +541,18 @@ guiResize(guiObject,bHideLastThird,normalOperation:=true) {
     }
     return
 }
+WinGetPos(title) {
+    WinGetPos x, y, w, h, % title
+    return {x: x, y: y, w: w, h: h}
+}
 GCSize() {
     global
     gui GC: default
     w:=A_GuiWidth/guiObject["guiWidth"]
     h:=A_GuiHeight/guiObject["guiHeight"]
+    wgp := WinGetPos("ahk_id " guiObject.dynGUI.GCHWND)
+    gui GC: default
+    SB_SetText("x" wgp.x " y" wgp.y " w" wgp.w " h" wgp.H,8)
     AutoXYWH("h*", gb1,gb3)
     ;AutoXYWH("h*", gb2)
     AutoXYWH("h*", gb3)
