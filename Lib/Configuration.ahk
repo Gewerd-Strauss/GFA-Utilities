@@ -41,11 +41,7 @@ setupdefaultconfig(Switch) {
             ;AlwaysOnTop CheckboxName: Set the GUI to be always on top?
             ;AlwaysOnTop This will keep the gui front and center on your screen. You can still hide the GUI via the tray-menu item.
             ;AlwaysOnTop Default: 0
-            sFontType_Text=Times New Roman
-            ;sFontType_Text Set Font for all texts, excluding the listviews.
-            ;sFontType_Text Type: DropDown Arial|Calibri|Cambria|Consolas|Comic Sans MS|Corbel|Courier|Courier New|Georgia|Lucidia Console|Lucidia Sans|MS Sans Serif|Segoe UI||Times New Roman|Tahoma|Verdana|System
-            ;sFontType_Text Default: Times New Roman
-            SizeSetting=auto
+            SizeSetting=1080p
             ;SizeSetting Determine how to scale the GUI: Auto will calculate the GUI-dimensions based on your main monitor's size. '1080p' and '1440p' will force a scaling based on that assumption.
             ;SizeSetting Type: DropDown 1080p|1440p||auto
             ;SizeSetting Default: auto
