@@ -910,8 +910,8 @@ fCallBack_StatusBarMainWindow() {
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) { ; part 2  -  Author
         script.About()
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) { ; part 3  -  Mode Toggle
-        script.config.Configurator_settings.bDebugSwitch:=!script.config.Configurator_settings.bDebugSwitch
-
+        globalLogicSwitches.bIsDebug:=!globalLogicSwitches.bIsDebug
+        ; (not author + not debug)                                             || author + not debug
         if (!(script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug) || ((script.authorID!=A_ComputerName) & !globalLogicSwitches.bIsDebug)
         { ;; public display
             SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
