@@ -955,8 +955,9 @@ fCallBack_StatusBarMainWindow() {
 }
 ~!Esc::Reload
 
-createConfiguration(Path,AA) {
-    global
+createConfiguration(Path,guiObject) {
+    global hwndLV_ConfigHistory
+    global dynGUI
     if (!globalLogicSwitches.DEBUG) {
         SearchPath:="C://"
     }
