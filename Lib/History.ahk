@@ -16,7 +16,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
 toggle_ReportTip() {
     global
     GuiControlGet vToggleLVReport
-    GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_History
+    GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_ConfigHistory
     if (vToggleLVReport) {
         LV_ModifyCol(1,"auto")
     } else {
@@ -25,15 +25,86 @@ toggle_ReportTip() {
     }
     return
 }
+toggle_ReportTip2() {
+    global
+    GuiControlGet vToggleLVReport2
+    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % global hwndLV_RScriptHistory
+    if (vToggleLVReport2) {
+        LV_ModifyCol(1,"auto")
+    } else {
+        LV_ModifyCol(1,"auto")   
+        LV_ModifyCol(3,"auto")   
+    }
+    return
+}
 loadConfigFromLV(dynGUI) {
-    global hwndLV_History
+    global hwndLV_ConfigHistory
+    gui Listview, % hwndLV_ConfigHistory
     ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
     configPath:=getSelectedLVEntries()
     ;if !FileExist()
     loadConfig_Main(configPath,dynGUI)
     script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
-    updateConfigLV(hwndLV_History)
+    updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
     script.save(script.scriptconfigfile,,true)
+    return
+}
+loadRScriptFromLV(dynGUI,guiObject) {
+    global hwndLV_RScriptHistory
+    global generateRScriptBtn
+    gui Listview, % hwndLV_RScriptHistory
+    ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
+    Chosen:=getSelectedLVEntries2()
+    /*
+    */
+    if (Chosen!="") {
+        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+        if (!InStr(Chosen,".R")) {
+            Chosen:=Chosen ".R"
+        }
+        onGenerateRScript:=Func("createRScript").Bind(Chosen)
+        guiControl GC:+g, %generateRScriptBtn%, % onGenerateRScript
+        guicontrol % "GC:",vStarterRScriptLocation, % Chosen
+        if (Chosen!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=Chosen
+        }
+        if (!FileExist(Chosen)) {
+            writeFile(Chosen,"","UTF-8-RAW",,true)
+        } else {
+        }
+        guiResize(guiObject,true)
+    }
+    if (Chosen!="") {
+        if (overwrite) {
+            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+        } else {
+            guiObject.RCodeTemplate:=handleCheckboxes()
+            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+                configLocationFolder.="\"
+            }
+            WINDOWS:=strreplace(configLocationFolder,"/","\")
+            MAC:=strreplace(configLocationFolder,"/","\")
+            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+            fillRC1(Code)
+        }
+        script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
+        updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+        script.save(script.scriptconfigfile,,true)
+    }
     return
 }
 getSelectedLVEntries() {
@@ -48,9 +119,21 @@ getSelectedLVEntries() {
     }
     return sCurrText3
 }
+getSelectedLVEntries2() {
+    vRowNum:=0
+    sel:=[]
+    loop {
+        vRowNum:=LV_GetNext(vRowNum)
+        if not vRowNum {
+            break ; The above returned zero, so there are no more selected rows.
+        }
+        LV_GetText(sCurrText2,vRowNum,2)
+    }
+    return sCurrText2
+}
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
-    Global hwndLV_History, TThwnd
+    Global hwndLV_ConfigHistory, TThwnd
     Static NMHDRSize := A_PtrSize * 3
     Static offText := NMHDRSize + A_PtrSize
     Static offItem := NMHDRSize + (A_PtrSize * 2) + 4
@@ -61,7 +144,7 @@ On_WM_NOTIFY(W, L, M, H) {
     Code := NumGet(L + (A_PtrSize * 2), "Int")
     HCTL := NumGet(L + 0, 0, "UPtr")
     ; HCTL is one of our listviews
-    If (HCTL = hwndLV_History) {
+    If (HCTL = hwndLV_ConfigHistory) {
         ; LVN_GETINFOTIPW, LVN_GETINFOTIPA
         If (Code = LVN_GETINFOTIP) {
 

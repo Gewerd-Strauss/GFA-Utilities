@@ -7,7 +7,7 @@
             throw exception("Config-file does not exist`n"  CallStack(),-1)
         }
     } else {
-        throw exception("No config-file selected`n" CallStack(),-1)
+        ttip("No configuration file has been selected yet.")
     }
 }
 
@@ -25,6 +25,9 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui Font, s10
     gui add, text,vCHSNFLDR_STRING,% "Please drag and drop the folder you want to use on this window.`n`nChosen folder:"
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
+    if (SelectedFolder="") {
+        return
+    }
     try {
         LastRunCount:=false
         if FileExist(SelectedFolder) {
@@ -185,8 +188,8 @@ GFARSubmit() {
     gui add, Button, yp xp+80 hwndGFAR_ExcludeOpenLastImage,Open &Last image
     GuiControl +g, %GFAR_ExcludeOpenLastImage%, % GFAR_LastImage
 
-    GFAR_OpenFolder:=Func("GFAR_ExcludeOpenPath").Bind(Folder)
-    GFAR_OpenSelectedImage:=Func("GFAR_ExcludeInspectSelection").Bind(Folder)
+    GFAR_OpenFolder:=Func("GFAR_ExcludeOpenPath").Bind(gfarFolder)
+    GFAR_OpenSelectedImage:=Func("GFAR_ExcludeInspectSelection").Bind(gfarFolder)
     gui add, Button, yp xp+130 hwndGFAR_ExcludeOpenFolder,Open &Folder
     gui add, Button, yp xp+130 hwndGFAR_ExcludeInspect, Open &Selected Image
     GuiControl +g, %GFAR_ExcludeOpenFolder%, % GFAR_OpenFolder

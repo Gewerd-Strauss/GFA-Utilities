@@ -1088,6 +1088,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             #print(p_Outlier2) # this will label the outlier with its value. 
             
+            #TODO: figure out what to group_by by... 
             Outliers <- Data %>%
                 group_by(interactions) %>%
                 identify_outliers("plant_area") 
@@ -1114,6 +1115,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
+                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
                 Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
@@ -1125,6 +1127,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
+                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1167,7 +1170,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
             if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE
+                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
             } else {
                 Conditions$GenerateAllThemes <- FALSE
             }
@@ -1460,6 +1463,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             #print(p_Outlier2) # this will label the outlier with its value. 
             
+            #TODO: figure out what to group_by by... 
             Outliers <- Data %>%
                 group_by(Gruppe) %>%
                 identify_outliers("plant_area") 
@@ -1486,6 +1490,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
+                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
                 Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
@@ -1497,6 +1502,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
+                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1541,7 +1547,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
             if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE
+                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
             } else {
                 Conditions$GenerateAllThemes <- FALSE
             }
@@ -1972,7 +1978,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
     if (Theme_Index>numberofThemes) {
-        Conditions$GenerateAllThemes <- TRUE
+        Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
     } else {
         Conditions$GenerateAllThemes <- FALSE
     }
@@ -2404,18 +2410,20 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
 }
 cat("\014") ## clear console
-GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini)",T)
-print(GFA_2[[1]])
-print(GFA_2[[3]]$"03.07.2023"$boxplot)
-#GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",F)
+GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini)",F)
+#print(GFA_2[[1]])
+#print(GFA_2[[3]]$"03.07.2023"$boxplot)
+#GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",T)
 #GFA_1[[1]]
 #GFA_1[[3]]
-#GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",F)
+GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",F)
+#GFA_2[[1]]
 #plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 1)
 #plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 0,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
 #remove (list=ls()) ## clear environment variables
 
-#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",returnDays = F)
+#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\GFA_conf.ini)",returnDays = T,saveFigures = T,saveExcel = T,saveRDATA = F)
+#GFA_1[[1]]
 #if (isTRUE(as.logical(plot_1[[5]]$General$RelativeColnames))) {
 #    plot_1[[1]] + geom_vline(aes(xintercept = as.integer(as.Date("31.03.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y")[[1]]))) +
 #        geom_vline(data=filter(plot_1[[1]]$data,Group=="G14"),aes(xintercept = as.integer(as.Date("31.03.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#FC9272") +
@@ -2433,7 +2441,7 @@ print(GFA_2[[3]]$"03.07.2023"$boxplot)
 #        geom_vline(data=filter(plot_1[[1]]$data,Group=="GMax"),aes(xintercept = as.Date("03.05.2023",format="%d.%m.%Y")),linetype=4,color="#A50F15")
 #}
 #plot_1[[4]]
-#plot_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",F,F,F,F)
+#plot_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",returnDays = T,saveFigures = T,saveExcel = T,saveRDATA = F)
 #if (isTRUE(as.logical(plot_2[[5]]$General$RelativeColnames))) {
 #    plot_2[[1]] + 
 #            geom_vline(aes(xintercept = as.integer(as.Date("11.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=1,color="black") +
@@ -2460,7 +2468,7 @@ print(GFA_2[[3]]$"03.07.2023"$boxplot)
 #
 
 
-plot_1Treatment <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)",returnDays = T,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
+#plot_1Treatment <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)",returnDays = T,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
 #plot_1Treatment[[1]]
 #plot_1Treatment[[3]]$"07.07.2022"$boxplot
 ### Treatments, multiple: fix the issue for 2 treatments, or just remove it
@@ -2473,3 +2481,4 @@ plot_1Treatment <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 
 
 #NCmisc::list.functions.in.file("GFA_Evaluation.R", alphabetic = TRUE)
 #grateful::cite_packages(output = "table", out.dir = ".",cite.tidyverse = T,pkgs = "Session",include.RStudio = T,dependencies = F)
+#plot_1 <- GFA_main(folder_path = r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\yyyyMMdd-formatting\GFA_conf.ini)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 0)

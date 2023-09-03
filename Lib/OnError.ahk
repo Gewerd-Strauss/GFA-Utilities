@@ -24,11 +24,21 @@ MyErrorHandler(oError) {
         message .= Format("`n> {}:{} : [{}]", stack.File, stack.Line, stack.What)
     }
     message .= "`n> Auto-execute" ; `message` will have the format of your choosing
+    ;TODO: check listA_.ahk for expressVars to convert this into a populated thingie, then push it into the JSON_DUMP
+    Variables:={"Properties":["A_Args","A_WorkingDir","A_InitialWorkingDir","A_ScriptDir","A_ScriptName","A_ScriptFullPath","A_ScriptHwnd","A_LineNumber","A_LineFile","A_ThisFunc","A_ThisLabel","A_AhkVersion","A_AhkPath","A_IsUnicode","A_IsCompiled","A_ExitReason"]
+            , "Date and Time":["A_YYY","A_MM","A_DD","A_MMMM","A_MMM","A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount"]
+            ,"Script Settings":["A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber"]
+            , "User Idle Time":["A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse"]
+            , "GUI Windows an Menu Bars":["A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo"]
+            ,"Hotkeys,Hotstrings, Custom Menu items":["A_ThisMenuItem","A_ThisMenu","A_ThisMenuItemPos","A_ThisHotkey","A_PriorHotkey","A_PriorKey","A_TimeSinceThisHotkey","A_TimeSincePriorHotkey","A_EndChar"]
+            ,"Operating System and User Info":["A_ComSpec","A_Temp","A_OSType","A_OSVersion","A_Is64bitOS","A_PtrSize","A_Language","A_ComputerName","A_UserName","A_WinDir","A_ProgramFiles","A_AppData","A_AppDataCommon","A_Desktop","A_DesktopCommon", stopped here]}   
+    Vars:=ExpressVariables(Variables)
     JSON_DUMP:=JSON.Dump({ZZZ000_Arguments:guiObject.dynGUI.Arguments
             ,RCode_Template:guiObject.RCodeTemplate
             ,Configurator_Settings:script.config.Configurator_settings
             ,Renamer_Settings:script.config.GFA_Renamer_settings
             ,Version:script.version
+            ,AHK_Environment:Vars
             ,confVersion:script.config.Version}, pretty := 1)
     if A_IsCompiled {
         a:=(script.config.Configurator_settings.bDebugSwitch?JSON_DUMP:"JSON NOT DUMPED")
@@ -48,7 +58,16 @@ MyErrorHandler(oError) {
     }
     return true                   ; Exit thread, prevent standard Exception thrown
 }
-
+ExpressVariables(Variables) {
+    Obj:={}
+    for sec_id,section in Variables {
+        Obj[sec_id]:={}
+        for var_id, variable in Variables[sec_id] {
+            Obj[sec_id][variable]:=a:=Deref("%" variable "%")
+        }
+    }
+    return Obj
+}
 
 
 /*

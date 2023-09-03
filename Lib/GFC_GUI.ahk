@@ -93,7 +93,9 @@
                             . "`nKeeping the old value will likely cause errors when running the R-Script,"
                             . "`nexcept if you want to facet your Y-Axis."
                             . "`n"
-                            . "`n`If you are do not intend on faceting your plot, this will most likely cause issues."
+                            . "`n`If you do not intend on faceting your plot, this will most likely cause issues."
+                            . "`n"
+                            . "`nPress 'Yes' to use the suggested new value, press 'no' to keep the old value."
                         IfMsgBox Yes, {
                             Argument.Value:=cleanedVal
                             guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal

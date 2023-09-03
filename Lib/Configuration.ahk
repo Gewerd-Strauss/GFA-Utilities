@@ -41,11 +41,7 @@ setupdefaultconfig(Switch) {
             ;AlwaysOnTop CheckboxName: Set the GUI to be always on top?
             ;AlwaysOnTop This will keep the gui front and center on your screen. You can still hide the GUI via the tray-menu item.
             ;AlwaysOnTop Default: 0
-            sFontType_Text=Times New Roman
-            ;sFontType_Text Set Font for all texts, excluding the listviews.
-            ;sFontType_Text Type: DropDown Arial|Calibri|Cambria|Consolas|Comic Sans MS|Corbel|Courier|Courier New|Georgia|Lucidia Console|Lucidia Sans|MS Sans Serif|Segoe UI||Times New Roman|Tahoma|Verdana|System
-            ;sFontType_Text Default: Times New Roman
-            SizeSetting=auto
+            SizeSetting=1080p
             ;SizeSetting Determine how to scale the GUI: Auto will calculate the GUI-dimensions based on your main monitor's size. '1080p' and '1440p' will force a scaling based on that assumption.
             ;SizeSetting Type: DropDown 1080p|1440p||auto
             ;SizeSetting Default: auto
@@ -136,10 +132,10 @@ setupdefaultconfig(Switch) {
             %A_Tab%Facet2D:Checkbox|Type:boolean|Default:0|String:"Do you want to facet the plot, f.e. over a treatment?"|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%Facet2DVar:Edit|Type:String|Default:""|String:"Set the comma-separated list of facet-members to assing to the 'UniqueGroups'"|TTIP:[Facet2D==TRUE]\nClarification: The entries you specified for 'UniqueGroups' must each match a single entry in this list as well|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
-            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|String:Set the colors for the Summaryplot|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the overview plot|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|String:Set the colors for the Summaryplot|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the overview plot|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|String:Set the colors for the daily plots|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the daily plots|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Palette_Lines2:Edit|Type:String|Default:"black","yellow","orange","orangered","red","darkred","black"|String:Set the colors for the daily plots|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the daily plots|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}"|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Boxplot:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","white"|String:Set the colors for the Summaryplot|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the overview plot|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines:Edit|Type:String|Default:"yellow","orange","orangered","red","darkred","black","black"|String:Set the colors for the Summaryplot|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the overview plot|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Boxplot2:Edit|Type:String|Default:"white","yellow","orange","orangered","red","darkred","black"|String:Set the colors for the daily plots|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the daily plots|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
+            %A_Tab%Palette_Lines2:Edit|Type:String|Default:"black","yellow","orange","orangered","red","darkred","black"|String:Set the colors for the daily plots|TTIP:Colors are assigned regardless of order of the plots, and always in the following order:\nLeft to right, Top to bottom\n\nThis set of colors is responsible for the daily plots|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|ctrlOptions:w400|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
             %A_Tab%;; 2. General Configuration
             %A_Tab%T0:DateTime|Type:String|Default:{A_Now}|String:"Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)"|TTIP:This is relevant mostly for calculating the plant-age plotted on the y-axis.|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
@@ -206,14 +202,6 @@ setupdefaultconfig(Switch) {
         }
     }
     return
-    ;MsgBox 0x2024, script.name " - Restore default config", Do you want to restore the default config supplied with this program?`n`nBe aware that all settings you altered will be reset and may have to be edited again.`n`nNo backup of your old configuration will be made`n`nRestore?
-    ;
-    ;IfMsgBox Yes, {
-    ;    writeFile(script.configfile,DefaultConfig,"UTF-8","w",true)
-    ;    reload
-    ;} Else IfMsgBox No, {
-    ;    return
-    ;}
 }
 
 
