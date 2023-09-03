@@ -1262,11 +1262,11 @@ compareRScripts(new_contents,current_contents,HWND) {
     gui add, text, x15 y15 w0 h0, % "anchor"
     gui add, text, x15 y25 h15, % "Old Code"
     RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
-    gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "&Keep old contents"
+    gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "Keep &old contents"
     ;gui add, text,%  "x" 15 + RCWidth + 15 "y15 w0 h0", % "anchor"
     gui add, text,%  "x" 15 + RCWidth + 15 " y25 h15", % "New Code"
     RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
-    gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "&Overwrite with new contents"
+    gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "Overwrite with &new contents"
     RC_Old.Settings.Highlighter:= "HighlightR"
         , RC_Old.Value:= current_contents
     RC_New.Settings.Highlighter:= "HighlightR"
