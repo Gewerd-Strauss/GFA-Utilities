@@ -28,3 +28,4 @@ Lexikos         -       StdErr_Write, reg. License                              
 just me         -       ClipboardSetFiles (considered PD by author)                             - https://www.autohotkey.com/boards/viewtopic.php?p=63914#p63914
 G33kDude        -       cJSON,reg. License                                                      - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
 Maestr0         -       MWAGetMonitor                                                           - https://www.autohotkey.com/boards/viewtopic.php?p=342716#p342716
+banane          -       CenterControls                                                          - http://de.autohotkey.com/forum/viewtopic.php?p=67802#67802
