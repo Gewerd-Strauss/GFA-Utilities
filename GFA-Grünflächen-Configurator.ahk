@@ -1482,4 +1482,4 @@ prepare_release() {
 #Include <CountFilesR>
 #Include <renameImages>
 #Include <cJSON>
-
+#Include <CenterControl>
