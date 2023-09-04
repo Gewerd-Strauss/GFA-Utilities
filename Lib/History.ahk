@@ -1,15 +1,16 @@
 ﻿
 buildHistory(History,NumberOfRecords,configpath:="") {
+    ret:=History.Clone()
     if (configpath!="") {
-        if HasVal(History,configpath) {
-            History.RemoveAt(HasVal(History,configpath),1)
+        if HasVal(ret,configpath) {
+            ret.RemoveAt(HasVal(ret,configpath),1)
         }
-        History.InsertAt(1,configpath)
+        ret.InsertAt(1,configpath)
     }
-    if (History.Count()>NumberOfRecords) {
-        History.Delete(NumberOfRecords+1,History.Count())
+    if (ret.Count()>NumberOfRecords) {
+        ret.Delete(NumberOfRecords+1,ret.Count())
     }
-    return History
+    return ret
 }
 
 
