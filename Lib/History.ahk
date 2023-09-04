@@ -1,15 +1,16 @@
 ﻿
 buildHistory(History,NumberOfRecords,configpath:="") {
+    ret:=History.Clone()
     if (configpath!="") {
-        if HasVal(History,configpath) {
-            History.RemoveAt(HasVal(History,configpath),1)
+        if HasVal(ret,configpath) {
+            ret.RemoveAt(HasVal(ret,configpath),1)
         }
-        History.InsertAt(1,configpath)
+        ret.InsertAt(1,configpath)
     }
-    if (History.Count()>NumberOfRecords) {
-        History.Delete(NumberOfRecords+1,History.Count())
+    if (ret.Count()>NumberOfRecords) {
+        ret.Delete(NumberOfRecords+1,ret.Count())
     }
-    return History
+    return ret
 }
 
 
@@ -45,9 +46,11 @@ loadConfigFromLV(dynGUI) {
     configPath:=getSelectedLVEntries()
     ;if !FileExist()
     loadConfig_Main(configPath,dynGUI)
-    script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
-    updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
-    script.save(script.scriptconfigfile,,true)
+    if (!InStr(configPath,A_ScriptDir)) {
+        script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,configPath)
+        updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
+        script.save(script.scriptconfigfile,,true)
+    }
     return
 }
 loadRScriptFromLV(dynGUI,guiObject) {
@@ -102,9 +105,11 @@ loadRScriptFromLV(dynGUI,guiObject) {
             Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
             fillRC1(Code)
         }
-        script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
-        updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
-        script.save(script.scriptconfigfile,,true)
+        if (!InStr(configPath,A_ScriptDir)) {
+            script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
+            updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+            script.save(script.scriptconfigfile,,true)
+        }
     }
     return
 }

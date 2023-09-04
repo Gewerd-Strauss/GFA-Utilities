@@ -106,39 +106,8 @@ main() {
     }
     script_TraySetup(IconString)
 
-    ;script.Save(script.scriptconfigfile,,true)
     global guiObject:=guiCreate()
-    template=
-        (LTRIM
-            get_os <- function(){
-            `tsysinf <- Sys.info()
-            `tif (!is.null(sysinf)){
-            `t`tos <- sysinf['sysname']
-            `t`tif (os == 'Darwin')
-            `t`t`tos <- "osx"
-            `t} else { ## mystery machine
-            `t`tos <- .Platform$OS.type
-            `t`tif (grepl("^darwin", R.version$os))
-            `t`t`tos <- "osx"
-            `t`tif (grepl("linux-gnu", R.version$os))
-            `t`t`tos <- "linux"
-            `t}
-            `treturn(tolower(os))
-            }
-            source("{GFA_EVALUATIONUTILITY}")       ## do not clear your workspace after this point. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output. Clearing the workspace inbetween these two points will render the script useless.
-            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
-            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            } else {`t# MAC:
-            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            }
-        )
-    if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
-        fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
-        guiObject.RCodeTemplate:=fo.Read()
-        fo.Close()
-    } else {
-        guiObject.RCodeTemplate:=template
-    }
+    guiObject.RCodeTemplate:=set_template()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
             ttip("generating parameter documentation string")
@@ -364,7 +333,7 @@ guiCreate() {
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfigurationBtn x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfigurationBtn x" Sections[4].XAnchor+185, % "Generate Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndEditSettingsBtn gfEditSettings  x" Sections[4].XAnchor+275, % "Open &program settings"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndOpenRScriptBtn x" Sections[4].XAnchor+365, % "Open current script"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndOpenRScriptBtn x" Sections[4].XAnchor+365, % "Open current &script"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndExitProgramBtn gexitApp x" Sections[4].XAnchor+455, % "Exit Program"
     if (globalLogicSwitches.bIsAuthor) {
         gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gprepare_release hwndrecompileBtn x" Sections[4].XAnchor+545, % "Recompile"
@@ -870,14 +839,19 @@ handleConfig(dynGUI,writetoFile:=false) {
     }
     if (writetoFile) {
         SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive     ;; we do it this way because we can also write a new, so-far nonexistant, file to disk. In that case, doing FileExist() on its whole path would fail.
-        if (FileExist(OutDrive) || dynGUI.GFA_Evaluation_Configfile_Location="") { ;; can't believe this is necessary...
+        if (!FileExist(OutDrive) || dynGUI.GFA_Evaluation_Configfile_Location="") { ;; can't believe this is necessary...
             ttip("You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration.")
             return
         }
         try {
-            writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
-            script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,dynGUI.GFA_Evaluation_Configfile_Location)
-            script.save(script.scriptconfigfile,,true)
+            if (!InStr(dynGUI.GFA_Evaluation_Configfile_Location,A_ScriptDir)) {
+                writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
+                script.config.LastConfigsHistory:=buildHistory(script.config.LastConfigsHistory,script.config.Configurator_settings.ConfigHistoryLimit,dynGUI.GFA_Evaluation_Configfile_Location)
+                script.save(script.scriptconfigfile,,true)
+            } else { ;; only update the config file, but do not update the script data
+                writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
+
+            }
         } catch {
             throw Exception( "Failed to write config with encoding '" script.config.Configurator_Settings.INI_Encoding "' to path '" dynGUI.GFA_Evaluation_Configfile_Location "'`n`n" CallStack(),-1)
         }
@@ -1456,7 +1430,39 @@ reload() {
 exitApp() {
     ExitApp
 }
-
+set_template() {
+    template=
+        (LTRIM
+            get_os <- function(){
+            `tsysinf <- Sys.info()
+            `tif (!is.null(sysinf)){
+            `t`tos <- sysinf['sysname']
+            `t`tif (os == 'Darwin')
+            `t`t`tos <- "osx"
+            `t} else { ## mystery machine
+            `t`tos <- .Platform$OS.type
+            `t`tif (grepl("^darwin", R.version$os))
+            `t`t`tos <- "osx"
+            `t`tif (grepl("linux-gnu", R.version$os))
+            `t`t`tos <- "linux"
+            `t}
+            `treturn(tolower(os))
+            }
+            source("{GFA_EVALUATIONUTILITY}")       
+            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            } else {`t# MAC:
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            }
+            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results, or selectively clear variables. Clearing the workspace inbetween these two points will render the script useless.
+        )
+    if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
+        fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
+        template:=fo.Read()
+        fo.Close()
+    }
+    return template
+}
 prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()

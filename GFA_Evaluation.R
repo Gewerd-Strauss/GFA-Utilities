@@ -713,7 +713,7 @@ importCSV_Data1 <- function(Files,List,ini) {
                     csv$plant_area_normalised <- csv$plant_area/csv$plants_in_pot
                 } else {
                     ErrorString <- ""
-                        Error <- simpleError(str_c(str_c(" Data-file: '",curr_file,"' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."),ErrorString ,sep = "\n"))
+                        Error <- simpleError(str_c(str_c(" Data-file: '",file,"' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."),ErrorString ,sep = "\n"))
                         stop(Error)
                 }
             }
