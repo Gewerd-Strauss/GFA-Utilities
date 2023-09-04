@@ -125,14 +125,20 @@ main() {
             `t}
             `treturn(tolower(os))
             }
-            source("{GFA_EVALUATIONUTILITY}")
+            source("{GFA_EVALUATIONUTILITY}")       ## do not clear your workspace after this point. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output. Clearing the workspace inbetween these two points will render the script useless.
             if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {`t# MAC:
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
         )
-    guiObject.RCodeTemplate:=template
+    if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
+        fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
+        guiObject.RCodeTemplate:=fo.Read()
+        fo.Close()
+    } else {
+        guiObject.RCodeTemplate:=template
+    }
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
             ttip("generating parameter documentation string")
