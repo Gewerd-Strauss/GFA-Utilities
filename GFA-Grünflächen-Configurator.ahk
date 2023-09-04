@@ -870,7 +870,7 @@ handleConfig(dynGUI,writetoFile:=false) {
     }
     if (writetoFile) {
         SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,,,,, OutDrive     ;; we do it this way because we can also write a new, so-far nonexistant, file to disk. In that case, doing FileExist() on its whole path would fail.
-        if (FileExist(OutDrive) || dynGUI.GFA_Evaluation_Configfile_Location="") { ;; can't believe this is necessary...
+        if (!FileExist(OutDrive) || dynGUI.GFA_Evaluation_Configfile_Location="") { ;; can't believe this is necessary...
             ttip("You have not yet selected a location for your configuration file. Please do so before attempting to save your configuration.")
             return
         }
