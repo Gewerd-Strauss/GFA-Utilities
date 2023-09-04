@@ -359,13 +359,15 @@
             Parametertemplate=
                 (LTRIM
                     #### ```%Parameter`%``
-                    Parameter       ```%Parameter`%`` [Section:```%ConfigSection`%``]%A_Space%%A_Space%
-                    Value           ```%Value`%``%A_Space%%A_Space%
-                    Default         ```%Default`%``%A_Space%%A_Space%
-                    Type            ```%Type`%``%A_Space%%A_Space%
-                    Options         ```%ctrlOptions`%``%A_Space%%A_Space%
-                    Instruction     ```%String`%``%A_Space%%A_Space%
-                    Elaboration     ```%TTIP`%``%A_Space%%A_Space%
+                    |             |                                                                     |
+                    | ----------- | ------------------------------------------------------------------- |
+                    | Parameter   | ```%Parameter`%`` [Section:```%ConfigSection`%``]%A_Space%%A_Space% |
+                    | Value       | ```%Value`%``%A_Space%%A_Space%                                     |
+                    | Default     | ```%Default`%``%A_Space%%A_Space%                                   |
+                    | Type        | ```%Type`%``%A_Space%%A_Space%                                      |
+                    | Options     | ```%ctrlOptions`%``%A_Space%%A_Space%                               |
+                    | Instruction | ```%String`%``%A_Space%%A_Space%                                    |
+                    | Elaboration | ```%TTIP`%``%A_Space%%A_Space%                                      |
 
                 )
             if (Argument.Type="boolean") {
