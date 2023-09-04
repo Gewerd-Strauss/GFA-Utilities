@@ -72,7 +72,7 @@ loadRScriptFromLV(dynGUI,guiObject) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         } else {
         }
-        guiResize(guiObject,true)
+        guiResize(guiObject)
     }
     if (Chosen!="") {
         if (overwrite) {
@@ -109,7 +109,6 @@ loadRScriptFromLV(dynGUI,guiObject) {
 }
 getSelectedLVEntries() {
     vRowNum:=0
-    sel:=[]
     loop {
         vRowNum:=LV_GetNext(vRowNum)
         if not vRowNum {
@@ -121,7 +120,6 @@ getSelectedLVEntries() {
 }
 getSelectedLVEntries2() {
     vRowNum:=0
-    sel:=[]
     loop {
         vRowNum:=LV_GetNext(vRowNum)
         if not vRowNum {

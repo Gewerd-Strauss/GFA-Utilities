@@ -52,8 +52,6 @@ writeFile(Path,Content,Encoding:="",Flags:=0x2,bSafeOverwrite:=false) {
                 throw Exception("File could not be opened. Flags:`n" Flags, -1, myFile)
             }
         }
-    } catch e {
-
     }
     return
 }

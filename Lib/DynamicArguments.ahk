@@ -387,10 +387,10 @@ Class dynamicGUI {
                                     gui %GUI_ID% show
                                 }
                                 if Value.HasKey("TTIP") {
-                                    if AddToolTip(Deref("%DA" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+                                    if AddToolTip(Deref("%DA" Parameter "%"), strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
 
                                     }
-                                    if AddToolTip(Deref("%DALink" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+                                    if AddToolTip(Deref("%DALink" Parameter "%"), strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
 
                                     }
                                 }
@@ -509,10 +509,10 @@ Class dynamicGUI {
                         ControlHeight+=30
                     }
                     if Value.HasKey("TTIP") {
-                        if AddToolTip(Deref("%DA" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+                        if AddToolTip(Deref("%DA" Parameter "%"),  strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
 
                         }
-                        if AddToolTip(Deref("%DALink" Parameter "%"), "Test Tip " strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+                        if AddToolTip(Deref("%DALink" Parameter "%"),  strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
 
                         }
                     }
@@ -622,8 +622,6 @@ Class dynamicGUI {
 
         IfMsgBox Yes, {
             reload
-        } Else IfMsgBox No, {
-
         }
 
     }

@@ -1,10 +1,10 @@
-# Grünflächen-Konfigurator
+# Grünflächen-Configurator
 
-Ein Windows-only Skript zur einfachen Erstellung einer Konfiguration für das beiliegende GFA_Evaluation.R-Skript.
+A Windows-only script to easily create a configuration for the enclosed GFA_Evaluation.R script.
 
 ## License
 
-Siehe beiliegende License-Datei
+See accompanying license file.
 
 ## Paraneter Quick-Reference
 
@@ -22,7 +22,7 @@ Default         `0`
 Type            `boolean`  
 Options         `TRUE/FALSE`  
 Instruction     `Facet2D: Do you want to facet the plot, f.e. over a treatment?`  
-Elaboration
+Elaboration     `Clarification: Facetting here refers to the segmentation of the plots along the Y-Axis, NOT along the X-Axis.\nFor segmenting along the X-Axis, refer to 'UniqueGroups' and 'GroupsOrderX'.`  
 
 #### `Facet2DVar`
 
@@ -102,7 +102,7 @@ Default         `7`
 Type            `Integer`  
 Options         `number/`  
 Instruction     `PotsPerGroup: Set the number of pots per group/combination`  
-Elaboration     `[Facet2D==TRUE]\nHere, combination`  
+Elaboration     `[Facet2D==TRUE]\nHere, combination is a combination of a member of 'UniqueGroups' and a member of 'Facet2DVar'`  
 
 #### `RefGroup`
 
@@ -112,7 +112,7 @@ Default         `UU`
 Type            `String`  
 Options         `/`  
 Instruction     `RefGroup: Set the reference group for all statistical tests`  
-Elaboration     `\n[Facet2D==FALSE]\nFor a normal plot, this must be a member of 'UniqueGroups'\n\n[Facet2D==TRUE]\nFor a facetted plot, this must be a combination of 1 member of 'Facet2DVar' and 'UniqueGroups', separated by a dot (.).\nThe order is always '[UniqueGroups_Member].[Facet2DVar_Member]\nExample:\nUngestresst.Unbehandelt'`  
+Elaboration     `\n[Facet2D==FALSE]\nFor a normal plot, this must be a member of 'UniqueGroups'\n\n[Facet2D==TRUE]\nFor a facetted plot, this must be a combination of 1 member of 'Facet2DVar' and 'UniqueGroups', separated by a dot (.).\nThe order is always '[UniqueGroups_Member].[Facet2DVar_Member]'\nExample:\n'Ungestresst.Unbehandelt'`  
 
 #### `UniqueGroups`
 
@@ -179,8 +179,8 @@ Elaboration     `This accesses the data-column 'plant_area_normalised'. For more
 #### `T0`
 
 Parameter       `T0` [Section:`Experiment`]  
-Value           `20230829152634`  
-Default         `20230829152634`  
+Value           `20230903235929`  
+Default         `20230903235929`  
 Type            `String`  
 Options         `/`  
 Instruction     `T0: Set the T0-date for calculating 'plant-age' for your experiment, in format dd.MM.yyyy (24.12.2023)`  
