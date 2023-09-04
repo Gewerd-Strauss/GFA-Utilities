@@ -106,7 +106,6 @@ main() {
     }
     script_TraySetup(IconString)
 
-    ;script.Save(script.scriptconfigfile,,true)
     global guiObject:=guiCreate()
     template=
         (LTRIM
