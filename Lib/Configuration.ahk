@@ -176,7 +176,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; Fontsizes
-            %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
 
         )
     if (Switch=1) {
