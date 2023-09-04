@@ -14,8 +14,9 @@ Class dynamicGUI {
             ExitApp
             return
         }
-
-        FileRead Text, % ConfigFile
+        fo:=fileOpen(ConfigFile,"r")
+        Text:=fo.read()
+        fo.Close()
         Text:=strreplace(Text,"`n","`r`n")
             , Lines:=strsplit(Text,Format "`r`n").2
             , Lines:=strsplit(Lines,"`r`n`r`n").1
