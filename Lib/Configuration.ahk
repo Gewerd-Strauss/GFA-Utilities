@@ -72,6 +72,19 @@ setupdefaultconfig(Switch) {
             ;INI_Encoding Note that 'UTF-8' specifically is 'UTF-8 with BOM', whereas 'UTF-8-RAW' is a BOM-less UTF-8-encoding. 
             ;INI_Encoding 
             ;INI_Encoding Default: UTF-16
+            Custom_R_Script_Template=
+            ;Custom_R_Script_Template Type: File
+            ;Custom_R_Script_Template Default: <.R-File>
+            ;Custom_R_Script_Template You can use a custom RCode template, instead of the default one given by this script. 
+            ;Custom_R_Script_Template Once selected, the script will try to load it in, but may discard it and use its own if either of the following is true:
+            ;Custom_R_Script_Template - the file the path points towards does not exist
+            ;Custom_R_Script_Template - certain keywords are not present in the file
+            ;Custom_R_Script_Template - %A_Tab% {GFA_EVALUATIONUTILITY}
+            ;Custom_R_Script_Template - %A_Tab% {GFA_CONFIGLOCATIONFOLDER_WINDOWS}
+            ;Custom_R_Script_Template - %A_Tab% {GFA_CONFIGLOCATIONFOLDER_MAC}
+            ;Custom_R_Script_Template As a rule of thumb, your template should not change this default portion of it. 
+            ;Custom_R_Script_Template You may add additional lines above or below.
+            ;Custom_R_Script_Template Be aware that clearing the workspace after the lines sourcing 'GFA_Evaluation.R' will cause the script to fail.
             CheckUpdatesOnScriptStart=1
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?

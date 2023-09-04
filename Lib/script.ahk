@@ -243,7 +243,9 @@ class script {
                     LibPath:=strreplace(LibPath,"\\","\")
                     About_template_path:=LibPath (InStr(LibPath,"\_template.html")?"":"\_template.html")
                     About_template_path:=Strreplace(About_template_path,"\\","\")
-                    FileRead About_template, % About_template_path
+                    fo:=fileopen(About_template_path,"r")
+                    About_template:=fo.Read()
+                    fo.Close()
                 }
                 ;MetadataArray := {ghLink: "anonymous1184/some-repo", ghText: "Some Repo (from anonymous1184)", donate: "https://example.com"}
 
@@ -270,7 +272,9 @@ class script {
 
                 if FileExist(About_type_path) {
 
-                    FileRead html, % About_type_path
+                    fo:=fileopen(About_type_path,"r")
+                    html:=fo.Read()
+                    fo.Close()
                     About_template := StrReplace(About_template, "<!-- $" metadata_type " -->", html)
 
                 }
@@ -283,7 +287,9 @@ class script {
             fo.close()
             FileDelete % this.AboutPath
         } else if (this.HasKey("AboutPath")) {
-            FileRead About_template, % this.AboutPath
+            fo:=fileopen(this.AboutPath,"r")
+            About_template:=fo.Read()
+            fo.Close()
             FileDelete % this.AboutPath
         }
 
@@ -398,7 +404,9 @@ class script {
         if (SubStr(Path,1,1)="\") {
             Path:=A_ScriptDir . Path
         }
-        FileRead text, % Path
+        fo:=fileopen(Path,"r")
+        text:=fo.Read()
+        fo.Close()
         this.credits:=text
     }
     loadMetadata(Path:="\credits.txt") {
@@ -413,7 +421,9 @@ class script {
         if (SubStr(Path,1,1)="\") {
             Path:=A_ScriptDir . Path
         }
-        FileRead text, % Path
+        fo:=fileopen(Path,"r")
+        text:=fo.Read()
+        fo.Close()
         this.metadata:=text
         if this.HasKey("metadata") {
             Lines:=strsplit(this.metadata,"`n")
