@@ -299,7 +299,6 @@ class script {
         if (bGenerateOnly) {
             fo:=FileOpen(this.AboutPath, 0x1, "UTF-8-RAW").Write(About_template)
             fo.close()
-            MsgBox % "generated about-file"
             return
         }
         ;clipboard:=About_template
