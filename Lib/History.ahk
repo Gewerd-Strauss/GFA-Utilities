@@ -37,6 +37,7 @@ toggle_ReportTip2() {
     }
     return
 }
+
 loadConfigFromLV(dynGUI) {
     global hwndLV_ConfigHistory
     gui Listview, % hwndLV_ConfigHistory
