@@ -1066,12 +1066,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
 
 
     SplitPath % dynGUI.GFA_Evaluation_RScript_Location,,OutDir
-    if (FileExist(dynGUI.GFA_Evaluation_RScript_Location) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir)) { ;; can't believe this is necessary...
-        of:=fileOpen(dynGUI.GFA_Evaluation_RScript_Location,"r","UTF-8-RAW")
-        current_contents:=of.Read()
-        current_contents:=strreplace(current_contents,"`r`n","`n")
-        of.Close()
-    } else {
+    if (!(FileExist(dynGUI.GFA_Evaluation_RScript_Location) && InStr(dynGUI.GFA_Evaluation_Configfile_Location,OutDir))) { ;; can't believe this is necessary...
         if FileExist(dynGUI.GFA_Evaluation_Configfile_Location) {
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , SearchPath,
         }
@@ -1152,7 +1147,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         if (!FileExist(Chosen)) {
             writeFile(Chosen,"","UTF-8-RAW",,true)
         } else {
-            ;; placehoplder, will need to generate the to-be-written string first, then we can compare
+            of:=fileOpen(dynGUI.GFA_Evaluation_RScript_Location,"r","UTF-8-RAW")
+            current_contents:=of.Read()
+            current_contents:=strreplace(current_contents,"`r`n","`n")
+            of.Close()
         }
         guiResize(guiObject)
     }
