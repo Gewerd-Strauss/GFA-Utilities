@@ -107,37 +107,7 @@ main() {
     script_TraySetup(IconString)
 
     global guiObject:=guiCreate()
-    template=
-        (LTRIM
-            get_os <- function(){
-            `tsysinf <- Sys.info()
-            `tif (!is.null(sysinf)){
-            `t`tos <- sysinf['sysname']
-            `t`tif (os == 'Darwin')
-            `t`t`tos <- "osx"
-            `t} else { ## mystery machine
-            `t`tos <- .Platform$OS.type
-            `t`tif (grepl("^darwin", R.version$os))
-            `t`t`tos <- "osx"
-            `t`tif (grepl("linux-gnu", R.version$os))
-            `t`t`tos <- "linux"
-            `t}
-            `treturn(tolower(os))
-            }
-            source("{GFA_EVALUATIONUTILITY}")       ## do not clear your workspace after this point. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output. Clearing the workspace inbetween these two points will render the script useless.
-            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
-            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            } else {`t# MAC:
-            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
-            }
-        )
-    if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
-        fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
-        guiObject.RCodeTemplate:=fo.Read()
-        fo.Close()
-    } else {
-        guiObject.RCodeTemplate:=template
-    }
+    guiObject.RCodeTemplate:=set_template()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
             ttip("generating parameter documentation string")
@@ -1460,7 +1430,39 @@ reload() {
 exitApp() {
     ExitApp
 }
-
+set_template() {
+    template=
+        (LTRIM
+            get_os <- function(){
+            `tsysinf <- Sys.info()
+            `tif (!is.null(sysinf)){
+            `t`tos <- sysinf['sysname']
+            `t`tif (os == 'Darwin')
+            `t`t`tos <- "osx"
+            `t} else { ## mystery machine
+            `t`tos <- .Platform$OS.type
+            `t`tif (grepl("^darwin", R.version$os))
+            `t`t`tos <- "osx"
+            `t`tif (grepl("linux-gnu", R.version$os))
+            `t`t`tos <- "linux"
+            `t}
+            `treturn(tolower(os))
+            }
+            source("{GFA_EVALUATIONUTILITY}")       
+            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            } else {`t# MAC:
+            `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
+            }
+            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results, or selectively clear variables. Clearing the workspace inbetween these two points will render the script useless.
+        )
+    if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
+        fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
+        template:=fo.Read()
+        fo.Close()
+    }
+    return template
+}
 prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
