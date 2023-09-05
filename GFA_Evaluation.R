@@ -1348,7 +1348,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                       , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
             }
             if (as.logical(ini$General$Debug)) {
-                plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
                                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
@@ -1359,9 +1359,9 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
-                    plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
                                                      , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                                   ,"\nSample-Size: ", PotsPerGroup)
@@ -1426,9 +1426,24 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , xlab = x_label) +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black") +
-                ggtitle(plot_Title
-                        , plot_Subtitle)
+                font("legend.title", size = 10, color = "black")
+            if (isTRUE(as.logical(ini$General$Debug))) {
+                GFA_plot_box <- GFA_plot_box + 
+                    ggtitle(plot_Title,plot_SubTitle)
+            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title)
+                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(subtitle = TitleObj$plot_SubTitle)
+                }
+            }
             if (hasName(ini$Experiment,"LegendEntries")) {
                 
                 GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
@@ -1724,7 +1739,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                       , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")"))
             }
             if (as.logical(ini$General$Debug)) {
-                plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
                                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
@@ -1736,10 +1751,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 
                 #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
             } else {
-                if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
-                    plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
                                                      , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                                   ,"\nSample-Size: ", PotsPerGroup)
@@ -1807,10 +1822,24 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 #, facet.by = "Stress") +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black") +
-                ggtitle(plot_Title
-                        , plot_Subtitle)
-            
+                font("legend.title", size = 10, color = "black")
+            if (isTRUE(as.logical(ini$General$Debug))) {
+                GFA_plot_box <- GFA_plot_box + 
+                    ggtitle(plot_Title,plot_SubTitle)
+            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title)
+                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)   ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
+                }
+            }
             scale_y_lowerEnd <- 0
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
@@ -2153,7 +2182,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                           , true=str_c("Entwicklung der Grünfläche (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
                           , false=str_c("Green area development (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
     if (as.logical(ini$General$Debug)) {
-        plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                , "\nT0: ", ini$Experiment$T0
                                # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                , "\nSample-Size: ", PotsPerGroup
@@ -2166,7 +2195,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
     } else {
         
-        plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                #, if_else(as.logical(ini$General$language=='German')
                                #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
@@ -2177,7 +2206,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                ,"")
     }
     if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularN)) {
-            plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size: ", PotsPerGroup)
+            plot_SubTitle <- str_c(plot_SubTitle,"\nSample Size: ", PotsPerGroup)
     }
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
         x_label <- str_c(ini$Experiment$XLabel[[1]]," [",unit_x,"]")
@@ -2269,9 +2298,21 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     
-    if (isTRUE(as.logical(ini$General$ShowTitle)) || isTRUE(as.logical(ini$General$Debug))) {
+    if (isTRUE(as.logical(ini$General$Debug))) {
         GFA_SummaryPlot <- GFA_SummaryPlot + 
-            ggtitle(plot_Title,plot_Subtitle)
+            ggtitle(plot_Title,plot_SubTitle)
+    } else if (isTRUE(as.logical(ini$General$ShowTitle)) || isTRUE(as.logical(ini$General$ShowTitleSub))) {
+            TitleObj <- getTitle(TRUE,PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,TitleTimeSpan,unit_x,ini)
+            if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+            } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = TitleObj$plot_Title)
+            } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)       ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
+            }
     }
     GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
     
@@ -2484,7 +2525,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         }
     }
     
-    Titles <- list(plot_Title=plot_Title,plot_Subtitle=plot_Subtitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
+    Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
     if (returnDays) {
         return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
