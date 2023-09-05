@@ -28,7 +28,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=128
-            GFC_version=1.5.5
+            GFC_version=1.5.6
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden
@@ -162,7 +162,6 @@ setupdefaultconfig(Switch) {
             %A_Tab%;;
             %A_Tab%;;
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%ShowTitle:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above each figure?"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
@@ -190,6 +189,21 @@ setupdefaultconfig(Switch) {
             %A_Tab%;;
             %A_Tab%;;; Fontsizes
             %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_SampleSize:Edit|Type:number|Default:2.5|String:"Set the fontsize for the sample size in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%;;
+            %A_Tab%;;
+            %A_Tab%;;
+            %A_Tab%;;; Titles
+            %A_Tab%DebugText:Text|Type:text|Default:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|String:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowTitle:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above the summary plot?"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowTitleSub:Checkbox|Type:boolean|Default:0|String:"Do you want to show the sub-title above the summary plot?"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowTitle_Daily:Checkbox|Type:boolean|Default:0|String:"Do you want to show the title above the daily plots?"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowTitleSub_Daily:Checkbox|Type:boolean|Default:0|String:"Do you want to show the sub-title above the daily plots?"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowTitleDateWhere:DDL|Type:String|Default:"SubTitle"|String:"Select if the date (range) should be appended to the end of the title- or subtitle-element.|TTIP:For date-format, see key 'figure_date_format' under section '4. Axes'\n\n[ShowTitle==FALSE]\nNo effect.|ctrlOptions:Title,SubTitle,nowhere|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%Title:Edit|Type:String|Default:""|String:"Enter the title you want to use for the summary plot. Leave empty to use the default title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhere'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%Title_Daily:Edit|Type:String|Default:""|String:"Enter the title you want to use for the daily plots. Leave empty to use the default title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhere'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%TitleSub:Edit|Type:String|Default:""|String:"Enter the sub-title you want to use for the summary plot. Leave empty to use the default sub-title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhere'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%TitleSub_Daily:Edit|Type:String|Default:""|String:"Enter the sub-title you want to use for the daily plots. Leave empty to use the default sub-title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhereA'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
 
         )
     if (Switch=1) {

@@ -959,6 +959,137 @@ RemoveOutputFiles <- function(Files="",Output_prefix="") {
     Files_out <- Files[!str_detect(Files,pattern=Output_prefix)]
     return(Files_out)
 }
+getTitle <- function(isSummaryPlot,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,TitleTimeSpan,unit_x,ini) {
+    ret <- list()
+    if (as.logical(isSummaryPlot)) {                                            ## summary plots
+        
+        ## set defaults
+        plot_Title <- if_else(as.logical(ini$General$language=='German')
+                              , true=str_c("Entwicklung der Grünfläche")
+                              , false=str_c("Green area development"))
+                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
+                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
+        if (as.logical(ini$General$Debug)) {
+            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                   , "\nT0: ", ini$Experiment$T0
+                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                   , "\nSample-Size: ", PotsPerGroup
+                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                   , "\n  Palette: ", str_c(str_c(Palette_BoxPlot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
+                                   , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
+        } else {
+            
+            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                   #, if_else(as.logical(ini$General$language=='German')
+                                   #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                   #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                   , if_else(as.logical(ini$General$language=='German')
+                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                   ,""
+                                   ,"")
+        }
+        
+        ## overwrite defaults
+        if (as.logical(ini$General$ShowTitle)) {
+            if (hasName(ini$General,"Title")) {
+                plot_Title <- str_c(ini$General$Title)
+            }
+            if (ini$General$ShowTitleDateWhere=="Title") {
+                plot_Title <- str_c(plot_Title," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                           , true=" nach Umtopfen)"
+                                                           , false=" post repotting)"))
+            }
+        } else {
+            plot_Title <- 0
+        }
+        if (as.logical(ini$General$ShowTitleSub)) {
+            if (hasName(ini$General,"TitleSub")) {
+                plot_SubTitle <- str_c(ini$General$TitleSub)
+            }
+            if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                plot_SubTitle <- str_c(plot_SubTitle," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                           , true=" nach Umtopfen)"
+                                                           , false=" post repotting)"))
+            }
+        } else {
+            plot_SubTitle <- 0
+        }
+        
+        ## bundle the list to return
+        if (plot_Title!=0) {
+            ret$plot_Title <- plot_Title
+        }
+        if (plot_SubTitle!=0) {
+            ret$plot_SubTitle <- plot_SubTitle
+        }
+    } else {                                                                    ## daily plots
+        
+        ## set defaults
+        plot_TitleDaily <- if_else(as.logical(ini$General$language=='German')
+                              , true=str_c("Grünfläche (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                              , false=str_c("Green area (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
+        if (as.logical(ini$General$Debug)) {
+            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                   , "\nT0: ", ini$Experiment$T0
+                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                   , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
+                                   , "\nPots per Group: ", PotsPerGroup
+                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                   , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", ")))
+        } else {
+            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                   , if_else(as.logical(ini$General$language=='German')
+                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0
+                                                          ,"\nSample-Size: ", PotsPerGroup)
+                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
+                                                           ,"\nSample-Size: ", PotsPerGroup))
+                                   ,""
+                                   ,"")
+        }
+        
+        ## overwrite defaults
+        if (as.logical(ini$General$ShowTitle_Daily)) {
+            if (hasName(ini$General,"Title_Daily")) {
+                plot_TitleDaily <- str_c(ini$General$Title_Daily)
+            }
+            if (ini$General$ShowTitleDateWhere=="Title") {
+                plot_TitleDaily <- str_c(plot_TitleDaily," (",max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                                                                                          , true=" nach Umtopfen)"
+                                                                                                                                                          , false=" post repotting)"))
+            }
+        } else {
+            plot_TitleDaily <- 0
+        }
+        if (as.logical(ini$General$ShowTitleSub_Daily)) {
+            if (hasName(ini$General,"TitleSub_Daily")) {
+                plot_SubtitleDaily <- str_c(ini$General$TitleSub_Daily)
+            }
+            if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                plot_SubtitleDaily <- str_c(plot_SubtitleDaily," (",TitleTimeSpan," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                             , true=" nach Umtopfen)"
+                                                                                             , false=" post repotting)"))
+            }
+        } else {
+            plot_SubtitleDaily <- 0
+        }
+        
+        ## bundle the list to return
+        if (plot_TitleDaily!=0) {
+            ret$plot_Title <- plot_TitleDaily
+        }
+        if (plot_SubtitleDaily!=0) {
+            ret$plot_SubTitle <- plot_SubtitleDaily
+        }
+    }
+    
+    
+    return(ret)
+}
 RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
     # Create objects
     
@@ -1169,11 +1300,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Theme_Index <- 1   
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            } else {
-                Conditions$GenerateAllThemes <- FALSE
-            }
             
             
             #
@@ -1222,20 +1348,20 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                       , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
             }
             if (as.logical(ini$General$Debug)) {
-                plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
                                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                        , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
-                    plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
                                                      , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                                   ,"\nSample-Size: ", PotsPerGroup)
@@ -1300,9 +1426,24 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , xlab = x_label) +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black") +
-                ggtitle(plot_Title
-                        , plot_Subtitle)
+                font("legend.title", size = 10, color = "black")
+            if (isTRUE(as.logical(ini$General$Debug))) {
+                GFA_plot_box <- GFA_plot_box + 
+                    ggtitle(plot_Title,plot_SubTitle)
+            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title)
+                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(subtitle = TitleObj$plot_SubTitle)
+                }
+            }
             if (hasName(ini$Experiment,"LegendEntries")) {
                 
                 GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
@@ -1598,22 +1739,22 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                       , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")"))
             }
             if (as.logical(ini$General$Debug)) {
-                plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
                                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                                       , "\nNormalised: NOT IMPLEMENTED ", as.logical(ini$Experiment$Normalise)
+                                       , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                        , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
                 
                 #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
             } else {
-                if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    plot_Subtitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
                 } else {
-                    plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                            , if_else(as.logical(ini$General$language=='German')
                                                      , true=str_c("\nUmtopfen: ", ini$Experiment$T0
                                                                   ,"\nSample-Size: ", PotsPerGroup)
@@ -1681,10 +1822,24 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 #, facet.by = "Stress") +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black") +
-                ggtitle(plot_Title
-                        , plot_Subtitle)
-            
+                font("legend.title", size = 10, color = "black")
+            if (isTRUE(as.logical(ini$General$Debug))) {
+                GFA_plot_box <- GFA_plot_box + 
+                    ggtitle(plot_Title,plot_SubTitle)
+            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = TitleObj$plot_Title)
+                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)   ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
+                }
+            }
             scale_y_lowerEnd <- 0
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
@@ -1787,11 +1942,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
         
         
         
-        if (Conditions$GenerateAllThemes) {
-            if (Day_Index==1) { # if we are testing all themes, no need to print multiple figures of the same stup
-                break
-            } 
-        }
+        
         
     }
     return(ret)
@@ -1977,11 +2128,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         Theme_Index <- 1   
     }
     numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-    if (Theme_Index>numberofThemes) {
-        Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-    } else {
-        Conditions$GenerateAllThemes <- FALSE
-    }
     
     
     Themes <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")
@@ -2036,20 +2182,20 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                           , true=str_c("Entwicklung der Grünfläche (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
                           , false=str_c("Green area development (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
     if (as.logical(ini$General$Debug)) {
-        plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                , "\nT0: ", ini$Experiment$T0
                                # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                , "\nSample-Size: ", PotsPerGroup
                                , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                               , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                               , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
                                , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
         
         #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
     } else {
         
-        plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
+        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                #, if_else(as.logical(ini$General$language=='German')
                                #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
@@ -2060,7 +2206,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                ,"")
     }
     if (isFALSE(as.logical(ini$General$ShowNAtallboxplots)) || isTRUE(ini$General$ShowOnlyIrregularN)) {
-            plot_Subtitle <- str_c(plot_Subtitle,"\nSample Size: ", PotsPerGroup)
+            plot_SubTitle <- str_c(plot_SubTitle,"\nSample Size: ", PotsPerGroup)
     }
     if (isFALSE(is.null(ini$Experiment$XLabel))) {
         x_label <- str_c(ini$Experiment$XLabel[[1]]," [",unit_x,"]")
@@ -2152,9 +2298,21 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     
-    if (isTRUE(as.logical(ini$General$ShowTitle)) || isTRUE(as.logical(ini$General$Debug))) {
+    if (isTRUE(as.logical(ini$General$Debug))) {
         GFA_SummaryPlot <- GFA_SummaryPlot + 
-            ggtitle(plot_Title,plot_Subtitle)
+            ggtitle(plot_Title,plot_SubTitle)
+    } else if (isTRUE(as.logical(ini$General$ShowTitle)) || isTRUE(as.logical(ini$General$ShowTitleSub))) {
+            TitleObj <- getTitle(TRUE,PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,TitleTimeSpan,unit_x,ini)
+            if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+            } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = TitleObj$plot_Title)
+            } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                GFA_SummaryPlot <- GFA_SummaryPlot + 
+                    ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)       ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
+            }
     }
     GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
     
@@ -2213,7 +2371,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             
         }
         
-    } #todo: can I feed the colour argument to the call to stat_summary?
+    }
     
     # add label the x- and y-axis, add a label to the legend.
     GFA_SummaryPlot <- GFA_SummaryPlot +labs(x=x_label
@@ -2244,7 +2402,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         }
     }
     # rescale the y-axis if we chose to force specific limits upon it. 
-    # THe code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
+    # The code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
     strictLimitsValidation <- T
     scale_y_lowerEnd <- 0
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
@@ -2292,84 +2450,49 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     GFA_SummaryPlot + grids("y",linetype=1)
     
-    if (Conditions$GenerateAllThemes) {
+    
+    if (hasName(ini$General,"Theme")) {                                     ## choosing a theme via the config only takes effect when you plot a specific theme. if you plot all themes, you won't see this.
+        curr_ThemeIndex <- ini$General$Theme
+    }  else {
         curr_ThemeIndex <- 1   
-        for (Theme in a <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")) { ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-            curr_Theme <- switch(as.integer(curr_ThemeIndex),
-                                 theme_tufte(base_size = 10),
-                                 theme_bw(base_size = 10),
-                                 theme_pubr(base_size = 10),
-                                 theme_pubclean(base_size = 10),
-                                 labs_pubr(10),
-                                 theme_pubclean(base_size = 10),
-                                 clean_theme())
-            filename_themeReview <- str_replace_all(filename,pattern = "_99\\)",replacement = str_c('_',curr_ThemeIndex,')'))
-            curr_ThemeIndex <- curr_ThemeIndex+1
-            GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
-            GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
-            GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
-            GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
-            # 
-            #print(GFA_SummaryPlot)
-            # Save the figure
-            if (str_length(str_c(folder_path,"ROutput\\",filename_themeReview))>256) {
-                clen <- str_length(str_c(folder_path,"ROutput\\",filename_themeReview))
-                deslen <- 256
-                lendiff <- clen-deslen+4
-                filename_themeReview2 <- str_sub(filename_themeReview,1,str_length(filename_themeReview)-lendiff)
-                new <- str_c(folder_path,"ROutput\\",filename_themeReview2,".jpg")
-                old <- str_c(folder_path,"ROutput\\",filename_themeReview)
-                if (str_length(new)==256) {
-                    filename_themeReview <- str_c(filename_themeReview2,".jpg")
-                }
-                rm(new,old,clen,deslen,lendiff,filename_themeReview2)
-            }
-            #print(GFA_SummaryPlot)
-            if (isTRUE(as.logical(saveFigures))) {
-                ggsave(file=filename_themeReview
-                       , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
-            }
-            
-        }
-    } else { ## use a single theme
-        if (hasName(ini$General,"Theme")) {                                     ## choosing a theme via the config only takes effect when you plot a specific theme. if you plot all themes, you won't see this.
-            curr_ThemeIndex <- ini$General$Theme
-        }  else {
-            curr_ThemeIndex <- 1   
-        }
-        curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-                             theme_tufte(base_size = 10),
-                             theme_bw(base_size = 10),
-                             theme_pubr(base_size = 10),
-                             theme_pubclean(base_size = 10),
-                             labs_pubr(10),
-                             theme_pubclean(base_size = 10),
-                             clean_theme())
-        GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
-        
-        
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
-        GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
+    }
+    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+                         theme_tufte(base_size = 10),
+                         theme_bw(base_size = 10),
+                         theme_pubr(base_size = 10),
+                         theme_pubclean(base_size = 10),
+                         labs_pubr(10),
+                         theme_pubclean(base_size = 10),
+                         clean_theme())
+    GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
+    if (hasName(ini$Fontsizes,"Fontsize_General")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=10), title = element_text(size=10))
+    }
+    
+    GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
+    GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
+    GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
 
-                # Save the figure
-        if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
-            clen <- str_length(str_c(folder_path,"ROutput\\",filename))
-            deslen <- 256
-            lendiff <- clen-deslen+4
-            filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
-            new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
-            if (str_length(new)==256) {
-                filename <- str_c(filename2,".jpg")
-            }
-        }
-        #print(GFA_SummaryPlot)
-        rm(new,clen,deslen,lendiff)
-        if (isTRUE(as.logical(saveFigures))) {
-            ggsave(file=filename
-                   , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
+            # Save the figure
+    if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
+        clen <- str_length(str_c(folder_path,"ROutput\\",filename))
+        deslen <- 256
+        lendiff <- clen-deslen+4
+        filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
+        new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
+        if (str_length(new)==256) {
+            filename <- str_c(filename2,".jpg")
         }
     }
+    #print(GFA_SummaryPlot)
+    rm(new,clen,deslen,lendiff)
+    if (isTRUE(as.logical(saveFigures))) {
+        ggsave(file=filename
+               , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
+    }
+    
     
     # Display the figure.
     Dates <- calculateColnames(Files,List,ini,T,T)
@@ -2402,7 +2525,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         }
     }
     
-    Titles <- list(plot_Title=plot_Title,plot_Subtitle=plot_Subtitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
+    Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
     if (returnDays) {
         return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
