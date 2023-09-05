@@ -1224,7 +1224,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                        , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
@@ -1596,11 +1596,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 plot_Subtitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
                                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                                       , "\nNormalised: NOT IMPLEMENTED ", as.logical(ini$Experiment$Normalise)
+                                       , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                        , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
                 
                 #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
@@ -2028,7 +2028,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                , "\nSample-Size: ", PotsPerGroup
                                , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                               , "\n  Sample-Size: ", as.logical(ini$General$PlotSampleSize)
+                               , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
                                , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
         
@@ -2199,7 +2199,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             
         }
         
-    } #todo: can I feed the colour argument to the call to stat_summary?
+    }
     
     # add label the x- and y-axis, add a label to the legend.
     GFA_SummaryPlot <- GFA_SummaryPlot +labs(x=x_label
