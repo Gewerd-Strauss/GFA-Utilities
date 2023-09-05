@@ -1169,11 +1169,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Theme_Index <- 1   
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            } else {
-                Conditions$GenerateAllThemes <- FALSE
-            }
             
             
             #
@@ -1787,11 +1782,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
         
         
         
-        if (Conditions$GenerateAllThemes) {
-            if (Day_Index==1) { # if we are testing all themes, no need to print multiple figures of the same stup
-                break
-            } 
-        }
+        
         
     }
     return(ret)
@@ -1977,11 +1968,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         Theme_Index <- 1   
     }
     numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-    if (Theme_Index>numberofThemes) {
-        Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-    } else {
-        Conditions$GenerateAllThemes <- FALSE
-    }
     
     
     Themes <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")
@@ -2244,7 +2230,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         }
     }
     # rescale the y-axis if we chose to force specific limits upon it. 
-    # THe code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
+    # The code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
     strictLimitsValidation <- T
     scale_y_lowerEnd <- 0
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
@@ -2292,84 +2278,49 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     GFA_SummaryPlot + grids("y",linetype=1)
     
-    if (Conditions$GenerateAllThemes) {
+    
+    if (hasName(ini$General,"Theme")) {                                     ## choosing a theme via the config only takes effect when you plot a specific theme. if you plot all themes, you won't see this.
+        curr_ThemeIndex <- ini$General$Theme
+    }  else {
         curr_ThemeIndex <- 1   
-        for (Theme in a <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")) { ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-            curr_Theme <- switch(as.integer(curr_ThemeIndex),
-                                 theme_tufte(base_size = 10),
-                                 theme_bw(base_size = 10),
-                                 theme_pubr(base_size = 10),
-                                 theme_pubclean(base_size = 10),
-                                 labs_pubr(10),
-                                 theme_pubclean(base_size = 10),
-                                 clean_theme())
-            filename_themeReview <- str_replace_all(filename,pattern = "_99\\)",replacement = str_c('_',curr_ThemeIndex,')'))
-            curr_ThemeIndex <- curr_ThemeIndex+1
-            GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
-            GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
-            GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
-            GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
-            # 
-            #print(GFA_SummaryPlot)
-            # Save the figure
-            if (str_length(str_c(folder_path,"ROutput\\",filename_themeReview))>256) {
-                clen <- str_length(str_c(folder_path,"ROutput\\",filename_themeReview))
-                deslen <- 256
-                lendiff <- clen-deslen+4
-                filename_themeReview2 <- str_sub(filename_themeReview,1,str_length(filename_themeReview)-lendiff)
-                new <- str_c(folder_path,"ROutput\\",filename_themeReview2,".jpg")
-                old <- str_c(folder_path,"ROutput\\",filename_themeReview)
-                if (str_length(new)==256) {
-                    filename_themeReview <- str_c(filename_themeReview2,".jpg")
-                }
-                rm(new,old,clen,deslen,lendiff,filename_themeReview2)
-            }
-            #print(GFA_SummaryPlot)
-            if (isTRUE(as.logical(saveFigures))) {
-                ggsave(file=filename_themeReview
-                       , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
-            }
-            
-        }
-    } else { ## use a single theme
-        if (hasName(ini$General,"Theme")) {                                     ## choosing a theme via the config only takes effect when you plot a specific theme. if you plot all themes, you won't see this.
-            curr_ThemeIndex <- ini$General$Theme
-        }  else {
-            curr_ThemeIndex <- 1   
-        }
-        curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-                             theme_tufte(base_size = 10),
-                             theme_bw(base_size = 10),
-                             theme_pubr(base_size = 10),
-                             theme_pubclean(base_size = 10),
-                             labs_pubr(10),
-                             theme_pubclean(base_size = 10),
-                             clean_theme())
-        GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
-        
-        
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
-        GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
+    }
+    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+                         theme_tufte(base_size = 10),
+                         theme_bw(base_size = 10),
+                         theme_pubr(base_size = 10),
+                         theme_pubclean(base_size = 10),
+                         labs_pubr(10),
+                         theme_pubclean(base_size = 10),
+                         clean_theme())
+    GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
+    if (hasName(ini$Fontsizes,"Fontsize_General")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=10), title = element_text(size=10))
+    }
+    
+    GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
+    GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
+    GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
 
-                # Save the figure
-        if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
-            clen <- str_length(str_c(folder_path,"ROutput\\",filename))
-            deslen <- 256
-            lendiff <- clen-deslen+4
-            filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
-            new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
-            if (str_length(new)==256) {
-                filename <- str_c(filename2,".jpg")
-            }
-        }
-        #print(GFA_SummaryPlot)
-        rm(new,clen,deslen,lendiff)
-        if (isTRUE(as.logical(saveFigures))) {
-            ggsave(file=filename
-                   , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
+            # Save the figure
+    if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
+        clen <- str_length(str_c(folder_path,"ROutput\\",filename))
+        deslen <- 256
+        lendiff <- clen-deslen+4
+        filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
+        new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
+        if (str_length(new)==256) {
+            filename <- str_c(filename2,".jpg")
         }
     }
+    #print(GFA_SummaryPlot)
+    rm(new,clen,deslen,lendiff)
+    if (isTRUE(as.logical(saveFigures))) {
+        ggsave(file=filename
+               , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
+    }
+    
     
     # Display the figure.
     Dates <- calculateColnames(Files,List,ini,T,T)
