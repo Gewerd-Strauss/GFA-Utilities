@@ -1476,7 +1476,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
             Limits <- Yscale_Data$Limits
             breaks <- Yscale_Data$breaks
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+            while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
+                Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                breaks$breaknumber <- breaks$breaknumber + 1
+            }
+            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
             if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
@@ -1492,11 +1496,17 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 add_xy_position(x = "interactions")
             stat.test$p.scient <- formatPValue(stat.test$p)
             GFA_plot_box2 <- GFA_plot_box
+            if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
+                Diff <- Limits[[2]]-max(max(Data$plant_area))
+                stat_ypos <- Limits[[2]]-(Diff*0.1)
+            } else {
+                stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
+            }
             GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test
                                                               , label = "{p.scient} {p.adj.signif}"
                                                               , size = pval_size
                                                               , remove.bracket = T
-                                                              , y.position = Limits[[2]]-Limits[[2]]*0.10)
+                                                              , y.position = stat_ypos)
             #GFA_plot_box2 <- GFA_plot_box2 + geom_pwc(aes(group = ),data = Data_stat_test,method = "t_test",ref.group = ini$Experiment$RefGroup,)
             GFA_plot_box <- GFA_plot_box + 
                 guides(fill=guide_legend(title="Groups")) +
@@ -1522,8 +1532,9 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 } else {
                     n_size <- 2.5
                 }
+                ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
                 GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.05)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.05),Limits[[2]]-(Limits[[2]]*0.025)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
                                                             , geom = "text"
                                                             , hjust = 0.5
                                                             , size = n_size
@@ -1531,6 +1542,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                             , position = position_dodge(width=0.75))
             }
             GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y",linetype=1)
+            if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
+            }
             if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
                 clen <- str_length(str_c(folder_path,"ROutput\\",filename))
                 deslen <- 256
@@ -1859,7 +1875,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
             Limits <- Yscale_Data$Limits
             breaks <- Yscale_Data$breaks
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+            while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
+                Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                breaks$breaknumber <- breaks$breaknumber + 1
+            }
+            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
             stat.test$p.scient <- formatPValue(stat.test$p)
@@ -1868,12 +1888,17 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 pval_size <- 2.5
             }
+            if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
+                Diff <- Limits[[2]]-max(max(Data$plant_area))
+                stat_ypos <- Limits[[2]]-(Diff*0.1)
+            } else {
+                stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
+            }
             GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
                                                               , label = "{p.scient} {p.adj.signif}"
                                                               , size = pval_size
                                                               , remove.bracket = T
-                                                              , y.position = Limits[[2]]-Limits[[2]]*0.10)
-            
+                                                              , y.position = stat_ypos)
             if (hasName(ini$Experiment,"LegendEntries")) {
                 GFA_plot_box <- GFA_plot_box + 
                     scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))+
@@ -1901,8 +1926,9 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 } else {
                     n_size <- 2.5
                 }
+                ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
                 GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.05)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.05),Limits[[2]]-(Limits[[2]]*0.025)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
                                                             , geom = "text"
                                                             , hjust = 0.5
                                                             , size = n_size
@@ -1910,6 +1936,11 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                             , position = position_dodge(width=0.75))
             }
             GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
+            if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10),title = element_text(size=10))
+            }
             if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
                 clen <- str_length(str_c(folder_path,"ROutput\\",filename))
                 deslen <- 256
@@ -2422,7 +2453,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     Yscale_Data <- calculateLimitsandBreaksforYAxis(data_pivot_CA$value,Limits,ini)
     Limits <- Yscale_Data$Limits
     breaks <- Yscale_Data$breaks
-    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+    while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(data_pivot_CA$value))) {
+        Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+        breaks$breaknumber <- breaks$breaknumber + 1
+    }
+    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                             limits = c(Limits[[1]],Limits[[2]]))
     
     
@@ -2440,13 +2475,13 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         } else {
             n_size <- 2.5
         }
+        ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
         GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun.data = labelSample_n
-                                                          , fun.args = c(Limits[[2]]-(Limits[[2]]*0.05),as.numeric(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                          , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(data_pivot_CA$value))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.numeric(PotsPerGroup),ini$General$ShowOnlyIrregularN)
                                                           , geom = "text"
                                                           , size = n_size
                                                           , hjust = 0.5
                                                           , fontface = "bold")
-        
     }
     GFA_SummaryPlot + grids("y",linetype=1)
     
@@ -2532,76 +2567,3 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         return(list(GFA_SummaryPlot,Titles,0,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
-cat("\014") ## clear console
-GFA_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini)",F)
-#print(GFA_2[[1]])
-#print(GFA_2[[3]]$"03.07.2023"$boxplot)
-#GFA_1 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",T)
-#GFA_1[[1]]
-#GFA_1[[3]]
-GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\)",F)
-#GFA_2[[1]]
-#plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 1)
-#plot_new <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2.3_GFA_fixedValuesfor1007\)",returnDays = 0,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
-#remove (list=ls()) ## clear environment variables
-
-#GFA_1 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\GFA_conf.ini)",returnDays = T,saveFigures = T,saveExcel = T,saveRDATA = F)
-#GFA_1[[1]]
-#if (isTRUE(as.logical(plot_1[[5]]$General$RelativeColnames))) {
-#    plot_1[[1]] + geom_vline(aes(xintercept = as.integer(as.Date("31.03.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y")[[1]]))) +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G14"),aes(xintercept = as.integer(as.Date("31.03.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#FC9272") +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G21"),aes(xintercept = as.integer(as.Date("11.04.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#FB6A4A") + 
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G28"),aes(xintercept = as.integer(as.Date("17.04.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#EF3B2C") + 
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G35"),aes(xintercept = as.integer(as.Date("24.04.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#CB141D") +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="GMax"),aes(xintercept = as.integer(as.Date("03.05.2023",format="%d.%m.%Y")-as.Date(plot_1[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#A50F15")
-#} else {
-#    plot_1[[1]] + 
-#        geom_vline(aes(xintercept = as.Date("31.03.2023",format="%d.%m.%Y")),linetype=1,color="black") +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G14"),aes(xintercept = as.Date("31.03.2023",format="%d.%m.%Y")),linetype=4,color="#FC9272") +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G21"),aes(xintercept = as.Date("11.04.2023",format="%d.%m.%Y")),linetype=4,color="#FB6A4A") + 
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G28"),aes(xintercept = as.Date("17.04.2023",format="%d.%m.%Y")),linetype=4,color="#EF3B2C") + 
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="G35"),aes(xintercept = as.Date("24.04.2023",format="%d.%m.%Y")),linetype=4,color="#CB141D") +
-#        geom_vline(data=filter(plot_1[[1]]$data,Group=="GMax"),aes(xintercept = as.Date("03.05.2023",format="%d.%m.%Y")),linetype=4,color="#A50F15")
-#}
-#plot_1[[4]]
-#plot_2 <- GFA_main(r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\)",returnDays = T,saveFigures = T,saveExcel = T,saveRDATA = F)
-#if (isTRUE(as.logical(plot_2[[5]]$General$RelativeColnames))) {
-#    plot_2[[1]] + 
-#            geom_vline(aes(xintercept = as.integer(as.Date("11.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=1,color="black") +
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Low Stress"),aes(xintercept = as.integer(as.Date("12.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#FB6A4A") + 
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="Low Stress"),aes(xintercept = as.integer(as.Date("11.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#EF3B2C") + 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress"),aes(xintercept = as.integer(as.Date("27.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#FC9272") +
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress"),aes(xintercept = as.integer(as.Date("27.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#CB181D") +
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress + ABA"),aes(xintercept = as.integer(as.Date("27.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#EF3B2C") + 
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress + ABA"),aes(xintercept = as.integer(as.Date("27.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#406a41") 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Unstressed"),aes(xintercept = as.integer(as.Date("11.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=4,color="#EF3B2C") + 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Unstressed"),aes(xintercept = as.integer(as.Date("11.06.2023",format="%d.%m.%Y")-as.Date(plot_2[[5]]$Experiment$T0,format="%d.%m.%Y"))),linetype=1,color="#EF3B2C") 
-#} else {
-#    plot_2[[1]] + 
-#            geom_vline(aes(xintercept = as.Date("11.06.2023",format="%d.%m.%Y")),linetype=1,color="black") +
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Low Stress"),aes(xintercept = as.Date("12.06.2023",format="%d.%m.%Y")),linetype=4,color="#FB6A4A") + 
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="Low Stress"),aes(xintercept = as.Date("11.06.2023",format="%d.%m.%Y")),linetype=4,color="#EF3B2C") + 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress"),aes(xintercept = as.Date("27.06.2023",format="%d.%m.%Y")),linetype=4,color="#FC9272") +
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress"),aes(xintercept = as.Date("27.06.2023",format="%d.%m.%Y")),linetype=4,color="#CB181D") +
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress + ABA"),aes(xintercept = as.Date("27.06.2023",format="%d.%m.%Y")),linetype=4,color="#EF3B2C") + 
-#            geom_vline(data=filter(plot_2[[1]]$data,Group=="High Stress + ABA"),aes(xintercept = as.Date("27.06.2023",format="%d.%m.%Y")),linetype=4,color="#406a41") 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Unstressed"),aes(xintercept = as.Date("11.06.2023",format="%d.%m.%Y")),linetype=4,color="#EF3B2C") + 
-#            #geom_vline(data=filter(plot_2[[1]]$data,Group=="Unstressed"),aes(xintercept = as.Date("11.06.2023",format="%d.%m.%Y")),linetype=1,Tolor="#EF3B2C") 
-#}
-#
-
-
-#plot_1Treatment <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)",returnDays = T,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
-#plot_1Treatment[[1]]
-#plot_1Treatment[[3]]$"07.07.2022"$boxplot
-### Treatments, multiple: fix the issue for 2 treatments, or just remove it
-#plot_2Treatments <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit 2 Behandlungen.ini)",returnDays = 1,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
-#print(plot_2Treatments[[1]])
-#plot_3Treatments <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit 3 Behandlungen.ini)",returnDays = 1,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
-#plot_3Treatments[[1]]
-#plot_2 <- GFA_main(r"(C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)",returnDays = 0,saveFigures = 0,saveExcel = 0,saveRDATA = 0)
-#todo: create a largger test-set large enough for 4 Treatments x 2 Stress-settings
-
-#NCmisc::list.functions.in.file("GFA_Evaluation.R", alphabetic = TRUE)
-#grateful::cite_packages(output = "table", out.dir = ".",cite.tidyverse = T,pkgs = "Session",include.RStudio = T,dependencies = F)
-#plot_1 <- GFA_main(folder_path = r"(D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\yyyyMMdd-formatting\GFA_conf.ini)",returnDays = 1,saveFigures = 1,saveExcel = 1,saveRDATA = 0)
