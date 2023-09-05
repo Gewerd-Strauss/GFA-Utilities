@@ -959,6 +959,137 @@ RemoveOutputFiles <- function(Files="",Output_prefix="") {
     Files_out <- Files[!str_detect(Files,pattern=Output_prefix)]
     return(Files_out)
 }
+getTitle <- function(isSummaryPlot,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,TitleTimeSpan,unit_x,ini) {
+    ret <- list()
+    if (as.logical(isSummaryPlot)) {                                            ## summary plots
+        
+        ## set defaults
+        plot_Title <- if_else(as.logical(ini$General$language=='German')
+                              , true=str_c("Entwicklung der Grünfläche")
+                              , false=str_c("Green area development"))
+                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
+                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
+        if (as.logical(ini$General$Debug)) {
+            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                   , "\nT0: ", ini$Experiment$T0
+                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                   , "\nSample-Size: ", PotsPerGroup
+                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                   , "\n  Palette: ", str_c(str_c(Palette_BoxPlot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
+                                   , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
+        } else {
+            
+            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                   #, if_else(as.logical(ini$General$language=='German')
+                                   #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                   #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                   , if_else(as.logical(ini$General$language=='German')
+                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                   ,""
+                                   ,"")
+        }
+        
+        ## overwrite defaults
+        if (as.logical(ini$General$ShowTitle)) {
+            if (hasName(ini$General,"Title")) {
+                plot_Title <- str_c(ini$General$Title)
+            }
+            if (ini$General$ShowTitleDateWhere=="Title") {
+                plot_Title <- str_c(plot_Title," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                           , true=" nach Umtopfen)"
+                                                           , false=" post repotting)"))
+            }
+        } else {
+            plot_Title <- 0
+        }
+        if (as.logical(ini$General$ShowTitleSub)) {
+            if (hasName(ini$General,"TitleSub")) {
+                plot_SubTitle <- str_c(ini$General$TitleSub)
+            }
+            if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                plot_SubTitle <- str_c(plot_SubTitle," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                           , true=" nach Umtopfen)"
+                                                           , false=" post repotting)"))
+            }
+        } else {
+            plot_SubTitle <- 0
+        }
+        
+        ## bundle the list to return
+        if (plot_Title!=0) {
+            ret$plot_Title <- plot_Title
+        }
+        if (plot_SubTitle!=0) {
+            ret$plot_SubTitle <- plot_SubTitle
+        }
+    } else {                                                                    ## daily plots
+        
+        ## set defaults
+        plot_TitleDaily <- if_else(as.logical(ini$General$language=='German')
+                              , true=str_c("Grünfläche (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                              , false=str_c("Green area (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
+        if (as.logical(ini$General$Debug)) {
+            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                   , "\nT0: ", ini$Experiment$T0
+                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                   , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
+                                   , "\nPots per Group: ", PotsPerGroup
+                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                   , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", ")))
+        } else {
+            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                   , if_else(as.logical(ini$General$language=='German')
+                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0
+                                                          ,"\nSample-Size: ", PotsPerGroup)
+                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
+                                                           ,"\nSample-Size: ", PotsPerGroup))
+                                   ,""
+                                   ,"")
+        }
+        
+        ## overwrite defaults
+        if (as.logical(ini$General$ShowTitle_Daily)) {
+            if (hasName(ini$General,"Title_Daily")) {
+                plot_TitleDaily <- str_c(ini$General$Title_Daily)
+            }
+            if (ini$General$ShowTitleDateWhere=="Title") {
+                plot_TitleDaily <- str_c(plot_TitleDaily," (",max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                                                                                          , true=" nach Umtopfen)"
+                                                                                                                                                          , false=" post repotting)"))
+            }
+        } else {
+            plot_TitleDaily <- 0
+        }
+        if (as.logical(ini$General$ShowTitleSub_Daily)) {
+            if (hasName(ini$General,"TitleSub_Daily")) {
+                plot_SubtitleDaily <- str_c(ini$General$TitleSub_Daily)
+            }
+            if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                plot_SubtitleDaily <- str_c(plot_SubtitleDaily," (",TitleTimeSpan," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                             , true=" nach Umtopfen)"
+                                                                                             , false=" post repotting)"))
+            }
+        } else {
+            plot_SubtitleDaily <- 0
+        }
+        
+        ## bundle the list to return
+        if (plot_TitleDaily!=0) {
+            ret$plot_Title <- plot_TitleDaily
+        }
+        if (plot_SubtitleDaily!=0) {
+            ret$plot_SubTitle <- plot_SubtitleDaily
+        }
+    }
+    
+    
+    return(ret)
+}
 RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
     # Create objects
     
