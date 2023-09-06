@@ -1458,6 +1458,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 
             }
             scale_y_lowerEnd <- 0
+            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
                     Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
@@ -1861,6 +1862,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 }
             }
             scale_y_lowerEnd <- 0
+            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
                     Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
@@ -2440,6 +2442,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # The code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
     strictLimitsValidation <- T
     scale_y_lowerEnd <- 0
+    Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
         if (hasName(ini$Experiment,"YLimits")) {
             Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
