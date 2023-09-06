@@ -655,6 +655,10 @@ getFilesInFolder <- function(folder,filesuffix="csv",out_prefix="GFResults_",rec
     otp <- out_prefix
     lapply(Files,checkExistence)
     Files <- RemoveOutputFiles(as.list(Files),"ROutput")
+    if (length(Files)==0) {
+        Error <- simpleError(str_c(str_c("getFilesInFolder() [user-defined]:\n The file-query: '",fileQuery,"' did not return any files; the directory does not contain any matching files of type '", filesuffix ,"'. The script will exit now.") ,sep = "\n"))
+        stop(Error)
+    }
     return(Files)
 }
 getLastNElementsOfPalette <- function(palette,n) {
