@@ -157,8 +157,8 @@ library(stats)
 assignDaysToVariables <- function(Files, List, ini) {
     return(List <- setColnames(Files, List, ini))
 }
-calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
-    
+calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
+    ## function takes the 
     TimeSinceT0 <- list() # Initiate a list
     Ind <- 1
     strLen_max <- 0
@@ -763,7 +763,7 @@ padAgeNumber <- function(Value,Length) {
     return(retVal)
 }
 setColnames <- function(Files,List,ini) {
-    DateDifference_Integers <- calculateColnames(Files,List,ini)
+    DateDifference_Integers <- calculateColnames(Files,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
         if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
             colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
@@ -771,7 +771,7 @@ setColnames <- function(Files,List,ini) {
             colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
         }
     } else {
-        DateDifference_Integers <- calculateColnames(Files,List,ini)
+        DateDifference_Integers <- calculateColnames(Files,ini)
         CharacterString <- as.character(unlist(DateDifference_Integers))
         factoredDates <- as.factor(CharacterString)
         updated <- as.Date(CharacterString,format = "%d.%m.%Y")
@@ -1339,7 +1339,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , true=unit_y[[1]][1]
                               , false=unit_y[[1]][2])
             
-            TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+            TitleTimeSpan <- calculateColnames(Files,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
@@ -1746,7 +1746,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , true=unit_y[[1]][1]
                               , false=unit_y[[1]][2])
             
-            TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+            TitleTimeSpan <- calculateColnames(Files,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
@@ -2122,7 +2122,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_CA <- as.data.frame(data_all_CA);
     data_all_CA <- assignDaysToVariables(Files,data_all_CA,ini)
     data_all_CA <- createFactors(data_all_CA,groups_as_ordered_in_datafile)
-    Colnames <- calculateColnames(Files,List,ini)
+    Colnames <- calculateColnames(Files,ini)
     data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
     #if (isTRUE(as.logical(ini$General$RelativeColnames))) {
     #    data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
@@ -2203,10 +2203,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                       , true=unit_y[[1]][1]
                       , false=unit_y[[1]][2])
     
-    TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+    TitleTimeSpan <- calculateColnames(Files,ini,T)
     
     SortedTitleTimespan <- sort(unlist(as.vector(TitleTimeSpan)))
-    TitleDates <- calculateColnames(Files,List,ini,T,T)
+    TitleDates <- calculateColnames(Files,ini,T,T)
     TitleDates  <- getMaximumDateRange(TitleDates)
     #todo: subtitle: Give experiment number (2.1 vs 2.2)
     plot_Title <- if_else(as.logical(ini$General$language=='German')
@@ -2350,22 +2350,22 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # define breaks and labels for the x-scale
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
         if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
-            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
-            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
+            GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
+            GFA_summary_Labels <- paste(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
         } else {                                                                                                        ## date-scale  <-  scale needs dates, labels need format "{date} - {age}"
-            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
-            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F))
-            GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)))]
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+            GFA_summary_Labels <- paste(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = T)," - ",calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F))
+            GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)))]
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
     } else {
         if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
-            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
+            GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
         } else {                                                                                                        ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
-            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
             GFA_summary_Labels <- paste(format(GFA_summary_Breaks, ini$Experiment$figure_date_format))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
@@ -2530,7 +2530,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     
     # Display the figure.
-    Dates <- calculateColnames(Files,List,ini,T,T)
+    Dates <- calculateColnames(Files,ini,T,T)
     ChosenDays <- as.character(str_flatten_comma(unlist(Dates)))
     
     
