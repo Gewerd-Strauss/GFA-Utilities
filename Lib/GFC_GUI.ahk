@@ -358,7 +358,9 @@
             }
             Parametertemplate=
                 (LTRIM
-                    #### ```%Parameter`%``
+
+                    #### ```%Parameter`%`` {#sec-`%parameter_lowercase`%}
+
                     |             |                                                                     |
                     | ----------- | ------------------------------------------------------------------- |
                     | Parameter   | ```%Parameter`%`` [Section:```%ConfigSection`%``]%A_Space%%A_Space% |
@@ -405,6 +407,7 @@
                     Parametertemplate:=strreplace(Parametertemplate,"%" Key "%",(Arg!=""?Arg:"/"))
                 }
                 Parametertemplate:=strreplace(Parametertemplate,"%Parameter%",Parameter)
+                Parametertemplate:=strreplace(Parametertemplate,"%parameter_lowercase%",strreplace(regexreplace(Parameter,".*","$L0")," ","-"))
                 Parametertemplate:=strreplace(Parametertemplate,"//","/")
                 DocArray[Argument.Tab3Parent][Parameter]:=Parametertemplate
             }
