@@ -85,10 +85,10 @@ setupdefaultconfig(Switch) {
             ;Custom_R_Script_Template As a rule of thumb, your template should not change this default portion of it. 
             ;Custom_R_Script_Template You may add additional lines above or below.
             ;Custom_R_Script_Template Be aware that clearing the workspace after the lines sourcing 'GFA_Evaluation.R' will cause the script to fail.
-            CheckUpdatesOnScriptStart=1
+            CheckUpdatesOnScriptStart=0
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
-            ;CheckUpdatesOnScriptStart Default:1
+            ;CheckUpdatesOnScriptStart Default:0
             UpdateChannel=stable
             ;UpdateChannel Do you want to check for updates to the stable release, or keep up to date with the development-version?
             ;UpdateChannel Type: DropDown development||stable
