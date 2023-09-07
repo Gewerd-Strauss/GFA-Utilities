@@ -1077,7 +1077,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) && (!HeuristicRScript_config_match) {
             ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
             Gui +OwnDialogs
-            MsgBox 0x40034, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
+            MsgBox 0x40014, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
                 , % "The script ""thinks"" by a simple heuristic approach that the given config file:"
                 . "`n"
                 . "`n'" dynGUI.GFA_Evaluation_Configfile_Location "'"
