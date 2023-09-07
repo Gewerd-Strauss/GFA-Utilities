@@ -1995,7 +1995,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         testpath <- str_replace_all(testpath,"/","\\\\")
         testfile <- str_c(testpath,str_replace('\\GFA_conf.ini',"\\\\","\\"))
         if (file.exists(path)) {
-            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            warning(simpleWarning(str_c("path provided as 'folder_path' ('",folder_path,"') does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found ('",path,"').\nYou can ignore this message if you intentionally referenced the file itself")),immediate. = 1)
             folder_path <- str_c(folder_path,"\\")
         } else {
             ErrorString <- ""
@@ -2007,7 +2007,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         folder_path <- str_replace_all(folder_path,"/","\\\\")
         path <- str_c(folder_path,str_replace('\\GFA_conf.ini',"\\\\","\\"))
         if (file.exists(path)) {
-            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            warning(simpleWarning(str_c("path provided as 'folder_path' ('",folder_path,"') does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found ('",path,"').\nYou can ignore this message if you intentionally referenced the file itself")),immediate. = 1)
         } else {
             ErrorString <- ""
             Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
@@ -2064,7 +2064,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     ini <- ini::read.ini(path,encoding)                                         ## UTF-16 encoding is required so that umlaute are not fucked - 
     if (length(ini)==0) {
         Error <- simpleError(str_c("GFA_main() [user-defined]: Task: loading configuration from ini-file,1"
-                                   , str_c("\nThe configuration file (", path,")")
+                                   , str_c("\nThe configuration file ('", path,"')")
                                    , str_c("\ncould not be loaded. The best assumption for its file-encoding is ",encoding,", but using this returned an empty object.")
                                    , str_c("\nPlease double-check the encoding of the configuration-file")))
                                    #, str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
