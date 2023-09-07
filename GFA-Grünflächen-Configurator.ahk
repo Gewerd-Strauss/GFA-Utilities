@@ -906,8 +906,8 @@ fCallBack_StatusBarMainWindow() {
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=7)) { ; part 6 - documentation
         if script.requiresInternet(script.metadataArr["GH-Repo"]) {
+            run % "https://htmlpreview.github.io/?https://" script.metadataArr.Documentation2
             script.About(1)
-            run % "https://www." script.metadataArr.Documentation
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=8)) { ; part 7
 
