@@ -540,7 +540,7 @@ GCSize() {
     AutoXYWH("w", hwndUsedConfigLocation)
     AutoXYWH("y", EditSettingsBtn, ExitProgramBtn)
     AutoXYWH("y", OpenRScriptBtn)
-    AutoXYWH("y", "Open current script")
+    AutoXYWH("y", "Open current &script")
     AutoXYWH("y", "Open &program settings")
     AutoXYWH("y", "Exit Program")
     AutoXYWH("y", "Generate Configuration")
