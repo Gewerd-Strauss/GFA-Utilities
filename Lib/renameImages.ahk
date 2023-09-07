@@ -75,7 +75,11 @@ GFARReselectFolder(SearchstartLocation) {
 
     }
 }
-
+#if WinActive("ahk_id " GFARGui)
+!F4::GFAREscape()
+#if WinActive("ahk_id " GFAR_ExcludeGui)
+!F4::GFAR_ExcludeEscape()
+#if
 GFAREscape() {
     global dynGUI
     gui GFAR: destroy

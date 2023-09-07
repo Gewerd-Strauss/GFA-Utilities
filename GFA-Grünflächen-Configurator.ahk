@@ -1284,6 +1284,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 }
 #if WinActive("ahk_id " CCHWND)
 !F4::ttip("You cannot close this window")
+#if
 runRScript(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_RScript_Location")) {
         if (dynGUI.GFA_Evaluation_RScript_Location!="") {
@@ -1418,7 +1419,7 @@ updateLV(hwnd,Object) {
 }
 #if bRunFromVSC
 NumpadDot::reload
-
+#if
 reload() {
     reload
 }
