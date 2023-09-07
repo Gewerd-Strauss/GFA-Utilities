@@ -82,7 +82,7 @@ main() {
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, 1)
-    if (script.config.Configurator_settings.bRunAsAdmin) {
+    if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
         RunAsAdmin()
     }
     globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
