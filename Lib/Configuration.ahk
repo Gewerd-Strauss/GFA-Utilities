@@ -31,10 +31,11 @@ setupdefaultconfig(Switch) {
             GFC_version=1.5.7
             [Configurator_settings]
             bDebugSwitch=0
-            ;bDebugSwitch hidden
+            ;bDebugSwitch hidden:
             ;bDebugSwitch Type: Checkbox
             ;bDebugSwitch CheckboxName: Enable Debugging-Mode?
             ;bDebugSwitch Allow extended logging of various information to be output in the program's directory.
+            ;bDebugSwitch Furthermore allows modifying hidden configuration keys, although it is not suggested to do so.
             ;bDebugSwitch Default: 0
             AlwaysOnTop=0
             ;AlwaysOnTop Type: Checkbox
