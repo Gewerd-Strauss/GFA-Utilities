@@ -430,9 +430,9 @@ guiCreate() {
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
     if (showThirdPane) {
-        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
-        gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     return
 }
@@ -459,9 +459,7 @@ guiShow2(guiObject) {
 }
 guiShow(guiObject) {
     gui GC: default
-    ;gui GC: add,groupbox , y0 x10 w684 h953, Configuration File
     useGroupbox:=1
-    ;gui GC: show,% "w" guiObject["guiWidth"]*1 " h" guiObject["guiHeight"]*1  , % script.name " - Create new Configuration"
     for each, section in guiObject.Sections {
         if (useGroupbox) {
             if section.HasKey("YAnchor") {
@@ -469,7 +467,6 @@ guiShow(guiObject) {
             } else {
                 gui add, groupbox,% "hwndgb" each " y3 h" section.Height-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
             }
-            ;gui add, groupbox,% " y3 h" guiObject["guiHeight"]-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
         } else {
             if section.HasKey("YAnchor") {
                 gui add, text,% " y" section.YAnchor " h15 w" section.Width " x" section.XAnchor-5, % section.name
@@ -479,10 +476,9 @@ guiShow(guiObject) {
         }
     }
     if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") {
-        ;gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
-        gui GC: show,%   "AutoSize x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,%   "AutoSize x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
-        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     guicontrol GC: hide, % "vExcelSheetPreview"
     dynGUI.guiVisible:=true
@@ -523,8 +519,6 @@ guiResize(guiObject,normalOperation:=true) {
         } else {
             guiShow3(guiObject,true)
         }
-    } else {
-        ;gui GC: show,% "w" guiObject["guiWidth"]/2 " h" guiObject["guiHeight"]/2 " x0 y0" , % script.name " - Create new Configuration"
     }
     return
 }
