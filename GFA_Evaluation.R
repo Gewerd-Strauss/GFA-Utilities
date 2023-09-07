@@ -1245,7 +1245,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                           p.value = shapiro.test(plant_area)$p.value)
             
             if (isNormallyDistributed(norm)) {
-                #print(norm)
                 BT   <- bartlett.test(plant_area ~ interactions, wo_outliers)
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
@@ -1307,7 +1306,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             
             #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
             
             # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
             Theme <- switch(as.integer(Theme_Index),
@@ -1637,8 +1636,12 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             ## Execute tests for 
             ##  Daten normalverteilt?
-            ## if TRUE  -> uniforme Varianz durch Bartlett's Test | nutze wo_outliers_data
-            ## if FALSE -> Varianz durch Levene-Test | nutze wo_outliers_data
+            ## if TRUE  -> uniforme Varianz durch Bartlett's Test, Data: without outliers
+            ## if TRUE  -> Significanz durch t_test, Data: all data / with outliers*
+            ## if FALSE -> Varianz durch Levene-Test, Data: without outliers
+            ## if FALSE -> Significance durch Wilcox-Test, Data: all data / with outliers*
+            
+            ## *This is analogous to how it is done in the script 'Grünflächenanalyse_v3.R'
             
             ##  
             
@@ -1653,9 +1656,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
-                Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                Data_stat_test <- cbind(Data_stat_test,Data$file)               # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
                 Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                 stat.test <- Data_stat_test %>%
@@ -1665,7 +1667,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1709,15 +1710,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Theme_Index <- 1   
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            } else {
-                Conditions$GenerateAllThemes <- FALSE
-            }
             
             
             #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
             
             # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
             Theme <- switch(as.integer(Theme_Index),
@@ -1763,7 +1759,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             if (as.logical(ini$General$Debug)) {
                 plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
-                                       # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
@@ -1771,7 +1766,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
                 
-                #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
                     plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
@@ -1840,8 +1834,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , add = "jitter"
                                        , ylab = y_label
                                        , xlab = x_label) +
-                #, facet.by = "Gruppe") +
-                #, facet.by = "Stress") +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
                 font("legend.title", size = 10, color = "black")
@@ -1863,12 +1855,12 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 }
             }
             scale_y_lowerEnd <- 0
-            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+            Limits <- c(0,1)                                                    ## otherwhise initialise the vector so we can modify the second element below
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
                     Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
                 } else {
-                    Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+                    Limits <- c(0,1)                                            ## otherwhise initialise the vector so we can modify the second element below
                 }
                 scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
                 Limits[[2]] <- scale_y_upperEnd
@@ -1886,7 +1878,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                 breaks$breaknumber <- breaks$breaknumber + 1
             }
-            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2) ## generate minor breaks always inbetween major breaks.
+            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2)           ## generate minor breaks always inbetween major breaks.
             GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
@@ -2132,22 +2124,13 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_CA <- createFactors(data_all_CA,groups_as_ordered_in_datafile)
     Colnames <- calculateColnames(Files,ini)
     data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #if (isTRUE(as.logical(ini$General$RelativeColnames))) {
-    #    data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #} else {
-    #    data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #}
     if (ini$Experiment$Facet2D) {
-        #GroupNoFacet <- ini$Experiment$GroupNoFacet
-        #GroupNoFacet <- as.character(GroupNoFacet)
         if (hasName(ini$Experiment,"GroupsOrderX") && hasName(ini$Experiment,"GroupsOrderY")) {
             numberofGroups <- length(strsplit(ini$Experiment$GroupsOrderX,",")[1][[1]]) * length(strsplit(ini$Experiment$GroupsOrderY,",")[1][[1]])
         } else {
             
         }
         Number <- rep(1:Number, times = numberofGroups)
-        #newgroups_as_ordered_in_datafile <- unlist(strsplit(GroupNoFacet, split = ','))
-        #Group <- rep(newgroups_as_ordered_in_datafile, each = PotsPerGroup)
         data_pivot_CA <- pivot_longer(data_all_CA,cols=4:(length(data_all_CA)-0),names_to = "Days")
         data_pivot_CA$Group <- factor(data_pivot_CA$Group)
         data_pivot_CA$Facet <- factor(data_pivot_CA$Facet)
@@ -2170,7 +2153,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     
     Themes <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")
-    set_theme <- switch(as.integer(Theme_Index),Themes) ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+    set_theme <- switch(as.integer(Theme_Index),Themes) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
     if (Theme_Index>numberofThemes) {
         set_theme <- str_c(Themes,collapse = ", ")
         
@@ -2216,28 +2199,21 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     SortedTitleTimespan <- sort(unlist(as.vector(TitleTimeSpan)))
     TitleDates <- calculateColnames(Files,ini,T,T)
     TitleDates  <- getMaximumDateRange(TitleDates)
-    #todo: subtitle: Give experiment number (2.1 vs 2.2)
     plot_Title <- if_else(as.logical(ini$General$language=='German')
                           , true=str_c("Entwicklung der Grünfläche (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
                           , false=str_c("Green area development (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
     if (as.logical(ini$General$Debug)) {
         plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                , "\nT0: ", ini$Experiment$T0
-                               # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                , "\nSample-Size: ", PotsPerGroup
                                , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
                                , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
                                , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
-        
-        #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
     } else {
         
         plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                               #, if_else(as.logical(ini$General$language=='German')
-                               #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
-                               #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
                                , if_else(as.logical(ini$General$language=='German')
                                          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
@@ -2328,11 +2304,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
         facetFormula <- "Facet"
-        #GFA_SummaryPlot <- GFA_SummaryPlot1
-        #GFA_SummaryPlot2 <- GFA_SummaryPlot + facet_grid(cols = Facet, rows = factor(Group,levels=unlist(unique(data_pivot_CA$Group))),scales = "free")
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(Facet ~ Group,scales = "fixed") # simpler solution
     } else {
-        #GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(. ~ Group,space = "fixed")
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(. ~ factor(Group,levels=unlist(str_split(ini$Experiment$GroupsOrderX,","))),space = "fixed")
     }
     
@@ -2353,11 +2326,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)       ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
             }
     }
-    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
+    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         ## angle the xaxis-labels downwards
     
     # define breaks and labels for the x-scale
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
-        if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
+        if (as.logical(ini$General$RelativeColnames)) {                         ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
             GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
@@ -2368,11 +2341,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
     } else {
-        if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
+        if (as.logical(ini$General$RelativeColnames)) {                         ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
             GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
-        } else {                                                                                                        ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
+        } else {                                                                ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
             GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
             GFA_summary_Labels <- paste(format(GFA_summary_Breaks, ini$Experiment$figure_date_format))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
@@ -2380,8 +2353,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     
-#    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-#                                                            limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
     GFA_SummaryPlot <- GFA_SummaryPlot + 
         geom_boxplot(outlier.shape = "X", 
                      alpha =0.5) +
@@ -2397,7 +2368,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                               aes(group = Group,
                                                                   colour = interaction(Group,Facet)),
                                                               inherit.aes = T,
-                                                              show.legend = F) # set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
+                                                              show.legend = F)  ## set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
         } else {
             GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun = mean,
                                                               geom = "line",
@@ -2406,7 +2377,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                               aes(group = Group,
                                                                   colour = Group),
                                                               inherit.aes = T,
-                                                              show.legend = F) # set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
+                                                              show.legend = F)  ## set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
             
         }
         
@@ -2478,8 +2449,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     if (ini$General$PlotSampleSize) {
-        #todo: make filter to only display cases where less than intetned number of samples are plotted, e.g. where length(x)<PotsPerGroup. Other casese are given a blank string to print.
-        #todo: only label those differing in size, then put the general sample size in the subtitle
         if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
             n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
         } else {
@@ -2501,7 +2470,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }  else {
         curr_ThemeIndex <- 1   
     }
-    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
                          theme_tufte(base_size = 10),
                          theme_bw(base_size = 10),
                          theme_pubr(base_size = 10),
@@ -2544,7 +2513,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     ChosenDays <- as.character(str_flatten_comma(unlist(Dates)))
     
     
-    if (isTRUE(as.logical(returnDays))) {    # Evaluate daily analyses
+    if (isTRUE(as.logical(returnDays))) {                                       # Evaluate daily analyses
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
@@ -2561,7 +2530,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         if (isTRUE(as.logical(saveRDATA))) {
             save(GFA_DailyAnalyses,GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,formatPValue,file = RDATA_Path)
         }
-    } else {                                            # skip and only return overview
+    } else {                                                                    # skip and only return overview
         RDATA_Path <- str_c(folder_path
                             ,"ROutput\\GFA_Analyse"
                             , ".RData")
