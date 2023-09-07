@@ -895,8 +895,10 @@ fCallBack_StatusBarMainWindow() {
             SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",4)
             ListLines On
         }
-    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - Debug Mode
-
+    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
+        if (!A_IsAdmin) {
+            RunAsAdmin()
+        }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
         if script.requiresInternet(script.metadataArr.Issues) {
             script.About(1)
@@ -907,7 +909,6 @@ fCallBack_StatusBarMainWindow() {
             script.About(1)
             run % "https://www." script.metadataArr.Documentation
         }
-
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=8)) { ; part 7
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=9)) { ; part 8
