@@ -17,6 +17,7 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     global gfarFolder
     global gfarNames
     global gfarPlantsPerGroup
+    global GFARGui
     oH:=dynGUI.GCHWND
     yP:=A_ScreenHeight-500
     xP:=A_ScreenWidth-440
@@ -53,6 +54,7 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui font, s7
     gui add, text,yp+20 x350,% "v." script.version " by ~Gw"
     gui GFAR: show, w430 x%xP% y%yP% ,% "Drop folder with images on this window"
+    GUI %oH%: +Disabled
 }
 
 GFARReselectFolder(SearchstartLocation) {
@@ -73,14 +75,23 @@ GFARReselectFolder(SearchstartLocation) {
 
     }
 }
-
+#if WinActive("ahk_id " GFARGui)
+!F4::GFAREscape()
+#if WinActive("ahk_id " GFAR_ExcludeGui)
+!F4::GFAR_ExcludeEscape()
+#if
 GFAREscape() {
+    global dynGUI
     gui GFAR: destroy
+    oH:=dynGUI.GCHWND
+    GUI %oH%: -Disabled
 }
 
 GFARSubmit() {
     global
     gui GFAR: Submit, NoHide
+    oH:=dynGUI.GCHWND
+    GUI %oH%: +Disabled
     if (gfarNames="") {
         ttip("Please provide the number of pots/plants per group.")
     }

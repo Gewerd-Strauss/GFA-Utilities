@@ -28,13 +28,14 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=128
-            GFC_version=1.5.6
+            GFC_version=1.5.7
             [Configurator_settings]
             bDebugSwitch=0
-            ;bDebugSwitch hidden
+            ;bDebugSwitch hidden:
             ;bDebugSwitch Type: Checkbox
             ;bDebugSwitch CheckboxName: Enable Debugging-Mode?
             ;bDebugSwitch Allow extended logging of various information to be output in the program's directory.
+            ;bDebugSwitch Furthermore allows modifying hidden configuration keys, although it is not suggested to do so.
             ;bDebugSwitch Default: 0
             AlwaysOnTop=0
             ;AlwaysOnTop Type: Checkbox
@@ -85,10 +86,10 @@ setupdefaultconfig(Switch) {
             ;Custom_R_Script_Template As a rule of thumb, your template should not change this default portion of it. 
             ;Custom_R_Script_Template You may add additional lines above or below.
             ;Custom_R_Script_Template Be aware that clearing the workspace after the lines sourcing 'GFA_Evaluation.R' will cause the script to fail.
-            CheckUpdatesOnScriptStart=1
+            CheckUpdatesOnScriptStart=0
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
-            ;CheckUpdatesOnScriptStart Default:1
+            ;CheckUpdatesOnScriptStart Default:0
             UpdateChannel=stable
             ;UpdateChannel Do you want to check for updates to the stable release, or keep up to date with the development-version?
             ;UpdateChannel Type: DropDown development||stable
@@ -132,6 +133,20 @@ setupdefaultconfig(Switch) {
             [LastConfigsHistory]
             ;LastConfigsHistory Hidden:
 
+            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini
+            2=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\GFA_conf.ini
+            [LastRScriptHistory]
+            ;LastRScriptHistory Hidden:
+            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\newScript.R
+            [ExampleConfigs]
+            ;ExampleConfigs Hidden:
+            3=C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
+            4=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\yyyyMMdd-formatting\GFA_conf.ini
+            [ExampleRScripts]
+            ;ExampleRScripts Hidden:
+            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\newScript.R
+            2=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\scr.R
+
         )
     gfcGUIconfig=
         (LTRIM
@@ -157,7 +172,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%used_filesuffix:DDL|Type:String|Default:"xlsx"|String:"Select the filetype you want to ingest"|ctrlOptions:xlsx,csv|TTIP:'xlsx' is recommended. 'csv' was tested, but not as adamantly as xlsx. It should not make any difference, but that is not guaranteed.|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|TTIP:Decide the file-prefix used when saving figures and statistical results.\n\nATTENTION:\nChanging this if files have been generated before will result in those files not\nbeing overwritten so you will end up with an old and a current set of result-\nfiles (images/excel-sheets/RData-files)|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%filename_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for saved files. Editing allowed"|TTIP:Does not control the date format on the figure. For that, see option 'figure_date_format'.|ctrlOptions:r5,`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%Debug:Checkbox|Type:boolean|Default:1|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:https://youtube.com|Linktext:?|ConfigSection:General
+            %A_Tab%Debug:Checkbox|Type:boolean|Default:0|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:Link:https://{GH-Repo}#{Parameter}f|Linktext:?|ConfigSection:General
             %A_Tab%;;; figure
             %A_Tab%;;
             %A_Tab%;;
@@ -176,16 +191,15 @@ setupdefaultconfig(Switch) {
             %A_Tab%axis_units_y:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis (for the Overview-plot)."|TTIP:Format: '[German Text],[English Text]'. Replace a field with "/" to skip it|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_x_Daily:Edit|Type:String|Default:/,/|String:"Set the unit of the X-axis (for the daily plots)."|TTIP:Format: '[German Text],[English Text]'. Replace a field with "/" to skip it|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%axis_units_y_Daily:Edit|Type:String|Default:cm^2,cm^2|String:"Set the unit of the Y-axis (for the daily plots)."|TTIP:Format: '[German Text],[English Text]'. Replace a field with "/" to skip it|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
-            %A_Tab%figure_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for dates on the x-axis. Editing allowed"|TTIP:[RelativeColNames==TRUE]\nDoes not take effect\n\n\n[RelativeColNames==FALSE]\nSet the format for dates on the x-axis\n\nDoes not control the date format for the saved files. For that, see option 'filename_date_format'.|ctrlOptions:`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
+            %A_Tab%figure_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for dates on the x-axis or in titles. Editing allowed"|TTIP:[RelativeColNames==TRUE]\nDoes not take effect\n\n\n[RelativeColNames==FALSE]\nSet the format for dates on the x-axis\n\nDoes not control the date format for the saved files. For that, see option 'filename_date_format'.|ctrlOptions:`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%XLabel:Edit|Type:String|Default:"Time since repotting"|String:"Set the xlabel-string for the summary plot."|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%XLabel_Daily:Edit|Type:String|Default:"Treatment Groups"|String:"Set the xlabel-string for the daily analyses."|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%YLabel:Edit|Type:String|Default:"green plant area"|String:"Set the ylabel-string for the summary plot and daily analyses."|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;
             %A_Tab%;;; Statistics on Plot
-            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"NOT WORKING: Do you want to print 'n=XX' above every boxplot in the daily plots?"|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowNAtallboxplots:Checkbox|Type:boolean|Default:0|String:"Do you want to print 'n=XX' above every boxplot in the daily plots?"|TTIP:[ShowNAtallboxplot==TRUE]:\nThe Sample size is printed above every day.\nThis is generally not recommended as it will become cluttered with increasing number of days.\n\n[ShowNAtallboxplot==FALSE]\nDo not print sample sizes above every day. Sample size is displayed via the plot_subtitle element instead (but only if you enable rr)|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%PlotSampleSize:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the sample size of each group's boxplots?"|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
-            %A_Tab%ShowOnlyIrregularN2:Text|Type:String|Default:"Requires also ticking 'PlotSampleSize'"|String:"Requires also ticking 'PlotSampleSize'"|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
+            %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|TTIP:Requires also ticking 'PlotSampleSize'|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; Fontsizes
             %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes

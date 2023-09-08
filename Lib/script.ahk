@@ -638,7 +638,12 @@ class script {
                 , http.Open("GET", "https://www.google.com", true)
                 , http.Send()
         } catch e {
-
+            MsgBox 0x14,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, Do you want to the program to shut down now?"
+            IfMsgBox OK, {
+                ExitApp
+            } Else IfMsgBox Cancel, {
+                reload
+            }
         }
         try
             http.WaitForResponse(25)
@@ -673,7 +678,20 @@ class script {
             http.WaitForResponse(1)
         catch
         {
-
+            bScriptObj_IsConnected:=this.reqInternet(vfile)
+            if !bScriptObj_IsConnected && !this.reqInternet && (this.reqInternet!="") ;; if internet not required - just abort update checl
+            { ;; TODO: replace with msgbox-query asking to start script or not - 
+                ttip(script.name ": No internet connection established - aborting update check. Continuing Script Execution",,,,,,,,18)
+                return
+            }
+            if (!bScriptObj_IsConnected && this.reqInternet) { ;; if internet is required - abort script
+                MsgBox 0x14,% this.name " - connection timeout",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
+                IfMsgBox OK, {
+                    ExitApp
+                } Else IfMsgBox Cancel, {
+                    return false
+                }
+            } 
         }
 
         if !(http.responseText) {

@@ -82,7 +82,7 @@ main() {
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, 1)
-    if (script.config.Configurator_settings.bRunAsAdmin) {
+    if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
         RunAsAdmin()
     }
     globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
@@ -430,9 +430,9 @@ guiCreate() {
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
     if (showThirdPane) {
-        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
-        gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     return
 }
@@ -459,9 +459,7 @@ guiShow2(guiObject) {
 }
 guiShow(guiObject) {
     gui GC: default
-    ;gui GC: add,groupbox , y0 x10 w684 h953, Configuration File
     useGroupbox:=1
-    ;gui GC: show,% "w" guiObject["guiWidth"]*1 " h" guiObject["guiHeight"]*1  , % script.name " - Create new Configuration"
     for each, section in guiObject.Sections {
         if (useGroupbox) {
             if section.HasKey("YAnchor") {
@@ -469,7 +467,6 @@ guiShow(guiObject) {
             } else {
                 gui add, groupbox,% "hwndgb" each " y3 h" section.Height-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
             }
-            ;gui add, groupbox,% " y3 h" guiObject["guiHeight"]-2*15 " w" section.Width " x" section.XAnchor-5, % section.name
         } else {
             if section.HasKey("YAnchor") {
                 gui add, text,% " y" section.YAnchor " h15 w" section.Width " x" section.XAnchor-5, % section.name
@@ -479,10 +476,9 @@ guiShow(guiObject) {
         }
     }
     if (guiObject.dynGUI.GFA_Evaluation_Configfile_Location="") {
-        ;gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Create new Configuration"
-        gui GC: show,%   "AutoSize x0 y0" , % script.name " - Create new Configuration"
+        gui GC: show,%   "AutoSize x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
-        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Create new Configuration"
+        gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     guicontrol GC: hide, % "vExcelSheetPreview"
     dynGUI.guiVisible:=true
@@ -523,8 +519,6 @@ guiResize(guiObject,normalOperation:=true) {
         } else {
             guiShow3(guiObject,true)
         }
-    } else {
-        ;gui GC: show,% "w" guiObject["guiWidth"]/2 " h" guiObject["guiHeight"]/2 " x0 y0" , % script.name " - Create new Configuration"
     }
     return
 }
@@ -546,7 +540,7 @@ GCSize() {
     AutoXYWH("w", hwndUsedConfigLocation)
     AutoXYWH("y", EditSettingsBtn, ExitProgramBtn)
     AutoXYWH("y", OpenRScriptBtn)
-    AutoXYWH("y", "Open current script")
+    AutoXYWH("y", "Open current &script")
     AutoXYWH("y", "Open &program settings")
     AutoXYWH("y", "Exit Program")
     AutoXYWH("y", "Generate Configuration")
@@ -901,8 +895,10 @@ fCallBack_StatusBarMainWindow() {
             SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",4)
             ListLines On
         }
-    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - Debug Mode
-
+    } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
+        if (!A_IsAdmin) {
+            RunAsAdmin()
+        }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
         if script.requiresInternet(script.metadataArr.Issues) {
             script.About(1)
@@ -910,10 +906,9 @@ fCallBack_StatusBarMainWindow() {
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=7)) { ; part 6 - documentation
         if script.requiresInternet(script.metadataArr["GH-Repo"]) {
+            run % "https://htmlpreview.github.io/?https://" script.metadataArr.Documentation2
             script.About(1)
-            run % "https://www." script.metadataArr.Documentation
         }
-
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=8)) { ; part 7
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=9)) { ; part 8
@@ -1082,7 +1077,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) && (!HeuristicRScript_config_match) {
             ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
             Gui +OwnDialogs
-            MsgBox 0x40034, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
+            MsgBox 0x40014, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
                 , % "The script ""thinks"" by a simple heuristic approach that the given config file:"
                 . "`n"
                 . "`n'" dynGUI.GFA_Evaluation_Configfile_Location "'"
@@ -1289,6 +1284,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 }
 #if WinActive("ahk_id " CCHWND)
 !F4::ttip("You cannot close this window")
+#if
 runRScript(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_RScript_Location")) {
         if (dynGUI.GFA_Evaluation_RScript_Location!="") {
@@ -1423,7 +1419,7 @@ updateLV(hwnd,Object) {
 }
 #if bRunFromVSC
 NumpadDot::reload
-
+#if
 reload() {
     reload
 }

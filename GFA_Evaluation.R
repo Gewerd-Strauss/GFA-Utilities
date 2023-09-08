@@ -157,8 +157,8 @@ library(stats)
 assignDaysToVariables <- function(Files, List, ini) {
     return(List <- setColnames(Files, List, ini))
 }
-calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
-    
+calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
+    ## function takes the 
     TimeSinceT0 <- list() # Initiate a list
     Ind <- 1
     strLen_max <- 0
@@ -202,11 +202,15 @@ calculateColnames  <-  function(Files,List,ini,bGetDiff=FALSE,bForceActualDates=
     }
     return(TimeSinceT0)
 }
-calculateChange <- function(DailyAnalyses,ChosenDays) {
+calculateChange <- function(DailyAnalyses,ChosenDays,returnTable=F) {
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
+    table <- as.data.frame(list())
     SortedFormattedDates <- as.character.Date(sort(as.Date.character(unlist(str_trim(ChosenDays)),format = "%d.%m.%Y")),format = "%d.%m.%Y")
-    print("Changes in Leaf-Area relative to the previous day: ")
+    if (isFALSE(returnTable)) {
+        #print("Changes in Leaf-Area relative to the previous day: ")
+    }
+    names <- c("Time","Groups","Last mean [cm^2]","abs. Change [cm^2]","rel. Change [%]", "this mean [cm^2]")
     for (curr_day in SortedFormattedDates) {
         if (dayID==1) {
             ld <- curr_day
@@ -214,7 +218,11 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
             lastVals <- DailyAnalyses[[str_trim(curr_day)]]
             lastmean <- lastVals$Res$summary$mean
             name <- lastVals$Res$summary$name
-            print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
+            if (isFALSE(returnTable)) {
+                #print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
+            } else {
+                
+            }
             next
         } else {
             lastVals <- DailyAnalyses[[str_trim(ld)]]
@@ -225,18 +233,35 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
             relative_change <- absolute_change/abs(lastmean)*100
             name <- lastVals$Res$summary$name
             console_print <- str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 12,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "left",width = 12),str_pad(" [cm^2]",width = 13,side="left"),"    |absC: ", absolute_change, " [cm^2]","    |relC: ", relative_change, " [%]")
-            print(console_print)
-            print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
             #print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
             CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
             CurrSum$relative_change <- relative_change
             CurrSum$absolute_change <- absolute_change
             DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum #todo: figure out how to do this right!!
             DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
+            if (isFALSE(returnTable)) {
+                #print(console_print)
+                #print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
+            } else {
+                
+                table2 <- dplyr::tibble(Change=str_c(ld, " -> ",curr_day)
+                                       , Name=as.character(thisVals$Res$summary$name)
+                                       , LastMean=as.character(lastmean)
+                                       , Abs_change=as.character(absolute_change)
+                                       , Rel_change=as.character(relative_change)
+                                       , ThisMean=as.character(thismean))
+                table2 <- as.data.frame(table2)
+                table <- rbind(table,table2)
+            }
             ld <- curr_day
         }
     }
-    return(DailyAnalyses)
+    if (isFALSE(returnTable)) {
+        return(DailyAnalyses)
+    } else {
+        colnames(table) <- names
+        return(table)
+    }
 }
 
 calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
@@ -494,7 +519,7 @@ fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive
 fixdecimalplaces <- function(x, k){
     return(trimws(format(round(x, k), nsmall=k)))
 }
-getRelative_change <- function(this,last,Object=FALSE) {
+getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # Funktion berechnet die relative Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der relative Unterschied dieser beiden Werte wird zurückgegeben
@@ -512,8 +537,12 @@ getRelative_change <- function(this,last,Object=FALSE) {
             table <- as.data.frame(table)
             colnames(table) <- names
             kable <- kable(table)
-            print(kable)
-            return(relative_change)
+            if (returnTable) {
+                return(table)
+            } else {
+                print(kable)
+                return(relative_change)
+            }
         } else {
             wrnopt <- getOption("warn")
             options(warn = 1)
@@ -546,17 +575,45 @@ getRelative_change <- function(this,last,Object=FALSE) {
     table <- as.data.frame(table)
     colnames(table) <- names
     kable <- kable(table)
-    print(kable)
-    return(relative_change)
+    if (returnTable) {
+        return(table)
+    } else {
+        print(kable)
+        return(relative_change)
+    }
 }
-getAbsolute_change <- function(this,last,Object=FALSE) {
+getAbsolute_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # Funktion berechnet die absolute Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der absolute  Unterschied dieser beiden Werte wird zurückgegeben
     # Fall 2: Parameter 'this' und 'last' sind Datenangaben im Format "%d.%m.%Y": der relative Unterschied von allen Versuchsgliedern zu den beiden gegebenen Zeitpunkten wird zurückgegeben
     if (isFALSE(Object)) { # compare values
         if (is.numeric(this) && is.numeric(last))  {
-            return((this-last))
+            #a <- as.character(thisVals$Res$summary$name)
+            absolute_change <- (this-last)
+            b <- as.character(last)
+            c <- as.character(absolute_change)
+            d <- as.character(this)
+            
+            names <- c("Last mean","abs. Change [cm^2]", "this mean")
+            table <- dplyr::tibble(b,c,d)
+            table <- as.data.frame(table)
+            colnames(table) <- names
+            kable <- kable(table)
+            if (returnTable) {
+                return(table)
+            } else {
+                print(kable)
+                return(absolute_change)
+            }
+        } else {
+            wrnopt <- getOption("warn")
+            options(warn = 1)
+            warning(str_c("getRelativeChange() [user-defined]: your value for "
+                          , ifelse(!is.numeric(this),str_c("[this]: '", this),str_c("[last]: '",last))
+                          , "' is not numeric, and thus cannot be used for comparison."
+                          , "\nYou may try again after coercing it to numeric."))
+            options(warn = wrnopt)
         }
     } else { # compare values of a dailyAnalyses-Object
         thisVals <- Object[[str_trim(this)]]
@@ -573,7 +630,7 @@ getAbsolute_change <- function(this,last,Object=FALSE) {
         }
         absolute_change <- (thismean-lastmean)
     }
-    names <- c("Groups","Last mean","abs. Change", "this mean")
+    names <- c("Groups","Last mean","abs. Change [cm^2]", "this mean")
     table <- dplyr::tibble(as.character(thisVals$Res$summary$name)
                            , as.character(lastmean)
                            , as.character(absolute_change)
@@ -581,8 +638,12 @@ getAbsolute_change <- function(this,last,Object=FALSE) {
     table <- as.data.frame(table)
     colnames(table) <- names
     kable <- kable(table)
-    print(kable)
-    return(absolute_change)
+    if (returnTable) {
+        return(table)
+    } else {
+        print(kable)
+        return(absolute_change)
+    }
 }
 getMeanofVectorElements <- function(Vector, Elements) {
     lenVector <- length(Vector)
@@ -655,6 +716,10 @@ getFilesInFolder <- function(folder,filesuffix="csv",out_prefix="GFResults_",rec
     otp <- out_prefix
     lapply(Files,checkExistence)
     Files <- RemoveOutputFiles(as.list(Files),"ROutput")
+    if (length(Files)==0) {
+        Error <- simpleError(str_c(str_c("getFilesInFolder() [user-defined]:\n The file-query: '",fileQuery,"' did not return any files; the directory does not contain any matching files of type '", filesuffix ,"'. The script will exit now.") ,sep = "\n"))
+        stop(Error)
+    }
     return(Files)
 }
 getLastNElementsOfPalette <- function(palette,n) {
@@ -763,7 +828,7 @@ padAgeNumber <- function(Value,Length) {
     return(retVal)
 }
 setColnames <- function(Files,List,ini) {
-    DateDifference_Integers <- calculateColnames(Files,List,ini)
+    DateDifference_Integers <- calculateColnames(Files,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
         if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
             colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
@@ -771,7 +836,7 @@ setColnames <- function(Files,List,ini) {
             colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
         }
     } else {
-        DateDifference_Integers <- calculateColnames(Files,List,ini)
+        DateDifference_Integers <- calculateColnames(Files,ini)
         CharacterString <- as.character(unlist(DateDifference_Integers))
         factoredDates <- as.factor(CharacterString)
         updated <- as.Date(CharacterString,format = "%d.%m.%Y")
@@ -1241,7 +1306,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                           p.value = shapiro.test(plant_area)$p.value)
             
             if (isNormallyDistributed(norm)) {
-                #print(norm)
                 BT   <- bartlett.test(plant_area ~ interactions, wo_outliers)
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
@@ -1303,7 +1367,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             
             #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
             
             # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
             Theme <- switch(as.integer(Theme_Index),
@@ -1339,7 +1403,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , true=unit_y[[1]][1]
                               , false=unit_y[[1]][2])
             
-            TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+            TitleTimeSpan <- calculateColnames(Files,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
@@ -1454,6 +1518,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 
             }
             scale_y_lowerEnd <- 0
+            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
                     Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
@@ -1480,7 +1545,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                 breaks$breaknumber <- breaks$breaknumber + 1
             }
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2) ## generate minor breaks always inbetween major breaks.
+            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
             if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
@@ -1631,8 +1697,12 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             
             ## Execute tests for 
             ##  Daten normalverteilt?
-            ## if TRUE  -> uniforme Varianz durch Bartlett's Test | nutze wo_outliers_data
-            ## if FALSE -> Varianz durch Levene-Test | nutze wo_outliers_data
+            ## if TRUE  -> uniforme Varianz durch Bartlett's Test, Data: without outliers
+            ## if TRUE  -> Significanz durch t_test, Data: all data / with outliers*
+            ## if FALSE -> Varianz durch Levene-Test, Data: without outliers
+            ## if FALSE -> Significance durch Wilcox-Test, Data: all data / with outliers*
+            
+            ## *This is analogous to how it is done in the script 'Grünflächenanalyse_v3.R'
             
             ##  
             
@@ -1647,9 +1717,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 BT <- do.call("rbind", BT)
                 BT <- data.frame(names = row.names(BT), BT)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 Data_stat_test <- subset(Data, select = -c(file) )
-                Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                Data_stat_test <- cbind(Data_stat_test,Data$file)               # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
                 Data_stat_test <- group_by(Data)
                 Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                 stat.test <- Data_stat_test %>%
@@ -1659,7 +1728,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             } else {
                 levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
                 
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                 stat.test <- Data %>%
                     group_by(Gruppe) %>%
                     wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1703,15 +1771,10 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Theme_Index <- 1   
             }
             numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            if (Theme_Index>numberofThemes) {
-                Conditions$GenerateAllThemes <- TRUE #TODO: put set_theme-swtich, Theme_Switch and ggplot-call into a loop for 1:1:7 for Conditions$GenerateAllThemes==TRUE
-            } else {
-                Conditions$GenerateAllThemes <- FALSE
-            }
             
             
             #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
             
             # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
             Theme <- switch(as.integer(Theme_Index),
@@ -1746,7 +1809,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                               , true=unit_y[[1]][1]
                               , false=unit_y[[1]][2])
             
-            TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+            TitleTimeSpan <- calculateColnames(Files,ini,T)
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
             } else {
@@ -1757,7 +1820,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             if (as.logical(ini$General$Debug)) {
                 plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                        , "\nT0: ", ini$Experiment$T0
-                                       # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
                                        , "\nPots per Group: ", PotsPerGroup
                                        , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
@@ -1765,7 +1827,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                        , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
                 
-                #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
                     plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
@@ -1834,8 +1895,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                        , add = "jitter"
                                        , ylab = y_label
                                        , xlab = x_label) +
-                #, facet.by = "Gruppe") +
-                #, facet.by = "Stress") +
                 font("xy.text", size = 10, color = "black") +
                 font("ylab", size = 10, color = "black") +
                 font("legend.title", size = 10, color = "black")
@@ -1857,11 +1916,12 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 }
             }
             scale_y_lowerEnd <- 0
+            Limits <- c(0,1)                                                    ## otherwhise initialise the vector so we can modify the second element below
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment,"YLimits")) {
                     Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
                 } else {
-                    Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+                    Limits <- c(0,1)                                            ## otherwhise initialise the vector so we can modify the second element below
                 }
                 scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
                 Limits[[2]] <- scale_y_upperEnd
@@ -1879,7 +1939,8 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                 breaks$breaknumber <- breaks$breaknumber + 1
             }
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2)           ## generate minor breaks always inbetween major breaks.
+            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                               limits = c(Limits[[1]],Limits[[2]]))
             
             stat.test$p.scient <- formatPValue(stat.test$p)
@@ -1995,7 +2056,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         testpath <- str_replace_all(testpath,"/","\\\\")
         testfile <- str_c(testpath,str_replace('\\GFA_conf.ini',"\\\\","\\"))
         if (file.exists(path)) {
-            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            warning(simpleWarning(str_c("path provided as 'folder_path' ('",folder_path,"') does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found ('",path,"').\nYou can ignore this message if you intentionally referenced the file itself")),immediate. = 1)
             folder_path <- str_c(folder_path,"\\")
         } else {
             ErrorString <- ""
@@ -2007,7 +2068,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         folder_path <- str_replace_all(folder_path,"/","\\\\")
         path <- str_c(folder_path,str_replace('\\GFA_conf.ini',"\\\\","\\"))
         if (file.exists(path)) {
-            warning(simpleWarning("path provided as 'folder_path' does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found.\nYou can ignore this message if you intentionally referenced the file itself"),immediate. = 1)
+            warning(simpleWarning(str_c("path provided as 'folder_path' ('",folder_path,"') does not point to a config file,\nbut a config file conforming to the default filename 'GFA_conf.ini' was found ('",path,"').\nYou can ignore this message if you intentionally referenced the file itself")),immediate. = 1)
         } else {
             ErrorString <- ""
             Error <- simpleError(str_c(str_c("\nThe folder-path you provided: '",folder_path,"' does not point to a directory containing a config file with the default name 'GFA_conf.ini'. The script will exit prematurely."),ErrorString ,sep = "\n"))
@@ -2064,7 +2125,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     ini <- ini::read.ini(path,encoding)                                         ## UTF-16 encoding is required so that umlaute are not fucked - 
     if (length(ini)==0) {
         Error <- simpleError(str_c("GFA_main() [user-defined]: Task: loading configuration from ini-file,1"
-                                   , str_c("\nThe configuration file (", path,")")
+                                   , str_c("\nThe configuration file ('", path,"')")
                                    , str_c("\ncould not be loaded. The best assumption for its file-encoding is ",encoding,", but using this returned an empty object.")
                                    , str_c("\nPlease double-check the encoding of the configuration-file")))
                                    #, str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
@@ -2122,24 +2183,15 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     data_all_CA <- as.data.frame(data_all_CA);
     data_all_CA <- assignDaysToVariables(Files,data_all_CA,ini)
     data_all_CA <- createFactors(data_all_CA,groups_as_ordered_in_datafile)
-    Colnames <- calculateColnames(Files,List,ini)
+    Colnames <- calculateColnames(Files,ini)
     data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #if (isTRUE(as.logical(ini$General$RelativeColnames))) {
-    #    data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #} else {
-    #    data_all_CA <- forcePLANT_AREAtoNumeric(data_all_CA,ini)
-    #}
     if (ini$Experiment$Facet2D) {
-        #GroupNoFacet <- ini$Experiment$GroupNoFacet
-        #GroupNoFacet <- as.character(GroupNoFacet)
         if (hasName(ini$Experiment,"GroupsOrderX") && hasName(ini$Experiment,"GroupsOrderY")) {
             numberofGroups <- length(strsplit(ini$Experiment$GroupsOrderX,",")[1][[1]]) * length(strsplit(ini$Experiment$GroupsOrderY,",")[1][[1]])
         } else {
             
         }
         Number <- rep(1:Number, times = numberofGroups)
-        #newgroups_as_ordered_in_datafile <- unlist(strsplit(GroupNoFacet, split = ','))
-        #Group <- rep(newgroups_as_ordered_in_datafile, each = PotsPerGroup)
         data_pivot_CA <- pivot_longer(data_all_CA,cols=4:(length(data_all_CA)-0),names_to = "Days")
         data_pivot_CA$Group <- factor(data_pivot_CA$Group)
         data_pivot_CA$Facet <- factor(data_pivot_CA$Facet)
@@ -2162,7 +2214,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     
     Themes <- c("tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean")
-    set_theme <- switch(as.integer(Theme_Index),Themes) ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+    set_theme <- switch(as.integer(Theme_Index),Themes) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
     if (Theme_Index>numberofThemes) {
         set_theme <- str_c(Themes,collapse = ", ")
         
@@ -2203,33 +2255,26 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                       , true=unit_y[[1]][1]
                       , false=unit_y[[1]][2])
     
-    TitleTimeSpan <- calculateColnames(Files,List,ini,T)
+    TitleTimeSpan <- calculateColnames(Files,ini,T)
     
     SortedTitleTimespan <- sort(unlist(as.vector(TitleTimeSpan)))
-    TitleDates <- calculateColnames(Files,List,ini,T,T)
+    TitleDates <- calculateColnames(Files,ini,T,T)
     TitleDates  <- getMaximumDateRange(TitleDates)
-    #todo: subtitle: Give experiment number (2.1 vs 2.2)
     plot_Title <- if_else(as.logical(ini$General$language=='German')
                           , true=str_c("Entwicklung der Grünfläche (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
                           , false=str_c("Green area development (", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
     if (as.logical(ini$General$Debug)) {
         plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
                                , "\nT0: ", ini$Experiment$T0
-                               # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                                , "\nSample-Size: ", PotsPerGroup
                                , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
                                , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
                                , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
                                , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
                                , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
-        
-        #, "\n  Lines: ", as.logical(ini$General$PlotMeanLine)
     } else {
         
         plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                               #, if_else(as.logical(ini$General$language=='German')
-                               #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
-                               #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
                                , if_else(as.logical(ini$General$language=='German')
                                          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
                                          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
@@ -2320,11 +2365,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
         facetFormula <- "Facet"
-        #GFA_SummaryPlot <- GFA_SummaryPlot1
-        #GFA_SummaryPlot2 <- GFA_SummaryPlot + facet_grid(cols = Facet, rows = factor(Group,levels=unlist(unique(data_pivot_CA$Group))),scales = "free")
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(Facet ~ Group,scales = "fixed") # simpler solution
     } else {
-        #GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(. ~ Group,space = "fixed")
         GFA_SummaryPlot <- GFA_SummaryPlot + facet_grid(. ~ factor(Group,levels=unlist(str_split(ini$Experiment$GroupsOrderX,","))),space = "fixed")
     }
     
@@ -2345,35 +2387,33 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)       ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
             }
     }
-    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         # angle the xaxis-labels downwards
+    GFA_SummaryPlot <- GFA_SummaryPlot + guides(x=guide_axis(angle=90))         ## angle the xaxis-labels downwards
     
     # define breaks and labels for the x-scale
     if (isTRUE(as.logical(ini$General$ShowBothColnames))) {
-        if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
-            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
-            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
+        if (as.logical(ini$General$RelativeColnames)) {                         ## continuous scale  <-  scale needs numbers, labels need format "{date} - {age}"
+            GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
+            GFA_summary_Labels <- paste(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = T)," - ",GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
         } else {                                                                                                        ## date-scale  <-  scale needs dates, labels need format "{date} - {age}"
-            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
-            GFA_summary_Labels <- paste(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = T)," - ",calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F))
-            GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)))]
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+            GFA_summary_Labels <- paste(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = T)," - ",calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F))
+            GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)))]
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
     } else {
-        if (as.logical(ini$General$RelativeColnames)) {                                                                 ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
-            GFA_summary_Breaks <- calculateColnames(Files,List,ini,bGetDiff = T,bForceActualDates = F)
+        if (as.logical(ini$General$RelativeColnames)) {                         ## continuous scale  <- scale needs numbers, labels need format "{age}"       || validated to label correctly
+            GFA_summary_Breaks <- calculateColnames(Files,ini,bGetDiff = T,bForceActualDates = F)
             GFA_summary_Labels <- paste(GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks=as.integer(GFA_summary_Breaks),labels = GFA_summary_Labels)
-        } else {                                                                                                        ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
-            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,List,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
+        } else {                                                                ## date-scale  <- scale needs dates, labels need format "{date}"              || validated to label correctly
+            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files,ini,bGetDiff = F,bForceActualDates = T)),format = "%d.%m.%Y"))
             GFA_summary_Labels <- paste(format(GFA_summary_Breaks, ini$Experiment$figure_date_format))
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks=GFA_summary_Breaks,labels = GFA_summary_Labels)
         }
     }
     
     
-#    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],25), ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-#                                                            limits = c(Limits[[1]],Limits[[2]])) ## same here to scale the axis
     GFA_SummaryPlot <- GFA_SummaryPlot + 
         geom_boxplot(outlier.shape = "X", 
                      alpha =0.5) +
@@ -2389,7 +2429,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                               aes(group = Group,
                                                                   colour = interaction(Group,Facet)),
                                                               inherit.aes = T,
-                                                              show.legend = F) # set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
+                                                              show.legend = F)  ## set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
         } else {
             GFA_SummaryPlot <- GFA_SummaryPlot + stat_summary(fun = mean,
                                                               geom = "line",
@@ -2398,7 +2438,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                               aes(group = Group,
                                                                   colour = Group),
                                                               inherit.aes = T,
-                                                              show.legend = F) # set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
+                                                              show.legend = F)  ## set this to true if you want to have extra legend entries for the geom_line-objects plotting the means. 
             
         }
         
@@ -2436,6 +2476,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # The code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
     strictLimitsValidation <- T
     scale_y_lowerEnd <- 0
+    Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
         if (hasName(ini$Experiment,"YLimits")) {
             Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
@@ -2457,7 +2498,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
         breaks$breaknumber <- breaks$breaknumber + 1
     }
-    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+    mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2) ## generate minor breaks always inbetween major breaks.
+    GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
                                                             limits = c(Limits[[1]],Limits[[2]]))
     
     
@@ -2468,8 +2510,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     if (ini$General$PlotSampleSize) {
-        #todo: make filter to only display cases where less than intetned number of samples are plotted, e.g. where length(x)<PotsPerGroup. Other casese are given a blank string to print.
-        #todo: only label those differing in size, then put the general sample size in the subtitle
         if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
             n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
         } else {
@@ -2491,7 +2531,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }  else {
         curr_ThemeIndex <- 1   
     }
-    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 6 places  where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+    curr_Theme <- switch(as.integer(curr_ThemeIndex),                       ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
                          theme_tufte(base_size = 10),
                          theme_bw(base_size = 10),
                          theme_pubr(base_size = 10),
@@ -2530,16 +2570,18 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     
     # Display the figure.
-    Dates <- calculateColnames(Files,List,ini,T,T)
+    Dates <- calculateColnames(Files,ini,T,T)
     ChosenDays <- as.character(str_flatten_comma(unlist(Dates)))
     
     
-    if (isTRUE(as.logical(returnDays))) {    # Evaluate daily analyses
+    if (isTRUE(as.logical(returnDays))) {                                       # Evaluate daily analyses
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
         GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
-        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays)
+        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = F)
+        kable_table <- kable(calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = T),caption = "Relative and Absolute change for subsequent groups, on the same group")
+        print(kable_table)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
         }
@@ -2549,21 +2591,21 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                             , ".RData")
         rm(ChosenDays)
         if (isTRUE(as.logical(saveRDATA))) {
-            save(GFA_DailyAnalyses,GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,formatPValue,file = RDATA_Path)
+            save(GFA_DailyAnalyses,GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,calculateChange,formatPValue,file = RDATA_Path)
         }
-    } else {                                            # skip and only return overview
+    } else {                                                                    # skip and only return overview
         RDATA_Path <- str_c(folder_path
                             ,"ROutput\\GFA_Analyse"
                             , ".RData")
         if (isTRUE(as.logical(saveRDATA))) {
-            save(GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,formatPValue,file = RDATA_Path)
+            save(GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,calculateChange,formatPValue,file = RDATA_Path)
         }
     }
     
     Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
     if (returnDays) {
-        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
-        return(list(GFA_SummaryPlot,Titles,0,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,0,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
