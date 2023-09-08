@@ -202,11 +202,15 @@ calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE
     }
     return(TimeSinceT0)
 }
-calculateChange <- function(DailyAnalyses,ChosenDays) {
+calculateChange <- function(DailyAnalyses,ChosenDays,returnTable=F) {
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
+    table <- as.data.frame(list())
     SortedFormattedDates <- as.character.Date(sort(as.Date.character(unlist(str_trim(ChosenDays)),format = "%d.%m.%Y")),format = "%d.%m.%Y")
-    print("Changes in Leaf-Area relative to the previous day: ")
+    if (isFALSE(returnTable)) {
+        #print("Changes in Leaf-Area relative to the previous day: ")
+    }
+    names <- c("Time","Groups","Last mean [cm^2]","abs. Change [cm^2]","rel. Change [%]", "this mean [cm^2]")
     for (curr_day in SortedFormattedDates) {
         if (dayID==1) {
             ld <- curr_day
@@ -214,7 +218,11 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
             lastVals <- DailyAnalyses[[str_trim(curr_day)]]
             lastmean <- lastVals$Res$summary$mean
             name <- lastVals$Res$summary$name
-            print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
+            if (isFALSE(returnTable)) {
+                #print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
+            } else {
+                
+            }
             next
         } else {
             lastVals <- DailyAnalyses[[str_trim(ld)]]
@@ -225,18 +233,35 @@ calculateChange <- function(DailyAnalyses,ChosenDays) {
             relative_change <- absolute_change/abs(lastmean)*100
             name <- lastVals$Res$summary$name
             console_print <- str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 12,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "left",width = 12),str_pad(" [cm^2]",width = 13,side="left"),"    |absC: ", absolute_change, " [cm^2]","    |relC: ", relative_change, " [%]")
-            print(console_print)
-            print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
             #print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
             CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
             CurrSum$relative_change <- relative_change
             CurrSum$absolute_change <- absolute_change
             DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum #todo: figure out how to do this right!!
             DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
+            if (isFALSE(returnTable)) {
+                #print(console_print)
+                #print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
+            } else {
+                
+                table2 <- dplyr::tibble(Change=str_c(ld, " -> ",curr_day)
+                                       , Name=as.character(thisVals$Res$summary$name)
+                                       , LastMean=as.character(lastmean)
+                                       , Abs_change=as.character(absolute_change)
+                                       , Rel_change=as.character(relative_change)
+                                       , ThisMean=as.character(thismean))
+                table2 <- as.data.frame(table2)
+                table <- rbind(table,table2)
+            }
             ld <- curr_day
         }
     }
-    return(DailyAnalyses)
+    if (isFALSE(returnTable)) {
+        return(DailyAnalyses)
+    } else {
+        colnames(table) <- names
+        return(table)
+    }
 }
 
 calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
@@ -494,7 +519,7 @@ fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive
 fixdecimalplaces <- function(x, k){
     return(trimws(format(round(x, k), nsmall=k)))
 }
-getRelative_change <- function(this,last,Object=FALSE) {
+getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # Funktion berechnet die relative Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der relative Unterschied dieser beiden Werte wird zurückgegeben
@@ -512,8 +537,12 @@ getRelative_change <- function(this,last,Object=FALSE) {
             table <- as.data.frame(table)
             colnames(table) <- names
             kable <- kable(table)
-            print(kable)
-            return(relative_change)
+            if (returnTable) {
+                return(table)
+            } else {
+                print(kable)
+                return(relative_change)
+            }
         } else {
             wrnopt <- getOption("warn")
             options(warn = 1)
@@ -546,17 +575,45 @@ getRelative_change <- function(this,last,Object=FALSE) {
     table <- as.data.frame(table)
     colnames(table) <- names
     kable <- kable(table)
-    print(kable)
-    return(relative_change)
+    if (returnTable) {
+        return(table)
+    } else {
+        print(kable)
+        return(relative_change)
+    }
 }
-getAbsolute_change <- function(this,last,Object=FALSE) {
+getAbsolute_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # Funktion berechnet die absolute Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der absolute  Unterschied dieser beiden Werte wird zurückgegeben
     # Fall 2: Parameter 'this' und 'last' sind Datenangaben im Format "%d.%m.%Y": der relative Unterschied von allen Versuchsgliedern zu den beiden gegebenen Zeitpunkten wird zurückgegeben
     if (isFALSE(Object)) { # compare values
         if (is.numeric(this) && is.numeric(last))  {
-            return((this-last))
+            #a <- as.character(thisVals$Res$summary$name)
+            absolute_change <- (this-last)
+            b <- as.character(last)
+            c <- as.character(absolute_change)
+            d <- as.character(this)
+            
+            names <- c("Last mean","abs. Change [cm^2]", "this mean")
+            table <- dplyr::tibble(b,c,d)
+            table <- as.data.frame(table)
+            colnames(table) <- names
+            kable <- kable(table)
+            if (returnTable) {
+                return(table)
+            } else {
+                print(kable)
+                return(absolute_change)
+            }
+        } else {
+            wrnopt <- getOption("warn")
+            options(warn = 1)
+            warning(str_c("getRelativeChange() [user-defined]: your value for "
+                          , ifelse(!is.numeric(this),str_c("[this]: '", this),str_c("[last]: '",last))
+                          , "' is not numeric, and thus cannot be used for comparison."
+                          , "\nYou may try again after coercing it to numeric."))
+            options(warn = wrnopt)
         }
     } else { # compare values of a dailyAnalyses-Object
         thisVals <- Object[[str_trim(this)]]
@@ -573,7 +630,7 @@ getAbsolute_change <- function(this,last,Object=FALSE) {
         }
         absolute_change <- (thismean-lastmean)
     }
-    names <- c("Groups","Last mean","abs. Change", "this mean")
+    names <- c("Groups","Last mean","abs. Change [cm^2]", "this mean")
     table <- dplyr::tibble(as.character(thisVals$Res$summary$name)
                            , as.character(lastmean)
                            , as.character(absolute_change)
@@ -581,8 +638,12 @@ getAbsolute_change <- function(this,last,Object=FALSE) {
     table <- as.data.frame(table)
     colnames(table) <- names
     kable <- kable(table)
-    print(kable)
-    return(absolute_change)
+    if (returnTable) {
+        return(table)
+    } else {
+        print(kable)
+        return(absolute_change)
+    }
 }
 getMeanofVectorElements <- function(Vector, Elements) {
     lenVector <- length(Vector)
@@ -2518,7 +2579,9 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
         GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
-        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays)
+        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = F)
+        kable_table <- kable(calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = T),caption = "Relative and Absolute change for subsequent groups, on the same group")
+        print(kable_table)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
         }
@@ -2528,14 +2591,14 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                             , ".RData")
         rm(ChosenDays)
         if (isTRUE(as.logical(saveRDATA))) {
-            save(GFA_DailyAnalyses,GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,formatPValue,file = RDATA_Path)
+            save(GFA_DailyAnalyses,GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,calculateChange,formatPValue,file = RDATA_Path)
         }
     } else {                                                                    # skip and only return overview
         RDATA_Path <- str_c(folder_path
                             ,"ROutput\\GFA_Analyse"
                             , ".RData")
         if (isTRUE(as.logical(saveRDATA))) {
-            save(GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,formatPValue,file = RDATA_Path)
+            save(GFA_SummaryPlot,ini,getRelative_change,getAbsolute_change,fixscient,calculateChange,formatPValue,file = RDATA_Path)
         }
     }
     
