@@ -2604,8 +2604,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     
     Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
     if (returnDays) {
-        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
-        return(list(GFA_SummaryPlot,Titles,0,Dates,ini,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+        return(list(GFA_SummaryPlot,Titles,0,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
