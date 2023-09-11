@@ -923,8 +923,6 @@ fCallBack_StatusBarMainWindow() {
     gui GC: +OwnDialogs
     return
 }
-~!Esc::Reload
-
 createConfiguration(Path,guiObject) {
     global hwndLV_ConfigHistory
     global dynGUI
@@ -1421,8 +1419,11 @@ updateLV(hwnd,Object) {
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
-#if bRunFromVSC
-NumpadDot::reload
+#if DEBUG
+NumpadDot::reload       ;; hard-coded reload for when running through vsc, not usable in compiled form.
+#if
+#if globalLogicSwitches.bIsDebug
+~!Esc::Reload           ;; debug-state-dependent, usable by normal users when compiled
 #if
 reload() {
     reload

@@ -36,6 +36,7 @@ setupdefaultconfig(Switch) {
             ;bDebugSwitch CheckboxName: Enable Debugging-Mode?
             ;bDebugSwitch Allow extended logging of various information to be output in the program's directory.
             ;bDebugSwitch Furthermore allows modifying hidden configuration keys, although it is not suggested to do so.
+            ;bDebugSwitch Pressing Alt+Escape while in debug-mode will discard all data and restart the program. THIS CAN LEAD TO DATA-LOSS.
             ;bDebugSwitch Default: 0
             AlwaysOnTop=0
             ;AlwaysOnTop Type: Checkbox
