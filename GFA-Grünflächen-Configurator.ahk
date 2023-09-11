@@ -347,7 +347,11 @@ guiCreate() {
     }
     SB_SetText(script.name " v." script.config.version.GFC_version A_Space script.config.version.build,2)
     SB_SetText(" by " script.author,3)
-    SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
+    if (globalLogicSwitches.bIsDebug) {
+        SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",4)
+    } else {
+        SB_SetText("Standard Mode Engaged. Click to enter debug-mode",4)
+    }
     SB_SetText((A_IsAdmin?"Admin Privileges":"Standard privileges"),5)
     SB_SetText("Report a bug",6)
     SB_SetText("Documentation",7)
@@ -919,8 +923,6 @@ fCallBack_StatusBarMainWindow() {
     gui GC: +OwnDialogs
     return
 }
-~!Esc::Reload
-
 createConfiguration(Path,guiObject) {
     global hwndLV_ConfigHistory
     global dynGUI
@@ -1417,8 +1419,11 @@ updateLV(hwnd,Object) {
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
-#if bRunFromVSC
-NumpadDot::reload
+#if DEBUG
+NumpadDot::reload       ;; hard-coded reload for when running through vsc, not usable in compiled form.
+#if
+#if globalLogicSwitches.bIsDebug
+~!Esc::Reload           ;; debug-state-dependent, usable by normal users when compiled
 #if
 reload() {
     reload

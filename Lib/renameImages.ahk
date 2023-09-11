@@ -4,7 +4,7 @@
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir,
             GFAR_createGUI(dynGUI.Arguments.PotsPerGroup.Value,dynGUI.Arguments.UniqueGroups.Value,OutDir,dynGUI)
         } else {
-            throw exception("Config-file does not exist`n"  CallStack(),-1)
+            throw exception("currently selected config-file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist`n"  CallStack(),-1)
         }
     } else {
         ttip("No configuration file has been selected yet.")
