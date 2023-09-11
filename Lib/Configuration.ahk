@@ -28,7 +28,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=128
-            GFC_version=1.5.8
+            GFC_version=1.5.9
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden:
@@ -133,21 +133,18 @@ setupdefaultconfig(Switch) {
             PlantsPerGroup= 7
             [LastConfigsHistory]
             ;LastConfigsHistory Hidden:
-
-            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini
-            2=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.1\GFA\GFA_conf.ini
+            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\GFA_conf.ini
+            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
+            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
+            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\GFA_conf.ini
+            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\GFA_conf.ini
             [LastRScriptHistory]
             ;LastRScriptHistory Hidden:
-            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\newScript.R
-            [ExampleConfigs]
-            ;ExampleConfigs Hidden:
-            3=C:\Users\Claudius Main\Desktop\TempTemporal\Exp2 GFA_Evaluation für Grünfläche_Tomaten_Verlauf\GFA_Evaluation_Example\Data\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
-            4=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\GFA_Development\yyyyMMdd-formatting\GFA_conf.ini
-            [ExampleRScripts]
-            ;ExampleRScripts Hidden:
-            1=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\newScript.R
-            2=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\scr.R
-
+            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\RScript.R
+            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\RScript.R
+            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\RScript.R
+            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\RScript.R
+            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\RScript.R
         )
     gfcGUIconfig=
         (LTRIM
