@@ -199,10 +199,9 @@ setupdefaultconfig(Switch) {
             %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|TTIP:Requires also ticking 'PlotSampleSize'|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; Fontsizes
+            %A_Tab%Fontsize_General:Edit|Type:number|Default:10.0|String:"Set the general fontsize text elements on all plots."|TTIP:Default is 10.0. Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
             %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
             %A_Tab%Fontsize_SampleSize:Edit|Type:number|Default:2.5|String:"Set the fontsize for the sample size in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
-            %A_Tab%;;
-            %A_Tab%;;
             %A_Tab%;;
             %A_Tab%;;; Titles
             %A_Tab%DebugText:Text|Type:text|Default:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|String:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
