@@ -287,10 +287,9 @@ class script {
             fo.close()
             FileDelete % this.AboutPath
         } else if (this.HasKey("AboutPath")) {
-            fo:=fileopen(this.AboutPath,"r")
+            fo:=fileopen(this.AboutPath,"r","UTF-8-RAW")
             About_template:=fo.Read()
             fo.Close()
-            FileDelete % this.AboutPath
         }
 
         doc.write(About_template)
