@@ -27,8 +27,8 @@ setupdefaultconfig(Switch) {
             [Version]
             ;Version Type: Text
             ;Version Hidden:
-            build=129
-            GFC_version=1.5.10
+            build=130
+            GFC_version=1.5.11
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden:
@@ -137,21 +137,22 @@ setupdefaultconfig(Switch) {
             2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
             3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
             4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\GFA_conf.ini
-            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\GFA_conf.ini
+            5=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\GFA_conf.ini
+            6=D:\Dokumente neu\Obsidian NoteTaking\The Universe\200 University\06 Interns and Unis\BE28 Internship Report\assets\Exp2.3\GFA\GFA_conf.ini
             [LastRScriptHistory]
             ;LastRScriptHistory Hidden:
-            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\RScript.R
-            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\RScript.R
-            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\RScript.R
-            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\RScript.R
-            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\RScript.R
+            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\EX1 RScript.R
+            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\EX2 RScript.R
+            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\EX3 RScript.R
+            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\EX4 RScript.R
+            5=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\EX5 RScript.R
         )
     gfcGUIconfig=
         (LTRIM
             Experiment::blank
             %A_Tab%;; 1. Grouping
             %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group/combination"|TTIP:[Facet2D==TRUE]\nHere, combination is a combination of a member of 'UniqueGroups' and a member of 'Facet2DVar'|ctrlOptions:number|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|TTIP:If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
+            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names, AS ORDERED IN THE DATA-FILES"|TTIP:It is required to ensure that groups are located at the same indeces across all data files.\n\nIf you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderX:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots along X-axis"|TTIP:Order the Groups along the X-Axis. Groups are ordered left to right|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderY:Edit|Type:String|Default:|String:"Set the comma-separated order of groups in the plots along Y-Axis (only for facetting)"|TTIP:[Facet2D==TRUE]\nOrder the Groups along the Y-Axis. Groups are ordered top to bottom.|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%RefGroup:Edit|Type:String|Default:UU|String:"Set the reference group for all statistical tests"|TTIP:\n[Facet2D==FALSE]\nFor a normal plot, this must be a member of 'UniqueGroups'\n\n[Facet2D==TRUE]\nFor a facetted plot, this must be a combination of 1 member of 'Facet2DVar' and 'UniqueGroups', separated by a dot (.).\nThe order is always '[UniqueGroups_Member].[Facet2DVar_Member]'\nExample:\n'Ungestresst.Unbehandelt'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
@@ -172,13 +173,12 @@ setupdefaultconfig(Switch) {
             %A_Tab%filename_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for saved files. Editing allowed"|TTIP:Does not control the date format on the figure. For that, see option 'figure_date_format'.|ctrlOptions:r5,`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%Debug:Checkbox|Type:boolean|Default:0|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:Link:https://{GH-Repo}#{Parameter}f|Linktext:?|ConfigSection:General
             %A_Tab%;;; figure
-            %A_Tab%;;
-            %A_Tab%;;
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%;;
             %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
-            %A_Tab%;;
+        )
+    gfcGUIconfig2=
+        (LTRIM
             %A_Tab%;;; axes
             %A_Tab%RelativeColnames:Checkbox|Type:boolean|Default:1|String:"Do you want to display the X-positions as 'days since T0'?"|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
@@ -200,10 +200,15 @@ setupdefaultconfig(Switch) {
             %A_Tab%ShowOnlyIrregularN:Checkbox|Type:boolean|Default:1|String:"Do you want to only plot sample sizes which differ from 'PotsPerGroup'?|TTIP:Requires also ticking 'PlotSampleSize'|Tab3Parent:5. Statistics and its displaying|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%;;
             %A_Tab%;;; Fontsizes
+            %A_Tab%Fontsize_General:Edit|Type:number|Default:10.0|String:"Set the general fontsize text elements on all plots."|TTIP:Default is 10.0. Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_XAxisLabel:Edit|Type:number|Default:10|String:"Set the fontsize for the axis names/titles"|TTIP:That is, the dates/plant ages.\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_YAxisLabel:Edit|Type:number|Default:10|String:"Set the fontsize for the axis names/titles"|TTIP:That is, plant area values, '25','50','75',...\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_XAxisTicks:Edit|Type:number|Default:10|String:"Set the fontsize for the axis ticks"|TTIP:That is, the numerical/date-scaling on the x-axis.\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_YAxisTicks:Edit|Type:number|Default:10|String:"Set the fontsize for the axis ticks"|TTIP:That is, the numerical scaling on the y-axis.\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_LegendText:Edit|Type:number|Default:10|String:"Set the fontsize for the legend entries"|TTIP:That is, the group names in the legend itself.\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
+            %A_Tab%Fontsize_LegendTitle:Edit|Type:number|Default:10|String:"Set the fontsize for the legend title"|TTIP:That is, the 'title' of the legend.\n\nNote that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
             %A_Tab%Fontsize_PValue:Edit|Type:number|Default:2.5|String:"Set the fontsize for the p-values in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
             %A_Tab%Fontsize_SampleSize:Edit|Type:number|Default:2.5|String:"Set the fontsize for the sample size in the daily plots"|TTIP:Note that the zeros can be omitted in principle, but are a side-effect of the validation used. You can ignore them.|ctrlOptions: w400 gcheckDecimalsOnEdit|Tab3Parent:6. Fontsizes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Fontsizes
-            %A_Tab%;;
-            %A_Tab%;;
             %A_Tab%;;
             %A_Tab%;;; Titles
             %A_Tab%DebugText:Text|Type:text|Default:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|String:"Setting [DEBUG==TRUE]" in section '2. General Configuration' will overwrite any settings made in this section"|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
@@ -218,6 +223,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%TitleSub_Daily:Edit|Type:String|Default:""|String:"Enter the sub-title you want to use for the daily plots. Leave empty to use the default sub-title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhereA'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
 
         )
+    gfcGUIconfig.="`n" gfcGUIconfig2
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
             SplitPath % script.scriptconfigfile,,configDirectory

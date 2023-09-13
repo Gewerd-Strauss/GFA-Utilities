@@ -1382,15 +1382,13 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             # Select the required number of colours from a sequencial color palette
             Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
             Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Boxplot <- c("white",Palette_Boxplot)
-            Palette_Boxplot <- Palette_Boxplot[1:6]
-            Palette_Lines <- c("#112734",Palette_Lines)
-            Palette_Lines <- Palette_Lines[1:6]
-            if (hasName(ini$Experiment,"Palette_Boxplot2")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2,","))
+            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+            if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
             }
-            if (hasName(ini$Experiment,"Palette_Lines2")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2,","))
+            if (hasName(ini$Experiment,"Palette_Lines")) {
+                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
             }
             
             # assemble label strings
@@ -1591,6 +1589,43 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
             }
             
+            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y",linetype=1)
+            if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
+                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
+                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
+            }
+            
             # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
             if (as.logical(ini$General$PlotSampleSize)) {
                 if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
@@ -1606,12 +1641,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                             , size = n_size
                                                             , fontface = "bold"
                                                             , position = position_dodge(width=0.75))
-            }
-            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y",linetype=1)
-            if (hasName(ini$Fontsizes,"Fontsize_General")) {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
             }
             if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
                 clen <- str_length(str_c(folder_path,"ROutput\\",filename))
@@ -1980,6 +2009,43 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
             }
             
+            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
+            if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
+                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
+            }
+            if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
+                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+            } else {
+                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
+            }
+            
             # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
             if (as.logical(ini$General$PlotSampleSize)) {
                 if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
@@ -1995,12 +2061,6 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                                                             , size = n_size
                                                             , fontface = "bold"
                                                             , position = position_dodge(width=0.75))
-            }
-            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
-            if (hasName(ini$Fontsizes,"Fontsize_General")) {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10),title = element_text(size=10))
             }
             if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
                 clen <- str_length(str_c(folder_path,"ROutput\\",filename))
@@ -2541,11 +2601,40 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                          clean_theme())
     GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
     if (hasName(ini$Fontsizes,"Fontsize_General")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=ini$Fontsizes$Fontsize_General))
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
     } else {
         GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size=10), title = element_text(size=10))
     }
-    
+    if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(size=10))
+    }
+    if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.y = element_text(size=10))
+    }
+    if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.x = element_text(size=10))
+    }
+    if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.y = element_text(size=10))
+    }
+    if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.text = element_text(size=10))
+    }
+    if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+    } else {
+        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.title = element_text(size=10))
+    }
     GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0)) # rotate the axis labels.
     GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent"))  # set the legend stylings
     GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y",linetype=1)
