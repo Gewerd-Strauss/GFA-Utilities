@@ -320,6 +320,15 @@
                         this.ArgumentsValidate[current_key].Value:=Value
                     } else if (this.ArgumentsValidate[current_key].Type="String") {
                         this.ArgumentsValidate[current_key].Value:=value
+                    } else if (this.ArgumentsValidate[current_key].Type="number"){
+                        Value:=Value + 0
+                        if (Value!="") {    ;; floored value is an integer
+                            this.ArgumentsValidate[current_key].Value:=Value
+                        } else {            ;; floored value is not an integer
+                            this.ArgumentsValidate[current_key].Value:=this.ArgumentsValidate[current_key].Default
+                            OutputDebug % "`nThe value for Key '" current_key "' should be of type 'number', but coercing it into a number by adding zero resulted in an empty string"
+                        }
+
                     } else {
                         OutputDebug % "Key " current_key " is not part of the default config, and will be assumed invalid or corrupted"
                     }
