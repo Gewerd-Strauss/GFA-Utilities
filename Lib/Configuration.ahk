@@ -172,13 +172,12 @@ setupdefaultconfig(Switch) {
             %A_Tab%filename_date_format:Combobox|Type:String|Default:"`%d.`%m.`%Y"|String:"Select the date format for saved files. Editing allowed"|TTIP:Does not control the date format on the figure. For that, see option 'figure_date_format'.|ctrlOptions:r5,`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:2. GeneralConfiguration|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%Debug:Checkbox|Type:boolean|Default:0|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:Link:https://{GH-Repo}#{Parameter}f|Linktext:?|ConfigSection:General
             %A_Tab%;;; figure
-            %A_Tab%;;
-            %A_Tab%;;
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%;;
             %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%Theme:Edit|Type:Integer|Default:7|String:"Choose your default theme."|Max:99|Min:1|ctrlOptions:Number|Tab3Parent:3. Figure|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
-            %A_Tab%;;
+        )
+    gfcGUIconfig2=
+        (LTRIM
             %A_Tab%;;; axes
             %A_Tab%RelativeColnames:Checkbox|Type:boolean|Default:1|String:"Do you want to display the X-positions as 'days since T0'?"|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
             %A_Tab%ShowBothColnames:Checkbox|Type:boolean|Default:0|String:"Do you want to display the X-positions as 'days since T0 - date'?"|Tab3Parent:4. Axes|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
@@ -218,6 +217,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%TitleSub_Daily:Edit|Type:String|Default:""|String:"Enter the sub-title you want to use for the daily plots. Leave empty to use the default sub-title."|TTIP:Note that the respective days' date is appended to either the title or subtitle, depending on what you choose under 'ShowTitleDateWhereA'.|Tab3Parent:7. Titles|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:General
 
         )
+    gfcGUIconfig.="`n" gfcGUIconfig2
     if (Switch=1) {
         if (!FileExist(script.scriptconfigfile) || globalLogicSwitches.DEBUG ) {
             SplitPath % script.scriptconfigfile,,configDirectory
