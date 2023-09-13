@@ -564,6 +564,8 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 
     global dynGUI
     global guiObject
+    global hwndLV_RScriptHistory
+    global hwndLV_ConfigHistory
     if (A_GuiControl="Drop config file or config destination folder here") {    ;; ini-file
 
         if (File.Count()>1) {
