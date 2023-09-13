@@ -1,5 +1,11 @@
 ﻿
 buildHistory(History,NumberOfRecords,configpath:="") {
+    examples:=[]
+    for each, file in History {
+        if InStr(file,A_ScriptDir) {
+            examples.push(file)
+        }
+    }
     ret:=History.Clone()
     if (configpath!="") {
         if HasVal(ret,configpath) {
@@ -9,6 +15,11 @@ buildHistory(History,NumberOfRecords,configpath:="") {
     }
     if (ret.Count()>NumberOfRecords) {
         ret.Delete(NumberOfRecords+1,ret.Count())
+    }
+    for each, file in examples {
+        if !HasVal(ret,file) {
+            ret.push(file)
+        }
     }
     return ret
 }
@@ -58,27 +69,27 @@ loadRScriptFromLV(dynGUI,guiObject) {
     global generateRScriptBtn
     gui Listview, % hwndLV_RScriptHistory
     ; TODO: clean up the load config logic to use one singular function, instead of the same code copy-pasted everywhere. then make this func properly take the right guiObject
-    Chosen:=getSelectedLVEntries2()
+    rscriptPath:=getSelectedLVEntries2()
     /*
     */
-    if (Chosen!="") {
+    if (rscriptPath!="") {
         ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
-        if (!InStr(Chosen,".R")) {
-            Chosen:=Chosen ".R"
+        if (!InStr(rscriptPath,".R")) {
+            rscriptPath:=rscriptPath ".R"
         }
-        onGenerateRScript:=Func("createRScript").Bind(Chosen)
+        onGenerateRScript:=Func("createRScript").Bind(rscriptPath)
         guiControl GC:+g, %generateRScriptBtn%, % onGenerateRScript
-        guicontrol % "GC:",vStarterRScriptLocation, % Chosen
-        if (Chosen!="") {
-            dynGUI.GFA_Evaluation_RScript_Location:=Chosen
+        guicontrol % "GC:",vStarterRScriptLocation, % rscriptPath
+        if (rscriptPath!="") {
+            dynGUI.GFA_Evaluation_RScript_Location:=rscriptPath
         }
-        if (!FileExist(Chosen)) {
-            writeFile(Chosen,"","UTF-8-RAW",,true)
+        if (!FileExist(rscriptPath)) {
+            writeFile(rscriptPath,"","UTF-8-RAW",,true)
         } else {
         }
         guiResize(guiObject)
     }
-    if (Chosen!="") {
+    if (rscriptPath!="") {
         if (overwrite) {
             ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
             guiObject.RCodeTemplate:=handleCheckboxes()
@@ -105,8 +116,8 @@ loadRScriptFromLV(dynGUI,guiObject) {
             Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
             fillRC1(Code)
         }
-        if (!InStr(configPath,A_ScriptDir)) {
-            script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,Chosen)
+        if (!InStr(rscriptPath,A_ScriptDir)) {
+            script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rscriptPath)
             updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
             script.save(script.scriptconfigfile,,true)
         }

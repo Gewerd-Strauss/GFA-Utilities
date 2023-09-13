@@ -635,86 +635,16 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
         if (rPath!="") {
             dynGUI.GFA_Evaluation_RScript_Location:=rPath
+            if (!InStr(rPath,A_ScriptDir)) {
+                script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rPath)
+                updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
+                script.save(script.scriptconfigfile,,true)
+            }
         }
     } else { ;; anywhere else
-        if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped", You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.
-            Gui -OwnDialogs
-        }
-        if (InStr(FileExist(File[1]),"D")) { ; directory
-            ; if directory, check first if ini-files exist
-            ; multiple ini-files exist. if true, open a fileselectfile dialogue on that folder prompting to ask 
-            iniCount:=0 
-            loop, Files, % File[1] "\*.ini"        ;; check number of ini-files
-            {
-                iniCount:=A_Index
-                confPath:=A_LoopFileFullPath
-            }
-            if (iniCount>1) {                       ;; multiple files, select one
-                FileSelectFile configPath, 3, % File[1], % "Please select the ini-file you want to edit.", *.ini
-            } else if (iniCount=1) {                ;; select the only one available
-                configPath:=confPath
-            } else if (iniCount=0) {                ;; create a new one
-                FileSelectFile configPath, S8, % File[1], % "Please create the ini-file you want to use.", *.ini
-            }
-        } else { ; file
-            configPath:=File[1]
-        }
-        loadConfig_Main(configPath,dynGUI)
-
-        if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped", You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.
-            Gui -OwnDialogs
-        }
-        if (InStr(FileExist(File[1]),"D")) { ; directory
-            ; if directory, check first if Rscript-files exist
-            ; multiple Rscript-files exist. if true, open a fileselectfile dialogue on that folder prompting to ask 
-            rCount:=0 
-            loop, Files, % File[1] "\*.R"        ;; check number of Rscript-files
-            {
-                rCount:=A_Index
-                R_Path:=A_LoopFileFullPath
-            }
-            if (rCount>1) {                       ;; multiple files, select one
-                FileSelectFile rPath, 3, % File[1], % "Please select the Rscript-file you want to edit.", *.R
-            } else if (rCount=1) {                ;; select the only one available
-                rPath:=R_Path
-            } else if (rCount=0) {                ;; create a new one
-                FileSelectFile rPath, S8, % File[1], % "Please create the Rscript-file you want to use.", *.R
-                if (rPath!="") {
-                    if !RegexMatch(rPath,"\.R$")  {
-                        rPath.= ".R"
-                    }
-                    if !FileExist(rPath) {
-                        writeFile(rPath,"","UTF-8-RAW",,true)
-                    }
-                }
-            }
-        } else { ; file
-            rPath:=File[1]
-        }
-        if (rPath="") {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.
-            Gui -OwnDialogs
-            return
-        }
-
-        if RegexMatch(rPath,"\.ini$")  {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Dropped config-file on rscript-dropper", % "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead."
-            Gui -OwnDialogs
-            return
-        } else if !RegexMatch(rPath,"\.R$")  {
-            rPath.= ".R"
-        }
-        guicontrol % "GC:",vStarterRScriptLocation, % rPath
-        if (rPath!="") {
-            dynGUI.GFA_Evaluation_RScript_Location:=rPath
-        }
-
+        Gui +OwnDialogs
+        MsgBox 0x40010, % script.name " - Error occured: Files dropped somewhere", You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.
+        Gui -OwnDialogs
     }
     if (rPath!="") {
         dynGUI.GFA_Evaluation_RScript_Location:=rPath
