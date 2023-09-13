@@ -1382,15 +1382,13 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
             # Select the required number of colours from a sequencial color palette
             Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
             Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Boxplot <- c("white",Palette_Boxplot)
-            Palette_Boxplot <- Palette_Boxplot[1:6]
-            Palette_Lines <- c("#112734",Palette_Lines)
-            Palette_Lines <- Palette_Lines[1:6]
-            if (hasName(ini$Experiment,"Palette_Boxplot2")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2,","))
+            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+            if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
             }
-            if (hasName(ini$Experiment,"Palette_Lines2")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2,","))
+            if (hasName(ini$Experiment,"Palette_Lines")) {
+                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
             }
             
             # assemble label strings
