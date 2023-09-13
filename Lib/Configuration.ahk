@@ -137,21 +137,21 @@ setupdefaultconfig(Switch) {
             2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
             3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\Beispiel-Konfiguration für Veersuch mit Behandlung.ini
             4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\GFA_conf.ini
-            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\GFA_conf.ini
+            5=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\GFA_conf.ini
             [LastRScriptHistory]
             ;LastRScriptHistory Hidden:
-            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\RScript.R
-            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\RScript.R
-            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\RScript.R
-            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\RScript.R
-            4=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\RScript.R
+            1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\EX1 RScript.R
+            2=%A_ScriptDir%\res\Examples\Example 2 - 1 Behandlung\EX2 RScript.R
+            3=%A_ScriptDir%\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\EX3 RScript.R
+            4=%A_ScriptDir%\res\Examples\Example 4 - Establishment Drought Stress in Cornetto Exp2.1\EX4 RScript.R
+            5=%A_ScriptDir%\res\Examples\Example 5 - Refinement Drought Stress in Cornetto Exp2.3\EX5 RScript.R
         )
     gfcGUIconfig=
         (LTRIM
             Experiment::blank
             %A_Tab%;; 1. Grouping
             %A_Tab%PotsPerGroup:Edit|Type:Integer|Default:7|String:"Set the number of pots per group/combination"|TTIP:[Facet2D==TRUE]\nHere, combination is a combination of a member of 'UniqueGroups' and a member of 'Facet2DVar'|ctrlOptions:number|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
-            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names"|TTIP:If you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
+            %A_Tab%UniqueGroups:Edit|Type:String|Default:G14,G21,G28,G35,G42,UU|String:"Set the comma-separated list of all unique group names, AS ORDERED IN THE DATA-FILES"|TTIP:It is required to ensure that groups are located at the same indeces across all data files.\n\nIf you set 'Facet2D' to TRUE, this must have as many entries as 'Facet2DVar'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderX:Edit|Type:String|Default:UU,G14,G21,G28,G35,G42|String:"Set the comma-separated order of groups in the plots along X-axis"|TTIP:Order the Groups along the X-Axis. Groups are ordered left to right|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%GroupsOrderY:Edit|Type:String|Default:|String:"Set the comma-separated order of groups in the plots along Y-Axis (only for facetting)"|TTIP:[Facet2D==TRUE]\nOrder the Groups along the Y-Axis. Groups are ordered top to bottom.|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%RefGroup:Edit|Type:String|Default:UU|String:"Set the reference group for all statistical tests"|TTIP:\n[Facet2D==FALSE]\nFor a normal plot, this must be a member of 'UniqueGroups'\n\n[Facet2D==TRUE]\nFor a facetted plot, this must be a combination of 1 member of 'Facet2DVar' and 'UniqueGroups', separated by a dot (.).\nThe order is always '[UniqueGroups_Member].[Facet2DVar_Member]'\nExample:\n'Ungestresst.Unbehandelt'|Tab3Parent:1. Grouping|Link:https://{GH-Repo}#{Parameter}|Linktext:?|ConfigSection:Experiment
