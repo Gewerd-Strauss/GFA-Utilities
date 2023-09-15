@@ -496,7 +496,7 @@ guiShow(guiObject) {
         gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     guicontrol GC: hide, % "vExcelSheetPreview"
-    dynGUI.guiVisible:=true
+    guiObject.dynGUI.guiVisible:=true
     handleCheckboxes()
     handleConfig(dynGUI,false)
     ;handleExcelSheets(dynGUI.Arguments)
