@@ -271,7 +271,7 @@
 
     }
     __Set(Param*){
-        ttip("triggered")
+
     }
     loadConfigFromFile(File) {
         t_script:=new script()

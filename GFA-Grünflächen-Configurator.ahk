@@ -71,13 +71,13 @@ main() {
         , globalLogicSwitches.Debug:=DEBUG
     if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
-            ttip("resetting conf 1")
+            ttip("Resetting program-configuration.")
         }
         setupdefaultconfig(1)
     }
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
-            ttip("resetting conf 2")
+            ttip("Resetting GUI-configuration.")
         }
         setupdefaultconfig(2)
     }
@@ -110,7 +110,7 @@ main() {
     guiObject.RCodeTemplate:=set_template()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
         if (globalLogicSwitches.bIsAuthor) {
-            ttip("generating parameter documentation string")
+            ttip("Generating parameter documentation string.")
             String:=guiObject.dynGUI.generateDocumentationString()
             Clipboard:=String
         }
@@ -149,16 +149,18 @@ guiCreate() {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
-    ttip(["guiWidth: " guiWidth
-            ,"guiHeight: " guiHeight
-            ,script.config.SizeSetting
-            ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
-            ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
-            ,"isauto: " (script.config.Configurator_settings.SizeSetting="auto")
-            ,"height-mwa 1440p: " 1392 - 2*30
-            ,"guiWidth 1440p: " 2560 - 2*30
-            ,"guiWidth  1080p: " 1920 - 2*30
-            ,"height-mwa 1080p: " 1032 - 2*30])
+    if (globalLogicSwitches.DEBUG) {
+        ttip(["guiWidth: " guiWidth
+                ,"guiHeight: " guiHeight
+                ,script.config.SizeSetting
+                ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
+                ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
+                ,"isauto: " (script.config.Configurator_settings.SizeSetting="auto")
+                ,"height-mwa 1440p: " 1392 - 2*30
+                ,"guiWidth 1440p: " 2560 - 2*30
+                ,"guiWidth  1080p: " 1920 - 2*30
+                ,"height-mwa 1080p: " 1032 - 2*30])
+    }
     if (globalLogicSwitches.DEBUG) {
         ttip({guiWidth:guiWidth,guiHeight:guiHeight,A_ScreenHeight:A_ScreenHeight,A_ScreenWidth:A_ScreenWidth},1,2300)
     }
@@ -779,7 +781,6 @@ GCEscape() {
 
 fCallBack_StatusBarMainWindow() {
     gui GC: Submit, NoHide
-    ttip(globalLogicSwitches.bIsDebug)
     gui GC: -AlwaysOnTop
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
@@ -1196,7 +1197,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
 }
 #if WinActive("ahk_id " CCHWND)
-!F4::ttip("You cannot close this window")
+!F4::ttip("You cannot close this window.")
 #if
 runRScript(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_RScript_Location")) {
