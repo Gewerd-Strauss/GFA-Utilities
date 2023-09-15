@@ -940,12 +940,13 @@ editConfiguration(configurationFile) {
     return
 }
 editRScript(rScriptFile) {
-    global
+    global guiObject
+    global hwndLV_RScriptHistory
     gui Submit,NoHide
     if (FileExist(rScriptFile)) {
         run % rScriptFile
-    } else if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
-        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+    } else if (FileExist(guiObject.dynGUI.GFA_Evaluation_Configfile_Location)) {
+        SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
         GFA_rScriptFile:=createRScript(OutDir,true,true)
     } else {
         if (globalLogicSwitches.DEBUG) {
