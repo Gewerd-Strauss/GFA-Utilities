@@ -668,7 +668,7 @@ fillRC1(Code) {
     return
 }
 fillRC2(INI) {
-    global
+    global RC2
     gui GC: default
     RC2.Settings.Highlighter:= "HighlightINI"
         , RC2.Value:= INI
