@@ -1458,3 +1458,4 @@ prepare_release() {
 #Include <cJSON>
 #Include <CenterControl>
 #Include <messageboxes>
+#Include <DerefAHKVariables>
