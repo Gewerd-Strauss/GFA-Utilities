@@ -1426,3 +1426,4 @@ prepare_release() {
 #Include <renameImages>
 #Include <cJSON>
 #Include <CenterControl>
+#Include <messageboxes>
