@@ -23,7 +23,7 @@
                 this.validateduplicateGroups("GroupsOrder",destroyGUI)
                 this.validateduplicateGroups("UniqueGroups",destroyGUI)
                 this.validatematchingGroups(destroyGUI,"GroupsOrder","UniqueGroups")
-                this.validateRefGroup(destroyGUI,"GroupsOrder","UniqueGroups")
+                this.validateRefGroup(destroyGUI,"UniqueGroups","GroupsOrder")
                 Object[Argument.ConfigSection][key]:=Argument.Value
             }
             if (Argument.Control="DateTime") {
@@ -126,7 +126,6 @@
                         value_to_validate:=strsplit(value_to_validate,",")
                         Arr[key]:=value_to_validate
                         Arr2.push(key)
-
                     }
                 }
             }
@@ -158,7 +157,6 @@
                             value_missing:=true
                             break
                         }
-
                     }
                 }
             }
@@ -198,8 +196,6 @@
                             } Else IfMsgBox No, {
 
                             }
-
-
 
                         }
                     }
@@ -242,7 +238,6 @@
                         } else if (A_index=(Expected-1)) {
                             conflicting_keys.=" & "
                         }
-
                     }
                 }
             }
@@ -264,7 +259,6 @@
                     guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
                 } Else IfMsgBox No, {
                     guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % this.Arguments.RefGroup.Value
-
                 }
             }
         }
@@ -328,7 +322,6 @@
                             this.ArgumentsValidate[current_key].Value:=this.ArgumentsValidate[current_key].Default
                             OutputDebug % "`nThe value for Key '" current_key "' should be of type 'number', but coercing it into a number by adding zero resulted in an empty string"
                         }
-
                     } else {
                         OutputDebug % "`nKey " current_key " is not part of the default config, and will be assumed invalid or corrupted"
                     }
@@ -336,7 +329,6 @@
                     this.ArgumentsValidate[current_key].Value:=""
                 }
             }
-
         }
     }
     validateLoadedConfig() {
