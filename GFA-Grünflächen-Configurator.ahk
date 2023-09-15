@@ -660,7 +660,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
     return  
 }
 fillRC1(Code) {
-    global
+    global RC
     gui GC: default
     Code:=FormatEx(Code,{GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")})
     RC.Settings.Highlighter:= "HighlightR"
