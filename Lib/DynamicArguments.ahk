@@ -209,10 +209,10 @@ Class dynamicGUI {
     }
     AdjustMinMax() {
         for Parameter, Value in this.Arguments {
-            if RegexMatch(Value.Other,"Max\:(?<Max>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Max\:(?<Max>\d*)",v_) {
                 Value.Max:=v_Max+0
             }
-            if RegexMatch(Value.Other,"Min\:(?<Min>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Min\:(?<Min>\d*)",v_) {
                 Value.Min:=v_Min+0
             }
             if Value.HasKey("Max") && Value.Value>Value.Max {
