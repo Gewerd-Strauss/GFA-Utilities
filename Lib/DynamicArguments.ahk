@@ -229,7 +229,7 @@ Class dynamicGUI {
         }
     }
     AdjustNulls() {
-        for _, Value in this.Arguments {
+        for Parameter, Value in this.Arguments {
             if Value.Value="NULL" {
                 Value.Value:=strreplace(Value.Value,"""")
             }
