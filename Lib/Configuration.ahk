@@ -57,7 +57,7 @@ setupdefaultconfig(Switch) {
             ;bRunAsAdmin Type: Checkbox
             ;bRunAsAdmin CheckboxName: Always start as Administrator? (Requires restart to take effect.)
             ;bRunAsAdmin Default: 0
-            GFA_Evaluation_InstallationPath=%A_ScriptDir%/GFA_Evaluation.R
+            GFA_Evaluation_InstallationPath=%A_ScriptDir%\GFA_Evaluation.R
             ;GFA_Evaluation_InstallationPath Type: File
             ;GFA_Evaluation_InstallationPath Please select the location of your 'GFA_Evaluation.R'-Script.
             ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
