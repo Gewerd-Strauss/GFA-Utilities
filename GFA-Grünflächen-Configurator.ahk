@@ -64,9 +64,6 @@ main() {
             break
         }
     }
-    if !script.requiresInternet() {
-        exitApp()
-    }
     globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
         , globalLogicSwitches.Debug:=DEBUG
     if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
@@ -84,6 +81,9 @@ main() {
     script.Load(script.scriptconfigfile, 1)
     if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
         RunAsAdmin()
+    }
+    if !script.requiresInternet() {
+        exitApp()
     }
     globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
     script.version:=script.config.version.GFC_version
