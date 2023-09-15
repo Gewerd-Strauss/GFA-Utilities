@@ -123,7 +123,7 @@ main() {
     global guiObject:=guiCreate()
     guiObject.RCodeTemplate:=set_template()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
+        if (DEBUG && globalLogicSwitches.bIsAuthor) {
             ttip("Generating parameter documentation string.")
             String:=guiObject.dynGUI.generateDocumentationString()
             Clipboard:=String
