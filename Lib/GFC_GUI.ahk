@@ -100,11 +100,8 @@
                             Argument.Value:=cleanedVal
                             guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
                         } Else IfMsgBox No, {
-
+                            guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % Argument.Value
                         }
-
-
-
                     }
                 }
             }
