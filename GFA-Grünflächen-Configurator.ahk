@@ -129,7 +129,7 @@ main() {
             Clipboard:=String
         }
     }
-    global maingui_hwnd:=guiShow(guiObject)
+    guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
     guiResize(guiObject)
@@ -147,9 +147,6 @@ main() {
 guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
-    if (globalLogicSwitches.DEBUG) {
-        ttip([globalLogicSwitches.bIsAuthor,globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG])
-    }
     ;; get Screen dimensions
 
     if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
@@ -166,6 +163,8 @@ guiCreate() {
     if (globalLogicSwitches.DEBUG) {
         ttip(["guiWidth: " guiWidth
                 ,"guiHeight: " guiHeight
+                ,"A_ScreenHeight " A_ScreenHeight
+                ,"A_ScreenWidth " A_ScreenWidth
                 ,script.config.SizeSetting
                 ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
                 ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
@@ -173,19 +172,15 @@ guiCreate() {
                 ,"height-mwa 1440p: " 1392 - 2*30
                 ,"guiWidth 1440p: " 2560 - 2*30
                 ,"guiWidth  1080p: " 1920 - 2*30
-                ,"height-mwa 1080p: " 1032 - 2*30])
+                ,"height-mwa 1080p: " 1032 - 2*30,["bIsAuthor: " globalLogicSwitches.bIsAuthor,"bisDEBUG: " globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG]],1,2300)
     }
-    if (globalLogicSwitches.DEBUG) {
-        ttip({guiWidth:guiWidth,guiHeight:guiHeight,A_ScreenHeight:A_ScreenHeight,A_ScreenWidth:A_ScreenWidth},1,2300)
-    }
-
     YMarginWidth:=XMarginWidth:=15
         , NumberofSections:=3
         , WidthMinusMargins:=guiWidth - 4*XMarginWidth + 0
         , SectionWidth:=WidthMinusMargins/NumberofSections + 0
         , SectionHeight:=guiHeight
         , Sections:=[]
-        , middleanchor:=guiWidth-4*15-middleWidth
+        , middleanchor:=guiWidth-4*15
     loop, % NumberofSections {
         if (A_Index>1) {
             Sections[A_Index]:={XAnchor:XMarginWidth*A_Index + SectionWidth*(A_Index-1),YAnchor:3,Width:SectionWidth*1,Height:SectionHeight*1}
@@ -209,7 +204,7 @@ guiCreate() {
         , Sections[4].XAnchor:=Sections[4].XAnchor-ShiftSection1-ShiftSection2
         , Sections[4].Width:=Sections[4].Width+ShiftSection1+ShiftSection2
         , Sections[2].Height:=230
-        , middleanchor:=guiWidth-4*15-middleWidth
+        , middleanchor:=guiWidth-4*15
 
     Sections[3].YAnchor:=Sections[2].Height-15
         , Sections[3].XAnchor:=Sections[2].XAnchor
@@ -519,8 +514,6 @@ guiShow(guiObject) {
 }
 
 guiHide() {
-    global
-    dynGUI.guiVisible:=false
     GCEscape()
     return 
 }
@@ -715,7 +708,6 @@ loadConfig_Main(configPath,dynGUI) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        needle:="GFA_main\(r""\(\%.+\%\)"","
         needle:="GFA_main\((folder_path = r.+""),"
         rep1:="GFA_main(folder_path = r""("
         rep2:=")"","
@@ -895,7 +887,6 @@ createConfiguration(Path,guiObject) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        needle:="GFA_main\(r""\(\%.+\%\)"","
         needle:="GFA_main\((r.+""),"
         rep1:="GFA_main(r""("
         rep2:=")"","

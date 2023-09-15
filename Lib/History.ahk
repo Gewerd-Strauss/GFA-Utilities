@@ -40,7 +40,7 @@ toggle_ReportTip() {
 toggle_ReportTip2() {
     global
     GuiControlGet vToggleLVReport2
-    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % global hwndLV_RScriptHistory
+    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % hwndLV_RScriptHistory
     if (vToggleLVReport2) {
         LV_ModifyCol(1,"auto")
     } else {
