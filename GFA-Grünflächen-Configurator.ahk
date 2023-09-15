@@ -1377,10 +1377,33 @@ set_template() {
         )
     if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
         fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
-        template:=fo.Read()
+        custom_template:=fo.Read()
         fo.Close()
+        ret:=custom_template
+        for each, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"]
+            if !InStr(custom_template,key) {
+                OnMessage(0x44, "OnMsgBox_MissingContent")
+                AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.",boxOptions:="0x40014",TitlePrefix:=" - ")
+                OnMessage(0x44, "")
+                IfMsgBox Yes, {
+                    ret:=template
+                    break
+                } Else IfMsgBox No, {
+                    exitApp()
+                }
+            }
+    } else {
+        ret:=template
     }
-    return template
+    return ret
+}
+OnMsgBox_MissingContent() {
+    DetectHiddenWindows On
+    Process Exist
+    If (WinExist("ahk_class #32770 ahk_pid " . ErrorLevel)) {
+        ControlSetText Button1, Use Default
+        ControlSetText Button2, Exit Program
+    }
 }
 prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
