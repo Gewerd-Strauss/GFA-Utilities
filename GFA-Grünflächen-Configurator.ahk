@@ -62,7 +62,7 @@ tooltip
 return
 
 main() {
-
+    bUpdateGeneratedFiles:=false
     Loop, % A_Args.Length() {
         param := %A_Index%  ; Fetch the contents of the variable whose name is contained in A_Index.
             , bUpdateGeneratedFiles:=param
@@ -148,7 +148,7 @@ guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
     ;; get Screen dimensions
-
+    bShowDebugPanelINMenuBar:=""
     if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
@@ -334,7 +334,6 @@ guiCreate() {
 
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, curr. loaded R-Script
     gui add, edit,% "y" (20)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndStarterRScriptLocation vvStarterRScriptLocation w" Sections[4].Width*0.85+4,   % "<Location of Starter-'.R'-Script>"
-    ; global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h" (Sections[4].Height-45-3*5)/4 ,"GC", HighlightBound=Func("HighlightR"))
     global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
     gui add, text, % "y" (45+489+5) " x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - (3*5) - (Sections[4].Width*0.85), curr. loaded Config
     gui add, edit,% "y" (45+489+5)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndUsedConfigLocation vvUsedConfigLocation w" Sections[4].Width*0.85+4,   % "<Location of Configuration-'.ini'-File>"

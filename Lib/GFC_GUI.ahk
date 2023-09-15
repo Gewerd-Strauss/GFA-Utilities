@@ -3,6 +3,7 @@
         this.SubmitDynamicArguments(destroyGUI)
         this._Adjust()
         Object:={}
+        WriteInd:=0
         bValidateGroups:=bValidateFacetting:=false
         for key, Argument in this.Arguments {
             Object[Argument.ConfigSection]:={}
