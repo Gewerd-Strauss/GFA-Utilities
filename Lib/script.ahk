@@ -881,7 +881,7 @@ script_FormatEx(FormatStr, Values*) {
     for _, part in Values {
         for search, replace in part {
             replacements.Push(replace)
-            FormatStr := StrReplace(FormatStr, "{" search "}", "{"++index "}")
+            FormatStr := StrReplace(FormatStr, "{" search "}", "{" ++index "}")
         }
     }
     return Format(FormatStr, replacements*)
