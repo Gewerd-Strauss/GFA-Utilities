@@ -531,7 +531,20 @@ WinGetPos(title) {
     return {x: x, y: y, w: w, h: h}
 }
 GCSize() {
-    global
+    ;global
+    global gb3
+    global gb4
+    global hwndStarterRScriptLocation
+    global hwndUsedConfigLocation
+    global EditSettingsBtn
+    global ExitProgramBtn
+    global OpenRScriptBtn
+    global recompileBtn
+    global RC
+    global RC2
+    global hwndLV_ConfigHistory
+    global hwndLV_RScriptHistory
+    global hwndTab3_2
     gui GC: default
     wgp := WinGetPos("ahk_id " guiObject.dynGUI.GCHWND)
     gui GC: default
