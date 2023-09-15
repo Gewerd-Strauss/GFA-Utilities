@@ -549,8 +549,6 @@ GCSize() {
     wgp := WinGetPos("ahk_id " guiObject.dynGUI.GCHWND)
     gui GC: default
     SB_SetText("x" wgp.x " y" wgp.y " w" wgp.w " h" wgp.H,8)
-    AutoXYWH("h*", gb1,gb3)
-    ;AutoXYWH("h*", gb2)
     AutoXYWH("h*", gb3)
     AutoXYWH("wh*", gb4)
     AutoXYWH("w", hwndStarterRScriptLocation)
