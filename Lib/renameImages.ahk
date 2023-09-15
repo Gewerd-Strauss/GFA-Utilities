@@ -276,7 +276,6 @@ GFAR_ExcludeInspectSelection() {
 GFAR_ExcludeEscape() {
     gui GFAR: -disabled
     gui GFAR_Exclude: destroy
-    ;MsgBox 0x40034, % script.name " - Confirm", % "No changes occured. Return to first GUI"
     return
 }
 

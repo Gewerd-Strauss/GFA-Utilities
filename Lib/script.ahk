@@ -816,7 +816,7 @@ class script {
                 FileDelete % Backup_Temp
                 FileCreateDir % Backup_Temp
             }
-            MsgBox 0x34, `% this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
+            MsgBox 0x34, % this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
             IfMsgBox Yes 
             {
                 Err:=CopyFolderAndContainingFiles(A_ScriptDir, Backup_Temp,1) 		;; backup current folder with all containing files to the backup pos. 
@@ -865,7 +865,7 @@ CopyFolderAndContainingFiles(SourcePattern, DestinationFolder, DoOverwrite = fal
         FileCopyDir % A_LoopFileFullPath, % DestinationFolder "\" A_LoopFileName , % DoOverwrite
         ErrorCount += ErrorLevel
         if ErrorLevel  ; Report each problem folder by name.
-            MsgBox % "Could not copy " A_LoopFileFullPath " into " DestinationFolder "."
+            MsgBox % "0x40010",% "Could not copy " A_LoopFileFullPath " into " DestinationFolder "."
     }
     return ErrorCount
 }
