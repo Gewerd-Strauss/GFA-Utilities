@@ -32,7 +32,7 @@
 ; #region:Code
 CodeTimer(Description:="",x:=500,y:=500,ClipboardFlag:=0)
 {
-    Global StartTimer
+    static StartTimer:=""
     If (StartTimer != "")
     {
         FinishTimer := A_TickCount
