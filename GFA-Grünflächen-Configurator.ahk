@@ -73,14 +73,22 @@ main() {
     globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
         , globalLogicSwitches.Debug:=DEBUG
     if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("Resetting program-configuration.")
+        if (FileExist(script.scriptconfigfile)) {
+            if (globalLogicSwitches.bIsAuthor) {
+                ttip("Resetting program-configuration.")
+            }   
+        } else {
+            ttip("Initialising program-configuration.")
         }
         setupdefaultconfig(1)
     }
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("Resetting GUI-configuration.")
+        if (FileExist(script.gfcGUIconfigfile)) {
+            if (globalLogicSwitches.bIsAuthor) {
+                ttip("Resetting GUI-configuration.")
+            }   
+        } else {
+            ttip("Initialising GUI-configuration.")
         }
         setupdefaultconfig(2)
     }
