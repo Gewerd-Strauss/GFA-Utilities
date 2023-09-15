@@ -452,22 +452,21 @@ guiShow3(guiObject,ShowThirdPane:=true) {
     return
 }
 guiShow2(guiObject) {
-    global
     if (WinActive("ahk_id " guiObject.dynGUI.GCHWND)) {
-        if (dynGUI.guiVisible) {
+        if (guiObject.dynGUI.guiVisible) {
             guiHide()
-            dynGUI.guiVisible:=false
+            guiObject.dynGUI.guiVisible:=false
         } else {
             guiShow(guiObject)
-            dynGUI.guiVisible:=true
+            guiObject.dynGUI.guiVisible:=true
         }
     } else {
-        if (dynGUI.guiVisible) {
+        if (guiObject.dynGUI.guiVisible) {
             guiHide()
-            dynGUI.guiVisible:=false
+            guiObject.dynGUI.guiVisible:=false
         } else {
             guiShow(guiObject)
-            dynGUI.guiVisible:=true
+            guiObject.dynGUI.guiVisible:=true
         }
     }
     return
