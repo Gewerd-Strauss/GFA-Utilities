@@ -7,6 +7,8 @@
             } else {
                 ttip("There were no missing xlsx-files in subfolders of " SearchDirectory)
             }
+        } else {
+            ttip("The selected configuration file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist.")
         }
     } else {
         ttip("No configuration file has been selected yet.")

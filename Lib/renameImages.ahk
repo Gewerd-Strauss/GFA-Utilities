@@ -4,7 +4,7 @@
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir,
             GFAR_createGUI(dynGUI.Arguments.PotsPerGroup.Value,dynGUI.Arguments.UniqueGroups.Value,OutDir,dynGUI)
         } else {
-            throw exception("currently selected config-file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist`n"  CallStack(),-1)
+            ttip("The selected configuration file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist.")
         }
     } else {
         ttip("No configuration file has been selected yet.")
@@ -357,13 +357,11 @@ GFAR_ExcludeSubmit() {
             run % scriptWorkingDir
         }
     }
-    ttip(script.name " - Finished running")
-    OnMessage(0x44, "OnMsgBox2")
     FinalInfoBox_String:="The script finished running.`n"
     FinalInfoBox_String.= (script.config.GFA_Renamer_settings.PutFilesOnClipboard)
         ? "The renamed image files are now ready to be pasted into whatever folder you want. Just open your intended folder and press 'CTRL-V'.`n`nAdditionally, a log file is copied. This log-file displays for every file that got renamed its original path. Files which are not renamed - and thus are missing in the output - are not shown in the log."
         : "- The folder containing the renamed images will open once this message box is closed.`n`nA log mapping each image to its new name is given in the file '__gfa_renamer_log.txt' within the output directory 'GFAR_WD'. The original image files are preserved in the original folder."
-    MsgBox 0x40, % script.name " - Script finished",% FinalInfoBox_String
+    MsgBox 0x40, % script.name " > Image-Renamer - Script finished",% FinalInfoBox_String
     OnMessage(0x44, "")
     GFAR_ExcludeEscape()
     return
