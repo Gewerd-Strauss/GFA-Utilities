@@ -41,7 +41,7 @@ CodeTimer(Description:="",x:=500,y:=500,ClipboardFlag:=0)
         If (ClipboardFlag=1) {
             Clipboard.="`n" TimedDuration
         }
-        if (Description="") {
+        if (Description!="") {
             tooltip % String:="Timer " Description "`n" TimedDuration " ms have elapsed!",% x,% y
         }
         Return [TimedDuration,String]
