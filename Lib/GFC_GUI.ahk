@@ -22,7 +22,7 @@
             if (bValidateGroups) {
                 this.validateduplicateGroups("GroupsOrder",destroyGUI)
                 this.validateduplicateGroups("UniqueGroups",destroyGUI)
-                this.validatematchingGroups(destroyGUI,"GroupsOrder","UniqueGroups")
+                this.validatematchingGroups(destroyGUI,"UniqueGroups","GroupsOrder")
                 this.validateRefGroup(destroyGUI,"UniqueGroups","GroupsOrder")
                 Object[Argument.ConfigSection][key]:=Argument.Value
             }
@@ -177,8 +177,6 @@
                         cleanedVal:=removeDuplicates(Argument.Value, ",")
                         cleanedVal:=RTrim(cleanedVal,",")
                         if (cleanedVal!=Argument.Value) { ;; different, thus duplicates got removed.
-                            ; TODO: Ask the user if the new value is correct, then enter it into the UI and guicontrol-fill the control containing it.
-
                             MsgBox 0x40014, % script.name " - " A_ThisFunc
                                 , % "The value you have entered for the key '" checked_key "' contains (potentially case-differing) repetitions."
                                 . "`nThe program tried to correct the problem, please check the new contents for the key '" checked_key "' and confirm again."
@@ -191,9 +189,8 @@
                                 Argument.Value:=cleanedVal
                                 guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
                             } Else IfMsgBox No, {
-
+                                guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % Argument.Value
                             }
-
                         }
                     }
                 }
