@@ -26,7 +26,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
 
 
 toggle_ReportTip() {
-    global
+    global hwndLV_ConfigHistory
     GuiControlGet vToggleLVReport
     GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_ConfigHistory
     if (vToggleLVReport) {
@@ -38,7 +38,7 @@ toggle_ReportTip() {
     return
 }
 toggle_ReportTip2() {
-    global
+    global hwndLV_RScriptHistory
     GuiControlGet vToggleLVReport2
     GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % hwndLV_RScriptHistory
     if (vToggleLVReport2) {
