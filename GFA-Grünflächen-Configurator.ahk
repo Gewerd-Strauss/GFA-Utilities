@@ -50,7 +50,13 @@ script := { base: script.base
 globalLogicSwitches.Debug:=DEBUG
 #Include <OnError>
 main()
-CodeTimer("Startup Time")
+if (A_IsCompiled) {
+    CodeTimer()
+} else if ((globalLogicSwitches.bIsAuthor && !A_IsCompiled)) {
+    CodeTimer("Startup Time")
+} else {
+    CodeTimer("")
+}
 sleep 3500
 tooltip
 return
