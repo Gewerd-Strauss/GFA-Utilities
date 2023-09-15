@@ -494,14 +494,6 @@ guiShow(guiObject) {
     loop, 12 {
         Tabs[A_Index]:=TabName A_Index
     }
-    loop, % Tabs.Count(){
-        TabNames.=Tabs[A_Index]
-        if (A_Index=1) {
-            TabNames.="||"
-        } else {
-            TabNames.="|"
-        }
-    }
     gui gc: default
     gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     if (globalLogicSwitches.DEBUG) {

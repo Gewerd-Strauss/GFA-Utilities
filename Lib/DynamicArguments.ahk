@@ -364,9 +364,6 @@ Class dynamicGUI {
                 ControlHeight:=0
                 if (Tab=Value.Tab3Parent) {
                     Control:=Value.Control
-                    if (Options="") {
-                        Options:=""
-                    }
                     if (Value.Control="Edit") {
                         GuiControl Choose, vTab3, % Tab
                         if Value.HasKey("Link") {
