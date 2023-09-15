@@ -561,9 +561,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
     if (A_GuiControl="Drop config file or config destination folder here") {    ;; ini-file
 
         if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped",% "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI."
-            Gui -OwnDialogs
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.","0x40010")
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
             ; if directory, check first if ini-files exist
@@ -587,9 +585,8 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         loadConfig_Main(configPath,dynGUI)
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped", You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.
-            Gui -OwnDialogs
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.","0x40010")
+            return
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
             ; if directory, check first if Rscript-files exist
@@ -611,16 +608,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath:=File[1]
         }
         if (rPath="") {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.
-            Gui -OwnDialogs
+            AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.","0x40010")
             return
         }
 
         if RegexMatch(rPath,"\.ini$")  {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Dropped config-file on rscript-dropper", % "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead."
-            Gui -OwnDialogs
+            AppError("Dropped config-file on rscript-dropper", "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead.","0x40010")
             return
         }
         if !RegexMatch(rPath,"\.R$")  {
@@ -636,9 +629,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             }
         }
     } else { ;; anywhere else
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Files dropped somewhere", You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.
-        Gui -OwnDialogs
+        AppError("Files dropped somewhere", "You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.","0x40010")
     }
     if (rPath!="") {
         dynGUI.GFA_Evaluation_RScript_Location:=rPath
@@ -669,15 +660,11 @@ loadConfig_Main(configPath,dynGUI) {
     global hwndLV_ConfigHistory
     global guiObject
     if (configPath="") {
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", % "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either."
-        Gui -OwnDialogs
+        AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either.","0x40010")
         return
     }
     if RegexMatch(configPath,"\.R$")  {
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
-        Gui -OwnDialogs
+        AppError("Dropped RScript-file on config-dropper", "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead.","0x40010")
         return
     }
     if !RegexMatch(configPath,"\.ini$") {
@@ -1347,7 +1334,14 @@ updateLV(hwnd,Object) {
 NumpadDot::reload       ;; hard-coded reload for when running through vsc, not usable in compiled form.
 #if
 #if globalLogicSwitches.bIsDebug
-~!Esc::Reload           ;; debug-state-dependent, usable by normal users when compiled
+~!Esc::           ;; debug-state-dependent, usable by normal users when compiled
+AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+IfMsgBox Yes, {
+    Reload
+} Else IfMsgBox No, {
+    return
+}
+return
 #if
 reload() {
     reload
@@ -1426,3 +1420,4 @@ prepare_release() {
 #Include <renameImages>
 #Include <cJSON>
 #Include <CenterControl>
+#Include <messageboxes>

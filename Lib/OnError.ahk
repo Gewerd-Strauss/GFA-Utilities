@@ -43,7 +43,7 @@ MyErrorHandler(oError) {
     if A_IsCompiled {
         a:=((script.config.Configurator_settings.bDebugSwitch || globalLogicSwitches.bIsDebug)?JSON_DUMP:"JSON NOT DUMPED")
         FileAppend % message "`n`n" a, % errorlog_path
-        MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
+        AppError("",  message "`n`nThis error has been saved to the file '" errorlog_path "'")
 
     } else {
         if (IsDebug()) {
@@ -51,7 +51,7 @@ MyErrorHandler(oError) {
             FileAppend % message "`n`n" a, *       ; throow to the db-console
 
         } else {
-            MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
+            AppError("",  message "`n`nThis error has been saved to the file '" errorlog_path "'")
             a:=((script.config.Configurator_settings.bDebugSwitch || globalLogicSwitches.bIsDebug)?JSON_DUMP:"JSON NOT DUMPED")
             FileAppend % message "`n`n" a, % errorlog_path
         }
