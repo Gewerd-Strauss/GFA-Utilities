@@ -110,8 +110,7 @@ GFARSubmit() {
         Counts:=strsplit(gfarPlantsPerGroup,",")
         GroupNames:=strsplit(gfarNames,",")
         if (Counts.Count() != GroupNames.Count()) {
-            Gui +OwnDialogs
-            MsgBox 0x40010,% script.name " - Critical error: Parameters incompatible",% "You provided a list of varying number of pots/plants per group: `n" gfarPlantsPerGroup "`n for " Counts.Count() " groups`, but also provided names for " GroupNames.Count() " groups:`n" gfarNames "`n`nPlease fix this error by aligning both."
+            AppError("Parameters incompatible", "You provided a list of varying number of pots/plants per group: `n" gfarPlantsPerGroup "`n for " Counts.Count() " groups`, but also provided names for " GroupNames.Count() " groups:`n" gfarNames "`n`nPlease fix this error by aligning both.","0x40010")
             return
         }
         for each, Name in GroupNames {
@@ -164,9 +163,8 @@ GFARSubmit() {
     until you have them all line up again.
     */
     if (ImagePaths.Count() > Arr.Count()) {
-        MsgBox 0x40010, % script.name " - Critical error: More images than names defined"
-            , % "The folder you provided contains " ImagePaths.Count() " images. The combination of the 'number of groups' and 'plants per group' you provided only allows for renaming " Arr.Count() " images."
-            . "`nBe aware that only those first " Arr.Count() " images will be renamed, (and copied to the clipboard)"
+        AppError("More images than names defined", "The folder you provided contains " ImagePaths.Count() " images. The combination of the 'number of groups' and 'plants per group' you provided only allows for renaming " Arr.Count() " images."
+            . "`nBe aware that only those first " Arr.Count() " images will be renamed, (and copied to the clipboard)","0x40010")
         ImageF:=ImagePaths[Arr.Count()]
     }
     gui GFAR_Exclude: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +hwndGFAR_ExcludeGui
