@@ -238,6 +238,7 @@
                         } else if (A_index=(Expected-1)) {
                             conflicting_keys.=" & "
                         }
+
                     }
                 }
             }
@@ -256,7 +257,7 @@
                     . "`nUse the new  value?"
                 IfMsgBox Yes, {
                     Argument.Value:=cleanedVal
-                    guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
+                    guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
                 } Else IfMsgBox No, {
                     guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % this.Arguments.RefGroup.Value
                 }
