@@ -570,7 +570,6 @@ GCSize() {
 }
 GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 
-    global dynGUI
     global guiObject
     global hwndLV_RScriptHistory
     global hwndLV_ConfigHistory
@@ -598,7 +597,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         } else { ; file
             configPath:=File[1]
         }
-        loadConfig_Main(configPath,dynGUI)
+        loadConfig_Main(configPath,guiObject.dynGUI)
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
             AppError("2+ files/folders dropped", "You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.","0x40010")
@@ -637,7 +636,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
         if (rPath!="") {
-            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+            guiObject.dynGUI.GFA_Evaluation_RScript_Location:=rPath
             if (!InStr(rPath,A_ScriptDir)) {
                 script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rPath)
                 updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
@@ -648,11 +647,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         AppError("Files dropped somewhere", "You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.","0x40010")
     }
     if (rPath!="") {
-        dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        guiObject.dynGUI.GFA_Evaluation_RScript_Location:=rPath
         guiResize(guiObject)
     }
     if (configPath!="") {
-        dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        guiObject.dynGUI.GFA_Evaluation_Configfile_Location:=configPath
         guiResize(guiObject)
     }
     return  
