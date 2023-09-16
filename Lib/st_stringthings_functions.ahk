@@ -89,6 +89,7 @@ output: +++++aaa-^
 */
 st_pad(string, left="0", right="", LCount=1, RCount=1)
 {
+   Lout:=ROut:=""
    if (LCount>0)
    {
       if (LCount>1)
@@ -101,9 +102,9 @@ st_pad(string, left="0", right="", LCount=1, RCount=1)
    {
       if (RCount>1)
          loop, %RCount%
-            Rout.=right
+            ROut.=right
          Else
-            Rout.=right
+            ROut.=right
    }
-   Return Lout string Rout
+   Return Lout string ROut
 }
