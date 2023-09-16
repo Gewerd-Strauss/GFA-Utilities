@@ -786,7 +786,6 @@ handleConfig(dynGUI,writetoFile:=false) {
                 script.save(script.scriptconfigfile,,true)
             } else { ;; only update the config file, but do not update the script data
                 writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
-
             }
         } catch {
             throw Exception( "Failed to write config with encoding '" script.config.Configurator_Settings.INI_Encoding "' to path '" dynGUI.GFA_Evaluation_Configfile_Location "'`n`n" CallStack(),-1)
@@ -800,7 +799,6 @@ GCSubmit() {
 }
 GCEscape() {
     gui GC: hide
-    ;gui GC: destroy
     return
 }
 
@@ -826,7 +824,6 @@ fCallBack_StatusBarMainWindow() {
             SoundBeep 150, 150
             SoundBeep 150, 150
             ListLines Off
-            ; KeyHistory
         }
         else if (!(script.authorID!=A_ComputerName)) || ((script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug)
         {
@@ -907,18 +904,6 @@ createConfiguration(Path,guiObject) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        ;needle:="GFA_main\((folder_path = r.+""),"
-        ;rep1:="GFA_main(folder_path = r""("
-        ;rep2:=")"","
-        ;Matches:=RegexMatchAll(String, "iU)" needle)
-        ;for _, match in Matches {                                                  ;; star, top
-        ;    match_ := match[0]
-        ;    if (_<2) {
-        ;        String:=strreplace(String,match_,rep1 WINDOWS rep2)
-        ;    } else {
-        ;        String:=strreplace(String,match_,rep1 MAC rep2)
-        ;    }
-        ;}
         if (script.config.Configurator_settings.UseRelativeConfigPaths) {
             SplitPath WINDOWS,  WINDOWS
             SplitPath MAC,  MAC
@@ -1076,7 +1061,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     }
     if (Chosen!="") {
         if (overwrite) {
-            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
             guiObject.RCodeTemplate:=handleCheckboxes()
             if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
                 configLocationFolder.="\"
