@@ -990,7 +990,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (!globalLogicSwitches.DEBUG) {
-        SearchPath:="C://"
+        SearchPath:="C:\"
     }
     if (SearchPath="") {
         if (!FileExist(Path)) {
