@@ -891,6 +891,9 @@ createConfiguration(Path,guiObject) {
                 LV_Add("",ExperimentName_Key,FileName,Chosen)
             }
         }
+    } else {
+        ttip("Please select a configuration file. Aborting file-creation.")
+        return
     }
     GFA_configurationFile:=Chosen
         , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
