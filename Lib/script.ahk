@@ -152,13 +152,13 @@ class script_ {
                 if RegexMatch(credits,"(?<Author>(\w|)*)(\s*\-\s*)(?<Snippet>(\w|\|)*)\s*\-\s*(?<URL>.*)")
                 {
                     CreditsLines:=strsplit(credits,"`n")
-                    Credits:={}
+                    credits:={}
                     for _,v in CreditsLines
                     {
                         if ((InStr(v,"author1") && InStr(v,"snippetName1") && InStr(v,"URL1")) || (InStr(v,"snippetName2|snippetName3")) || (InStr(v,"author2,author3") && Instr(v, "URL2,URL3")))
                             continue
                         val:=strsplit(strreplace(v,"`t"," ")," - ")
-                        Credits[Trim(val.2)]:=Trim(val.1) "|" Trim((strlen(val.3)>5?val.3:""))
+                        credits[Trim(val.2)]:=Trim(val.1) "|" Trim((strlen(val.3)>5?val.3:""))
                     }
                 }
                 ; Clipboard:=html
@@ -168,19 +168,19 @@ class script_ {
                     if (credits.Count()>0)
                     {
                         CreditsAssembly:="credits for used code:<br>`n"
-                        for Author,v in credits
+                        for author,v in credits
                         {
-                            if (Author="")
+                            if (author="")
                                 continue
                             if (strsplit(v,"|").2="") {
-                                CreditsAssembly.="<p>" Author " - " strsplit(v,"|").1 "`n`n"
+                                CreditsAssembly.="<p>" author " - " strsplit(v,"|").1 "`n`n"
                             } else {
                                 Name:=strsplit(v,"|").1
                                 Credit_URL:=strsplit(v,"|").2
-                                if Instr(Author,",") && Instr(Trim(Credit_URL),",")
+                                if Instr(author,",") && Instr(Trim(Credit_URL),",")
                                 {
                                     tmpAuthors:=""
-                                    AllCurrentAuthors:=strsplit(Author,",")
+                                    AllCurrentAuthors:=strsplit(author,",")
                                     for s,w in strsplit(Trim(Credit_URL),",")
                                     {
                                         currentAuthor:=AllCurrentAuthors[s]
@@ -194,14 +194,14 @@ class script_ {
 
                                     }
                                     if (AllCurrentAuthors.Count()>1) {
-                                        newCredits[AllCurrentAuthors[1]]:={Author:Name,URL:Trim(strsplit(Trim(Credit_URL),",").1),License:Trim(strsplit(Trim(Credit_URL),",").2)}
+                                        newCredits[AllCurrentAuthors[1]]:={author:Name,URL:Trim(strsplit(Trim(Credit_URL),",").1),License:Trim(strsplit(Trim(Credit_URL),",").2)}
                                     } else {
-                                        newCredits[Name]:={Author:Name,URL:strsplit(Trim(Credit_URL),",").1,License:strsplit(Trim(Credit_URL),",").2}
+                                        newCredits[Name]:={author:Name,URL:strsplit(Trim(Credit_URL),",").1,License:strsplit(Trim(Credit_URL),",").2}
                                     }
                                 }
                                 else {
-                                    CreditsAssembly.="<p><a href=" """" Trim(Credit_URL) """" ">" Author " - " Name "</a></p>`n"
-                                    newCredits[Author]:={Author:Name,URL:Trim(Credit_URL)}
+                                    CreditsAssembly.="<p><a href=" """" Trim(Credit_URL) """" ">" author " - " Name "</a></p>`n"
+                                    newCredits[author]:={author:Name,URL:Trim(Credit_URL)}
                                 }
                             }
                         }
@@ -231,7 +231,7 @@ class script_ {
             } else {
                 LibPath :=A_ScriptDir "\res\script_templates\"
             }
-            for metadata_type, metadata_element in MetaDataArray {
+            for metadata_type, metadata_element in MetadataArray {
                 if (metadata_element="") {
                     continue
                 }
@@ -465,7 +465,7 @@ class script_ {
                 ? MetadataArray.donateLink :( donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")))
             MetadataArray.email :=(MetadataArray.email!=""
                 ? MetadataArray.email :( email ? email : this.email))
-            ;for Key, Value in MetaDataArray {
+            ;for Key, Value in MetadataArray {
             ;    html:=strreplace(html, Key, Trim(Value))
             ;    Value=%Value%
             ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
@@ -638,6 +638,7 @@ class script_ {
                 , http.Send()
         } catch e {
             MsgBox 0x14,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, Do you want to the program to shut down now?"
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:38:36 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
             IfMsgBox OK, {
                 ExitApp
             } Else IfMsgBox Cancel, {
@@ -657,6 +658,7 @@ class script_ {
             if !bScriptObj_IsConnected && this.reqInternet ;; if internet is required - abort script
             {
                 MsgBox 0x11,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
+                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:39:10 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -668,6 +670,7 @@ class script_ {
         }
         ; throw {code: ERR_NOCONNECT, msg: e.message} ;; TODO: detect if offline
         if (!bSilentCheck)
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:09 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
             Progress 50, 50/100, % "Checking for updates", % "Updating"
 
         ; Download remote version file
@@ -685,6 +688,7 @@ class script_ {
             }
             if (!bScriptObj_IsConnected && this.reqInternet) { ;; if internet is required - abort script
                 MsgBox 0x14,% this.name " - connection timeout",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
+                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:39:15 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -694,6 +698,7 @@ class script_ {
         }
 
         if !(http.responseText) {
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:18 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
             Progress OFF
             try
                 throw exception("There was an error trying to download the ZIP file for the update.`n","script.Update()","The server did not respond.")
@@ -706,6 +711,7 @@ class script_ {
 
         ; FileRead, loVersion,% A_ScriptDir "\version.ini"
         if (InStr(http.responseText,"404")) {
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:23 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
             Progress OFF
             try
                 throw exception("The remote file containing the version to compare against could not be found.`n","script.Update()","Server not found.")
@@ -717,9 +723,11 @@ class script_ {
         regexmatch(http.responseText, "\d+\.\d+\.\d+", remVersion)
         if (!bSilentCheck)
         {
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:26 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
             Progress 100, 100/100, % "Checking for updates", % "Updating"
             sleep 500 	; allow progress to update
         }
+        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:28 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
         Progress OFF
 
         ; Make sure SemVer is used
@@ -819,9 +827,9 @@ class script_ {
             MsgBox 0x34, % this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
             IfMsgBox Yes 
             {
-                Err:=CopyFolderAndContainingFiles(A_ScriptDir, Backup_Temp,1) 		;; backup current folder with all containing files to the backup pos. 
-                    , Err2:=CopyFolderAndContainingFiles(Backup_Temp ,A_ScriptDir,0) 	;; and then copy over the backup into the script folder as well
-                    , items1 := shell.Namespace(file).Items								;; and copy over any files not contained in a subfolder
+                CopyFolderAndContainingFiles(A_ScriptDir, Backup_Temp,1) 		;; backup current folder with all containing files to the backup pos. 
+                CopyFolderAndContainingFiles(Backup_Temp ,A_ScriptDir,0) 	;; and then copy over the backup into the script folder as well
+                items1 := shell.Namespace(file).Items								;; and copy over any files not contained in a subfolder
                 for item_ in items1 
                 {
                     ;; if DataOnly ;; figure out how to detect and skip files based on directory, so that one can skip updating script and settings and so on, and only query the scripts' data-files 
@@ -1099,7 +1107,6 @@ script_ttip(text:="TTIP: Test",mode:=1,to_script:=4000,xp:="NaN",yp:="NaN",Coord
     if IsObject(text)
         text:=ScriptObj_Obj2Str(text)
     static ttip_text
-    static lastcall_tip
     static currTip2
     global ttOnOff_script
     currTip2:=currTip
