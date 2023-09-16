@@ -418,7 +418,7 @@ LV_EX_GroupSetState(HLV, GroupID, States*) {
     Static OffState := OffStateMask + 4
     SetStates := 0
     LVGS := OS > 5 ? LVGS6 : LVGS5
-    For Each, State In States {
+    For _, State In States {
         If !LVGS.HasKey(State)
             Return False
         SetStates |= LVGS[State]
@@ -655,7 +655,7 @@ LV_EX_SetTileInfo(HLV, Row, Columns*) {
         LV_EX_SetTileViewLines(HLV, ColCount)
     VarSetCapacity(ColArr, 4 * (ColCount + 1), 0)
     Addr := &ColArr
-    For I, Column In Columns
+    For _, Column In Columns
         Addr := NumPut(Column - 1, Addr + 0, "UInt")
     VarSetCapacity(LVTI, SizeLVTI, 0)       ; LVTILEINFO
     NumPut(SizeLVTI, LVTI, 0, "UInt")       ; cbSize
