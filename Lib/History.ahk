@@ -1,7 +1,7 @@
 ﻿
 buildHistory(History,NumberOfRecords,configpath:="") {
     examples:=[]
-    for each, file in History {
+    for _, file in History {
         if InStr(file,A_ScriptDir) {
             examples.push(file)
         }
@@ -16,7 +16,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
     if (ret.Count()>NumberOfRecords) {
         ret.Delete(NumberOfRecords+1,ret.Count())
     }
-    for each, file in examples {
+    for _, file in examples {
         if !HasVal(ret,file) {
             ret.push(file)
         }
