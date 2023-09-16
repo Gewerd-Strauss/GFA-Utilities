@@ -1345,7 +1345,7 @@ updateLV(hwnd,Object) {
     gui Listview, % hwnd
     LV_Delete()
     SetExplorerTheme(hwnd)
-    TThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    LVTThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File,,,, FileName
@@ -1366,7 +1366,7 @@ updateLV(hwnd,Object) {
     LV_EX_SetTileInfo(hwnd, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
-    WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
+    WinSet AlwaysOnTop, On, % "ahk_id " LVTThwnd
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }

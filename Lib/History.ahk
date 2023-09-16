@@ -148,7 +148,7 @@ getSelectedLVEntries2() {
 }
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
-    Global hwndLV_ConfigHistory, TThwnd
+    Global hwndLV_ConfigHistory, LVTThwnd
     Static NMHDRSize := A_PtrSize * 3
     Static offText := NMHDRSize + A_PtrSize
     Static offItem := NMHDRSize + (A_PtrSize * 2) + 4
@@ -183,14 +183,14 @@ On_WM_NOTIFY(W, L, M, H) {
                 return
 
             ; Set the ToolTip's Title to the text from the first column
-            DllCall("SendMessage", "Ptr", TThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
+            DllCall("SendMessage", "Ptr", LVTThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
             ; Populate the string buffer with newly added text for the ToolTip
             StrPut(txt2 "`n" txt3, textAddr, "UTF-16")
         }
         else {
             ; Remove ToolTip's title in case we are on a column other than 1
             ; May be another way to do this so we aren't setting to nothing so often.
-            DllCall("SendMessage", "Ptr", TThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
+            DllCall("SendMessage", "Ptr", LVTThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
         }
     }
 }
