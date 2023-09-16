@@ -356,7 +356,7 @@ Class dynamicGUI {
                 }
                 if (Value.HasKey("Link")) {
                     Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
-                    Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
+                    Value.Link:=DA_FormatEx(Value.Link,{"Parameter":regexreplace(Parameter,".*","$L0")})
                 }
                 if (!RegexMatch(Value.String,"^" strreplace(Parameter,"___","-"))) && (Value.Control!="Text") {
                     Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
