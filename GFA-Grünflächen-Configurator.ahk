@@ -1413,7 +1413,11 @@ set_template() {
             } else {`t# MAC:
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
-            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results, or selectively clear variables. Clearing the workspace inbetween these two points will render the script useless.
+            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. 
+            ## If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results,
+            ## or selectively clear variables. 
+            ## 
+            ## Clearing the workspace inbetween these two points will render the script useless.
         )
     if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
         fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
