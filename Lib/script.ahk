@@ -3,11 +3,11 @@ script() - class for common script management.
 This is based on the example script-class written by RaptorX (https://github.com/RaptorX/ScriptObj),
 since that project does not have a license attached to it.
 */
-class script {
+class script_ {
     static DBG_NONE     := 0
-        ,DBG_ERRORS   := 1
-        ,DBG_WARNINGS := 2
-        ,DBG_VERBOSE  := 3
+        ,  DBG_ERRORS   := 1
+        ,  DBG_WARNINGS := 2
+        ,  DBG_VERBOSE  := 3
 
     static name       := ""
         , version      := ""

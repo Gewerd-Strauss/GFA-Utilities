@@ -264,7 +264,7 @@
 
     }
     loadConfigFromFile(File) {
-        t_script:=new script()
+        t_script:=new script_()
         t_script.Load(File)
         this.ArgumentsValidate:={}
         for param, _obj in this.Arguments {

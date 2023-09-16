@@ -15,7 +15,7 @@ FileGetTime ModDate, %A_ScriptFullPath%, M
 FileGetTime CrtDate, %A_ScriptFullPath%, C
 CrtDate := SubStr(CrtDate, 7, 2) "." SubStr(CrtDate, 5, 2) "." SubStr(CrtDate, 1, 4)
     , ModDate := SubStr(ModDate, 7, 2) "." SubStr(ModDate, 5, 2) "." SubStr(ModDate, 1, 4)
-global script := new script()
+global script := new script_()
     , bRunFromVSC:=(WinActive("ahk_class Chrome_WidgetWin_1") && WinActive("ahk_exe Code.exe"))
     , DEBUG := IsDebug()
     , globalLogicSwitches := {}
@@ -690,7 +690,7 @@ loadConfig_Main(configPath,dynGUI) {
     if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
         dynGUI.generateConfig(0)
         written_config:=dynGUI.ConfigObject
-        t_script:=new script()
+        t_script:=new script_()
         t_script.Save(configPath,written_config)
     } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
         dynGUI.loadConfigFromFile(configPath)
