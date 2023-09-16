@@ -886,7 +886,6 @@ createConfiguration(Path,guiObject) {
     gui -AlwaysOnTop
     FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if !RegexMatch(Chosen,"\.ini$") {
             Chosen.=".ini" 
         }
@@ -1070,7 +1069,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if (!InStr(Chosen,".R")) {
             Chosen:=Chosen ".R"
         }
@@ -1352,7 +1350,6 @@ selectConfigLocation(SearchPath) {
 
     SplitPath % Chosen
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
