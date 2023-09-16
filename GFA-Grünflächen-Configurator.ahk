@@ -225,9 +225,7 @@ guiCreate() {
         , vToggleLVReport2
     gui GC: new
     gui GC:  +LabelGC +HWNDGCHWND
-    minW:=(guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2))
-    minH:=guiObject["guiHeight"]
-    gui GC: +Resize +MinSize%minW%x%minH%
+    gui GC: +Resize
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
