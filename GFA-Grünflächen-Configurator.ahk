@@ -998,10 +998,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                 if (Path.HasKey("GFA_Evaluation_Configfile_Location")) {
                     SplitPath % Path.GFA_Evaluation_Configfile_Location,, SearchPath
                 } else {
-                    SearchPath:="C://"
+                    SearchPath:="C:\"
                 }
             } else {
-                SearchPath:="C://"
+                SearchPath:="C:\"
             }
         } else {
             SearchPath:=Path
