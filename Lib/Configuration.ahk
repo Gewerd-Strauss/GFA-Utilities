@@ -6,6 +6,7 @@
             OnMessage(0x44, "OnMsgBox_ChangedSettings")
             MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
             OnMessage(0x44, "")
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:14 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
             IfMsgBox Yes, {
                 reload()
             } Else IfMsgBox No, {
@@ -21,6 +22,7 @@
             OnMessage(0x44, "OnMsgBox_ChangedSettings")
             MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
             OnMessage(0x44, "")
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:31 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
             IfMsgBox Yes, {
                 reload()
             } Else IfMsgBox No, {
@@ -433,13 +435,13 @@ setupdefaultconfig(Switch) {
 ;     coded GUI ID, due to %GuiID%GuiSize label
 
 ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 0) {
-    static pos
+    static Pos
     global bSettingsChanged:=false
     ;Find a GUI ID that does not exist yet 
     Loop, 99 { 
         Gui %A_Index%:+LastFoundExist
-        If not WinExist() { 
-            SettingsGuiID = %A_Index% 
+        If !WinExist() { 
+            SettingsGuiID := A_Index
             break 
         }Else If (A_Index = 99){ 
             MsgBox 4112, Error in IniSettingsEditor function, Can't open settings dialog,`nsince no GUI ID was available.
@@ -511,7 +513,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
     ;read data from ini file, build tree and store values and description in arrays 
     Loop, Read, %IniFile% 
     { 
-        CurrLine = %A_LoopReadLine% 
+        CurrLine := A_LoopReadLine
         CurrLineLength := StrLen(CurrLine) 
 
         ;blank line 
@@ -527,44 +529,44 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                 ;handle key types  
                 If ( InStr(Des,"Type: ") = 1 ){ 
                     StringTrimLeft Typ, Des, 6
-                    Typ = %Typ% 
-                    Des = `n%Des%     ;add an extra line to the type definition in the description control
+                    Typ := Typ
+                    Des := "`n" Des     ;add an extra line to the type definition in the description control
 
                     ;handle format or list  
                     If (InStr(Typ,"DropDown ") = 1) {
                         StringTrimLeft Format, Typ, 9
-                        %CurrID%For = %Format%
-                        Typ = DropDown
-                        Des =
+                        %CurrID%For := Format
+                        Typ := "DropDown"
+                        Des := ""
                     }Else If (InStr(Typ,"DateTime") = 1) {
                         StringTrimLeft Format, Typ, 9
                         If Format is space
-                            Format = dddd MMMM d, yyyy HH:mm:ss tt 
-                        %CurrID%For = %Format%
-                        Typ = DateTime
-                        Des =
+                            Format := "dddd MMMM d, yyyy HH:mm:ss tt" 
+                        %CurrID%For := Format
+                        Typ := "DateTime"
+                        Des := ""
                     }
                     ;set type
                     %CurrID%Typ := Typ 
                     ;remember default value
                 }Else If ( InStr(Des,"Default: ") = 1 ){ 
                     StringTrimLeft Def, Des, 9
-                    %CurrID%Def = %Def% 
+                    %CurrID%Def := Def
                     ;remember custom options  
                 }Else If ( InStr(Des,"Options: ") = 1 ){ 
                     StringTrimLeft Opt, Des, 9
-                    %CurrID%Opt = %Opt%
-                    Des =
+                    %CurrID%Opt := Opt
+                    Des := ""
                     ;remove hidden keys from tree
                 }Else If ( InStr(Des,"Hidden:") = 1 ) and (!ShowHidden){   ; allow override of invisible keys/sections if variable is specified - such as a developer wanting to edit hidden variables easier.
                     TV_Delete(CurrID)
-                    Des =
-                    CurrID =
+                    Des := ""
+                    CurrID := ""
                     ;handle checkbox name
                 }Else If ( InStr(Des,"CheckboxName: ") = 1 ){  
                     StringTrimLeft ChkN, Des, 14
-                    %CurrID%ChkN = %ChkN%  
-                    Des =
+                    %CurrID%ChkN := ChkN
+                    Des := ""
                 } 
                 %CurrID%Des := %CurrID%Des "`n" Des 
                 ;; testing code
@@ -576,8 +578,8 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                 ;remove hidden section from tree
                 If ( InStr(Des,"Hidden:") = 1 ) and (!ShowHidden) {  
                     TV_Delete(CurrID)
-                    Des =
-                    CurrSecID =
+                    Des := ""
+                    CurrSecID := ""
                 }
                 ;set description
                 %CurrID%Des := %CurrID%Des "`n" Des 
@@ -593,14 +595,14 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
             ;extract section name
             StringTrimLeft CurrSec, CurrLine, 1
             StringTrimRight CurrSec, CurrSec, 1
-            CurrSec = %CurrSec% 
+            CurrSec := CurrSec
             CurrLength := StrLen(CurrSec)  ;to easily trim name off of following comment lines
 
             ;add to tree
             CurrSecID := TV_Add(CurrSec)
-            CurrID = %CurrSecID%
+            CurrID := CurrSecID
             %CurrID%Sec := True
-            CurrKey =
+            CurrKey := ""
             Continue 
         } 
 
@@ -610,8 +612,8 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
             ;extract key name and its value
             StringLeft CurrKey, CurrLine, % Pos - 1
             StringTrimLeft CurrVal, CurrLine, %Pos%
-            CurrKey = %CurrKey%             ;remove whitespaces
-            CurrVal = %CurrVal% 
+            CurrKey := CurrKey             ;remove whitespace
+            CurrVal := CurrVal
             CurrLength := StrLen(CurrKey)
 
             ;add to tree and store value
@@ -641,7 +643,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
 
         If SetDefault { 
             %CurrID%Val := %CurrID%Def 
-            LastID = 0
+            LastID := 0
             SetDefault := False
             SetDefault_Checkbox:=true
             ValChanged := True
@@ -669,18 +671,18 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
 
             ;set the needed value control depending on key type
             If (Typ = "DateTime")
-                ControlUsed = SysDateTimePick321
+                ControlUsed := "SysDateTimePick321"
             Else If ( Typ = "Hotkey" )
-                ControlUsed = msctls_hotkey321
+                ControlUsed := "msctls_hotkey321"
             Else If ( Typ = "DropDown")
-                ControlUsed = ComboBox1
+                ControlUsed := "ComboBox1"
             Else If ( Typ = "CheckBox")
-                ControlUsed = Button4
+                ControlUsed := "Button4"
             Else                    ;e.g. Text,File,Folder,Float,Integer or No Tyo (e.g. Section) 
-                ControlUsed = Edit1
+                ControlUsed := "Edit1"
 
             ;hide/show the value controls
-            Controls = SysDateTimePick321,msctls_hotkey321,ComboBox1,Button4,Edit1  
+            Controls := "SysDateTimePick321,msctls_hotkey321,ComboBox1,Button4,Edit1"
             Loop, Parse, Controls, `,
                 If ( ControlUsed = A_LoopField )
                     GuiControl Show , %A_LoopField%,
@@ -693,7 +695,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
             ;get current options
             CurrOpt := %CurrID%Opt
             ;apply current custom options to current control and memorize them inverted
-            InvertedOptions =   
+            InvertedOptions := ""
             Loop, Parse, CurrOpt, %A_Space%
             {
                 ;get actual option name
@@ -703,17 +705,17 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                 {
                     GuiControl %A_LoopField%, %ControlUsed%
                     If (chk = "+")
-                        InvertedOptions = %InvertedOptions% -%chk2%
+                        InvertedOptions := InvertedOptions -chk2
                     Else
-                        InvertedOptions = %InvertedOptions% +%chk2%
+                        InvertedOptions := InvertedOptions +chk2
                 }Else {
                     GuiControl +%A_LoopField%, %ControlUsed%
-                    InvertedOptions = %InvertedOptions% -%A_LoopField%
+                    InvertedOptions := InvertedOptions - A_LoopField
                 }
             }
 
             If %CurrID%Sec {                      ;section got selected
-                CurrVal =                        
+                CurrVal := ""
                 GuiControl, , Edit1,
                 GuiControl Disable , Edit1,
                 GuiControl Disable , Button3,
@@ -750,19 +752,19 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                 GuiControl, , Edit2, ; clear out the description-field to avoid larger previous texts from "ghosting" behind the new entry.
                 GuiControl, , Edit2, % %CurrID%Des
             }
-            if (%CUrrID%Sec) 	; section got selected
+            if (%CurrID%Sec) 	; section got selected
             {
                 GuiControl, , Edit2,
                 GuiControl, , Edit2, % %CurrID%Des
             }
         }
-        LastID = %CurrID%                   ;remember last selection
+        LastID := CurrID                   ;remember last selection
 
         ;sleep to reduce CPU load
         Sleep 100
 
         ;exit endless loop, when settings GUI closes 
-        If not WinExist("ahk_id" GuiID) 
+        If !WinExist("ahk_id" GuiID) 
             Break 
 
         ;if key is selected, get value
@@ -779,13 +781,8 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                     ; guicontrol, ,Button4, %d%
                     if SetDefault_Checkbox
                     {
-                        SetDefault_Checkbox:= not SetDefault_Checkbox
-                        InvertedNewVal:= not NewVal 
-                        ; GuiControl, , Edit1, %InvertedNewVal%
-                        ; tooltip, % "line 488: figure out how to determine if the checkbox's ID that's selected here is actually the correct ID then find the corresponding def and figure out how to determine what to revert to (def or previous). One mode works properly, the other one is not tested .`n`n somne bugs persist that need to be eradicated."
-                        ; guicontrol, ,Button4, %InvertedNewVal%
-
-                        RestoredVal:=%currID%Def ;;; this is a functional hotfix if you want to restore to DEF. Not sure how to implement restoring to previous entry though.
+                        SetDefault_Checkbox:= !SetDefault_Checkbox
+                        RestoredVal:=%CurrID%Def ;;; this is a functional hotfix if you want to restore to DEF. Not sure how to implement restoring to previous entry though.
                         guicontrol, ,Button4, %RestoredVal%
                     }
                 }
@@ -812,7 +809,7 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
                                 if (%CurrID%Val!=NewVal)
                                     bSettingsChanged:=true
                 %CurrID%Val := NewVal 
-                CurrVal = %NewVal%
+                CurrVal := NewVal
                 PrntID := TV_GetParent(CurrID)
                 TV_GetText(SelSec, PrntID) 
                 TV_GetText(SelKey, CurrID) 
@@ -842,35 +839,35 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
     ;Select file or folder depending on key type
     If (Typ = "File"){ 
         ;get StartFolder
-        IfExist %A_ScriptDir%\%StartVal% 
-            StartFolder = %A_ScriptDir% 
-        Else IfExist %StartVal% 
-        SplitPath StartVal, , StartFolder
+        if (FileExist(A_ScriptDir "\" StartVal))
+            StartFolder := A_ScriptDir 
+        Else if (FileExist(StartVal))
+            SplitPath StartVal, , StartFolder
         Else 
-            StartFolder = 
+            StartFolder := ""
 
         ;select file
         FileSelectFile Selected,, %StartFolder%, Select file for %SelSec% - %SelKey%, Any file (*.*)
     }Else If (Typ = "Folder"){ 
         ;get StartFolder
-        IfExist %A_ScriptDir%\%StartVal% 
-            StartFolder = %A_ScriptDir%\%StartVal% 
-        Else IfExist %StartVal% 
-        StartFolder = %StartVal% 
+        if (FileExist(A_ScriptDir "\" StartVal))
+            StartFolder := A_ScriptDir "\" StartVal
+        Else if (FileExist(StartVal))
+            StartFolder := StartVal
         Else 
-            StartFolder = 
+            StartFolder := ""
 
         ;select folder
         FileSelectFolder Selected, *%StartFolder% , 3, Select folder for %SelSec% - %SelKey%
 
         ;remove last backslash "\" if any
         StringRight LastChar, Selected, 1
-        If LastChar = \ 
+        If (LastChar="\") 
             StringTrimRight Selected, Selected, 1
     } 
     ;If file or folder got selected, remove A_ScriptDir (since it's redundant) and set it into GUI
     If Selected { 
-        StringReplace Selected, Selected, %A_ScriptDir%\
+        Selected:=StrReplace(Selected,A_ScriptDir "\")
         GuiControl, , Edit1, %Selected%
         %CurrID%Val := Selected 
     } 
@@ -903,23 +900,27 @@ ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 
 
 GuiIniSettingsEditorAnchor(ctrl, a, draw = false) { ; v3.2 by Titan (shortened)
     static pos
-    sig = `n%ctrl%=
+    sig := "`n" ctrl "="
     If !InStr(pos, sig) {
-        GuiControlGet p, Pos, %ctrl%
+        GuiControlGet p, pos, %ctrl%
+        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:21 PM ; case sensitivity
         pos := pos . sig . px - A_GuiWidth . "/" . pw  - A_GuiWidth . "/"
+        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:24 PM ; case sensitivity
             . py - A_GuiHeight . "/" . ph - A_GuiHeight . "/"
     }
+
     StringTrimLeft p, pos, InStr(pos, sig) - 1 + StrLen(sig)
+    ;@ahk-neko-ignore 1 line; at 9/16/2023, 10:56:53 PM ; https://www.autohotkey.com/docs/v1/Language.htm#commands-vs-functions ;; we need the legacy-array below
     StringSplit p, p, /
-    c = xwyh
+    c := "xwyh"
     Loop, Parse, c
         If InStr(a, A_LoopField) {
             If A_Index < 3
                 e := p%A_Index% + A_GuiWidth
             Else e := p%A_Index% + A_GuiHeight
-            m = %m%%A_LoopField%%e%
+            m := m A_LoopField e
         }
     If draw
-        d = Draw
+        d := "Draw"
     GuiControl Move%d%, %ctrl%, %m%
 }
