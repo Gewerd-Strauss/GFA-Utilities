@@ -55,7 +55,7 @@ if (A_IsCompiled) {
 } else if ((globalLogicSwitches.bIsAuthor && !A_IsCompiled)) {
     CodeTimer("Startup Time")
 } else {
-    CodeTimer("")
+    CodeTimer()
 }
 sleep 3500
 tooltip
@@ -147,7 +147,6 @@ main() {
 guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
-    ;; get Screen dimensions
     bShowDebugPanelINMenuBar:=""
     if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
