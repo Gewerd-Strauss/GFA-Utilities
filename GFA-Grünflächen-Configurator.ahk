@@ -900,17 +900,27 @@ createConfiguration(Path,guiObject) {
     guiResize(guiObject)
     if (Chosen!="") {
 
-        SplitPath % Chosen,, Chosen
-        if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
-            Chosen.="\"
-        }
-        WINDOWS:=strreplace(Chosen,"/","\")
-        MAC:=strreplace(Chosen,"/","\")
-        String:=guiObject.RCodeTemplate
         if (script.config.Configurator_settings.UseRelativeConfigPaths) {
-            SplitPath WINDOWS,  WINDOWS
+            if (InStr(FileExist(Chosen),"D")) { ;; directory
+                Chosen.="\GFA_conf.ini"
+            }
+            WINDOWS:=strreplace(Chosen,"/","\")
+            MAC:=strreplace(Chosen,"/","\")
+            SplitPath WINDOWS,  WINDOWS, GFA_Evaluation_RScript_Location
             SplitPath MAC,  MAC
+            guiObject.dynGUI.GFA_Evaluation_RScript_Location:=GFA_Evaluation_RScript_Location "\RScript.R"
+            guicontrol % "GC:",vStarterRScriptLocation, % guiObject.dynGUI.GFA_Evaluation_RScript_Location
+            if !FileExist(guiObject.dynGUI.GFA_Evaluation_RScript_Location) {
+                writeFile(guiObject.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+            }
+        } else {
+            if (InStr(FileExist(Chosen),"D")) { ;; directory
+                Chosen.="\GFA_conf.ini"
+            }
+            WINDOWS:=strreplace(Chosen,"/","\")
+            MAC:=strreplace(Chosen,"/","\")
         }
+        String:=guiObject.RCodeTemplate
         RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
                 , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                 ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
