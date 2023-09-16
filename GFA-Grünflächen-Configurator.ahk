@@ -717,18 +717,26 @@ loadConfig_Main(configPath,dynGUI) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        needle:="GFA_main\((folder_path = r.+""),"
-        rep1:="GFA_main(folder_path = r""("
-        rep2:=")"","
-        Matches:=RegexMatchAll(String, "iU)" needle)
-        for _, match in Matches {                                                  ;; star, top
-            match_ := match[0]
-            if (_<2) {
-                String:=strreplace(String,match_,rep1 WINDOWS rep2)
-            } else {
-                String:=strreplace(String,match_,rep1 MAC rep2)
-            }
+        ;needle:="GFA_main\((folder_path = r.+""),"
+        ;rep1:="GFA_main(folder_path = r""("
+        ;rep2:=")"","
+        ;Matches:=RegexMatchAll(String, "iU)" needle)
+        ;for _, match in Matches {                                                  ;; star, top
+        ;    match_ := match[0]
+        ;    if (_<2) {
+        ;        String:=strreplace(String,match_,rep1 WINDOWS rep2)
+        ;    } else {
+        ;        String:=strreplace(String,match_,rep1 MAC rep2)
+        ;    }
+        ;}
+        if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+            SplitPath WINDOWS,  WINDOWS
+            SplitPath MAC,  MAC
         }
+        RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+        String:=FormatEx(String,RC1Object)
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper()
     }
@@ -896,18 +904,26 @@ createConfiguration(Path,guiObject) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        needle:="GFA_main\((r.+""),"
-        rep1:="GFA_main(r""("
-        rep2:=")"","
-        Matches:=RegexMatchAll(String, "iU)" needle)
-        for _, match in Matches {                                                  ;; star, top
-            match_ := match[0]
-            if (_<2) {
-                String:=strreplace(String,match_,rep1 WINDOWS rep2)
-            } else {
-                String:=strreplace(String,match_,rep1 MAC rep2)
-            }
+        ;needle:="GFA_main\((folder_path = r.+""),"
+        ;rep1:="GFA_main(folder_path = r""("
+        ;rep2:=")"","
+        ;Matches:=RegexMatchAll(String, "iU)" needle)
+        ;for _, match in Matches {                                                  ;; star, top
+        ;    match_ := match[0]
+        ;    if (_<2) {
+        ;        String:=strreplace(String,match_,rep1 WINDOWS rep2)
+        ;    } else {
+        ;        String:=strreplace(String,match_,rep1 MAC rep2)
+        ;    }
+        ;}
+        if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+            SplitPath WINDOWS,  WINDOWS
+            SplitPath MAC,  MAC
         }
+        RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+        String:=FormatEx(String,RC1Object)
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper()
     }
@@ -1064,6 +1080,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
+            if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+                SplitPath WINDOWS,  WINDOWS
+                SplitPath MAC,  MAC
+            }
             RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
@@ -1093,6 +1113,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
+            if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+                SplitPath WINDOWS,  WINDOWS
+                SplitPath MAC,  MAC
+            }
             RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
