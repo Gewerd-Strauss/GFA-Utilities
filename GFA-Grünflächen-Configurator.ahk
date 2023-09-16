@@ -544,6 +544,7 @@ GCSize() {
     global hwndLV_ConfigHistory
     global hwndLV_RScriptHistory
     global hwndTab3_2
+    global guiObject
     gui GC: default
     wgp := WinGetPos("ahk_id " guiObject.dynGUI.GCHWND)
     gui GC: default
