@@ -749,21 +749,25 @@ handleCheckboxesWrapper() {
 }
 
 handleCheckboxes() {
-    global
+    global guiObject
+    global vreturnDays
+    global vSaveFigures
+    global vsaveRDATA
+    global vSaveExcel
     gui GC: submit, nohide
     template:=guiObject.RCodeTemplate
-        , template:=strreplace(template,"returnDays = %breturnDays%","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = %bSaveFigures%","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = %bsaveRDATA%","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = %bSaveExcel%","saveExcel = " vSaveExcel)
-        , template:=strreplace(template,"returnDays = 1","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = 1","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = 1","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = 1","saveExcel = " vSaveExcel)
-        , template:=strreplace(template,"returnDays = 0","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = 0","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = 0","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = 0","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = %breturnDays%","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = %bSaveFigures%","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = %bsaveRDATA%","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = %bSaveExcel%","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = 1","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = 1","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = 1","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = 1","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = 0","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = 0","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = 0","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = 0","saveExcel = " vSaveExcel)
     return template
 }
 handleConfig(dynGUI,writetoFile:=false) {
