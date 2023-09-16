@@ -141,9 +141,8 @@ GFARSubmit() {
     TrueNumberOfFiles:=0
     ImagePaths:=[]
 
-    opt:=(bTestSet?"FR":"F")
     query:=gfarFolder "\*." script.config.GFA_Renamer_settings.filetype
-    Loop, Files, % query, % opt
+    Loop, Files, % query, % (bTestSet?"FR":"F")
     {
         if (InStr(A_LoopFileDir,"GFAR_WD")) {
             continue
