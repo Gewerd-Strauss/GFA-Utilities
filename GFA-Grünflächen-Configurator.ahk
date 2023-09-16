@@ -138,9 +138,9 @@ main() {
         menu Tray, Add, Recompile, % f6
     }
     handleCheckboxes()
-        , handleConfig(guiObject.dynGUI,false)
-        , fillRC1(template)
-        , fillRC2(guiObject.dynGUI.ConfigString)
+    handleConfig(guiObject.dynGUI,false)
+    fillRC1(template)
+    fillRC2(guiObject.dynGUI.ConfigString)
     return
 }
 
