@@ -250,7 +250,7 @@ guiCreate() {
     dynGUI.GFA_Evaluation_RScript_Location:=""
     dynGUI.guiVisible:=false
         , dynGUI.GCHWND:=GCHWND
-        , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
+        , dynGUI.GenerateGUI(,,False,"GC:",false,Sections[1].Width-15,,9)
 
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
