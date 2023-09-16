@@ -619,7 +619,7 @@ Class dynamicGUI {
         OnMessage(0x44, "")
 
         IfMsgBox Yes, {
-            reload
+            reload()
         }
 
     }

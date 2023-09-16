@@ -1371,13 +1371,13 @@ updateLV(hwnd,Object) {
     return
 }
 #if DEBUG
-NumpadDot::reload       ;; hard-coded reload for when running through vsc, not usable in compiled form.
+NumpadDot::reload()       ;; hard-coded reload for when running through vsc, not usable in compiled form.
 #if
 #if globalLogicSwitches.bIsDebug
 ~!Esc::           ;; debug-state-dependent, usable by normal users when compiled
 AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
 IfMsgBox Yes, {
-    Reload
+    Reload()
 } Else IfMsgBox No, {
     return
 }
