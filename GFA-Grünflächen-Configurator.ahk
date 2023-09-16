@@ -221,6 +221,7 @@ guiCreate() {
         , hwndLV_ConfigHistory
         , hwndLV_RScriptHistory
         , generateRScriptBtn
+        , recompileBtn
         , vToggleLVReport
         , vToggleLVReport2
     gui GC: new
@@ -411,7 +412,7 @@ guiCreate() {
     guiControl GC:+g, %ChecksaveRDATA%, % onChecksaveRDATA
     guiControl GC:+g, %CheckSaveExcel%, % onCheckSaveExcel
     if (globalLogicSwitches.bIsAuthor) {
-        guiControl GC:+g, %recompile%, % onRecompile
+        guiControl GC:+g, %recompileBtn%, % onRecompile
     }
     AddToolTip(newConfigurationBtn,"Create a new configuration-file in a desired folder.")
     AddToolTip(editConfigurationBtn,"Edit an existing configuration-file.")
