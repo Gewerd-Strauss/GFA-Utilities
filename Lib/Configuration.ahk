@@ -63,6 +63,17 @@ setupdefaultconfig(Switch) {
             ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
             ;GFA_Evaluation_InstallationPath
             ;GFA_Evaluation_InstallationPath
+            UseRelativeConfigPaths=1
+            ;UseRelativeConfigPaths CheckboxName: Use relative paths to the starter-R-Script?
+            ;UseRelativeConfigPaths Type: Checkbox
+            ;UseRelativeConfigPaths Do you want to use relative configuration-paths when calling GFA_main()?
+            ;UseRelativeConfigPaths This will make the script less reliant on the user's setup, but REQUIRES 
+            ;UseRelativeConfigPaths that the r-script is located in the same folder as the configuration file.
+            ;UseRelativeConfigPaths The configuration file must still remain at the top of the folder structure
+            ;UseRelativeConfigPaths which contains all input data files.
+            ;UseRelativeConfigPaths which contains all input data files.
+            ;UseRelativeConfigPaths NOTE: The source-function loading the 'GFA_Evaluation.R'-script must be an absolute path.
+            ;UseRelativeConfigPaths Default: 1
             INI_Encoding=UTF-16
             ;INI_Encoding Type: DropDown UTF-8|UTF-16||UTF-8-RAW
             ;INI_Encoding Select which encoding to use when generating the configuration-files for the R-Script.
