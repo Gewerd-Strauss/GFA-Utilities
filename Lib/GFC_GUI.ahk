@@ -172,30 +172,6 @@
                         . "`nPlease resolve the issue by only using the same values for the keys '" conflicting_keys "' and confirm again."
                 }
             }
-            for key, Argument in this.Arguments {
-                if (key=checked_key) {
-                    if (Argument.Value!="") {
-                        cleanedVal:=removeDuplicates(Argument.Value, ",")
-                        cleanedVal:=RTrim(cleanedVal,",")
-                        if (cleanedVal!=Argument.Value) { ;; different, thus duplicates got removed.
-                            MsgBox 0x40014, % script.name " - " A_ThisFunc
-                                , % "The value you have entered for the key '" checked_key "' contains (potentially case-differing) repetitions."
-                                . "`nThe program tried to correct the problem, please check the new contents for the key '" checked_key "' and confirm again."
-                                . "`nKey: " checked_key
-                                . "`nErroneous old value: " Argument.Value
-                                . "`nSuggested new Value: " cleanedVal
-                                . "`n"
-                                . "`nConfirm to use the new value, decline to keep the old value. Keeping the old value will cause errors when running the R-Script, and should only be done if you intend on fixing the error yourself and are unhappy with the suggested solution"
-                            IfMsgBox Yes, {
-                                Argument.Value:=cleanedVal
-                                guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
-                            } Else IfMsgBox No, {
-                                guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % Argument.Value
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
     validateRefGroup(Destroy:=false,variadicGroupKeys*) {
