@@ -3,7 +3,14 @@
     gui GC: -AlwaysOnTop
     if ((!globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug) || (globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug)) {
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
-            reload
+            OnMessage(0x44, "OnMsgBox_ChangedSettings")
+            MsgBox 0x44, script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
+            OnMessage(0x44, "")
+            IfMsgBox Yes, {
+                reload()
+            } Else IfMsgBox No, {
+                return
+            }
         } else {
             gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
@@ -11,11 +18,26 @@
     }
     else
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
-            reload
+            OnMessage(0x44, "OnMsgBox_ChangedSettings")
+            MsgBox 0x44, script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
+            OnMessage(0x44, "")
+            IfMsgBox Yes, {
+                reload()
+            } Else IfMsgBox No, {
+                return
+            }
         } else {
             gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
             return
         }
+}
+OnMsgBox_ChangedSettings() {
+    DetectHiddenWindows On
+    Process Exist
+    If (WinExist("ahk_class #32770 ahk_pid " . ErrorLevel)) {
+        ControlSetText Button1, Reload
+        ControlSetText Button2, Keep settings
+    }
 }
 restoredefaultConfig() {
 
