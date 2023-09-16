@@ -1102,6 +1102,20 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
             Code:=FormatEx(guiObject.RCodeTemplate,RC1Object)
+            if (!InStr(Code,WINDOWS) || !InStr(Code,MAC,,,2)) {
+                needle:="GFA_main\((folder_path = r.+""),"
+                rep1:="GFA_main(folder_path = r""("
+                rep2:=")"","
+                Matches:=RegexMatchAll(String, "iU)" needle)
+                for _, match in Matches {                                                  ;; star, top
+                    match_ := match[0]
+                    if (_<2) {
+                        String:=strreplace(String,match_,rep1 WINDOWS rep2)
+                    } else {
+                        String:=strreplace(String,match_,rep1 MAC rep2)
+                    }
+                }
+            }
             if ((StrLen(current_contents)>0) && (current_contents!="")) {
                 if (Code!=current_contents) {
                     Code:=compareRScripts(Code,current_contents,guiObject.dynGUI.GCHWND,Chosen)
