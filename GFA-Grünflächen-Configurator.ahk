@@ -736,6 +736,20 @@ loadConfig_Main(configPath,dynGUI) {
                 , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                 ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
         String:=FormatEx(String,RC1Object)
+        if (!InStr(String,WINDOWS) || !InStr(String,MAC,,,2)) {
+            needle:="GFA_main\((folder_path = r.+""),"
+            rep1:="GFA_main(folder_path = r""("
+            rep2:=")"","
+            Matches:=RegexMatchAll(String, "iU)" needle)
+            for _, match in Matches {                                                  ;; star, top
+                match_ := match[0]
+                if (_<2) {
+                    String:=strreplace(String,match_,rep1 WINDOWS rep2)
+                } else {
+                    String:=strreplace(String,match_,rep1 MAC rep2)
+                }
+            }
+        }
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper()
     }
