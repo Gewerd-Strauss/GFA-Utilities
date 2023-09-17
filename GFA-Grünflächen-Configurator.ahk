@@ -94,7 +94,13 @@ main() {
     }
     script.Load(script.scriptconfigfile, 1)
     if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
-        RunAsAdmin()
+        AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+        IfMsgBox Yes, {
+            RunAsAdmin()
+        } Else IfMsgBox No, {
+            return
+        }
     }
     if !script.requiresInternet() {
         exitApp()
@@ -849,7 +855,13 @@ fCallBack_StatusBarMainWindow() {
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
         if (!A_IsAdmin) {
-            RunAsAdmin()
+            AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+            IfMsgBox Yes, {
+                RunAsAdmin()
+            } Else IfMsgBox No, {
+                return
+            }
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
         if script.requiresInternet(script.metadataArr.Issues) {
