@@ -87,7 +87,7 @@ setupdefaultconfig(Switch) {
             ;GFA_Evaluation_InstallationPath By default, this utility is shipped with a copy on hand, so you can use this.
             ;GFA_Evaluation_InstallationPath
             ;GFA_Evaluation_InstallationPath
-            UseRelativeConfigPaths=1
+            UseRelativeConfigPaths=0
             ;UseRelativeConfigPaths CheckboxName: Use relative paths to the starter-R-Script?
             ;UseRelativeConfigPaths Type: Checkbox
             ;UseRelativeConfigPaths Do you want to use relative configuration-paths when calling GFA_main()?
@@ -97,7 +97,7 @@ setupdefaultconfig(Switch) {
             ;UseRelativeConfigPaths which contains all input data files.
             ;UseRelativeConfigPaths which contains all input data files.
             ;UseRelativeConfigPaths NOTE: The source-function loading the 'GFA_Evaluation.R'-script must be an absolute path.
-            ;UseRelativeConfigPaths Default: 1
+            ;UseRelativeConfigPaths Default: 0
             INI_Encoding=UTF-16
             ;INI_Encoding Type: DropDown UTF-8|UTF-16||UTF-8-RAW
             ;INI_Encoding Select which encoding to use when generating the configuration-files for the R-Script.
@@ -910,7 +910,8 @@ GuiIniSettingsEditorAnchor(ctrl, a, draw = false) { ; v3.2 by Titan (shortened)
     }
 
     StringTrimLeft p, pos, InStr(pos, sig) - 1 + StrLen(sig)
-    ;@ahk-neko-ignore 1 line; at 9/16/2023, 10:56:53 PM ; https://www.autohotkey.com/docs/v1/Language.htm#commands-vs-functions ;; we need the legacy-array below
+    ;@ahk-neko-ignore-fn 2 lines; at 9/17/2023, 12:10:33 AM ; var is assigned but never used.
+    ;@ahk-neko-ignore 1 line; at 9/17/2023, 12:10:39 AM ; https://www.autohotkey.com/docs/v1/Language.htm#commands-vs-functions
     StringSplit p, p, /
     c := "xwyh"
     Loop, Parse, c
