@@ -428,8 +428,8 @@ class script_ {
             meta := {}
             this.metadata:=text
             this.metadataArr := {}
-            for _, line in text {
-                parts := StrSplit(line, " - ", "`t ", 2)
+            for _, Line in text {
+                parts := StrSplit(Line, " - ", "`t ", 2)
                 parts[2] := RegexReplace(parts[2], "i)^https?:\/\/")
                 ObjRawSet(meta, parts*)
                 ObjRawSet(this.metadataArr, parts*) ; Add the same key/values to the instancec of the class
