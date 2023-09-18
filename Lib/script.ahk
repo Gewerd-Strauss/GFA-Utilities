@@ -40,7 +40,7 @@ class script_ {
         , dbgFile      := ""
         , rfile		  := ""
         , vfile		  := ""
-        , dbgLevel     := this.DBG_NONE
+        , dbgLevel     := script_.DBG_NONE
         , versionScObj := "0.22.4"
         , versionAHK   := "1.1"
     About(bGenerateOnly:=false) {
@@ -280,7 +280,7 @@ class script_ {
                 }
             }
             About_template := script_FormatEx(About_template, MetadataArray)
-            AHKVARIABLES:={"A_ScriptDir":A_ScriptDir,"A_ScriptName":A_ScriptName,"A_ScriptFullPath":A_ScriptFullPath,"A_ScriptHwnd":A_ScriptHwnd,"A_LineNumber":A_LineNumber,"A_LineFile":A_LineFile,"A_ThisFunc":A_ThisFunc,"A_ThisLabel":A_ThisLabel,"A_AhkVersion":A_AhkVersion,"A_AhkPath":A_AhkPath,"A_IsUnicode":A_IsUnicode,"A_IsCompiled":A_IsCompiled,"A_ExitReason":A_ExitReason,"A_YYY":A_YYY,"A_MM":A_MM,"A_DD":A_DD,"A_MMMM":A_MMMM,"A_MMM":A_MMM} ;"A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount","A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber","A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse","A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo","A_ThisMenuItem","A_ThisMenu","A_ThisMenuItemPos","A_ThisHotkey","A_PriorHotkey","A_PriorKey","A_TimeSinceThisHotkey","A_TimeSincePriorHotkey","A_EndChar","A_ComSpec","A_Temp","A_OSType","A_OSVersion","A_Is64bitOS","A_PtrSize","A_Language","A_ComputerName","A_UserName","A_WinDir","A_ProgramFiles","A_AppData","A_AppDataCommon","A_Desktop","A_DesktopCommon"]
+            AHKVARIABLES:={"A_ScriptDir":A_ScriptDir,"A_ScriptName":A_ScriptName,"A_ScriptFullPath":A_ScriptFullPath,"A_ScriptHwnd":A_ScriptHwnd,"A_LineNumber":A_LineNumber,"A_LineFile":A_LineFile,"A_ThisFunc":A_ThisFunc,"A_ThisLabel":A_ThisLabel,"A_AhkVersion":A_AhkVersion,"A_AhkPath":A_AhkPath,"A_IsUnicode":A_IsUnicode,"A_IsCompiled":A_IsCompiled,"A_ExitReason":A_ExitReason,"A_YYYY":A_YYYY,"A_MM":A_MM,"A_DD":A_DD,"A_MMMM":A_MMMM,"A_MMM":A_MMM} ;"A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount","A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber","A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse","A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo","A_ThisMenuItem","A_ThisMenu","A_ThisMenuItemPos","A_ThisHotkey","A_PriorHotkey","A_PriorKey","A_TimeSinceThisHotkey","A_TimeSincePriorHotkey","A_EndChar","A_ComSpec","A_Temp","A_OSType","A_OSVersion","A_Is64bitOS","A_PtrSize","A_Language","A_ComputerName","A_UserName","A_WinDir","A_ProgramFiles","A_AppData","A_AppDataCommon","A_Desktop","A_DesktopCommon"]
             About_template := script_FormatEx(About_template,AHKVARIABLES)
 
             fo:=FileOpen(this.AboutPath, 0x1, "UTF-8-RAW").Write(About_template)
@@ -416,83 +416,105 @@ class script_ {
         Path -  Path to the credits-file.
         If the path begins with "\", it will be relative to the script-directory (aka, it will be processed as %A_ScriptDir%\%Path%)
         */
-        if (SubStr(Path,1,1)="\") {
-            Path:=A_ScriptDir . Path
-        }
-        fo:=fileopen(Path,"r")
-        text:=fo.Read()
-        fo.Close()
-        this.metadata:=text
-        if this.HasKey("metadata") {
-            Lines:=strsplit(this.metadata,"`n")
-            MetadataArray:={}
-            for _, Line in Lines {
-                Key:=Trim(strsplit(Line, " - ",,2).1)
-                Value:=Trim(strsplit(Line," - ",,2).2)
-                if RegexMatch(Value,"http(s)?:\/\/") {
-                    Value:=RegexReplace(Value,"http(s)?:\/\/")
-                }
-                MetadataArray[Key]:=RegexReplace(Value,"\r")
+        if (1) {
+            if (Path ~= "^\\") {
+                Path := A_ScriptDir Path
             }
-            ;; what an abomination
-            MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
-                ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
-            MetadataArray.version:=(MetadataArray.version!=""
-                ? MetadataArray.version :( this.version))
-            MetadataArray.author :=(MetadataArray.author!=""
-                ? MetadataArray.author :( author ? author : this.author))
-            MetadataArray.credits :=(MetadataArray.credits!=""
-                ? MetadataArray.credits :( credits ? credits : this.credits))
-            MetadataArray.ghtext :=(MetadataArray.ghtext!=""
-                ? MetadataArray.ghtext :( ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")))
-            MetadataArray.ghlink :=(MetadataArray.ghlink!=""
-                ? MetadataArray.ghlink :( ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")))
-            MetadataArray.doctext :=(MetadataArray.doctext!=""
-                ? MetadataArray.doctext :( doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")))
-            MetadataArray.doclink :=(MetadataArray.doclink!=""
-                ? MetadataArray.doclink :( doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")))
-            MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
-                ? MetadataArray.offdoclink :( offdoclink ? offdoclink : this.offdoclink))
-            MetadataArray.forumtext :=(MetadataArray.forumtext!=""
-                ? MetadataArray.forumtext :( forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")))
-            MetadataArray.forumlink :=(MetadataArray.forumlink!=""
-                ? MetadataArray.forumlink :( forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")))
-            MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
-                ? MetadataArray.homepagetext :( homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")))
-            MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
-                ? MetadataArray.homepagelink :( homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")))
-            MetadataArray.donateLink :=(MetadataArray.donateLink!=""
-                ? MetadataArray.donateLink :( donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")))
-            MetadataArray.email :=(MetadataArray.email!=""
-                ? MetadataArray.email :( email ? email : this.email))
-            ;for Key, Value in MetadataArray {
-            ;    html:=strreplace(html, Key, Trim(Value))
-            ;    Value=%Value%
-            ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
-            ;
-            ;}
-            Key:=Value:=""
-            ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
-
+            fo:=fileopen(Path,"r")
+            text:=fo.Read()
+            fo.Close()
+            text := Trim(text, "`r")
+            text := StrSplit(text, "`r`n")
+            meta := {}
+            this.metadata:=text
+            this.metadataArr := {}
+            for _, line in text {
+                parts := StrSplit(line, " - ", "`t ", 2)
+                parts[2] := RegexReplace(parts[2], "i)^https?:\/\/")
+                ObjRawSet(meta, parts*)
+                ObjRawSet(this.metadataArr, parts*) ; Add the same key/values to the instancec of the class
+            }
+            this.metadataArr.credits:=this.credits
+            this.metadataArr.Scriptname:=regexreplace(A_ScriptName, "\.\w+")
+            this.metadataArr.version:=this.version
         } else {
-            scriptName := scriptName ? scriptName : this.name
-                , version := version ? version : this.version
-                , author := author ? author : this.author
-                , credits := credits ? credits : this.credits
-                , creditslink := creditslink ? creditslink : RegExReplace(this.creditslink, "http(s)?:\/\/")
-                , ghtext := ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")
-                , ghlink := ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")
-                , doctext := doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")
-                , doclink := doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")
-                , offdoclink := offdoclink ? offdoclink : this.offdoclink
-                , forumtext := forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")
-                , forumlink := forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")
-                , homepagetext := homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")
-                , homepagelink := homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")
-                , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
-                , email := email ? email : this.email
+            if (SubStr(Path,1,1)="\") {
+                Path:=A_ScriptDir . Path
+            }
+            fo:=fileopen(Path,"r")
+            text:=fo.Read()
+            fo.Close()
+            this.metadata:=text
+            if this.HasKey("metadata") {
+                Lines:=strsplit(this.metadata,"`n")
+                MetadataArray:={}
+                for _, Line in Lines {
+                    Key:=Trim(strsplit(Line, " - ",,2).1)
+                    Value:=Trim(strsplit(Line," - ",,2).2)
+                    if RegexMatch(Value,"http(s)?:\/\/") {
+                        Value:=RegexReplace(Value,"http(s)?:\/\/")
+                    }
+                    MetadataArray[Key]:=RegexReplace(Value,"\r")
+                }
+                MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
+                    ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
+                MetadataArray.version:=(MetadataArray.version!=""
+                    ? MetadataArray.version :( this.version))
+                MetadataArray.author :=(MetadataArray.author!=""
+                    ? MetadataArray.author :this.author)
+                MetadataArray.credits :=(MetadataArray.credits!=""
+                    ? MetadataArray.credits :this.credits)
+                MetadataArray.ghtext :=(MetadataArray.ghtext!=""
+                    ? MetadataArray.ghtext :RegExReplace(this.ghtext, "http(s)?:\/\/"))
+                MetadataArray.ghlink :=(MetadataArray.ghlink!=""
+                    ? MetadataArray.ghlink :RegExReplace(this.ghlink, "http(s)?:\/\/"))
+                MetadataArray.doctext :=(MetadataArray.doctext!=""
+                    ? MetadataArray.doctext :RegExReplace(this.doctext, "http(s)?:\/\/"))
+                MetadataArray.doclink :=(MetadataArray.doclink!=""
+                    ? MetadataArray.doclink :RegExReplace(this.doclink, "http(s)?:\/\/"))
+                MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
+                    ? MetadataArray.offdoclink :this.offdoclink)
+                MetadataArray.forumtext :=(MetadataArray.forumtext!=""
+                    ? MetadataArray.forumtext :RegExReplace(this.forumtext, "http(s)?:\/\/"))
+                MetadataArray.forumlink :=(MetadataArray.forumlink!=""
+                    ? MetadataArray.forumlink :RegExReplace(this.forumlink, "http(s)?:\/\/"))
+                MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
+                    ? MetadataArray.homepagetext :RegExReplace(this.homepagetext, "http(s)?:\/\/"))
+                MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
+                    ? MetadataArray.homepagelink :RegExReplace(this.homepagelink, "http(s)?:\/\/"))
+                MetadataArray.donateLink :=(MetadataArray.donateLink!=""
+                    ? MetadataArray.donateLink :RegExReplace(this.donateLink, "http(s)?:\/\/"))
+                MetadataArray.email :=(MetadataArray.email!=""
+                    ? MetadataArray.email :this.email)
+                ;for Key, Value in MetadataArray {
+                ;    html:=strreplace(html, Key, Trim(Value))
+                ;    Value=%Value%
+                ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
+                ;
+                ;}
+                Key:=Value:=""
+                ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
+
+            } else {
+                scriptName := scriptName ? scriptName : this.name
+                    , version := version ? version : this.version
+                    , author := author ? author : this.author
+                    , credits := credits ? credits : this.credits
+                    , creditslink := creditslink ? creditslink : RegExReplace(this.creditslink, "http(s)?:\/\/")
+                    , ghtext := ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")
+                    , ghlink := ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")
+                    , doctext := doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")
+                    , doclink := doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")
+                    , offdoclink := offdoclink ? offdoclink : this.offdoclink
+                    , forumtext := forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")
+                    , forumlink := forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")
+                    , homepagetext := homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")
+                    , homepagelink := homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")
+                    , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
+                    , email := email ? email : this.email
+            }
+            this.metadataArr:=MetadataArray
         }
-        this.metadataArr:=MetadataArray
     }
 
     __Init() {

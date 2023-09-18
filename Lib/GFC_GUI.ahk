@@ -195,6 +195,8 @@
             Success:=0
             Expected:=0
             Expected:=Arr.Count()
+            conflicting_keys:=""
+            conflicting_keys_vals:=""
             for key_to_validate, haystack in Arr {
                 if HasVal(haystack, this.Arguments.RefGroup.Value) {
                     Success++
@@ -261,9 +263,6 @@
         }
         for _,_obj in t_script.config {
             for current_key,Value in _obj {
-                if (current_key="T0") {
-
-                }
                 if (this.ArgumentsValidate.HasKey(current_key)) {
                     if (this.ArgumentsValidate[current_key].Type="boolean") {
                         if (Value="T" || Value = "TRUE" || Value = "F" || Value = "FALSE") {

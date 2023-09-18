@@ -356,7 +356,7 @@ class GC_RichCode
 
         ; Run the highlighter
         Highlighter := this.Settings.Highlighter
-            , RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
+        RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
 
         ; "TRichEdit suspend/resume undo function"
         ; https://stackoverflow.com/a/21206620
@@ -503,7 +503,7 @@ HighlightINI(Settings, ByRef Code)
 
     GenHighlighterCache(Settings)
     Map := Settings.Cache.ColorMap
-
+    RTF:=""
     Pos := 1
     while (FoundPos := RegExMatch(Code, Needle, Match, Pos))
     {
@@ -578,7 +578,7 @@ HighlightR(Settings, ByRef Code)
 
     GenHighlighterCache(Settings)
     Map := Settings.Cache.ColorMap
-
+    RTF:=""
     Pos := 1
     while (FoundPos := RegExMatch(Code, Needle, Match, Pos))
     {
@@ -664,6 +664,7 @@ GenHighlighterCache(Settings)
     RTF .= "}"
 
     ; Font Table
+    FontTable:=""
     if Settings.Font
     {
         FontTable .= "{\fonttbl{\f0\fmodern\fcharset0 "

@@ -145,7 +145,7 @@ main() {
     }
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
-    fillRC1(template)
+    fillRC1(guiObject.RCodeTemplate)
     fillRC2(guiObject.dynGUI.ConfigString)
     return
 }
@@ -338,11 +338,11 @@ guiCreate() {
 
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, curr. loaded R-Script
     gui add, edit,% "y" (20)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndStarterRScriptLocation vvStarterRScriptLocation w" Sections[4].Width*0.85+4,   % "<Location of Starter-'.R'-Script>"
-    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
+    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , Func("HighlightR"))
     gui add, text, % "y" (45+489+5) " x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - (3*5) - (Sections[4].Width*0.85), curr. loaded Config
     gui add, edit,% "y" (45+489+5)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndUsedConfigLocation vvUsedConfigLocation w" Sections[4].Width*0.85+4,   % "<Location of Configuration-'.ini'-File>"
     buttonHeight:=40
-    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, HighlightBound=Func("HighlightR"))
+    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, Func("HighlightR"))
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateRScriptBtn x" Sections[4].XAnchor+5, % "Generate R-Script"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfigurationBtn x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfigurationBtn x" Sections[4].XAnchor+185, % "Generate Configuration"
@@ -500,7 +500,7 @@ guiShow(guiObject) {
     guicontrol GC: hide, % "vExcelSheetPreview"
     guiObject.dynGUI.guiVisible:=true
     handleCheckboxes()
-    handleConfig(dynGUI,false)
+    handleConfig(guiObject.dynGUI,false)
     ;handleExcelSheets(dynGUI.Arguments)
     Tabs:=[]
     TabName:="Example-Excel-File No. "
@@ -1198,7 +1198,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui compare_contents: destroy
     gui compare_contents: new
-    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
+    gui compare_contents: +HWNDCCHWND +Owner%HWND% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
     gui %HWND%:+Disabled
     RESettings2 :=
         ( LTrim Join Comments
@@ -1250,11 +1250,11 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui add, text, x15 y15 w0 h0, % "anchor"
     gui add, text, x15 y25 h15, % "Old Code"
-    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , Func("HighlightR"))
     gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "Keep &old contents"
     gui add, edit,%  "hwndhwndcompare_contentsCurrPath h15 disabled x" 0.3*guiWidth " w" guiWidth*(1-2*0.3), % Filepath
     gui add, text,%  "x" 15 + RCWidth + 15 " y25 h15", % "New Code"
-    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , Func("HighlightR"))
     gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "Overwrite with &new contents"
     RC_Old.Settings.Highlighter:= "HighlightR"
         , RC_Old.Value:= current_contents
@@ -1262,7 +1262,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
         , RC_New.Value:= new_contents
     gui compare_contents: show,% "w" guiWidth " h" guiHeight " x0 y0 AutoSize" , % script.name " - Select script contents to keep"
     WinWait % script.name " - Select script contents to keep"
-    CenterControl(oH,hwndcompare_contentsCurrPath,X=0,Y=0)
+    CenterControl(CCHWND,hwndcompare_contentsCurrPath,0,0)
     WinWaitClose % script.name " - Select script contents to keep"
     gui %HWND%:-Disabled
     if (compare_contents_UseNew) {
@@ -1379,9 +1379,14 @@ selectConfigLocation(SearchPath) {
 }
 updateLV(hwnd,Object) {
     gui Listview, % hwnd
+    static Count:=0, lvttarr:={}
+    if (Count<3) {
+        Count++
+        lvttarr[hwnd]:= DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    }
+    global LVTTHWNDARR:=lvttarr
     LV_Delete()
     SetExplorerTheme(hwnd)
-    LVTThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File,,,, FileName
@@ -1402,7 +1407,7 @@ updateLV(hwnd,Object) {
     LV_EX_SetTileInfo(hwnd, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
-    WinSet AlwaysOnTop, On, % "ahk_id " LVTThwnd
+    WinSet AlwaysOnTop, On, % "ahk_id " LVTTHWNDARR[hwnd]
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
