@@ -19,8 +19,8 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     global gfarPlantsPerGroup
     global GFARGui
     oH:=dynGUI.GCHWND
-    yP:=A_ScreenHeight-500
-    xP:=A_ScreenWidth-440
+    ypos:=A_ScreenHeight-500
+    xpos:=A_ScreenWidth-440
     gui GFAR: destroy
     gui GFAR: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +hwndGFARGui +Owner%oH% +LabelGFAR
     gui Font, s10
@@ -48,16 +48,16 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui add, edit, vgfarPlantsPerGroup w200, % PotsPerGroup
     ;gui, add, text,vvUsedStick, % "used Stick: " (device_name!=""? "'" device_name "'": "Device '" script.config.GFA_Renamer_settings.USB_Stick_Name "' could not be found.")
     gui add, Button, vSubmitButton gGFARSubmit, &Submit
-    gui add, Button, yp xp+64 hwndhwndgfarreselectfolder, Select &Different Folder
+    gui add, Button, ypos xpos+64 hwndhwndgfarreselectfolder, Select &Different Folder
     onReselectFolder:=Func("GFARReselectFolder").Bind(SearchStartLocation)
     guicontrol +g,%hwndgfarreselectfolder%,% onReselectFolder
     gui font, s7
-    gui add, text,yp+20 x350,% "v." script.version " by ~Gw"
-    gui GFAR: show, w430 x%xP% y%yP% ,% "Drop folder with images on this window"
+    gui add, text,ypos+20 x350,% "v." script.version " by ~Gw"
+    gui GFAR: show, w430 x%xpos% y%ypos% ,% "Drop folder with images on this window"
     GUI %oH%: +Disabled
 }
 
-GFARReselectFolder(SearchstartLocation) {
+GFARReselectFolder(SearchStartLocation) {
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
     try {
         ; A_DefaultGui
@@ -122,7 +122,7 @@ GFARSubmit() {
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
-            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,,bReset,gfarNames)
+            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,bReset,gfarNames)
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
         }
@@ -132,8 +132,7 @@ GFARSubmit() {
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
-            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,,bReset,gfarNames)
-            Reset:=false
+            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,bReset,gfarNames)
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
         }
@@ -177,9 +176,10 @@ GFARSubmit() {
     ;Clipboard:= "OLD:`n" StringifyObject(Arr) "`n---`n" StringifyObject(ImagePaths) "`n---`n" "`n---`nNEW:`n" StringifyObject(Arr2) "`n---`n" StringifyObject(ImagePaths2)
     f_UpdateLV(Arr,ImagePaths2)
     gui add, text,, % "Images/Names: (" ImagePaths.Count() "/" Arr.Count() ")"
-    gui add, Button, gGFAR_DuplicatetoShiftFrame vvGFAR_DuplicatetoShiftFrame disabled, &Duplicate to shift frame
+    gui add, Button, hwndhwndDuplicateShiftFrame vvGFAR_DuplicatetoShiftFrame disabled, &Duplicate to shift frame
     gui add, Button,yp xp+170 vvGFAR_ExcludeSubmitButton gGFAR_ExcludeSubmit, &Continue
-
+    fGFAR_DuplicatetoShiftFrame:=Func("GFAR_DuplicatetoShiftFrame").Bind(TEST_FOLDERPATH)
+    guicontrol +g, %hwndDuplicateShiftFrame%, % fGFAR_DuplicatetoShiftFrame
     GFAR_LastImage:=Func("GFAR_ExcludeOpenPath").Bind(ImageF)
     gui add, Button, yp xp+80 hwndGFAR_ExcludeOpenLastImage,Open &Last image
     GuiControl +g, %GFAR_ExcludeOpenLastImage%, % GFAR_LastImage
@@ -203,7 +203,7 @@ GFARSubmit() {
     return
 }
 
-GFAR_DuplicatetoShiftFrame() {
+GFAR_DuplicatetoShiftFrame(TEST_FOLDERPATH) {
     global
     static SourceImagesToDelete:=[]
 
@@ -416,7 +416,7 @@ repeatIndex(repetitions) {
     return lastreturn
 }
 
-repeatElementIofarrayNKtimes(array:="",repetitions:="",bDebug:=true,resetCallIndex:=False,Names:="") {
+repeatElementIofarrayNKtimes(array:="",repetitions:="",resetCallIndex:=False,Names:="") {
     static k, callIndex, position, sites := []
     static lastNames:=""
     if (lastNames="") {
@@ -451,13 +451,11 @@ repeatElementIofarrayNKtimes(array:="",repetitions:="",bDebug:=true,resetCallInd
 ForceOrder(Array) {
     assoc_1 := {}
     for key, value in Array {
-        assoc_1.Insert(Value, Key)
-
+        assoc_1.Insert(value, key)
     }
     assoc_2 := {}
     for key, value in assoc_1 {
-        assoc_2.Insert(Value, Key)
-
+        assoc_2.Insert(value, key)
     }
     return assoc_2
 }

@@ -29,10 +29,11 @@ AutoXYWH(DimSize, cList*){   ;https://www.autohotkey.com/boards/viewtopic.php?t=
     If (DimSize = "reset")
         Return cInfo := {}
 
-    For i, ctrl in cList {
+    For _, ctrl in cList {
         ctrlID := A_Gui ":" ctrl
         If !cInfo.hasKey(ctrlID) {
             ix := iy := iw := ih := 0	
+            ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:37:45 PM ; var is assigned but never used.
             GuiControlGet i, %A_Gui%: Pos, %ctrl%
             MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
             fx := fy := fw := fh := 0
@@ -52,6 +53,7 @@ AutoXYWH(DimSize, cList*){   ;https://www.autohotkey.com/boards/viewtopic.php?t=
 
             cInfo[ctrlID] := {x:ix, fx:fx, y:iy, fy:fy, w:iw, fw:fw, h:ih, fh:fh, gw:A_GuiWidth, gh:A_GuiHeight, a:a, m:MMD}
         } Else {
+            ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:37:18 PM ; var is assigned but never used.
             dgx := dgw := A_GuiWidth - cInfo[ctrlID].gw, dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
             Options := ""
             For i, dim in cInfo[ctrlID]["a"]

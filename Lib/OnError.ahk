@@ -39,7 +39,7 @@ MyErrorHandler(oError) {
             ,Renamer_Settings:script.config.GFA_Renamer_settings
             ,Version:script.version
             ,AHK_Environment:Vars
-            ,confVersion:script.config.Version}, pretty := 1)
+            ,confVersion:script.config.Version},1)
     if A_IsCompiled {
         a:=((script.config.Configurator_settings.bDebugSwitch || globalLogicSwitches.bIsDebug)?JSON_DUMP:"JSON NOT DUMPED")
         FileAppend % message "`n`n" a, % errorlog_path
@@ -60,10 +60,10 @@ MyErrorHandler(oError) {
 }
 ExpressVariables(Variables) {
     Obj:={}
-    for sec_id,section in Variables {
+    for sec_id,_ in Variables {
         Obj[sec_id]:={}
-        for var_id, variable in Variables[sec_id] {
-            Obj[sec_id][variable]:=a:=Deref("%" variable "%")
+        for __, variable in Variables[sec_id] {
+            Obj[sec_id][variable]:=Deref("%" variable "%")
         }
     }
     return Obj

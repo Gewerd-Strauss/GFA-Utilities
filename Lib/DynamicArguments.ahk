@@ -39,7 +39,7 @@ Class dynamicGUI {
             if (RegexMatch(Line,"^\s+\S+")) {
                 while (p := RegExMatch(Line, regex, match, p)) {
                     ; do stuff
-                    if !InStr(Line,"|") { ;; not a parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
+                    if !InStr(Line,"|") { ;; not a Parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
                         p+=StrLen(Match)
                     } else {
                         matchKey:=SubStr(matchKey,1,StrLen(matchKey)-1) ;; remove the doublepoint.
@@ -276,7 +276,7 @@ Class dynamicGUI {
         run % OutDir
     }
 
-    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
+    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
         global ;; this cannot be made static or this.SubmitDynamicArguments() will not receive modified values (aka it will always assemble the default)
         if (destroyGUI) {
             gui %GUI_ID% destroy
@@ -328,12 +328,11 @@ Class dynamicGUI {
                 }
             }
         }
-        WideControlWidth:=330
         gui %GUI_ID% add, Tab3,% "vvTab3 hwndhwndDA" " h900 w" Tab3Width, % Tab3String
         if (this.StepsizedGuishow) {
             gui %GUI_ID% show
         }
-        for Tab, Object in TabHeaders {
+        for Tab, _ in TabHeaders {
             if HiddenHeaders[Tab] {
                 continue
             }
@@ -572,10 +571,8 @@ Class dynamicGUI {
         SysGet MonCount, MonitorCount
         if (MonCount>1) {
             SysGet Mon, Monitor,% currentMonitor
-            SysGet MonW,MonitorWorkArea, % currentMonitor
         } else {
             SysGet Mon, Monitor, 1
-            SysGet MonW,MonitorWorkArea, 1
         }
         MonWidth:=(MonLeft?MonLeft:MonRight)
             , MonWidth:=MonRight-MonLeft
@@ -618,6 +615,7 @@ Class dynamicGUI {
         MsgBox 0x40044, % this.ClassName " > " A_ThisFunc "()", You modified the configuration for this class.`nReload?
         OnMessage(0x44, "")
 
+        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:23 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
         IfMsgBox Yes, {
             reload()
         }
@@ -634,11 +632,11 @@ Class dynamicGUI {
         }
         for Parameter,_ in this.Arguments {
             ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
-            parameter:=strreplace(parameter,"-","___")
+            Parameter:=strreplace(Parameter,"-","___")
             ;k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
             ;a:=%k%
             GuiControlGet val,, v%Parameter%
-            parameter:=strreplace(parameter,"___","-")
+            Parameter:=strreplace(Parameter,"___","-")
             this["Arguments",Parameter].Value:=val
         }
         if (destroy) {
@@ -755,13 +753,13 @@ DA_DateParse(str) {
     Else If !RegExMatch(str, "^\W*(\d{1,2}+)(\d{2})\W*$", t)
         RegExMatch(str, "i)(\d{1,2})\s*:\s*(\d{1,2})(?:\s*(\d{1,2}))?(?:\s*([ap]m))?", t)
         , RegExMatch(str, e2, d)
-    f = %A_FormatFloat%
+    f := A_FormatFloat
     SetFormat Float, 02.0
     d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
         . ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0
         ? d2 + 0.0 : A_MM) . ((d1 += 0.0) ? d1 : A_DD) . t1
         + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : t4 = "am" ? 0.0 : 12.0) . t2 + 0.0 . t3 + 0.0
-    SetFormat Float, %f%
+    SetFormat Float, % f
     Return, d
 }
 

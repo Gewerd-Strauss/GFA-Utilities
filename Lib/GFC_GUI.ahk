@@ -4,21 +4,19 @@
         this._Adjust()
         Object:={}
         WriteInd:=0
-        bValidateGroups:=bValidateFacetting:=false
+        bValidateGroups:=false
         for key, Argument in this.Arguments {
             Object[Argument.ConfigSection]:={}
         }
         for key, Argument in this.Arguments {
             Object[Argument.ConfigSection][key]:=Argument.Value
-            if (Key="UniqueGroups") {
+            if (key="UniqueGroups") {
                 bValidateGroups:=true
-                bValidateFacetting:=false
                 ;; TODO: double-check for all groups if they are all unique, and if GroupOrder contains them all.
-            } else if (Key="Facet2D") {
-                bValidateFacetting:=true
+            } else if (key="Facet2D") {
                 bValidateGroups:=false
             } else {
-                bValidateGroups:=bValidateFacetting:=false
+                bValidateGroups:=false
             }
             if (bValidateGroups) {
                 this.validateduplicateGroups("GroupsOrder",destroyGUI)
@@ -73,7 +71,7 @@
         }
         return sections
     }
-    validateduplicateGroups(checked_key:="",Destroy:=false) {
+    validateduplicateGroups(checked_key:="",destroy:=false) {
         this.SubmitDynamicArguments(destroy)
         for key, Argument in this.Arguments {
             if (key=checked_key) {
@@ -97,6 +95,7 @@
                             . "`n`If you do not intend on faceting your plot, this will most likely cause issues."
                             . "`n"
                             . "`nPress 'Yes' to use the suggested new value, press 'no' to keep the old value."
+                        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:39 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                         IfMsgBox Yes, {
                             Argument.Value:=cleanedVal
                             guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
@@ -108,7 +107,7 @@
             }
         }
     }
-    validatematchingGroups(Destroy:=false,variadicGroupKeys*) {
+    validatematchingGroups(destroy:=false,variadicGroupKeys*) {
         loop, 2 {
             this.SubmitDynamicArguments(destroy)
             Arr:={}
@@ -146,11 +145,10 @@
             for key_to_validate, value_to_validate in Arr {
                 ind++
                 if (ind=1) {
-                    lastind:=ind
                     firstvals:=value_to_validate.Clone()
                 } if (ind>1) {
 
-                    for each, thisval in firstvals {
+                    for _, thisval in firstvals {
                         if !HasVal(value_to_validate,thisval) {
                             value_missing:=true
                             break
@@ -174,7 +172,7 @@
             }
         }
     }
-    validateRefGroup(Destroy:=false,variadicGroupKeys*) {
+    validateRefGroup(destroy:=false,variadicGroupKeys*) {
         loop, 2 {
             this.SubmitDynamicArguments(destroy)
             Arr:={}
@@ -194,7 +192,6 @@
                     }
                 }
             }
-            Count:=0
             Success:=0
             Expected:=0
             Expected:=Arr.Count()
@@ -226,6 +223,7 @@
                     . " that this program cannot ensure the reference group you have given will be valid."
                     . "`n"
                     . "`nUse the new  value?"
+                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:45 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                 IfMsgBox Yes, {
                     Argument.Value:=cleanedVal
                     guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
@@ -236,7 +234,7 @@
         }
 
     }
-    __Set(Param*){
+    __Set(_Param*){
 
     }
     loadConfigFromFile(File) {
@@ -247,7 +245,7 @@
             this.ArgumentsValidate[param]:={}
             for param_key, param_val in _obj {
                 KeyNotPresent:=true
-                for section, section_contents in t_script.config {
+                for _, section_contents in t_script.config {
                     if (section_contents.HasKey(param)) {
                         KeyNotPresent:=false
                     }
@@ -261,23 +259,23 @@
                 }
             }
         }
-        for section,_obj in t_script.config {
-            for current_key,value in _obj {
+        for _,_obj in t_script.config {
+            for current_key,Value in _obj {
                 if (current_key="T0") {
 
                 }
                 if (this.ArgumentsValidate.HasKey(current_key)) {
                     if (this.ArgumentsValidate[current_key].Type="boolean") {
-                        if (value="T" || value = "TRUE" || value = "F" || value = "FALSE") {
-                            this.ArgumentsValidate[current_key].Value:=(InStr(value,"T")?1:0) ; TODO: replace 2 and -2 with 1 and 0
+                        if (Value="T" || Value = "TRUE" || Value = "F" || Value = "FALSE") {
+                            this.ArgumentsValidate[current_key].Value:=(InStr(Value,"T")?1:0) ; TODO: replace 2 and -2 with 1 and 0
                         }
                     } else if (this.ArgumentsValidate[current_key].Type="Integer") {
                         Value:=Value + 0
-                        if (Value!="") {    ;; floored value is an integer
-                            this.ArgumentsValidate[current_key].Value:=floor(value)
-                        } else {            ;; floored value is not an integer
+                        if (Value!="") {    ;; floored Value is an integer
+                            this.ArgumentsValidate[current_key].Value:=floor(Value)
+                        } else {            ;; floored Value is not an integer
                             this.ArgumentsValidate[current_key].Value:=this.ArgumentsValidate[current_key].Default
-                            OutputDebug % "`nThe value for Key '" current_key "' should be of type 'Integer', but coercing it into an integer by adding zero resulted in an empty string"
+                            OutputDebug % "`nThe Value for Key '" current_key "' should be of type 'Integer', but coercing it into an integer by adding zero resulted in an empty string"
                         }
                     } else if (this.ArgumentsValidate[current_key].Control="DateTime") {
                         AHKVARIABLES := { "A_ScriptDir": A_ScriptDir, "A_ScriptName": A_ScriptName, "A_ScriptFullPath": A_ScriptFullPath, "A_ScriptHwnd": A_ScriptHwnd, "A_LineNumber": A_LineNumber, "A_LineFile": A_LineFile, "A_ThisFunc": A_ThisFunc, "A_ThisLabel": A_ThisLabel, "A_AhkVersion": A_AhkVersion, "A_AhkPath": A_AhkPath, "A_IsUnicode": A_IsUnicode, "A_IsCompiled": A_IsCompiled, "A_ExitReason": A_ExitReason, "A_YYYY": A_YYYY, "A_MM": A_MM, "A_DD": A_DD, "A_MMMM": A_MMMM, "A_MMM": A_MMM, "A_DDDD":A_DDDD,"A_DDD":A_DDD,"A_WDay":A_WDay,"A_YDay":A_YDay,"A_YWeek":A_YWeek,"A_Hour":A_Hour,"A_Min":A_Min,"A_Sec":A_Sec,"A_MSec":A_MSec,"A_Now":A_Now,"A_NowUTC":A_NowUTC,"A_TickCount":A_TickCount,"A_IsSuspended":A_IsSuspended,"A_IsPaused":A_IsPaused,"A_IsCritical":A_IsCritical,"A_BatchLines":A_BatchLines,"A_ListLines":A_ListLines,"A_TitleMatchMode":A_TitleMatchMode,"A_TitleMatchModeSpeed":A_TitleMatchModeSpeed,"A_DetectHiddenWindows":A_DetectHiddenWindows,"A_DetectHiddenText":A_DetectHiddenText,"A_AutoTrim":A_AutoTrim,"A_StringCaseSense":A_StringCaseSense,"A_FileEncoding":A_FileEncoding,"A_FormatInteger":A_FormatInteger,"A_FormatFloat":A_FormatFloat,"A_SendMode":A_SendMode,"A_SendLevel":A_SendLevel,"A_StoreCapsLockMode":A_StoreCapsLockMode,"A_KeyDelay":A_KeyDelay,"A_KeyDuration":A_KeyDuration,"A_KeyDelayPlay":A_KeyDelayPlay,"A_KeyDurationPlay":A_KeyDurationPlay,"A_WinDelay":A_WinDelay,"A_ControlDelay":A_ControlDelay,"A_MouseDelay":A_MouseDelay,"A_MouseDelayPlay":A_MouseDelayPlay,"A_DefaultMouseSpeed":A_DefaultMouseSpeed,"A_CoordModeToolTip":A_CoordModeToolTip,"A_CoordModePixel":A_CoordModePixel,"A_CoordModeMouse":A_CoordModeMouse,"A_CoordModeCaret":A_CoordModeCaret,"A_CoordModeMenu":A_CoordModeMenu,"A_RegView":A_RegView,"A_IconHidden":A_IconHidden,"A_IconTip":A_IconTip,"A_IconFile":A_IconFile,"A_IconNumber":A_IconNumber,"A_TimeIdle":A_TimeIdle,"A_TimeIdlePhysical":A_TimeIdlePhysical,"A_TimeIdleKeyboard":A_TimeIdleKeyboard,"A_TimeIdleMouse":A_TimeIdleMouse,"A_DefaultGUI":A_DefaultGUI,"A_DefaultListView":A_DefaultListView,"A_DefaultTreeView":A_DefaultTreeView,"A_Gui":A_Gui,"A_GuiControl":A_GuiControl,"A_GuiWidth":A_GuiWidth,"A_GuiHeight":A_GuiHeight,"A_GuiX":A_GuiX,"A_GuiY":A_GuiY,"A_GuiEvent":A_GuiEvent,"A_GuiControlEvent":A_GuiControlEvent,"A_EventInfo":A_EventInfo,"A_ThisMenuItem":A_ThisMenuItem,"A_ThisMenu":A_ThisMenu,"A_ThisMenuItemPos":A_ThisMenuItemPos,"A_ThisHotkey":A_ThisHotkey,"A_PriorHotkey":A_PriorHotkey,"A_PriorKey":A_PriorKey,"A_TimeSinceThisHotkey":A_TimeSinceThisHotkey,"A_TimeSincePriorHotkey":A_TimeSincePriorHotkey,"A_EndChar":A_EndChar,"A_ComSpec":A_ComSpec,"A_Temp":A_Temp,"A_OSType":A_OSType,"A_OSVersion":A_OSVersion,"A_Is64bitOS":A_Is64bitOS,"A_PtrSize":A_PtrSize,"A_Language":A_Language,"A_ComputerName":A_ComputerName,"A_UserName":A_UserName,"A_WinDir":A_WinDir,"A_ProgramFiles":A_ProgramFiles,"A_AppData":A_AppData,"A_AppDataCommon":A_AppDataCommon,"A_Desktop":A_Desktop,"A_DesktopCommon":A_DesktopCommon,"A_DesktopCommon":A_DesktopCommon}
@@ -285,14 +283,14 @@
                         Value:=st_pad(Value,"",0,0,strLen(this.ArgumentsValidate[current_key].Value)-StrLen(Value))
                         this.ArgumentsValidate[current_key].Value:=Value
                     } else if (this.ArgumentsValidate[current_key].Type="String") {
-                        this.ArgumentsValidate[current_key].Value:=value
+                        this.ArgumentsValidate[current_key].Value:=Value
                     } else if (this.ArgumentsValidate[current_key].Type="number"){
                         Value:=Value + 0
-                        if (Value!="") {    ;; floored value is an integer
+                        if (Value!="") {    ;; floored Value is an integer
                             this.ArgumentsValidate[current_key].Value:=Value
-                        } else {            ;; floored value is not an integer
+                        } else {            ;; floored Value is not an integer
                             this.ArgumentsValidate[current_key].Value:=this.ArgumentsValidate[current_key].Default
-                            OutputDebug % "`nThe value for Key '" current_key "' should be of type 'number', but coercing it into a number by adding zero resulted in an empty string"
+                            OutputDebug % "`nThe value for key '" current_key "' should be of type 'number', but coercing it into a number by adding zero resulted in an empty string"
                         }
                     } else {
                         OutputDebug % "`nKey " current_key " is not part of the default config, and will be assumed invalid or corrupted"
@@ -352,24 +350,19 @@
                 Argument.ctrlOptions:="/"
             }
             for Key,Arg in Argument {
-                if InStr(Parametertemplate,a:="%" Key "%") {
+                if InStr(Parametertemplate,"%" Key "%") {
                     if (Key="ctrlOptions") {
-                        trimmedOpts:=false
                         if (RegexMatch(Arg,"w\d+")) {
                             Arg:=RegExReplace(Arg," w\d+","/")
-                            trimmedOpts:=true
                         }
                         if (RegexMatch(Arg,"h\d+")) {
                             Arg:=RegExReplace(Arg," h35","/")
-                            trimmedOpts:=true
                         }
                         if (RegexMatch(Arg,"w\d+")) {
                             Arg:=RegExReplace(Arg," w\d+","/")
-                            trimmedOpts:=true
                         }
                         if (RegexMatch(Arg,"g\w+")) {
                             Arg:=RegExReplace(Arg," g\w+","/")
-                            trimmedOpts:=true
                         }
                     } 
                     if (Argument.HasKey("TTIP")) {

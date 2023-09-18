@@ -256,7 +256,7 @@ guiCreate() {
     dynGUI.GFA_Evaluation_RScript_Location:=""
     dynGUI.guiVisible:=false
         , dynGUI.GCHWND:=GCHWND
-        , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
+        , dynGUI.GenerateGUI(,,False,"GC:",false,Sections[1].Width-15,,9)
 
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
@@ -447,7 +447,7 @@ guiCreate() {
     return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
-    if (showThirdPane) {
+    if (ShowThirdPane) {
         gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
         gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
@@ -575,6 +575,7 @@ GCSize() {
     AutoXYWH("h", hwndTab3_2)
     return
 }
+;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 11:08:08 PM ; param is assigned but never used.
 GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 
     global guiObject
@@ -897,7 +898,6 @@ createConfiguration(Path,guiObject) {
     gui -AlwaysOnTop
     FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if !RegexMatch(Chosen,"\.ini$") {
             Chosen.=".ini" 
         }
@@ -1066,6 +1066,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                 str:=(HeuristicRScript_config_match==-1?"`nYou are trying to edit an rscript-file which lies in a folder other than the one the current configuration-file lies in. You must decide if you want to use this path, or not.":(HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":(HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":(HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":""))))
                 throw Exception(str "`n" CallStack(), -1)
             } else {
+                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:28 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                 IfMsgBox No, {
                     FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
                 }
@@ -1080,7 +1081,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if (!InStr(Chosen,".R")) {
             Chosen:=Chosen ".R"
         }
@@ -1362,7 +1362,6 @@ selectConfigLocation(SearchPath) {
 
     SplitPath % Chosen
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
@@ -1382,7 +1381,7 @@ updateLV(hwnd,Object) {
     gui Listview, % hwnd
     LV_Delete()
     SetExplorerTheme(hwnd)
-    LVTThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    LVTThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File,,,, FileName
@@ -1413,6 +1412,7 @@ NumpadDot::reload()       ;; hard-coded reload for when running through vsc, not
 #if globalLogicSwitches.bIsDebug
 ~!Esc::           ;; debug-state-dependent, usable by normal users when compiled
 AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
 IfMsgBox Yes, {
     Reload()
 } Else IfMsgBox No, {
@@ -1420,9 +1420,11 @@ IfMsgBox Yes, {
 }
 return
 #if
+;@ahk-neko-ignore 1 line; at 9/16/2023, 11:47:58 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code304.md
 reload() {
     reload
 }
+;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:04 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code304.md
 exitApp() {
     ExitApp
 }
@@ -1461,11 +1463,12 @@ set_template() {
         custom_template:=fo.Read()
         fo.Close()
         ret:=custom_template
-        for each, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"]
+        for _, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"]
             if !InStr(custom_template,key) {
                 OnMessage(0x44, "OnMsgBox_MissingContent")
-                AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.",boxOptions:="0x40014",TitlePrefix:=" - ")
+                AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.","0x40014"," - ")
                 OnMessage(0x44, "")
+                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:06:58 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
                 IfMsgBox Yes, {
                     ret:=template
                     break

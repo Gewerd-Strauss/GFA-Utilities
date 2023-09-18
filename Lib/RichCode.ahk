@@ -174,7 +174,6 @@ class GC_RichCode
 
     __New(Settings, Options:="")
     {
-        static Test
         this.Settings := Settings
             , FGColor := this.BGRFromRGB(Settings.FGColor)
             , BGColor := this.BGRFromRGB(Settings.BGColor)
@@ -224,7 +223,7 @@ class GC_RichCode
         ; Create the right click menu
             , this.MenuName := this.__Class . &this
             , RCMBound := this.RightClickMenu.Bind(&this)
-        for Index, Entry in this.MenuItems
+        for _, Entry in this.MenuItems
             Menu % this.MenuName, Add, %Entry%, %RCMBound%
 
         ; Get the ITextDocument object
@@ -687,7 +686,7 @@ GetCharWidthTwips(Font)
     static Cache := {}
 
     if Cache.HasKey(Font.Typeface "_" Font.Size "_" Font.Bold)
-        return Cache[Font.Typeface "_" font.Size "_" Font.Bold]
+        return Cache[Font.Typeface "_" Font.Size "_" Font.Bold]
 
     ; Calculate parameters of CreateFont
     Height	:= -Round(Font.Size*A_ScreenDPI/72)
@@ -727,7 +726,7 @@ GetCharWidthTwips(Font)
 
 EscapeRTF(Code)
 {
-    for each, Char in ["\", "{", "}", "`n"]
+    for _, Char in ["\", "{", "}", "`n"]
         Code := StrReplace(Code, Char, "\" Char)
     return StrReplace(StrReplace(Code, "`t", "\tab "), "`r")
 }
