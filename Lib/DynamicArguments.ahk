@@ -754,11 +754,13 @@ DA_DateParse(str) {
         RegExMatch(str, "i)(\d{1,2})\s*:\s*(\d{1,2})(?:\s*(\d{1,2}))?(?:\s*([ap]m))?", t)
         , RegExMatch(str, e2, d)
     f := A_FormatFloat
+    ;@ahk-neko-ignore 1 line; at 9/18/2023, 12:41:04 PM ; https://www.autohotkey.com/docs/v1/lib/SetFormat.htm
     SetFormat Float, 02.0
     d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
         . ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0
         ? d2 + 0.0 : A_MM) . ((d1 += 0.0) ? d1 : A_DD) . t1
         + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : t4 = "am" ? 0.0 : 12.0) . t2 + 0.0 . t3 + 0.0
+    ;@ahk-neko-ignore 1 line; at 9/18/2023, 12:41:11 PM ; https://www.autohotkey.com/docs/v1/lib/SetFormat.htm
     SetFormat Float, % f
     Return, d
 }
