@@ -195,6 +195,8 @@
             Success:=0
             Expected:=0
             Expected:=Arr.Count()
+            conflicting_keys:=""
+            conflicting_keys_vals:=""
             for key_to_validate, haystack in Arr {
                 if HasVal(haystack, this.Arguments.RefGroup.Value) {
                     Success++
