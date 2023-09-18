@@ -145,7 +145,7 @@ main() {
     }
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
-    fillRC1(template)
+    fillRC1(guiObject.RCodeTemplate)
     fillRC2(guiObject.dynGUI.ConfigString)
     return
 }
@@ -500,7 +500,7 @@ guiShow(guiObject) {
     guicontrol GC: hide, % "vExcelSheetPreview"
     guiObject.dynGUI.guiVisible:=true
     handleCheckboxes()
-    handleConfig(dynGUI,false)
+    handleConfig(guiObject.dynGUI,false)
     ;handleExcelSheets(dynGUI.Arguments)
     Tabs:=[]
     TabName:="Example-Excel-File No. "
