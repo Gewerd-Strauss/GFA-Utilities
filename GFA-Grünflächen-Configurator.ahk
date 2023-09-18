@@ -1198,7 +1198,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui compare_contents: destroy
     gui compare_contents: new
-    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
+    gui compare_contents: +HWNDCCHWND +Owner%HWND% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
     gui %HWND%:+Disabled
     RESettings2 :=
         ( LTrim Join Comments
@@ -1262,7 +1262,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
         , RC_New.Value:= new_contents
     gui compare_contents: show,% "w" guiWidth " h" guiHeight " x0 y0 AutoSize" , % script.name " - Select script contents to keep"
     WinWait % script.name " - Select script contents to keep"
-    CenterControl(oH,hwndcompare_contentsCurrPath,X=0,Y=0)
+    CenterControl(CCHWND,hwndcompare_contentsCurrPath,0,0)
     WinWaitClose % script.name " - Select script contents to keep"
     gui %HWND%:-Disabled
     if (compare_contents_UseNew) {
