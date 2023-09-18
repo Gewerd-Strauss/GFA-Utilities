@@ -40,7 +40,7 @@ class script_ {
         , dbgFile      := ""
         , rfile		  := ""
         , vfile		  := ""
-        , dbgLevel     := this.DBG_NONE
+        , dbgLevel     := script_.DBG_NONE
         , versionScObj := "0.22.4"
         , versionAHK   := "1.1"
     About(bGenerateOnly:=false) {
