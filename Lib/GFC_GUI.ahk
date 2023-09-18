@@ -263,9 +263,6 @@
         }
         for _,_obj in t_script.config {
             for current_key,Value in _obj {
-                if (current_key="T0") {
-
-                }
                 if (this.ArgumentsValidate.HasKey(current_key)) {
                     if (this.ArgumentsValidate[current_key].Type="boolean") {
                         if (Value="T" || Value = "TRUE" || Value = "F" || Value = "FALSE") {
