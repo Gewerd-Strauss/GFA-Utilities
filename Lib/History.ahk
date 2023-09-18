@@ -90,32 +90,17 @@ loadRScriptFromLV(dynGUI,guiObject) {
         guiResize(guiObject)
     }
     if (rscriptPath!="") {
-        if (overwrite) {
-            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
-            guiObject.RCodeTemplate:=handleCheckboxes()
-            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
-            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
-                configLocationFolder.="\"
-            }
-            WINDOWS:=strreplace(configLocationFolder,"/","\")
-            MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-            fillRC1(Code)
-        } else {
-            guiObject.RCodeTemplate:=handleCheckboxes()
-            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
-            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
-                configLocationFolder.="\"
-            }
-            WINDOWS:=strreplace(configLocationFolder,"/","\")
-            MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-            fillRC1(Code)
+        guiObject.RCodeTemplate:=handleCheckboxes()
+        configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+        if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+            configLocationFolder.="\"
         }
+        WINDOWS:=strreplace(configLocationFolder,"/","\")
+        MAC:=strreplace(configLocationFolder,"/","\")
+        Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+        Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+        fillRC1(Code)
         if (!InStr(rscriptPath,A_ScriptDir)) {
             script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rscriptPath)
             updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
