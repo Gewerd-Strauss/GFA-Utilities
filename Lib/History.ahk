@@ -133,7 +133,7 @@ getSelectedLVEntries2() {
 }
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
-    Global hwndLV_ConfigHistory, LVTThwnd
+    Global hwndLV_ConfigHistory, hwndLV_RScriptHistory, LVTTHWNDARR
     Static NMHDRSize := A_PtrSize * 3
     Static offText := NMHDRSize + A_PtrSize
     Static offItem := NMHDRSize + (A_PtrSize * 2) + 4
@@ -144,7 +144,7 @@ On_WM_NOTIFY(W, L, M, H) {
     Code := NumGet(L + (A_PtrSize * 2), "Int")
     HCTL := NumGet(L + 0, 0, "UPtr")
     ; HCTL is one of our listviews
-    If (HCTL = hwndLV_ConfigHistory) {
+    If ((HCTL = hwndLV_ConfigHistory) || (HCTL = hwndLV_RScriptHistory)) {
         ; LVN_GETINFOTIPW, LVN_GETINFOTIPA
         If (Code = LVN_GETINFOTIP) {
 
@@ -168,14 +168,14 @@ On_WM_NOTIFY(W, L, M, H) {
                 return
 
             ; Set the ToolTip's Title to the text from the first column
-            DllCall("SendMessage", "Ptr", LVTThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
+            DllCall("SendMessage", "Ptr", LVTTHWNDARR[HCTL], "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
             ; Populate the string buffer with newly added text for the ToolTip
             StrPut(txt2 "`n" txt3, textAddr, "UTF-16")
         }
         else {
             ; Remove ToolTip's title in case we are on a column other than 1
             ; May be another way to do this so we aren't setting to nothing so often.
-            DllCall("SendMessage", "Ptr", LVTThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
+            DllCall("SendMessage", "Ptr", LVTTHWNDARR[HCTL], "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
         }
     }
 }

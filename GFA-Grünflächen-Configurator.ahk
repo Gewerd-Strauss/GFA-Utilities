@@ -1379,9 +1379,14 @@ selectConfigLocation(SearchPath) {
 }
 updateLV(hwnd,Object) {
     gui Listview, % hwnd
+    static Count:=0, lvttarr:={}
+    if (Count<3) {
+        Count++
+        lvttarr[hwnd]:= DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    }
+    global LVTTHWNDARR:=lvttarr
     LV_Delete()
     SetExplorerTheme(hwnd)
-    LVTThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File,,,, FileName
@@ -1402,7 +1407,7 @@ updateLV(hwnd,Object) {
     LV_EX_SetTileInfo(hwnd, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
-    WinSet AlwaysOnTop, On, % "ahk_id " LVTThwnd
+    WinSet AlwaysOnTop, On, % "ahk_id " LVTTHWNDARR[hwnd]
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
