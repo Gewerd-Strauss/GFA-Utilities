@@ -55,6 +55,7 @@ st_count(string, searchFor="`n") {
 
 st_concat(delim,final_delim, as*)
 {
+   s:=""
    if (as.Length()=1) {
       as:=as[1]
    }
