@@ -660,7 +660,7 @@ class script_ {
                 , http.Send()
         } catch e {
             MsgBox 0x14,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, Do you want to the program to shut down now?"
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:38:36 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+
             IfMsgBox OK, {
                 ExitApp
             } Else IfMsgBox Cancel, {
@@ -680,7 +680,7 @@ class script_ {
             if !bScriptObj_IsConnected && this.reqInternet ;; if internet is required - abort script
             {
                 MsgBox 0x11,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
-                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:39:10 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -692,7 +692,7 @@ class script_ {
         }
         ; throw {code: ERR_NOCONNECT, msg: e.message} ;; TODO: detect if offline
         if (!bSilentCheck)
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:09 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
+
             Progress 50, 50/100, % "Checking for updates", % "Updating"
 
         ; Download remote version file
@@ -710,7 +710,7 @@ class script_ {
             }
             if (!bScriptObj_IsConnected && this.reqInternet) { ;; if internet is required - abort script
                 MsgBox 0x14,% this.name " - connection timeout",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
-                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:39:15 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -720,7 +720,7 @@ class script_ {
         }
 
         if !(http.responseText) {
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:18 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
+
             Progress OFF
             try
                 throw exception("There was an error trying to download the ZIP file for the update.`n","script.Update()","The server did not respond.")
@@ -733,7 +733,7 @@ class script_ {
 
         ; FileRead, loVersion,% A_ScriptDir "\version.ini"
         if (InStr(http.responseText,"404")) {
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:23 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
+
             Progress OFF
             try
                 throw exception("The remote file containing the version to compare against could not be found.`n","script.Update()","Server not found.")
@@ -745,11 +745,11 @@ class script_ {
         regexmatch(http.responseText, "\d+\.\d+\.\d+", remVersion)
         if (!bSilentCheck)
         {
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:26 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
+
             Progress 100, 100/100, % "Checking for updates", % "Updating"
             sleep 500 	; allow progress to update
         }
-        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:46:28 PM ; https://www.autohotkey.com/docs/v1/lib/Progress.htm
+
         Progress OFF
 
         ; Make sure SemVer is used
