@@ -425,6 +425,7 @@ setupdefaultconfig(Switch) {
 ; - code: can't make GUI resizable, since this is only possible with hard
 ;     coded GUI ID, due to %GuiID%GuiSize label
 
+;@ahk-neko-ignore 1 line; Function too big
 ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 0) {
     static Pos
     global bSettingsChanged:=false
@@ -894,15 +895,15 @@ GuiIniSettingsEditorAnchor(ctrl, a, draw = false) { ; v3.2 by Titan (shortened)
     sig := "`n" ctrl "="
     If !InStr(pos, sig) {
         GuiControlGet p, pos, %ctrl%
-        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:21 PM ; case sensitivity
-        pos := pos . sig . px - A_GuiWidth . "/" . pw  - A_GuiWidth . "/"
-        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:24 PM ; case sensitivity
-            . py - A_GuiHeight . "/" . ph - A_GuiHeight . "/"
+
+        pos := pos . sig . pX - A_GuiWidth . "/" . pW  - A_GuiWidth . "/"
+
+            . pY - A_GuiHeight . "/" . pH - A_GuiHeight . "/"
     }
 
     StringTrimLeft p, pos, InStr(pos, sig) - 1 + StrLen(sig)
-    ;@ahk-neko-ignore-fn 2 lines; at 9/17/2023, 12:10:33 AM ; var is assigned but never used.
-    ;@ahk-neko-ignore 1 line; at 9/17/2023, 12:10:39 AM ; https://www.autohotkey.com/docs/v1/Language.htm#commands-vs-functions
+
+
     StringSplit p, p, /
     c := "xwyh"
     Loop, Parse, c
