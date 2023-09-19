@@ -157,6 +157,7 @@ main() {
     return
 }
 
+;@ahk-neko-ignore 1 line; Function too big
 guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
@@ -1008,6 +1009,7 @@ editRScript(rScriptFile) {
     gui GC: default
     return
 }
+;@ahk-neko-ignore 1 line; Function too big.
 createRScript(Path,forceSelection:=false,overwrite:=false) {
     global
     static Chosen
@@ -1411,10 +1413,11 @@ updateLV(hwnd,Object) {
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
+
 reload() {
     reload
 }
-;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:04 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code304.md
+
 exitApp() {
     ExitApp
 }
