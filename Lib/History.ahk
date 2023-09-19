@@ -73,7 +73,7 @@ loadRScriptFromLV(dynGUI,guiObject) {
     /*
     */
     if (rscriptPath!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+
         if (!InStr(rscriptPath,".R")) {
             rscriptPath:=rscriptPath ".R"
         }
@@ -131,7 +131,7 @@ getSelectedLVEntries2() {
     }
     return sCurrText2
 }
-;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:38:22 PM ; param is assigned but never used.
+
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
     Global hwndLV_ConfigHistory, hwndLV_RScriptHistory, LVTTHWNDARR
