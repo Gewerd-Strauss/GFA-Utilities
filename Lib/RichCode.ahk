@@ -235,7 +235,7 @@ class GC_RichCode
             , this.ITextDocument := ComObject(9, this.pITextDocument, 1), ObjAddRef(this.pITextDocument)
     }
 
-    ;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:39:18 PM ; param is assigned but never used.
+
     RightClickMenu(ItemName, ItemPos, MenuName)
     {
         if !IsObject(this)
@@ -279,7 +279,7 @@ class GC_RichCode
 
     ; --- Event Handlers ---
 
-    ;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:39:23 PM ; param is assigned but never used.
+
     OnMessage(wParam, lParam, Msg, hWnd)
     {
         if !IsObject(this)
@@ -321,7 +321,7 @@ class GC_RichCode
         }
     }
 
-    ;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:39:29 PM ; param is assigned but never used.
+
     CtrlEvent(CtrlHwnd, GuiEvent, EventInfo, _ErrorLevel:="")
     {
         if (GuiEvent == "Normal" && EventInfo == 0x300) ; EN_CHANGE
@@ -667,7 +667,7 @@ GenHighlighterCache(Settings)
     RTF .= "}"
 
     ; Font Table
-    ;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:39:34 PM ; var is assigned but never used.
+
     FontTable:=""
     if Settings.Font
     {
