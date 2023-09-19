@@ -235,6 +235,7 @@ class GC_RichCode
             , this.ITextDocument := ComObject(9, this.pITextDocument, 1), ObjAddRef(this.pITextDocument)
     }
 
+
     RightClickMenu(ItemName, ItemPos, MenuName)
     {
         if !IsObject(this)
@@ -278,6 +279,7 @@ class GC_RichCode
 
     ; --- Event Handlers ---
 
+
     OnMessage(wParam, lParam, Msg, hWnd)
     {
         if !IsObject(this)
@@ -318,6 +320,7 @@ class GC_RichCode
             return False
         }
     }
+
 
     CtrlEvent(CtrlHwnd, GuiEvent, EventInfo, _ErrorLevel:="")
     {
@@ -664,6 +667,7 @@ GenHighlighterCache(Settings)
     RTF .= "}"
 
     ; Font Table
+
     FontTable:=""
     if Settings.Font
     {

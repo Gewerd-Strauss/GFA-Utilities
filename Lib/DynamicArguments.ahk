@@ -69,6 +69,7 @@ Class dynamicGUI {
         this.AssumeDefaults()
             , this._Adjust()
     }
+    ;@ahk-neko-ignore 1 line; Method too big.
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
                 -1:{String:"Provided Configfile does not exist:`n`n",EndString:"`n`n---`nExiting Script",Criticality:-100,ID:-1}
@@ -266,7 +267,7 @@ Class dynamicGUI {
         gui %GUI_ID% default
         SplitPath % Chosen,,,,ChosenName
         if (Chosen!="") {
-            ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+
             guicontrol %GUI_ID%,v%VarName%, % ChosenName A_Space this.DDL_ParamDelimiter A_Space Chosen
         }
     }
@@ -514,7 +515,7 @@ Class dynamicGUI {
                         }
                     }
                     if (Value.Control="Checkbox") {
-                        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:49:09 AM ; case sensitivity
+
                         guicontrol %GUI_ID% ,v%Parameter%, % Value.Default
                     }
 
@@ -631,7 +632,7 @@ Class dynamicGUI {
             gui %GUI_ID% Submit, NoHide
         }
         for Parameter,_ in this.Arguments {
-            ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
+
             Parameter:=strreplace(Parameter,"-","___")
             ;k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
             ;a:=%k%
@@ -754,11 +755,13 @@ DA_DateParse(str) {
         RegExMatch(str, "i)(\d{1,2})\s*:\s*(\d{1,2})(?:\s*(\d{1,2}))?(?:\s*([ap]m))?", t)
         , RegExMatch(str, e2, d)
     f := A_FormatFloat
+
     SetFormat Float, 02.0
     d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
         . ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0
         ? d2 + 0.0 : A_MM) . ((d1 += 0.0) ? d1 : A_DD) . t1
         + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : t4 = "am" ? 0.0 : 12.0) . t2 + 0.0 . t3 + 0.0
+
     SetFormat Float, % f
     Return, d
 }
