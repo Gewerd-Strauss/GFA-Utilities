@@ -1534,3 +1534,4 @@ prepare_release() {
 #Include <CenterControl>
 #Include <messageboxes>
 #Include <DerefAHKVariables>
+#Include <callstack>
