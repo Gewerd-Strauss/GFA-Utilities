@@ -129,7 +129,9 @@ main() {
         exitApp()
 
     }
-    script_TraySetup(IconString)
+    try {
+        script_TraySetup(IconString)
+    }
 
     global guiObject:=guiCreate()
     guiObject.RCodeTemplate:=set_template()
