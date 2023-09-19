@@ -582,8 +582,8 @@ GCSize() {
     AutoXYWH("h", hwndTab3_2)
     return
 }
-;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 11:08:08 PM ; param is assigned but never used.
-GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
+
+GCDropFiles(_GuiHwnd, File, _*) {
 
     global guiObject
     global hwndLV_RScriptHistory
