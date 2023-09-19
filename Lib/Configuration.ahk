@@ -4,34 +4,25 @@
     if ((!globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug) || (globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug)) {
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             OnMessage(0x44, "OnMsgBox_ChangedSettings")
-            MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
+            answer := AppError(script.name " > Editing program settings", "You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?", 0x44)
             OnMessage(0x44, "")
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:14 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-            IfMsgBox Yes, {
+            if (answer = "Yes") {
                 reload()
-            } Else IfMsgBox No, {
-                return
             }
         } else {
             gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
-            return
         }
+    } else if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
+        OnMessage(0x44, "OnMsgBox_ChangedSettings")
+        answer := AppError(script.name " > Editing program settings", "You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?", 0x44)
+        OnMessage(0x44, "")
+        if (answer = "Yes") {
+            reload()
+        }
+    } else {
+        gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     }
-    else
-        if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
-            OnMessage(0x44, "OnMsgBox_ChangedSettings")
-            MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
-            OnMessage(0x44, "")
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:31 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-            IfMsgBox Yes, {
-                reload()
-            } Else IfMsgBox No, {
-                return
-            }
-        } else {
-            gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
-            return
-        }
+    return
 }
 OnMsgBox_ChangedSettings() {
     DetectHiddenWindows On

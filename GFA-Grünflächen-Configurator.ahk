@@ -94,16 +94,21 @@ main() {
     }
     script.Load(script.scriptconfigfile, 1)
     if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
-        AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
-        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-        IfMsgBox Yes, {
+        answer := AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+        if (answer = "Yes") {
             RunAsAdmin()
-        } Else IfMsgBox No, {
-            return
+        } else {
+            answer := AppError("Do you want to exit the program ?", "You chose not to run the program with administrator-privileges.`nYou may either uncheck the configuration option 'bRunAsAdmin' in the program's settings, or elevate the program with administrator-privileges the next time it starts.`n`nDo you want to continue loading the program?",0x34," - ")
+            if (answer = "No") {
+                exitApp()
+            }
         }
     }
     if !script.requiresInternet() {
-        exitApp()
+        answer := AppError("The program requires an internet connection.", "The program requires an internet connection, which is not available. You may continue without one, but functionality may be severely impaired.`nDo you want to exit the program?",0x34," - ")
+        if (answer = "Yes") {
+            exitApp()
+        }
     }
     globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
     script.version:=script.config.version.GFC_version
@@ -582,9 +587,9 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
     global hwndLV_RScriptHistory
     global hwndLV_ConfigHistory
     if (A_GuiControl="Drop config file or config destination folder here") {    ;; ini-file
-
         if (File.Count()>1) {
-            AppError("2+ files/folders dropped", "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.","0x40010")
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.")
+            return
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
             ; if directory, check first if ini-files exist
@@ -608,7 +613,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         loadConfig_Main(configPath,guiObject.dynGUI)
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
-            AppError("2+ files/folders dropped", "You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.","0x40010")
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.")
             return
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
@@ -631,12 +636,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath:=File[1]
         }
         if (rPath="") {
-            AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.","0x40010")
+            AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.")
             return
         }
 
         if RegexMatch(rPath,"\.ini$")  {
-            AppError("Dropped config-file on rscript-dropper", "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead.","0x40010")
+            AppError("Dropped config-file on rscript-dropper", "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead.")
             return
         }
         if !RegexMatch(rPath,"\.R$")  {
@@ -652,7 +657,8 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             }
         }
     } else { ;; anywhere else
-        AppError("Files dropped somewhere", "You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.","0x40010")
+        AppError("Files dropped somewhere", "You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.")
+        return
     }
     if (rPath!="") {
         guiObject.dynGUI.GFA_Evaluation_RScript_Location:=rPath
@@ -683,11 +689,11 @@ loadConfig_Main(configPath,dynGUI) {
     global hwndLV_ConfigHistory
     global guiObject
     if (configPath="") {
-        AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either.","0x40010")
+        AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either.")
         return
     }
     if RegexMatch(configPath,"\.R$")  {
-        AppError("Dropped RScript-file on config-dropper", "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead.","0x40010")
+        AppError("Dropped RScript-file on config-dropper", "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead.")
         return
     }
     if !RegexMatch(configPath,"\.ini$") {
@@ -856,12 +862,9 @@ fCallBack_StatusBarMainWindow() {
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
         if (!A_IsAdmin) {
-            AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-            IfMsgBox Yes, {
+            answer := AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+            if (answer = "Yes") {
                 RunAsAdmin()
-            } Else IfMsgBox No, {
-                return
             }
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
@@ -1045,9 +1048,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         HeuristicRScript_config_match:=determineHeuristicScriptRelationByPath(Chosen,dynGUI.GFA_Evaluation_Configfile_Location,dynGUI)
         if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) && (!HeuristicRScript_config_match) {
             ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-            Gui +OwnDialogs
-            MsgBox 0x40014, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
-                , % "The script ""thinks"" by a simple heuristic approach that the given config file:"
+            msg := "The script ""thinks"" by a simple heuristic approach that the given config file:"
                 . "`n"
                 . "`n'" dynGUI.GFA_Evaluation_Configfile_Location "'"
                 . "`n"
@@ -1061,15 +1062,12 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                 . (HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":"")
                 . (HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":"")
                 . (HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":"")
-            Gui -OwnDialogs
+            answer := AppError(script.name " - " A_ThisFunc " - Config-Script-Mismatch", msg, 0x4)
             if (HeuristicRScript_config_match<0) { ;; errors are critical, so throw them and interrupt flow
                 str:=(HeuristicRScript_config_match==-1?"`nYou are trying to edit an rscript-file which lies in a folder other than the one the current configuration-file lies in. You must decide if you want to use this path, or not.":(HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":(HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":(HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":""))))
                 throw Exception(str "`n" CallStack(), -1)
-            } else {
-                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:28 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-                IfMsgBox No, {
-                    FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
-                }
+            } else if (answer = "No") {
+                FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
             }
         }
     }
@@ -1411,21 +1409,6 @@ updateLV(hwnd,Object) {
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
-#if DEBUG
-NumpadDot::reload()       ;; hard-coded reload for when running through vsc, not usable in compiled form.
-#if
-#if globalLogicSwitches.bIsDebug
-~!Esc::           ;; debug-state-dependent, usable by normal users when compiled
-AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
-;@ahk-neko-ignore 1 line; at 9/16/2023, 11:43:32 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-IfMsgBox Yes, {
-    Reload()
-} Else IfMsgBox No, {
-    return
-}
-return
-#if
-;@ahk-neko-ignore 1 line; at 9/16/2023, 11:47:58 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code304.md
 reload() {
     reload
 }
@@ -1468,19 +1451,18 @@ set_template() {
         custom_template:=fo.Read()
         fo.Close()
         ret:=custom_template
-        for _, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"]
+        for _, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"] {
             if !InStr(custom_template,key) {
                 OnMessage(0x44, "OnMsgBox_MissingContent")
-                AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.","0x40014"," - ")
+                answer := AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.",0x4," - ")
                 OnMessage(0x44, "")
-                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:06:58 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-                IfMsgBox Yes, {
+                if (answer = "Yes") {
                     ret:=template
                     break
-                } Else IfMsgBox No, {
-                    exitApp()
                 }
+                exitApp()
             }
+        }
     } else {
         ret:=template
     }
@@ -1498,6 +1480,19 @@ prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
 }
+
+#if DEBUG ;; hard-coded reload for when running through vsc, not usable in compiled form.
+NumpadDot::reload()
+#if globalLogicSwitches.bIsDebug
+~!Esc:: ;; debug-state-dependent, usable by normal users when compiled
+answer := AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+if (answer = "Yes") {
+    Reload()
+}
+return
+#if
+
+
 #Include <script>
 #Include <Base64PNG_to_HICON>
 #Include <DynamicArguments>

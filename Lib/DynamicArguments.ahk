@@ -613,11 +613,9 @@ Class dynamicGUI {
         WinWaitClose % "ahk_PID" PID
         Gui +OwnDialogs
         OnMessage(0x44, "DA_OnMsgBox")
-        MsgBox 0x40044, % this.ClassName " > " A_ThisFunc "()", You modified the configuration for this class.`nReload?
+        answer := AppError(this.ClassName " > " A_ThisFunc "()", "You modified the configuration for this class.`nReload?", 0x44)
         OnMessage(0x44, "")
-
-        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:23 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-        IfMsgBox Yes, {
+        if (answer = "Yes") {
             reload()
         }
 
