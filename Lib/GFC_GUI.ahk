@@ -95,7 +95,7 @@
                             . "`n`If you do not intend on faceting your plot, this will most likely cause issues."
                             . "`n"
                             . "`nPress 'Yes' to use the suggested new value, press 'no' to keep the old value."
-                        ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:39 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+
                         IfMsgBox Yes, {
                             Argument.Value:=cleanedVal
                             guicontrol % "GC:",% "v" StrReplace(key,"-","___") , % cleanedVal
@@ -225,7 +225,7 @@
                     . " that this program cannot ensure the reference group you have given will be valid."
                     . "`n"
                     . "`nUse the new  value?"
-                ;@ahk-neko-ignore 1 line; at 9/16/2023, 11:48:45 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
+
                 IfMsgBox Yes, {
                     Argument.Value:=cleanedVal
                     guicontrol % "GC:",% "v" StrReplace("RefGroup","-","___") , % "ERROR: " this.Arguments.RefGroup.Value
