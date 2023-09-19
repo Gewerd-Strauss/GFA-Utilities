@@ -4,34 +4,25 @@
     if ((!globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug) || (globalLogicSwitches.bIsAuthor & !globalLogicSwitches.bIsDebug)) {
         if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,0) {
             OnMessage(0x44, "OnMsgBox_ChangedSettings")
-            MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
+            answer := AppError(script.name " > Editing program settings", "You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?", 0x44)
             OnMessage(0x44, "")
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:14 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-            IfMsgBox Yes, {
+            if (answer = "Yes") {
                 reload()
-            } Else IfMsgBox No, {
-                return
             }
         } else {
             gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
-            return
         }
+    } else if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
+        OnMessage(0x44, "OnMsgBox_ChangedSettings")
+        answer := AppError(script.name " > Editing program settings", "You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?", 0x44)
+        OnMessage(0x44, "")
+        if (answer = "Yes") {
+            reload()
+        }
+    } else {
+        gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
     }
-    else
-        if ACS_InisettingsEditor(script.Name,script.scriptconfigfile,0,1,1) {
-            OnMessage(0x44, "OnMsgBox_ChangedSettings")
-            MsgBox 0x44, % script.name " > Editing program settings", You changed settings. In order for these settings to take effect`, you need to reload the program. `n`nDoing so will discard any changes which are not yet saved. `n`nDo you want to reload the program with the updated settings now`, or use the previous settings to continue working?
-            OnMessage(0x44, "")
-            ;@ahk-neko-ignore 1 line; at 9/16/2023, 9:44:31 PM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/issues/22
-            IfMsgBox Yes, {
-                reload()
-            } Else IfMsgBox No, {
-                return
-            }
-        } else {
-            gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
-            return
-        }
+    return
 }
 OnMsgBox_ChangedSettings() {
     DetectHiddenWindows On
@@ -52,7 +43,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=130
-            GFC_version=1.5.14
+            GFC_version=1.5.15
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden:
@@ -434,6 +425,7 @@ setupdefaultconfig(Switch) {
 ; - code: can't make GUI resizable, since this is only possible with hard
 ;     coded GUI ID, due to %GuiID%GuiSize label
 
+;@ahk-neko-ignore 1 line; Function too big
 ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 0) {
     static Pos
     global bSettingsChanged:=false
@@ -903,15 +895,15 @@ GuiIniSettingsEditorAnchor(ctrl, a, draw = false) { ; v3.2 by Titan (shortened)
     sig := "`n" ctrl "="
     If !InStr(pos, sig) {
         GuiControlGet p, pos, %ctrl%
-        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:21 PM ; case sensitivity
-        pos := pos . sig . px - A_GuiWidth . "/" . pw  - A_GuiWidth . "/"
-        ;@ahk-neko-ignore-fn 1 line; at 9/16/2023, 9:55:24 PM ; case sensitivity
-            . py - A_GuiHeight . "/" . ph - A_GuiHeight . "/"
+
+        pos := pos . sig . pX - A_GuiWidth . "/" . pW  - A_GuiWidth . "/"
+
+            . pY - A_GuiHeight . "/" . pH - A_GuiHeight . "/"
     }
 
     StringTrimLeft p, pos, InStr(pos, sig) - 1 + StrLen(sig)
-    ;@ahk-neko-ignore-fn 2 lines; at 9/17/2023, 12:10:33 AM ; var is assigned but never used.
-    ;@ahk-neko-ignore 1 line; at 9/17/2023, 12:10:39 AM ; https://www.autohotkey.com/docs/v1/Language.htm#commands-vs-functions
+
+
     StringSplit p, p, /
     c := "xwyh"
     Loop, Parse, c
