@@ -76,7 +76,7 @@ ClipboardSetFiles(FilesToSet, DropEffect := "Copy") {
       Offset := 20
       NumPut(Offset, pDrop + 0, "UInt")         ; DROPFILES.pFiles = offset of file list
       NumPut(!!A_IsUnicode, pDrop + 16, "UInt") ; DROPFILES.fWide = 0 --> ANSI, fWide = 1 --> Unicode
-      For Each, File In FileArray
+      For _, File In FileArray
          Offset += StrPut(File.Path, pDrop + Offset, File.Len) * TCS
       DllCall("GlobalUnlock", "Ptr", hDrop)
       DllCall("SetClipboardData","UInt", 0x0F, "UPtr", hDrop) ; 0x0F = CF_HDROP

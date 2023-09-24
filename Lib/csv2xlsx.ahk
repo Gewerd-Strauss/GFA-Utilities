@@ -3,10 +3,12 @@
         if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, SearchDirectory
             if (csv2xlsx(SearchDirectory,true)) {
-                ttip("Created missing xlsx-files for csv-files without xlsx-complements in " SearchDirectory)
+                ttip("Created missing xlsx-files for csv-files without xlsx-complements in " SearchDirectory ".")
             } else {
-                ttip("There were no missing xlsx-files in subfolders of " SearchDirectory)
+                ttip("There were no missing xlsx-files in subfolders of " SearchDirectory ".")
             }
+        } else {
+            ttip("The selected configuration file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist.")
         }
     } else {
         ttip("No configuration file has been selected yet.")

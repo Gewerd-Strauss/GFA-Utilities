@@ -7,7 +7,7 @@ LV_EX_SetTileViewLines(HLV, Lines, tileX := "", tileY := "") {
     ; LVM_SETTILEVIEWINFO = 0x10A2 -> http://msdn.microsoft.com/en-us/library/bb761212(v=vs.85).aspx
     ; One line is added internally because the item might be wrapped to two lines!
     Static SizeLVTVI := 40
-    Static offSize := 12
+    ;Static offSize := 12 ;; this var is never used, why is it here?!
     Static OffLines := 20
     Static LVTVIM_TILESIZE := 0x1
     Static LVTVIM_COLUMNS := 0x2
@@ -418,7 +418,7 @@ LV_EX_GroupSetState(HLV, GroupID, States*) {
     Static OffState := OffStateMask + 4
     SetStates := 0
     LVGS := OS > 5 ? LVGS6 : LVGS5
-    For Each, State In States {
+    For _, State In States {
         If !LVGS.HasKey(State)
             Return False
         SetStates |= LVGS[State]
@@ -518,6 +518,7 @@ LV_EX_RedrawRows(HLV, First := 0, Last := "") {
 ; ======================================================================================================================
 LV_EX_SetBkImage(HLV, ImgPath, Width := "", Height := "") {
     ; LVM_SETBKIMAGEA := 0x1044 -> http://msdn.microsoft.com/en-us/library/bb761155(v=vs.85).aspx
+    ;@ahk-neko-ignore-fn 1 line; at 9/18/2023, 12:40:14 PM ; var is assigned but never used.
     Static XAlign := {C: 50, L: 0, R: 100}, YAlign := {B: 100, C: 50, T: 0}
     Static KnownCtrls := []
     Static OSVERSION := DllCall("Kernel32.dll\GetVersion", "UInt") & 0xFF
@@ -655,7 +656,7 @@ LV_EX_SetTileInfo(HLV, Row, Columns*) {
         LV_EX_SetTileViewLines(HLV, ColCount)
     VarSetCapacity(ColArr, 4 * (ColCount + 1), 0)
     Addr := &ColArr
-    For I, Column In Columns
+    For _, Column In Columns
         Addr := NumPut(Column - 1, Addr + 0, "UInt")
     VarSetCapacity(LVTI, SizeLVTI, 0)       ; LVTILEINFO
     NumPut(SizeLVTI, LVTI, 0, "UInt")       ; cbSize

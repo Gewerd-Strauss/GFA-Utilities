@@ -39,7 +39,7 @@ Class dynamicGUI {
             if (RegexMatch(Line,"^\s+\S+")) {
                 while (p := RegExMatch(Line, regex, match, p)) {
                     ; do stuff
-                    if !InStr(Line,"|") { ;; not a parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
+                    if !InStr(Line,"|") { ;; not a Parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
                         p+=StrLen(Match)
                     } else {
                         matchKey:=SubStr(matchKey,1,StrLen(matchKey)-1) ;; remove the doublepoint.
@@ -69,6 +69,7 @@ Class dynamicGUI {
         this.AssumeDefaults()
             , this._Adjust()
     }
+    ;@ahk-neko-ignore 1 line; Method too big.
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
                 -1:{String:"Provided Configfile does not exist:`n`n",EndString:"`n`n---`nExiting Script",Criticality:-100,ID:-1}
@@ -209,10 +210,10 @@ Class dynamicGUI {
     }
     AdjustMinMax() {
         for Parameter, Value in this.Arguments {
-            if RegexMatch(Value.Other,"Max\:(?<Max>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Max\:(?<Max>\d*)",v_) {
                 Value.Max:=v_Max+0
             }
-            if RegexMatch(Value.Other,"Min\:(?<Min>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Min\:(?<Min>\d*)",v_) {
                 Value.Min:=v_Min+0
             }
             if Value.HasKey("Max") && Value.Value>Value.Max {
@@ -229,7 +230,7 @@ Class dynamicGUI {
         }
     }
     AdjustNulls() {
-        for _, Value in this.Arguments {
+        for Parameter, Value in this.Arguments {
             if Value.Value="NULL" {
                 Value.Value:=strreplace(Value.Value,"""")
             }
@@ -266,7 +267,7 @@ Class dynamicGUI {
         gui %GUI_ID% default
         SplitPath % Chosen,,,,ChosenName
         if (Chosen!="") {
-            ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+
             guicontrol %GUI_ID%,v%VarName%, % ChosenName A_Space this.DDL_ParamDelimiter A_Space Chosen
         }
     }
@@ -276,7 +277,7 @@ Class dynamicGUI {
         run % OutDir
     }
 
-    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
+    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
         global ;; this cannot be made static or this.SubmitDynamicArguments() will not receive modified values (aka it will always assemble the default)
         if (destroyGUI) {
             gui %GUI_ID% destroy
@@ -328,12 +329,11 @@ Class dynamicGUI {
                 }
             }
         }
-        WideControlWidth:=330
         gui %GUI_ID% add, Tab3,% "vvTab3 hwndhwndDA" " h900 w" Tab3Width, % Tab3String
         if (this.StepsizedGuishow) {
             gui %GUI_ID% show
         }
-        for Tab, Object in TabHeaders {
+        for Tab, _ in TabHeaders {
             if HiddenHeaders[Tab] {
                 continue
             }
@@ -356,7 +356,7 @@ Class dynamicGUI {
                 }
                 if (Value.HasKey("Link")) {
                     Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
-                    Value.Link:=DA_FormatEx(Value.Link,{"Parameter":Parameter})
+                    Value.Link:=DA_FormatEx(Value.Link,{"Parameter":regexreplace(Parameter,".*","$L0")})
                 }
                 if (!RegexMatch(Value.String,"^" strreplace(Parameter,"___","-"))) && (Value.Control!="Text") {
                     Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
@@ -364,9 +364,6 @@ Class dynamicGUI {
                 ControlHeight:=0
                 if (Tab=Value.Tab3Parent) {
                     Control:=Value.Control
-                    if (Options="") {
-                        Options:=""
-                    }
                     if (Value.Control="Edit") {
                         GuiControl Choose, vTab3, % Tab
                         if Value.HasKey("Link") {
@@ -518,7 +515,7 @@ Class dynamicGUI {
                         }
                     }
                     if (Value.Control="Checkbox") {
-                        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:49:09 AM ; case sensitivity
+
                         guicontrol %GUI_ID% ,v%Parameter%, % Value.Default
                     }
 
@@ -575,10 +572,8 @@ Class dynamicGUI {
         SysGet MonCount, MonitorCount
         if (MonCount>1) {
             SysGet Mon, Monitor,% currentMonitor
-            SysGet MonW,MonitorWorkArea, % currentMonitor
         } else {
             SysGet Mon, Monitor, 1
-            SysGet MonW,MonitorWorkArea, 1
         }
         MonWidth:=(MonLeft?MonLeft:MonRight)
             , MonWidth:=MonRight-MonLeft
@@ -618,11 +613,10 @@ Class dynamicGUI {
         WinWaitClose % "ahk_PID" PID
         Gui +OwnDialogs
         OnMessage(0x44, "DA_OnMsgBox")
-        MsgBox 0x40044, % this.ClassName " > " A_ThisFunc "()", You modified the configuration for this class.`nReload?
+        answer := AppError(this.ClassName " > " A_ThisFunc "()", "You modified the configuration for this class.`nReload?", 0x44)
         OnMessage(0x44, "")
-
-        IfMsgBox Yes, {
-            reload
+        if (answer = "Yes") {
+            reload()
         }
 
     }
@@ -636,12 +630,12 @@ Class dynamicGUI {
             gui %GUI_ID% Submit, NoHide
         }
         for Parameter,_ in this.Arguments {
-            ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
-            parameter:=strreplace(parameter,"-","___")
+
+            Parameter:=strreplace(Parameter,"-","___")
             ;k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
             ;a:=%k%
             GuiControlGet val,, v%Parameter%
-            parameter:=strreplace(parameter,"___","-")
+            Parameter:=strreplace(Parameter,"___","-")
             this["Arguments",Parameter].Value:=val
         }
         if (destroy) {
@@ -758,13 +752,15 @@ DA_DateParse(str) {
     Else If !RegExMatch(str, "^\W*(\d{1,2}+)(\d{2})\W*$", t)
         RegExMatch(str, "i)(\d{1,2})\s*:\s*(\d{1,2})(?:\s*(\d{1,2}))?(?:\s*([ap]m))?", t)
         , RegExMatch(str, e2, d)
-    f = %A_FormatFloat%
+    f := A_FormatFloat
+
     SetFormat Float, 02.0
     d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
         . ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0
         ? d2 + 0.0 : A_MM) . ((d1 += 0.0) ? d1 : A_DD) . t1
         + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : t4 = "am" ? 0.0 : 12.0) . t2 + 0.0 . t3 + 0.0
-    SetFormat Float, %f%
+
+    SetFormat Float, % f
     Return, d
 }
 
@@ -1128,7 +1124,7 @@ DA_FormatEx(FormatStr, Values*) {
     for _, part in Values {
         for search, replace in part {
             replacements.Push(replace)
-            FormatStr := StrReplace(FormatStr, "{" search "}", "{"++index "}")
+            FormatStr := StrReplace(FormatStr, "{" search "}", "{" ++index "}")
         }
     }
     return Format(FormatStr, replacements*)

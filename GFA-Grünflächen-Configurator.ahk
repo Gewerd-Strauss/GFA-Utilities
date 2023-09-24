@@ -15,7 +15,7 @@ FileGetTime ModDate, %A_ScriptFullPath%, M
 FileGetTime CrtDate, %A_ScriptFullPath%, C
 CrtDate := SubStr(CrtDate, 7, 2) "." SubStr(CrtDate, 5, 2) "." SubStr(CrtDate, 1, 4)
     , ModDate := SubStr(ModDate, 7, 2) "." SubStr(ModDate, 5, 2) "." SubStr(ModDate, 1, 4)
-global script := new script()
+global script := new script_()
     , bRunFromVSC:=(WinActive("ahk_class Chrome_WidgetWin_1") && WinActive("ahk_exe Code.exe"))
     , DEBUG := IsDebug()
     , globalLogicSwitches := {}
@@ -50,13 +50,19 @@ script := { base: script.base
 globalLogicSwitches.Debug:=DEBUG
 #Include <OnError>
 main()
-CodeTimer("Startup Time")
+if (A_IsCompiled) {
+    CodeTimer()
+} else if ((globalLogicSwitches.bIsAuthor && !A_IsCompiled)) {
+    CodeTimer("Startup Time")
+} else {
+    CodeTimer()
+}
 sleep 3500
 tooltip
 return
 
 main() {
-
+    bUpdateGeneratedFiles:=false
     Loop, % A_Args.Length() {
         param := %A_Index%  ; Fetch the contents of the variable whose name is contained in A_Index.
             , bUpdateGeneratedFiles:=param
@@ -64,26 +70,45 @@ main() {
             break
         }
     }
-    if !script.requiresInternet() {
-        exitApp()
-    }
     globalLogicSwitches.bIsAuthor:=(script.computername=script.authorID) + 0
         , globalLogicSwitches.Debug:=DEBUG
     if !FileExist(script.scriptconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor) || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("resetting conf 1")
+        if (FileExist(script.scriptconfigfile)) {
+            if (globalLogicSwitches.bIsAuthor) {
+                ttip("Resetting program-configuration.")
+            }   
+        } else {
+            ttip("Initialising program-configuration.")
         }
         setupdefaultconfig(1)
     }
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("resetting conf 2")
+        if (FileExist(script.gfcGUIconfigfile)) {
+            if (globalLogicSwitches.bIsAuthor) {
+                ttip("Resetting GUI-configuration.")
+            }   
+        } else {
+            ttip("Initialising GUI-configuration.")
         }
         setupdefaultconfig(2)
     }
     script.Load(script.scriptconfigfile, 1)
     if (script.config.Configurator_settings.bRunAsAdmin && !A_IsAdmin) {
-        RunAsAdmin()
+        answer := AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+        if (answer = "Yes") {
+            RunAsAdmin()
+        } else {
+            answer := AppError("Do you want to exit the program ?", "You chose not to run the program with administrator-privileges.`nYou may either uncheck the configuration option 'bRunAsAdmin' in the program's settings, or elevate the program with administrator-privileges the next time it starts.`n`nDo you want to continue loading the program?",0x34," - ")
+            if (answer = "No") {
+                exitApp()
+            }
+        }
+    }
+    if !script.requiresInternet() {
+        answer := AppError("The program requires an internet connection.", "The program requires an internet connection, which is not available. You may continue without one, but functionality may be severely impaired.`nDo you want to exit the program?",0x34," - ")
+        if (answer = "Yes") {
+            exitApp()
+        }
     }
     globalLogicSwitches.bIsDebug:=script.config.Configurator_settings.bDebugSwitch + 0
     script.version:=script.config.version.GFC_version
@@ -104,18 +129,20 @@ main() {
         exitApp()
 
     }
-    script_TraySetup(IconString)
+    try {
+        script_TraySetup(IconString)
+    }
 
     global guiObject:=guiCreate()
     guiObject.RCodeTemplate:=set_template()
     if !FileExist(script.gfcGUIconfigfile) || ((DEBUG && globalLogicSwitches.bIsAuthor)  || bUpdateGeneratedFiles) {
-        if (globalLogicSwitches.bIsAuthor) {
-            ttip("generating parameter documentation string")
+        if (DEBUG && globalLogicSwitches.bIsAuthor) {
+            ttip("Generating parameter documentation string.")
             String:=guiObject.dynGUI.generateDocumentationString()
             Clipboard:=String
         }
     }
-    global maingui_hwnd:=guiShow(guiObject)
+    guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
     guiResize(guiObject)
@@ -124,20 +151,17 @@ main() {
         menu Tray, Add, Recompile, % f6
     }
     handleCheckboxes()
-        , handleConfig(guiObject.dynGUI,false)
-        , fillRC1(template)
-        , fillRC2(guiObject.dynGUI.ConfigString)
+    handleConfig(guiObject.dynGUI,false)
+    fillRC1(guiObject.RCodeTemplate)
+    fillRC2(guiObject.dynGUI.ConfigString)
     return
 }
 
+;@ahk-neko-ignore 1 line; Function too big
 guiCreate() {
     ;; Funktion erstellt die Benutzeroberfläche. Sehr basic, aber reicht für das was gemacht werden muss.
     gui GC: destroy
-    if (globalLogicSwitches.DEBUG) {
-        ttip([globalLogicSwitches.bIsAuthor,globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG])
-    }
-    ;; get Screen dimensions
-
+    bShowDebugPanelINMenuBar:=""
     if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
@@ -149,27 +173,27 @@ guiCreate() {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
-    ttip(["guiWidth: " guiWidth
-            ,"guiHeight: " guiHeight
-            ,script.config.SizeSetting
-            ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
-            ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
-            ,"isauto: " (script.config.Configurator_settings.SizeSetting="auto")
-            ,"height-mwa 1440p: " 1392 - 2*30
-            ,"guiWidth 1440p: " 2560 - 2*30
-            ,"guiWidth  1080p: " 1920 - 2*30
-            ,"height-mwa 1080p: " 1032 - 2*30])
     if (globalLogicSwitches.DEBUG) {
-        ttip({guiWidth:guiWidth,guiHeight:guiHeight,A_ScreenHeight:A_ScreenHeight,A_ScreenWidth:A_ScreenWidth},1,2300)
+        ttip(["guiWidth: " guiWidth
+                ,"guiHeight: " guiHeight
+                ,"A_ScreenHeight " A_ScreenHeight
+                ,"A_ScreenWidth " A_ScreenWidth
+                ,script.config.SizeSetting
+                ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
+                ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
+                ,"isauto: " (script.config.Configurator_settings.SizeSetting="auto")
+                ,"height-mwa 1440p: " 1392 - 2*30
+                ,"guiWidth 1440p: " 2560 - 2*30
+                ,"guiWidth  1080p: " 1920 - 2*30
+                ,"height-mwa 1080p: " 1032 - 2*30,["bIsAuthor: " globalLogicSwitches.bIsAuthor,"bisDEBUG: " globalLogicSwitches.bIsDebug,globalLogicSwitches.DEBUG]],1,2300)
     }
-
     YMarginWidth:=XMarginWidth:=15
         , NumberofSections:=3
         , WidthMinusMargins:=guiWidth - 4*XMarginWidth + 0
         , SectionWidth:=WidthMinusMargins/NumberofSections + 0
         , SectionHeight:=guiHeight
         , Sections:=[]
-        , middleanchor:=guiWidth-4*15-middleWidth
+        , middleanchor:=guiWidth-4*15
     loop, % NumberofSections {
         if (A_Index>1) {
             Sections[A_Index]:={XAnchor:XMarginWidth*A_Index + SectionWidth*(A_Index-1),YAnchor:3,Width:SectionWidth*1,Height:SectionHeight*1}
@@ -193,7 +217,7 @@ guiCreate() {
         , Sections[4].XAnchor:=Sections[4].XAnchor-ShiftSection1-ShiftSection2
         , Sections[4].Width:=Sections[4].Width+ShiftSection1+ShiftSection2
         , Sections[2].Height:=230
-        , middleanchor:=guiWidth-4*15-middleWidth
+        , middleanchor:=guiWidth-4*15
 
     Sections[3].YAnchor:=Sections[2].Height-15
         , Sections[3].XAnchor:=Sections[2].XAnchor
@@ -211,13 +235,12 @@ guiCreate() {
         , hwndLV_ConfigHistory
         , hwndLV_RScriptHistory
         , generateRScriptBtn
+        , recompileBtn
         , vToggleLVReport
         , vToggleLVReport2
     gui GC: new
     gui GC:  +LabelGC +HWNDGCHWND
-    minW:=(guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2))
-    minH:=guiObject["guiHeight"]
-    gui GC: +Resize +MinSize%minW%x%minH%
+    gui GC: +Resize
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
@@ -241,7 +264,7 @@ guiCreate() {
     dynGUI.GFA_Evaluation_RScript_Location:=""
     dynGUI.guiVisible:=false
         , dynGUI.GCHWND:=GCHWND
-        , dynGUI.GenerateGUI(,,False,"GC:",false,15,Sections[1].Width-15,,9)
+        , dynGUI.GenerateGUI(,,False,"GC:",false,Sections[1].Width-15,,9)
 
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
@@ -323,12 +346,11 @@ guiCreate() {
 
     gui add, text, % "y20 x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - 3*5, curr. loaded R-Script
     gui add, edit,% "y" (20)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndStarterRScriptLocation vvStarterRScriptLocation w" Sections[4].Width*0.85+4,   % "<Location of Starter-'.R'-Script>"
-    ; global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h" (Sections[4].Height-45-3*5)/4 ,"GC", HighlightBound=Func("HighlightR"))
-    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , HighlightBound=Func("HighlightR"))
+    global RC:=new GC_RichCode(RESettings2, "y45" " x" Sections[4].XAnchor+5 " w" Sections[4].Width - 3*5 " h489" , Func("HighlightR"))
     gui add, text, % "y" (45+489+5) " x" Sections[4].XAnchor+5 " h40 w" Sections[4].Width - (3*5) - (Sections[4].Width*0.85), curr. loaded Config
     gui add, edit,% "y" (45+489+5)-3 " x" Sections[4].XAnchor+5 + Sections[4].Width - (3*5) - (Sections[4].Width*0.85) + -1*2 " r1 disabled hwndhwndUsedConfigLocation vvUsedConfigLocation w" Sections[4].Width*0.85+4,   % "<Location of Configuration-'.ini'-File>"
     buttonHeight:=40
-    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, HighlightBound=Func("HighlightR"))
+    global RC2:=new GC_RichCode(RESettings2,"y" (45+489+5+25) " x" Sections[4].XAnchor+5 " h" (guiHeight-(45+489+5+40+5+5+buttonHeight+5)) " w" Sections[4].Width - 3*5, Func("HighlightR"))
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateRScriptBtn x" Sections[4].XAnchor+5, % "Generate R-Script"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndpreviewConfigurationBtn x" Sections[4].XAnchor+95, % "Preview Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfigurationBtn x" Sections[4].XAnchor+185, % "Generate Configuration"
@@ -404,7 +426,7 @@ guiCreate() {
     guiControl GC:+g, %ChecksaveRDATA%, % onChecksaveRDATA
     guiControl GC:+g, %CheckSaveExcel%, % onCheckSaveExcel
     if (globalLogicSwitches.bIsAuthor) {
-        guiControl GC:+g, %recompile%, % onRecompile
+        guiControl GC:+g, %recompileBtn%, % onRecompile
     }
     AddToolTip(newConfigurationBtn,"Create a new configuration-file in a desired folder.")
     AddToolTip(editConfigurationBtn,"Edit an existing configuration-file.")
@@ -433,7 +455,7 @@ guiCreate() {
     return guiObject
 }
 guiShow3(guiObject,ShowThirdPane:=true) {
-    if (showThirdPane) {
+    if (ShowThirdPane) {
         gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
     } else {
         gui GC: show,% "w" (guiObject["guiWidth"]-(guiObject["Sections"][4]["Width"]+guiObject.XMarginWidth*2)) " h" guiObject["guiHeight"] "x0 y0" , % script.name " - Complementary program for GFA_Evaluation.R"
@@ -441,22 +463,21 @@ guiShow3(guiObject,ShowThirdPane:=true) {
     return
 }
 guiShow2(guiObject) {
-    global
     if (WinActive("ahk_id " guiObject.dynGUI.GCHWND)) {
-        if (dynGUI.guiVisible) {
+        if (guiObject.dynGUI.guiVisible) {
             guiHide()
-            dynGUI.guiVisible:=false
+            guiObject.dynGUI.guiVisible:=false
         } else {
             guiShow(guiObject)
-            dynGUI.guiVisible:=true
+            guiObject.dynGUI.guiVisible:=true
         }
     } else {
-        if (dynGUI.guiVisible) {
+        if (guiObject.dynGUI.guiVisible) {
             guiHide()
-            dynGUI.guiVisible:=false
+            guiObject.dynGUI.guiVisible:=false
         } else {
             guiShow(guiObject)
-            dynGUI.guiVisible:=true
+            guiObject.dynGUI.guiVisible:=true
         }
     }
     return
@@ -485,22 +506,14 @@ guiShow(guiObject) {
         gui GC: show,% "w" guiObject["guiWidth"] " h" guiObject["guiHeight"] " Center" , % script.name " - Complementary program for GFA_Evaluation.R"
     }
     guicontrol GC: hide, % "vExcelSheetPreview"
-    dynGUI.guiVisible:=true
+    guiObject.dynGUI.guiVisible:=true
     handleCheckboxes()
-    handleConfig(dynGUI,false)
+    handleConfig(guiObject.dynGUI,false)
     ;handleExcelSheets(dynGUI.Arguments)
     Tabs:=[]
     TabName:="Example-Excel-File No. "
     loop, 12 {
         Tabs[A_Index]:=TabName A_Index
-    }
-    loop, % Tabs.Count(){
-        TabNames.=Tabs[A_Index]
-        if (A_Index=1) {
-            TabNames.="||"
-        } else {
-            TabNames.="|"
-        }
     }
     gui gc: default
     gui % "GC: " ((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
@@ -511,8 +524,6 @@ guiShow(guiObject) {
 }
 
 guiHide() {
-    global
-    dynGUI.guiVisible:=false
     GCEscape()
     return 
 }
@@ -531,13 +542,25 @@ WinGetPos(title) {
     return {x: x, y: y, w: w, h: h}
 }
 GCSize() {
-    global
+    ;global
+    global gb3
+    global gb4
+    global hwndStarterRScriptLocation
+    global hwndUsedConfigLocation
+    global EditSettingsBtn
+    global ExitProgramBtn
+    global OpenRScriptBtn
+    global recompileBtn
+    global RC
+    global RC2
+    global hwndLV_ConfigHistory
+    global hwndLV_RScriptHistory
+    global hwndTab3_2
+    global guiObject
     gui GC: default
     wgp := WinGetPos("ahk_id " guiObject.dynGUI.GCHWND)
     gui GC: default
     SB_SetText("x" wgp.x " y" wgp.y " w" wgp.w " h" wgp.H,8)
-    AutoXYWH("h*", gb1,gb3)
-    ;AutoXYWH("h*", gb2)
     AutoXYWH("h*", gb3)
     AutoXYWH("wh*", gb4)
     AutoXYWH("w", hwndStarterRScriptLocation)
@@ -560,18 +583,16 @@ GCSize() {
     AutoXYWH("h", hwndTab3_2)
     return
 }
-GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
 
-    global dynGUI
+GCDropFiles(_GuiHwnd, File, _*) {
+
     global guiObject
     global hwndLV_RScriptHistory
     global hwndLV_ConfigHistory
     if (A_GuiControl="Drop config file or config destination folder here") {    ;; ini-file
-
         if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped",% "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI."
-            Gui -OwnDialogs
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .ini-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.")
+            return
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
             ; if directory, check first if ini-files exist
@@ -592,12 +613,11 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         } else { ; file
             configPath:=File[1]
         }
-        loadConfig_Main(configPath,dynGUI)
+        loadConfig_Main(configPath,guiObject.dynGUI)
     } else if (A_GuiControl="Drop RScript-file or RScript-destination folder here") {                                                                    ;; Rscript-file
         if (File.Count()>1) {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: 2+ files/folders dropped", You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.
-            Gui -OwnDialogs
+            AppError("2+ files/folders dropped", "You have dropped more than either 1 .Rscript-file or 1 folder on the GUI. This will not work. Please drop either a single file`, or a single folder onto the GUI.")
+            return
         }
         if (InStr(FileExist(File[1]),"D")) { ; directory
             ; if directory, check first if Rscript-files exist
@@ -619,16 +639,12 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             rPath:=File[1]
         }
         if (rPath="") {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.
-            Gui -OwnDialogs
+            AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new Rscript-file. Please do either.")
             return
         }
 
         if RegexMatch(rPath,"\.ini$")  {
-            Gui +OwnDialogs
-            MsgBox 0x40010, % script.name " - Error occured: Dropped config-file on rscript-dropper", % "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead."
-            Gui -OwnDialogs
+            AppError("Dropped config-file on rscript-dropper", "You have dropped the config-file`n`n'" rPath "'`n`n on the right selection-window. Please drag-and-drop an Rscript-file here instead.")
             return
         }
         if !RegexMatch(rPath,"\.R$")  {
@@ -636,7 +652,7 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
         }
         guicontrol % "GC:",vStarterRScriptLocation, % rPath
         if (rPath!="") {
-            dynGUI.GFA_Evaluation_RScript_Location:=rPath
+            guiObject.dynGUI.GFA_Evaluation_RScript_Location:=rPath
             if (!InStr(rPath,A_ScriptDir)) {
                 script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rPath)
                 updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
@@ -644,22 +660,21 @@ GCDropFiles(GuiHwnd, File, CtrlHwnd, X, Y) {
             }
         }
     } else { ;; anywhere else
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Files dropped somewhere", You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.
-        Gui -OwnDialogs
+        AppError("Files dropped somewhere", "You have dropped files outside the designated areas of the GUI. That is not permitted. Please drop them in their designated locations.")
+        return
     }
     if (rPath!="") {
-        dynGUI.GFA_Evaluation_RScript_Location:=rPath
+        guiObject.dynGUI.GFA_Evaluation_RScript_Location:=rPath
         guiResize(guiObject)
     }
     if (configPath!="") {
-        dynGUI.GFA_Evaluation_Configfile_Location:=configPath
+        guiObject.dynGUI.GFA_Evaluation_Configfile_Location:=configPath
         guiResize(guiObject)
     }
     return  
 }
 fillRC1(Code) {
-    global
+    global RC
     gui GC: default
     Code:=FormatEx(Code,{GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")})
     RC.Settings.Highlighter:= "HighlightR"
@@ -667,7 +682,7 @@ fillRC1(Code) {
     return
 }
 fillRC2(INI) {
-    global
+    global RC2
     gui GC: default
     RC2.Settings.Highlighter:= "HighlightINI"
         , RC2.Value:= INI
@@ -677,15 +692,11 @@ loadConfig_Main(configPath,dynGUI) {
     global hwndLV_ConfigHistory
     global guiObject
     if (configPath="") {
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Selection-GUI got cancelled", % "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either."
-        Gui -OwnDialogs
+        AppError("Selection-GUI got cancelled", "You have closed the selection-window without selecting an existing or creating a new config-file. Please do either.")
         return
     }
     if RegexMatch(configPath,"\.R$")  {
-        Gui +OwnDialogs
-        MsgBox 0x40010, % script.name " - Error occured: Dropped RScript-file on config-dropper", % "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead."
-        Gui -OwnDialogs
+        AppError("Dropped RScript-file on config-dropper", "You have dropped the RScript-file`n`n'" configPath "'`n`n on the left selection-window. Please drag-and-drop a configuration-file (.ini) here instead.")
         return
     }
     if !RegexMatch(configPath,"\.ini$") {
@@ -694,7 +705,7 @@ loadConfig_Main(configPath,dynGUI) {
     if !FileExist(configPath) {                 ;; create a new config file in the folder, use the current config selections existing in the GUI and write them to file
         dynGUI.generateConfig(0)
         written_config:=dynGUI.ConfigObject
-        t_script:=new script()
+        t_script:=new script_()
         t_script.Save(configPath,written_config)
     } else {                                    ;; a config-file exists - load the selections into the dynGUI; while doing so validate that all values are valid and that the ini is not corrupted.
         dynGUI.loadConfigFromFile(configPath)
@@ -721,17 +732,38 @@ loadConfig_Main(configPath,dynGUI) {
         WINDOWS:=strreplace(Chosen,"/","\")
         MAC:=strreplace(Chosen,"/","\")
         String:=guiObject.RCodeTemplate
-        needle:="GFA_main\(r""\(\%.+\%\)"","
-        needle:="GFA_main\((folder_path = r.+""),"
-        rep1:="GFA_main(folder_path = r""("
-        rep2:=")"","
-        Matches:=RegexMatchAll(String, "iU)" needle)
-        for _, match in Matches {                                                  ;; star, top
-            match_ := match[0]
-            if (_<2) {
-                String:=strreplace(String,match_,rep1 WINDOWS rep2)
-            } else {
-                String:=strreplace(String,match_,rep1 MAC rep2)
+        ;needle:="GFA_main\((folder_path = r.+""),"
+        ;rep1:="GFA_main(folder_path = r""("
+        ;rep2:=")"","
+        ;Matches:=RegexMatchAll(String, "iU)" needle)
+        ;for _, match in Matches {                                                  ;; star, top
+        ;    match_ := match[0]
+        ;    if (_<2) {
+        ;        String:=strreplace(String,match_,rep1 WINDOWS rep2)
+        ;    } else {
+        ;        String:=strreplace(String,match_,rep1 MAC rep2)
+        ;    }
+        ;}
+        if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+            SplitPath WINDOWS,  WINDOWS
+            SplitPath MAC,  MAC
+        }
+        RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+        String:=FormatEx(String,RC1Object)
+        if (!InStr(String,WINDOWS) || !InStr(String,MAC,,,2)) {
+            needle:="GFA_main\((folder_path = r.+""),"
+            rep1:="GFA_main(folder_path = r""("
+            rep2:=")"","
+            Matches:=RegexMatchAll(String, "iU)" needle)
+            for _, match in Matches {                                                  ;; star, top
+                match_ := match[0]
+                if (_<2) {
+                    String:=strreplace(String,match_,rep1 WINDOWS rep2)
+                } else {
+                    String:=strreplace(String,match_,rep1 MAC rep2)
+                }
             }
         }
         guiObject.RCodeTemplate:=String
@@ -745,21 +777,25 @@ handleCheckboxesWrapper() {
 }
 
 handleCheckboxes() {
-    global
+    global guiObject
+    global vreturnDays
+    global vSaveFigures
+    global vsaveRDATA
+    global vSaveExcel
     gui GC: submit, nohide
     template:=guiObject.RCodeTemplate
-        , template:=strreplace(template,"returnDays = %breturnDays%","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = %bSaveFigures%","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = %bsaveRDATA%","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = %bSaveExcel%","saveExcel = " vSaveExcel)
-        , template:=strreplace(template,"returnDays = 1","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = 1","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = 1","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = 1","saveExcel = " vSaveExcel)
-        , template:=strreplace(template,"returnDays = 0","returnDays = " vreturnDays)
-        , template:=strreplace(template,"saveFigures = 0","saveFigures = " vSaveFigures)
-        , template:=strreplace(template,"saveRDATA = 0","saveRDATA = " vsaveRDATA)
-        , template:=strreplace(template,"saveExcel = 0","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = %breturnDays%","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = %bSaveFigures%","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = %bsaveRDATA%","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = %bSaveExcel%","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = 1","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = 1","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = 1","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = 1","saveExcel = " vSaveExcel)
+    template:=strreplace(template,"returnDays = 0","returnDays = " vreturnDays)
+    template:=strreplace(template,"saveFigures = 0","saveFigures = " vSaveFigures)
+    template:=strreplace(template,"saveRDATA = 0","saveRDATA = " vsaveRDATA)
+    template:=strreplace(template,"saveExcel = 0","saveExcel = " vSaveExcel)
     return template
 }
 handleConfig(dynGUI,writetoFile:=false) {
@@ -780,7 +816,6 @@ handleConfig(dynGUI,writetoFile:=false) {
                 script.save(script.scriptconfigfile,,true)
             } else { ;; only update the config file, but do not update the script data
                 writeFile(dynGUI.GFA_Evaluation_Configfile_Location,dynGUI.ConfigString,script.config.Configurator_settings.INI_Encoding,,1)
-
             }
         } catch {
             throw Exception( "Failed to write config with encoding '" script.config.Configurator_Settings.INI_Encoding "' to path '" dynGUI.GFA_Evaluation_Configfile_Location "'`n`n" CallStack(),-1)
@@ -794,13 +829,11 @@ GCSubmit() {
 }
 GCEscape() {
     gui GC: hide
-    ;gui GC: destroy
     return
 }
 
 fCallBack_StatusBarMainWindow() {
     gui GC: Submit, NoHide
-    ttip(globalLogicSwitches.bIsDebug)
     gui GC: -AlwaysOnTop
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
@@ -821,7 +854,6 @@ fCallBack_StatusBarMainWindow() {
             SoundBeep 150, 150
             SoundBeep 150, 150
             ListLines Off
-            ; KeyHistory
         }
         else if (!(script.authorID!=A_ComputerName)) || ((script.authorID!=A_ComputerName) && globalLogicSwitches.bIsDebug)
         {
@@ -833,7 +865,10 @@ fCallBack_StatusBarMainWindow() {
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
         if (!A_IsAdmin) {
-            RunAsAdmin()
+            answer := AppError("Do you want to elevate the program ?", "Do you want to reload the program with administrator-privilages without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+            if (answer = "Yes") {
+                RunAsAdmin()
+            }
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) { ; part 5 - report bug
         if script.requiresInternet(script.metadataArr.Issues) {
@@ -869,7 +904,6 @@ createConfiguration(Path,guiObject) {
     gui -AlwaysOnTop
     FileSelectFile Chosen, S8, % SearchPath, % "Please create the ini-file you want to use.", *ini
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if !RegexMatch(Chosen,"\.ini$") {
             Chosen.=".ini" 
         }
@@ -889,32 +923,40 @@ createConfiguration(Path,guiObject) {
                 LV_Add("",ExperimentName_Key,FileName,Chosen)
             }
         }
+    } else {
+        ttip("Please select a configuration file. Aborting file-creation.")
+        return
     }
     GFA_configurationFile:=Chosen
         , dynGUI.GFA_Evaluation_Configfile_Location:=Chosen
     guiResize(guiObject)
     if (Chosen!="") {
 
-        SplitPath % Chosen,, Chosen
-        if ((subStr(Chosen,-1)!="\") && (subStr(Chosen,-1)!="/")) {
-            Chosen.="\"
-        }
-        WINDOWS:=strreplace(Chosen,"/","\")
-        MAC:=strreplace(Chosen,"/","\")
-        String:=guiObject.RCodeTemplate
-        needle:="GFA_main\(r""\(\%.+\%\)"","
-        needle:="GFA_main\((r.+""),"
-        rep1:="GFA_main(r""("
-        rep2:=")"","
-        Matches:=RegexMatchAll(String, "iU)" needle)
-        for _, match in Matches {                                                  ;; star, top
-            match_ := match[0]
-            if (_<2) {
-                String:=strreplace(String,match_,rep1 WINDOWS rep2)
-            } else {
-                String:=strreplace(String,match_,rep1 MAC rep2)
+        if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+            if (InStr(FileExist(Chosen),"D")) { ;; directory
+                Chosen.="\GFA_conf.ini"
             }
+            WINDOWS:=strreplace(Chosen,"/","\")
+            MAC:=strreplace(Chosen,"/","\")
+            SplitPath WINDOWS,  WINDOWS, GFA_Evaluation_RScript_Location
+            SplitPath MAC,  MAC
+            guiObject.dynGUI.GFA_Evaluation_RScript_Location:=GFA_Evaluation_RScript_Location "\RScript.R"
+            guicontrol % "GC:",vStarterRScriptLocation, % guiObject.dynGUI.GFA_Evaluation_RScript_Location
+            if !FileExist(guiObject.dynGUI.GFA_Evaluation_RScript_Location) {
+                writeFile(guiObject.dynGUI.GFA_Evaluation_RScript_Location,"","UTF-8-RAW",,true)
+            }
+        } else {
+            if (InStr(FileExist(Chosen),"D")) { ;; directory
+                Chosen.="\GFA_conf.ini"
+            }
+            WINDOWS:=strreplace(Chosen,"/","\")
+            MAC:=strreplace(Chosen,"/","\")
         }
+        String:=guiObject.RCodeTemplate
+        RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
+                , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
+                ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
+        String:=FormatEx(String,RC1Object)
         guiObject.RCodeTemplate:=String
         handleCheckboxesWrapper()
     }
@@ -922,23 +964,21 @@ createConfiguration(Path,guiObject) {
     return Chosen
 }
 editConfiguration(configurationFile) {
-    global
+    global guiObject
     gui Submit,NoHide
     ;; we do the InStr-Check this way because for some reason this sometimes returns 'A', and sometimes returns 'N', even though both times the file is correct and does exist. No clue why, but this is what it is.
-    if (InStr("AN",FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) {      ;; if you have a config-file selected, run createConfiguration on that location
-        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+    if (InStr("AN",FileExist(guiObject.dynGUI.GFA_Evaluation_Configfile_Location)) && (guiObject.dynGUI.GFA_Evaluation_Configfile_Location!="")) {      ;; if you have a config-file selected, run createConfiguration on that location
+        SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
         GFA_configurationFile:=createConfiguration(OutDir,guiObject)
-    } else if (InStr("AN",FileExist(dynGUI.GFA_Evaluation_RScript_Location)) && (dynGUI.GFA_Evaluation_RScript_Location!="")) {      ;; if you have a script-file selected, run createConfiguration on that location
-        SplitPath % dynGUI.GFA_Evaluation_RScript_Location,, OutDir
+    } else if (InStr("AN",FileExist(guiObject.dynGUI.GFA_Evaluation_RScript_Location)) && (guiObject.dynGUI.GFA_Evaluation_RScript_Location!="")) {      ;; if you have a script-file selected, run createConfiguration on that location
+        SplitPath % guiObject.dynGUI.GFA_Evaluation_RScript_Location,, OutDir
         GFA_configurationFile:=createConfiguration(OutDir,guiObject)
     } else if (InStr("AN",FileExist(configurationFile)) && (configurationFile!="")) {
         run % configurationFile
     } else {
         if (globalLogicSwitches.DEBUG) {
             GFA_configurationFile:=createConfiguration(A_ScriptDir,guiObject)
-
         } else {
-
             GFA_configurationFile:=createConfiguration("D:/",guiObject)
         }
     }
@@ -946,12 +986,13 @@ editConfiguration(configurationFile) {
     return
 }
 editRScript(rScriptFile) {
-    global
+    global guiObject
+    global hwndLV_RScriptHistory
     gui Submit,NoHide
     if (FileExist(rScriptFile)) {
         run % rScriptFile
-    } else if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
-        SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+    } else if (FileExist(guiObject.dynGUI.GFA_Evaluation_Configfile_Location)) {
+        SplitPath % guiObject.dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
         GFA_rScriptFile:=createRScript(OutDir,true,true)
     } else {
         if (globalLogicSwitches.DEBUG) {
@@ -968,6 +1009,7 @@ editRScript(rScriptFile) {
     gui GC: default
     return
 }
+;@ahk-neko-ignore 1 line; Function too big.
 createRScript(Path,forceSelection:=false,overwrite:=false) {
     global
     static Chosen
@@ -981,7 +1023,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (!globalLogicSwitches.DEBUG) {
-        SearchPath:="C://"
+        SearchPath:="C:\"
     }
     if (SearchPath="") {
         if (!FileExist(Path)) {
@@ -989,10 +1031,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                 if (Path.HasKey("GFA_Evaluation_Configfile_Location")) {
                     SplitPath % Path.GFA_Evaluation_Configfile_Location,, SearchPath
                 } else {
-                    SearchPath:="C://"
+                    SearchPath:="C:\"
                 }
             } else {
-                SearchPath:="C://"
+                SearchPath:="C:\"
             }
         } else {
             SearchPath:=Path
@@ -1010,9 +1052,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         HeuristicRScript_config_match:=determineHeuristicScriptRelationByPath(Chosen,dynGUI.GFA_Evaluation_Configfile_Location,dynGUI)
         if (!InStr(Chosen,SearchPath) && (dynGUI.GFA_Evaluation_Configfile_Location!="")) && (!HeuristicRScript_config_match) {
             ;; we changed folder away from the initial config folder, so... throw an error to warn the user?!
-            Gui +OwnDialogs
-            MsgBox 0x40014, % script.name " - " A_ThisFunc " - Config-Script-Mismatch"
-                , % "The script ""thinks"" by a simple heuristic approach that the given config file:"
+            msg := "The script ""thinks"" by a simple heuristic approach that the given config file:"
                 . "`n"
                 . "`n'" dynGUI.GFA_Evaluation_Configfile_Location "'"
                 . "`n"
@@ -1026,14 +1066,12 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
                 . (HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":"")
                 . (HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":"")
                 . (HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":"")
-            Gui -OwnDialogs
+            answer := AppError(script.name " - " A_ThisFunc " - Config-Script-Mismatch", msg, 0x4)
             if (HeuristicRScript_config_match<0) { ;; errors are critical, so throw them and interrupt flow
                 str:=(HeuristicRScript_config_match==-1?"`nYou are trying to edit an rscript-file which lies in a folder other than the one the current configuration-file lies in. You must decide if you want to use this path, or not.":(HeuristicRScript_config_match==-2?"`nCritical error: The arguments-structure currently loaded does not contain the required object structure 'this.Arguments'":(HeuristicRScript_config_match==-3?"`nCritical error: the config key 'UniqueGroups' does not exist in the currently loaded config":(HeuristicRScript_config_match==-4?"`nCritical error: the config key 'UniqueGroups' is not populated in the currently loaded config":""))))
                 throw Exception(str "`n" CallStack(), -1)
-            } else {
-                IfMsgBox No, {
-                    FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
-                }
+            } else if (answer = "No") {
+                FileSelectFile Chosen, S8, % SearchPath, % "Please create the Rscript-file you want to use.", *.R
             }
         }
     }
@@ -1045,7 +1083,6 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         if (!InStr(Chosen,".R")) {
             Chosen:=Chosen ".R"
         }
@@ -1065,17 +1102,34 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
     }
     if (Chosen!="") {
         if (overwrite) {
-            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
             guiObject.RCodeTemplate:=handleCheckboxes()
             if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
                 configLocationFolder.="\"
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
+            if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+                SplitPath WINDOWS,  WINDOWS
+                SplitPath MAC,  MAC
+            }
             RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
             Code:=FormatEx(guiObject.RCodeTemplate,RC1Object)
+            if (!InStr(Code,WINDOWS) || !InStr(Code,MAC,,,2)) {
+                needle:="GFA_main\((folder_path = r.+""),"
+                rep1:="GFA_main(folder_path = r""("
+                rep2:=")"","
+                Matches:=RegexMatchAll(String, "iU)" needle)
+                for _, match in Matches {                                                  ;; star, top
+                    match_ := match[0]
+                    if (_<2) {
+                        String:=strreplace(String,match_,rep1 WINDOWS rep2)
+                    } else {
+                        String:=strreplace(String,match_,rep1 MAC rep2)
+                    }
+                }
+            }
             if ((StrLen(current_contents)>0) && (current_contents!="")) {
                 if (Code!=current_contents) {
                     Code:=compareRScripts(Code,current_contents,guiObject.dynGUI.GCHWND,Chosen)
@@ -1101,6 +1155,10 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
             }
             WINDOWS:=strreplace(configLocationFolder,"/","\")
             MAC:=strreplace(configLocationFolder,"/","\")
+            if (script.config.Configurator_settings.UseRelativeConfigPaths) {
+                SplitPath WINDOWS,  WINDOWS
+                SplitPath MAC,  MAC
+            }
             RC1Object:={GFA_CONFIGLOCATIONFOLDER_WINDOWS:WINDOWS
                     , GFA_CONFIGLOCATIONFOLDER_MAC:MAC
                     ,GFA_EVALUATIONUTILITY:strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/")}
@@ -1142,7 +1200,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui compare_contents: destroy
     gui compare_contents: new
-    gui compare_contents: +HWNDCCHWND +Owner%oH% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
+    gui compare_contents: +HWNDCCHWND +Owner%HWND% -SysMenu +ToolWindow -caption +Border +AlwaysOnTop
     gui %HWND%:+Disabled
     RESettings2 :=
         ( LTrim Join Comments
@@ -1194,11 +1252,11 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui add, text, x15 y15 w0 h0, % "anchor"
     gui add, text, x15 y25 h15, % "Old Code"
-    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , Func("HighlightR"))
     gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "Keep &old contents"
     gui add, edit,%  "hwndhwndcompare_contentsCurrPath h15 disabled x" 0.3*guiWidth " w" guiWidth*(1-2*0.3), % Filepath
     gui add, text,%  "x" 15 + RCWidth + 15 " y25 h15", % "New Code"
-    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
+    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , Func("HighlightR"))
     gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "Overwrite with &new contents"
     RC_Old.Settings.Highlighter:= "HighlightR"
         , RC_Old.Value:= current_contents
@@ -1206,7 +1264,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
         , RC_New.Value:= new_contents
     gui compare_contents: show,% "w" guiWidth " h" guiHeight " x0 y0 AutoSize" , % script.name " - Select script contents to keep"
     WinWait % script.name " - Select script contents to keep"
-    CenterControl(oH,hwndcompare_contentsCurrPath,X=0,Y=0)
+    CenterControl(CCHWND,hwndcompare_contentsCurrPath,0,0)
     WinWaitClose % script.name " - Select script contents to keep"
     gui %HWND%:-Disabled
     if (compare_contents_UseNew) {
@@ -1217,7 +1275,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
 }
 #if WinActive("ahk_id " CCHWND)
-!F4::ttip("You cannot close this window")
+!F4::ttip("You cannot close this window.")
 #if
 runRScript(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_RScript_Location")) {
@@ -1306,7 +1364,6 @@ selectConfigLocation(SearchPath) {
 
     SplitPath % Chosen
     if (Chosen!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
         Chosen:=Chosen "\GFA_conf_AG.ini"
         guicontrol % "GC:",vUsedConfigLocation, % Chosen
         if (!FileExist(Chosen)) {
@@ -1324,9 +1381,14 @@ selectConfigLocation(SearchPath) {
 }
 updateLV(hwnd,Object) {
     gui Listview, % hwnd
+    static Count:=0, lvttarr:={}
+    if (Count<3) {
+        Count++
+        lvttarr[hwnd]:= DllCall("SendMessage", "ptr", hwnd, "uint", 0x104E, "ptr", 0, "ptr", 0, "ptr")
+    }
+    global LVTTHWNDARR:=lvttarr
     LV_Delete()
     SetExplorerTheme(hwnd)
-    TThwnd := DllCall("SendMessage", "ptr", hwnd, "uint", LVM_GETTOOLTIPS := 0x104E, "ptr", 0, "ptr", 0, "ptr")
     for each, File in Object {
         if (FileExist(File)) {
             SplitPath % File,,,, FileName
@@ -1347,19 +1409,15 @@ updateLV(hwnd,Object) {
     LV_EX_SetTileInfo(hwnd, 0, 2,3, 4)
     ; WM_NOTIFY handler
     OnMessage(0x4E, "On_WM_NOTIFY")
-    WinSet AlwaysOnTop, On, % "ahk_id " TThwnd
+    WinSet AlwaysOnTop, On, % "ahk_id " LVTTHWNDARR[hwnd]
     Object:=buildHistory(Object,script.config.Configurator_settings.ConfigHistoryLimit)
     return
 }
-#if DEBUG
-NumpadDot::reload       ;; hard-coded reload for when running through vsc, not usable in compiled form.
-#if
-#if globalLogicSwitches.bIsDebug
-~!Esc::Reload           ;; debug-state-dependent, usable by normal users when compiled
-#if
+
 reload() {
     reload
 }
+
 exitApp() {
     ExitApp
 }
@@ -1387,19 +1445,59 @@ set_template() {
             } else {`t# MAC:
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             }
-            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results, or selectively clear variables. Clearing the workspace inbetween these two points will render the script useless.
+            ## do not clear your workspace between the calls to ``source()`` and ``GFA_main()``. 
+            ## If you absolutely MUST, only clear your worspace after GFA_main() has returned its output and you no longer need its results,
+            ## or selectively clear variables. 
+            ## 
+            ## Clearing the workspace inbetween these two points will render the script useless.
         )
     if FileExist(script.config.Configurator_settings.Custom_R_Script_Template) {
         fo:=fileopen(script.config.Configurator_settings.Custom_R_Script_Template,"r")
-        template:=fo.Read()
+        custom_template:=fo.Read()
         fo.Close()
+        ret:=custom_template
+        for _, key in ["{GFA_EVALUATIONUTILITY}","{GFA_CONFIGLOCATIONFOLDER_WINDOWS}","{GFA_CONFIGLOCATIONFOLDER_MAC}","`%breturnDays`%","`%bsaveFigures`%","`%bsaveRDATA`%"] {
+            if !InStr(custom_template,key) {
+                OnMessage(0x44, "OnMsgBox_MissingContent")
+                answer := AppError("custom template does not contain required contents", "The required element '" key "' does not exist in the template at`n'" script.config.Configurator_settings.Custom_R_Script_Template "'`n`nPlease ensure that the section the original template contains is unchanged in your script. `nThis is necessary to ensure the script's functionality.",0x4," - ")
+                OnMessage(0x44, "")
+                if (answer = "Yes") {
+                    ret:=template
+                    break
+                }
+                exitApp()
+            }
+        }
+    } else {
+        ret:=template
     }
-    return template
+    return ret
+}
+OnMsgBox_MissingContent() {
+    DetectHiddenWindows On
+    Process Exist
+    If (WinExist("ahk_class #32770 ahk_pid " . ErrorLevel)) {
+        ControlSetText Button1, Use Default
+        ControlSetText Button2, Exit Program
+    }
 }
 prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
 }
+
+#if DEBUG ;; hard-coded reload for when running through vsc, not usable in compiled form.
+NumpadDot::reload()
+#if globalLogicSwitches.bIsDebug
+~!Esc:: ;; debug-state-dependent, usable by normal users when compiled
+answer := AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
+if (answer = "Yes") {
+    Reload()
+}
+return
+#if
+
+
 #Include <script>
 #Include <Base64PNG_to_HICON>
 #Include <DynamicArguments>
@@ -1434,3 +1532,6 @@ prepare_release() {
 #Include <renameImages>
 #Include <cJSON>
 #Include <CenterControl>
+#Include <messageboxes>
+#Include <DerefAHKVariables>
+#Include <callstack>

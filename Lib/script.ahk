@@ -3,11 +3,11 @@ script() - class for common script management.
 This is based on the example script-class written by RaptorX (https://github.com/RaptorX/ScriptObj),
 since that project does not have a license attached to it.
 */
-class script {
+class script_ {
     static DBG_NONE     := 0
-        ,DBG_ERRORS   := 1
-        ,DBG_WARNINGS := 2
-        ,DBG_VERBOSE  := 3
+        ,  DBG_ERRORS   := 1
+        ,  DBG_WARNINGS := 2
+        ,  DBG_VERBOSE  := 3
 
     static name       := ""
         , version      := ""
@@ -40,8 +40,8 @@ class script {
         , dbgFile      := ""
         , rfile		  := ""
         , vfile		  := ""
-        , dbgLevel     := this.DBG_NONE
-        , versionScObj := "0.21.3"
+        , dbgLevel     := script_.DBG_NONE
+        , versionScObj := "0.22.4"
         , versionAHK   := "1.1"
     About(bGenerateOnly:=false) {
         /**
@@ -152,13 +152,13 @@ class script {
                 if RegexMatch(credits,"(?<Author>(\w|)*)(\s*\-\s*)(?<Snippet>(\w|\|)*)\s*\-\s*(?<URL>.*)")
                 {
                     CreditsLines:=strsplit(credits,"`n")
-                    Credits:={}
+                    credits:={}
                     for _,v in CreditsLines
                     {
                         if ((InStr(v,"author1") && InStr(v,"snippetName1") && InStr(v,"URL1")) || (InStr(v,"snippetName2|snippetName3")) || (InStr(v,"author2,author3") && Instr(v, "URL2,URL3")))
                             continue
                         val:=strsplit(strreplace(v,"`t"," ")," - ")
-                        Credits[Trim(val.2)]:=Trim(val.1) "|" Trim((strlen(val.3)>5?val.3:""))
+                        credits[Trim(val.2)]:=Trim(val.1) "|" Trim((strlen(val.3)>5?val.3:""))
                     }
                 }
                 ; Clipboard:=html
@@ -168,19 +168,19 @@ class script {
                     if (credits.Count()>0)
                     {
                         CreditsAssembly:="credits for used code:<br>`n"
-                        for Author,v in credits
+                        for author,v in credits
                         {
-                            if (Author="")
+                            if (author="")
                                 continue
                             if (strsplit(v,"|").2="") {
-                                CreditsAssembly.="<p>" Author " - " strsplit(v,"|").1 "`n`n"
+                                CreditsAssembly.="<p>" author " - " strsplit(v,"|").1 "`n`n"
                             } else {
                                 Name:=strsplit(v,"|").1
                                 Credit_URL:=strsplit(v,"|").2
-                                if Instr(Author,",") && Instr(Trim(Credit_URL),",")
+                                if Instr(author,",") && Instr(Trim(Credit_URL),",")
                                 {
                                     tmpAuthors:=""
-                                    AllCurrentAuthors:=strsplit(Author,",")
+                                    AllCurrentAuthors:=strsplit(author,",")
                                     for s,w in strsplit(Trim(Credit_URL),",")
                                     {
                                         currentAuthor:=AllCurrentAuthors[s]
@@ -194,14 +194,14 @@ class script {
 
                                     }
                                     if (AllCurrentAuthors.Count()>1) {
-                                        newCredits[AllCurrentAuthors[1]]:={Author:Name,URL:Trim(strsplit(Trim(Credit_URL),",").1),License:Trim(strsplit(Trim(Credit_URL),",").2)}
+                                        newCredits[AllCurrentAuthors[1]]:={author:Name,URL:Trim(strsplit(Trim(Credit_URL),",").1),License:Trim(strsplit(Trim(Credit_URL),",").2)}
                                     } else {
-                                        newCredits[Name]:={Author:Name,URL:strsplit(Trim(Credit_URL),",").1,License:strsplit(Trim(Credit_URL),",").2}
+                                        newCredits[Name]:={author:Name,URL:strsplit(Trim(Credit_URL),",").1,License:strsplit(Trim(Credit_URL),",").2}
                                     }
                                 }
                                 else {
-                                    CreditsAssembly.="<p><a href=" """" Trim(Credit_URL) """" ">" Author " - " Name "</a></p>`n"
-                                    newCredits[Author]:={Author:Name,URL:Trim(Credit_URL)}
+                                    CreditsAssembly.="<p><a href=" """" Trim(Credit_URL) """" ">" author " - " Name "</a></p>`n"
+                                    newCredits[author]:={author:Name,URL:Trim(Credit_URL)}
                                 }
                             }
                         }
@@ -231,7 +231,7 @@ class script {
             } else {
                 LibPath :=A_ScriptDir "\res\script_templates\"
             }
-            for metadata_type, metadata_element in MetaDataArray {
+            for metadata_type, metadata_element in MetadataArray {
                 if (metadata_element="") {
                     continue
                 }
@@ -280,7 +280,7 @@ class script {
                 }
             }
             About_template := script_FormatEx(About_template, MetadataArray)
-            AHKVARIABLES:={"A_ScriptDir":A_ScriptDir,"A_ScriptName":A_ScriptName,"A_ScriptFullPath":A_ScriptFullPath,"A_ScriptHwnd":A_ScriptHwnd,"A_LineNumber":A_LineNumber,"A_LineFile":A_LineFile,"A_ThisFunc":A_ThisFunc,"A_ThisLabel":A_ThisLabel,"A_AhkVersion":A_AhkVersion,"A_AhkPath":A_AhkPath,"A_IsUnicode":A_IsUnicode,"A_IsCompiled":A_IsCompiled,"A_ExitReason":A_ExitReason,"A_YYY":A_YYY,"A_MM":A_MM,"A_DD":A_DD,"A_MMMM":A_MMMM,"A_MMM":A_MMM} ;"A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount","A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber","A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse","A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo","A_ThisMenuItem","A_ThisMenu","A_ThisMenuItemPos","A_ThisHotkey","A_PriorHotkey","A_PriorKey","A_TimeSinceThisHotkey","A_TimeSincePriorHotkey","A_EndChar","A_ComSpec","A_Temp","A_OSType","A_OSVersion","A_Is64bitOS","A_PtrSize","A_Language","A_ComputerName","A_UserName","A_WinDir","A_ProgramFiles","A_AppData","A_AppDataCommon","A_Desktop","A_DesktopCommon"]
+            AHKVARIABLES:={"A_ScriptDir":A_ScriptDir,"A_ScriptName":A_ScriptName,"A_ScriptFullPath":A_ScriptFullPath,"A_ScriptHwnd":A_ScriptHwnd,"A_LineNumber":A_LineNumber,"A_LineFile":A_LineFile,"A_ThisFunc":A_ThisFunc,"A_ThisLabel":A_ThisLabel,"A_AhkVersion":A_AhkVersion,"A_AhkPath":A_AhkPath,"A_IsUnicode":A_IsUnicode,"A_IsCompiled":A_IsCompiled,"A_ExitReason":A_ExitReason,"A_YYYY":A_YYYY,"A_MM":A_MM,"A_DD":A_DD,"A_MMMM":A_MMMM,"A_MMM":A_MMM} ;"A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount","A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber","A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse","A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo","A_ThisMenuItem","A_ThisMenu","A_ThisMenuItemPos","A_ThisHotkey","A_PriorHotkey","A_PriorKey","A_TimeSinceThisHotkey","A_TimeSincePriorHotkey","A_EndChar","A_ComSpec","A_Temp","A_OSType","A_OSVersion","A_Is64bitOS","A_PtrSize","A_Language","A_ComputerName","A_UserName","A_WinDir","A_ProgramFiles","A_AppData","A_AppDataCommon","A_Desktop","A_DesktopCommon"]
             About_template := script_FormatEx(About_template,AHKVARIABLES)
 
             fo:=FileOpen(this.AboutPath, 0x1, "UTF-8-RAW").Write(About_template)
@@ -416,83 +416,105 @@ class script {
         Path -  Path to the credits-file.
         If the path begins with "\", it will be relative to the script-directory (aka, it will be processed as %A_ScriptDir%\%Path%)
         */
-        if (SubStr(Path,1,1)="\") {
-            Path:=A_ScriptDir . Path
-        }
-        fo:=fileopen(Path,"r")
-        text:=fo.Read()
-        fo.Close()
-        this.metadata:=text
-        if this.HasKey("metadata") {
-            Lines:=strsplit(this.metadata,"`n")
-            MetadataArray:={}
-            for _, Line in Lines {
-                Key:=Trim(strsplit(Line, " - ",,2).1)
-                Value:=Trim(strsplit(Line," - ",,2).2)
-                if RegexMatch(Value,"http(s)?:\/\/") {
-                    Value:=RegexReplace(Value,"http(s)?:\/\/")
-                }
-                MetadataArray[Key]:=RegexReplace(Value,"\r")
+        if (1) {
+            if (Path ~= "^\\") {
+                Path := A_ScriptDir Path
             }
-            ;; what an abomination
-            MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
-                ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
-            MetadataArray.version:=(MetadataArray.version!=""
-                ? MetadataArray.version :( this.version))
-            MetadataArray.author :=(MetadataArray.author!=""
-                ? MetadataArray.author :( author ? author : this.author))
-            MetadataArray.credits :=(MetadataArray.credits!=""
-                ? MetadataArray.credits :( credits ? credits : this.credits))
-            MetadataArray.ghtext :=(MetadataArray.ghtext!=""
-                ? MetadataArray.ghtext :( ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")))
-            MetadataArray.ghlink :=(MetadataArray.ghlink!=""
-                ? MetadataArray.ghlink :( ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")))
-            MetadataArray.doctext :=(MetadataArray.doctext!=""
-                ? MetadataArray.doctext :( doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")))
-            MetadataArray.doclink :=(MetadataArray.doclink!=""
-                ? MetadataArray.doclink :( doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")))
-            MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
-                ? MetadataArray.offdoclink :( offdoclink ? offdoclink : this.offdoclink))
-            MetadataArray.forumtext :=(MetadataArray.forumtext!=""
-                ? MetadataArray.forumtext :( forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")))
-            MetadataArray.forumlink :=(MetadataArray.forumlink!=""
-                ? MetadataArray.forumlink :( forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")))
-            MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
-                ? MetadataArray.homepagetext :( homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")))
-            MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
-                ? MetadataArray.homepagelink :( homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")))
-            MetadataArray.donateLink :=(MetadataArray.donateLink!=""
-                ? MetadataArray.donateLink :( donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")))
-            MetadataArray.email :=(MetadataArray.email!=""
-                ? MetadataArray.email :( email ? email : this.email))
-            ;for Key, Value in MetaDataArray {
-            ;    html:=strreplace(html, Key, Trim(Value))
-            ;    Value=%Value%
-            ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
-            ;
-            ;}
-            Key:=Value:=""
-            ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
-
+            fo:=fileopen(Path,"r")
+            text:=fo.Read()
+            fo.Close()
+            text := Trim(text, "`r")
+            text := StrSplit(text, "`r`n")
+            meta := {}
+            this.metadata:=text
+            this.metadataArr := {}
+            for _, Line in text {
+                parts := StrSplit(Line, " - ", "`t ", 2)
+                parts[2] := RegexReplace(parts[2], "i)^https?:\/\/")
+                ObjRawSet(meta, parts*)
+                ObjRawSet(this.metadataArr, parts*) ; Add the same key/values to the instancec of the class
+            }
+            this.metadataArr.credits:=this.credits
+            this.metadataArr.Scriptname:=regexreplace(A_ScriptName, "\.\w+")
+            this.metadataArr.version:=this.version
         } else {
-            scriptName := scriptName ? scriptName : this.name
-                , version := version ? version : this.version
-                , author := author ? author : this.author
-                , credits := credits ? credits : this.credits
-                , creditslink := creditslink ? creditslink : RegExReplace(this.creditslink, "http(s)?:\/\/")
-                , ghtext := ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")
-                , ghlink := ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")
-                , doctext := doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")
-                , doclink := doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")
-                , offdoclink := offdoclink ? offdoclink : this.offdoclink
-                , forumtext := forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")
-                , forumlink := forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")
-                , homepagetext := homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")
-                , homepagelink := homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")
-                , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
-                , email := email ? email : this.email
+            if (SubStr(Path,1,1)="\") {
+                Path:=A_ScriptDir . Path
+            }
+            fo:=fileopen(Path,"r")
+            text:=fo.Read()
+            fo.Close()
+            this.metadata:=text
+            if this.HasKey("metadata") {
+                Lines:=strsplit(this.metadata,"`n")
+                MetadataArray:={}
+                for _, Line in Lines {
+                    Key:=Trim(strsplit(Line, " - ",,2).1)
+                    Value:=Trim(strsplit(Line," - ",,2).2)
+                    if RegexMatch(Value,"http(s)?:\/\/") {
+                        Value:=RegexReplace(Value,"http(s)?:\/\/")
+                    }
+                    MetadataArray[Key]:=RegexReplace(Value,"\r")
+                }
+                MetadataArray.Scriptname:=(MetadataArray.Scriptname!=""
+                    ? MetadataArray.Scriptname :( regexreplace(A_ScriptName, "\.\w+")))
+                MetadataArray.version:=(MetadataArray.version!=""
+                    ? MetadataArray.version :( this.version))
+                MetadataArray.author :=(MetadataArray.author!=""
+                    ? MetadataArray.author :this.author)
+                MetadataArray.credits :=(MetadataArray.credits!=""
+                    ? MetadataArray.credits :this.credits)
+                MetadataArray.ghtext :=(MetadataArray.ghtext!=""
+                    ? MetadataArray.ghtext :RegExReplace(this.ghtext, "http(s)?:\/\/"))
+                MetadataArray.ghlink :=(MetadataArray.ghlink!=""
+                    ? MetadataArray.ghlink :RegExReplace(this.ghlink, "http(s)?:\/\/"))
+                MetadataArray.doctext :=(MetadataArray.doctext!=""
+                    ? MetadataArray.doctext :RegExReplace(this.doctext, "http(s)?:\/\/"))
+                MetadataArray.doclink :=(MetadataArray.doclink!=""
+                    ? MetadataArray.doclink :RegExReplace(this.doclink, "http(s)?:\/\/"))
+                MetadataArray.offdoclink :=(MetadataArray.offdoclink!=""
+                    ? MetadataArray.offdoclink :this.offdoclink)
+                MetadataArray.forumtext :=(MetadataArray.forumtext!=""
+                    ? MetadataArray.forumtext :RegExReplace(this.forumtext, "http(s)?:\/\/"))
+                MetadataArray.forumlink :=(MetadataArray.forumlink!=""
+                    ? MetadataArray.forumlink :RegExReplace(this.forumlink, "http(s)?:\/\/"))
+                MetadataArray.homepagetext :=(MetadataArray.homepagetext!=""
+                    ? MetadataArray.homepagetext :RegExReplace(this.homepagetext, "http(s)?:\/\/"))
+                MetadataArray.homepagelink :=(MetadataArray.homepagelink!=""
+                    ? MetadataArray.homepagelink :RegExReplace(this.homepagelink, "http(s)?:\/\/"))
+                MetadataArray.donateLink :=(MetadataArray.donateLink!=""
+                    ? MetadataArray.donateLink :RegExReplace(this.donateLink, "http(s)?:\/\/"))
+                MetadataArray.email :=(MetadataArray.email!=""
+                    ? MetadataArray.email :this.email)
+                ;for Key, Value in MetadataArray {
+                ;    html:=strreplace(html, Key, Trim(Value))
+                ;    Value=%Value%
+                ;    %key%:=Value ;; please forgive me, for this is a sin. but need them for testing rn
+                ;
+                ;}
+                Key:=Value:=""
+                ;;#todo: mirror the html template below to an external file, and insert a <creditshere>-thingie to ingest the credits-loop content itself.
+
+            } else {
+                scriptName := scriptName ? scriptName : this.name
+                    , version := version ? version : this.version
+                    , author := author ? author : this.author
+                    , credits := credits ? credits : this.credits
+                    , creditslink := creditslink ? creditslink : RegExReplace(this.creditslink, "http(s)?:\/\/")
+                    , ghtext := ghtext ? ghtext : RegExReplace(this.ghtext, "http(s)?:\/\/")
+                    , ghlink := ghlink ? ghlink : RegExReplace(this.ghlink, "http(s)?:\/\/")
+                    , doctext := doctext ? doctext : RegExReplace(this.doctext, "http(s)?:\/\/")
+                    , doclink := doclink ? doclink : RegExReplace(this.doclink, "http(s)?:\/\/")
+                    , offdoclink := offdoclink ? offdoclink : this.offdoclink
+                    , forumtext := forumtext ? forumtext : RegExReplace(this.forumtext, "http(s)?:\/\/")
+                    , forumlink := forumlink ? forumlink : RegExReplace(this.forumlink, "http(s)?:\/\/")
+                    , homepagetext := homepagetext ? homepagetext : RegExReplace(this.homepagetext, "http(s)?:\/\/")
+                    , homepagelink := homepagelink ? homepagelink : RegExReplace(this.homepagelink, "http(s)?:\/\/")
+                    , donateLink := donateLink ? donateLink : RegExReplace(this.donateLink, "http(s)?:\/\/")
+                    , email := email ? email : this.email
+            }
+            this.metadataArr:=MetadataArray
         }
-        this.metadataArr:=MetadataArray
     }
 
     __Init() {
@@ -638,6 +660,7 @@ class script {
                 , http.Send()
         } catch e {
             MsgBox 0x14,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, Do you want to the program to shut down now?"
+
             IfMsgBox OK, {
                 ExitApp
             } Else IfMsgBox Cancel, {
@@ -651,12 +674,13 @@ class script {
             bScriptObj_IsConnected:=this.reqInternet(vfile)
             if !bScriptObj_IsConnected && !this.reqInternet && (this.reqInternet!="") ;; if internet not required - just abort update checl
             { ;; TODO: replace with msgbox-query asking to start script or not - 
-                ttip(script.name ": No internet connection established - aborting update check. Continuing Script Execution",,,,,,,,18)
+                script_ttip(script.name ": No internet connection established - aborting update check. Continuing Script Execution",,,,,,,,18)
                 return
             }
             if !bScriptObj_IsConnected && this.reqInternet ;; if internet is required - abort script
             {
                 MsgBox 0x11,% this.name " - No internet connection",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
+
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -668,6 +692,7 @@ class script {
         }
         ; throw {code: ERR_NOCONNECT, msg: e.message} ;; TODO: detect if offline
         if (!bSilentCheck)
+
             Progress 50, 50/100, % "Checking for updates", % "Updating"
 
         ; Download remote version file
@@ -680,11 +705,12 @@ class script {
             bScriptObj_IsConnected:=this.reqInternet(vfile)
             if !bScriptObj_IsConnected && !this.reqInternet && (this.reqInternet!="") ;; if internet not required - just abort update checl
             { ;; TODO: replace with msgbox-query asking to start script or not - 
-                ttip(script.name ": No internet connection established - aborting update check. Continuing Script Execution",,,,,,,,18)
+                script_ttip(script.name ": No internet connection established - aborting update check. Continuing Script Execution",,,,,,,,18)
                 return
             }
             if (!bScriptObj_IsConnected && this.reqInternet) { ;; if internet is required - abort script
                 MsgBox 0x14,% this.name " - connection timeout",% "No internet connection could be established. `n`nAs " this.name " requires an active internet connection`, the program will shut down now.`n`n`n`nExiting."
+
                 IfMsgBox OK, {
                     ExitApp
                 } Else IfMsgBox Cancel, {
@@ -694,6 +720,7 @@ class script {
         }
 
         if !(http.responseText) {
+
             Progress OFF
             try
                 throw exception("There was an error trying to download the ZIP file for the update.`n","script.Update()","The server did not respond.")
@@ -706,6 +733,7 @@ class script {
 
         ; FileRead, loVersion,% A_ScriptDir "\version.ini"
         if (InStr(http.responseText,"404")) {
+
             Progress OFF
             try
                 throw exception("The remote file containing the version to compare against could not be found.`n","script.Update()","Server not found.")
@@ -717,9 +745,11 @@ class script {
         regexmatch(http.responseText, "\d+\.\d+\.\d+", remVersion)
         if (!bSilentCheck)
         {
+
             Progress 100, 100/100, % "Checking for updates", % "Updating"
             sleep 500 	; allow progress to update
         }
+
         Progress OFF
 
         ; Make sure SemVer is used
@@ -816,12 +846,12 @@ class script {
                 FileDelete % Backup_Temp
                 FileCreateDir % Backup_Temp
             }
-            MsgBox 0x34, `% this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
+            MsgBox 0x34, % this.Name " - " "New Update Available", Last Chance to abort Update.`n`n(also remove this once you're done debugging the updater)`nDo you want to continue the Update?
             IfMsgBox Yes 
             {
-                Err:=CopyFolderAndContainingFiles(A_ScriptDir, Backup_Temp,1) 		;; backup current folder with all containing files to the backup pos. 
-                    , Err2:=CopyFolderAndContainingFiles(Backup_Temp ,A_ScriptDir,0) 	;; and then copy over the backup into the script folder as well
-                    , items1 := shell.Namespace(file).Items								;; and copy over any files not contained in a subfolder
+                CopyFolderAndContainingFiles(A_ScriptDir, Backup_Temp,1) 		;; backup current folder with all containing files to the backup pos. 
+                CopyFolderAndContainingFiles(Backup_Temp ,A_ScriptDir,0) 	;; and then copy over the backup into the script folder as well
+                items1 := shell.Namespace(file).Items								;; and copy over any files not contained in a subfolder
                 for item_ in items1 
                 {
                     ;; if DataOnly ;; figure out how to detect and skip files based on directory, so that one can skip updating script and settings and so on, and only query the scripts' data-files 
@@ -865,7 +895,7 @@ CopyFolderAndContainingFiles(SourcePattern, DestinationFolder, DoOverwrite = fal
         FileCopyDir % A_LoopFileFullPath, % DestinationFolder "\" A_LoopFileName , % DoOverwrite
         ErrorCount += ErrorLevel
         if ErrorLevel  ; Report each problem folder by name.
-            MsgBox % "Could not copy " A_LoopFileFullPath " into " DestinationFolder "."
+            MsgBox % "0x40010",% "Could not copy " A_LoopFileFullPath " into " DestinationFolder "."
     }
     return ErrorCount
 }
@@ -881,7 +911,7 @@ script_FormatEx(FormatStr, Values*) {
     for _, part in Values {
         for search, replace in part {
             replacements.Push(replace)
-            FormatStr := StrReplace(FormatStr, "{" search "}", "{"++index "}")
+            FormatStr := StrReplace(FormatStr, "{" search "}", "{" ++index "}")
         }
     }
     return Format(FormatStr, replacements*)
@@ -1030,3 +1060,176 @@ d_fWriteINI_st_count(string, searchFor="`n")
     return ErrorLevel
 }
 
+
+; #region:ttip (2588811139)
+
+; #region:Metadata:
+; Snippet: ttip;  (v.0.2.2)
+;  13.04.2023
+; --------------------------------------------------------------
+; Author: Gewerd Strauss
+; License: MIT
+; --------------------------------------------------------------
+; Library: Personal Library
+; Section: 20 - ToolTips
+; Dependencies: /
+; AHK_Version: v1
+; --------------------------------------------------------------
+; Keywords: TOOLTIP
+; #endregion:Metadata
+
+
+; #region:Description:
+; small tooltip handler
+; 
+; /*
+; 		
+; 		Modes:  
+; 	                 -1: do not show ttip - useful when you want to temporarily disable it, without having to remove the call every time, but without having to change text every time.
+; 		1: remove tt after "to" milliseconds 
+; 		2: remove tt after "to" milliseconds, but show again after "to2" milliseconds. Then repeat 
+; 		3: not sure anymore what the plan was lol - remove 
+; 		4: shows tooltip slightly offset from current mouse, does not repeat
+; 		5: keep that tt until the function is called again  
+; 
+; 		CoordMode:
+; 		-1: Default: currently set behaviour
+; 		1: Screen
+; 		2: Window
+; 
+; 		to: 
+; 		Timeout in milliseconds
+; 		
+; 		xp/yp: 
+; 		xPosition and yPosition of tooltip. 
+; 		"NaN": offset by +50/+50 relative to mouse
+; 		IF mode=4, 
+; 		----  Function uses tooltip 20 by default, use parameter
+; 		"currTip" to select a tooltip between 1 and 20. Tooltips are removed and handled
+; 		separately from each other, hence a removal of ttip20 will not remove tt14 
+; 
+; 		---
+; 		v.0.2.1
+; 		- added Obj2Str-Conversion via "ttip_Obj2Str()"
+; 		v.0.1.1 
+; 		- Initial build, 	no changelog yet
+; 	
+; 	*/
+; #endregion:Description
+
+; #region:Code
+script_ttip(text:="TTIP: Test",mode:=1,to_script:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2_script:=1750,Times_script:=20,currTip:=20)
+{
+
+    cCoordModeTT:=A_CoordModeToolTip
+    if (mode=-1)
+        return
+    if (text="") || (text=-1)
+        gosub, llTTIP_RemoveTTIP_script
+    if IsObject(text)
+        text:=ScriptObj_Obj2Str(text)
+    static ttip_text
+    static currTip2
+    global ttOnOff_script
+    currTip2:=currTip
+    cMode:=(CoordMode=1?"Screen":(CoordMode=2?"Window":cCoordModeTT))
+    CoordMode % cMode
+    tooltip
+
+
+    ttip_text:=text
+    lUnevenTimers:=false 
+    MouseGetPos xp1,yp1
+    if (mode=4) ; set text offset from cursor
+    {
+        yp:=yp1+15
+        xp:=xp1
+    }	
+    else
+    {
+        if (xp="NaN")
+            xp:=xp1 + 50
+        if (yp="NaN")
+            yp:=yp1 + 50
+    }
+    tooltip % ttip_text,xp,yp,% currTip
+    if (mode=1) ; remove after given time
+    {
+        SetTimer llTTIP_RemoveTTIP_script, % "-" to_script
+    }
+    else if (mode=2) ; remove, but repeatedly show every "to_script"
+    {
+        ; gosub,  A
+        global to_1_script:=to_script
+        global to2_1_script:=to2_script
+        global tTimes_script:=Times_script
+        Settimer lTTIP_SwitchOnOff_script,-100
+    }
+    else if (mode=3)
+    {
+        lUnevenTimers:=true
+        SetTimer llTTIP_RepeatedShow_script, %  to_script
+    }
+    else if (mode=5) ; keep until function called again
+    {
+
+    }
+    CoordMode % cCoordModeTT
+    return text
+    lTTIP_SwitchOnOff_script:
+    ttOnOff_script++
+    if mod(ttOnOff_script,2)	
+    {
+        gosub, llTTIP_RemoveTTIP_script
+        sleep % to_1_script
+    }
+    else
+    {
+        tooltip % ttip_text,xp,yp,% currTip
+        sleep % to2_1_script
+    }
+    if (ttOnOff_script>=tTimes_script)
+    {
+        Settimer lTTIP_SwitchOnOff_script, off
+        gosub, llTTIP_RemoveTTIP_script
+        return
+    }
+    Settimer lTTIP_SwitchOnOff_script, -100
+    return
+
+    llTTIP_RepeatedShow_script:
+    ToolTip % ttip_text,,, % currTip2
+    if lUnevenTimers
+        sleep % to2_script
+    Else
+        sleep % to_script
+    return
+    llTTIP_RemoveTTIP_script:
+    ToolTip,,,,currTip2
+    return
+}
+
+ScriptObj_Obj2Str(Obj,FullPath:=1,BottomBlank:=0){
+    static String,Blank
+    if(FullPath=1)
+    String:=FullPath:=Blank:=""
+    if(IsObject(Obj)){
+        for a,b in Obj{
+            if(IsObject(b))
+            ScriptObj_Obj2Str(b,FullPath "." a,BottomBlank)
+            else{
+                if(BottomBlank=0)
+                String.=FullPath "." a " = " b "`n"
+                else if(b!="")
+                    String.=FullPath "." a " = " b "`n"
+                else
+                    Blank.=FullPath "." a " =`n"
+            }
+        }}
+    return String Blank
+}
+; #endregion:Code
+
+
+
+; #endregion:ttip (2588811139)

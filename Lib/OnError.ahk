@@ -26,7 +26,7 @@ MyErrorHandler(oError) {
     message .= "`n> Auto-execute" ; `message` will have the format of your choosing
     ;TODO: check listA_.ahk for expressVars to convert this into a populated thingie, then push it into the JSON_DUMP
     Variables:={"Properties":["A_Args","A_WorkingDir","A_InitialWorkingDir","A_ScriptDir","A_ScriptName","A_ScriptFullPath","A_ScriptHwnd","A_LineNumber","A_LineFile","A_ThisFunc","A_ThisLabel","A_AhkVersion","A_AhkPath","A_IsUnicode","A_IsCompiled","A_ExitReason"]
-            , "Date and Time":["A_YYY","A_MM","A_DD","A_MMMM","A_MMM","A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount"]
+            , "Date and Time":["A_YYYY","A_MM","A_DD","A_MMMM","A_MMM","A_DDDD","A_DDD","A_WDay","A_YDay","A_YWeek","A_Hour","A_Min","A_Sec","A_MSec","A_Now","A_NowUTC","A_TickCount"]
             ,"Script Settings":["A_IsSuspended","A_IsPaused","A_IsCritical","A_BatchLines","A_ListLines","A_TitleMatchMode","A_TitleMatchModeSpeed","A_DetectHiddenWindows","A_DetectHiddenText","A_AutoTrim","A_StringCaseSense","A_FileEncoding","A_FormatInteger","A_FormatFloat","A_SendMode","A_SendLevel","A_StoreCapsLockMode","A_KeyDelay","A_KeyDuration","A_KeyDelayPlay","A_KeyDurationPlay","A_WinDelay","A_ControlDelay","A_MouseDelay","A_MouseDelayPlay","A_DefaultMouseSpeed","A_CoordModeToolTip","A_CoordModePixel","A_CoordModeMouse","A_CoordModeCaret","A_CoordModeMenu","A_RegView","A_IconHidden","A_IconTip","A_IconFile","A_IconNumber"]
             , "User Idle Time":["A_TimeIdle","A_TimeIdlePhysical","A_TimeIdleKeyboard","A_TimeIdleMouse"]
             , "GUI Windows an Menu Bars":["A_DefaultGUI","A_DefaultListView","A_DefaultTreeView","A_Gui","A_GuiControl","A_GuiWidth","A_GuiHeight","A_GuiX","A_GuiY","A_GuiEvent","A_GuiControlEvent","A_EventInfo"]
@@ -39,11 +39,11 @@ MyErrorHandler(oError) {
             ,Renamer_Settings:script.config.GFA_Renamer_settings
             ,Version:script.version
             ,AHK_Environment:Vars
-            ,confVersion:script.config.Version}, pretty := 1)
+            ,confVersion:script.config.Version},1)
     if A_IsCompiled {
         a:=((script.config.Configurator_settings.bDebugSwitch || globalLogicSwitches.bIsDebug)?JSON_DUMP:"JSON NOT DUMPED")
         FileAppend % message "`n`n" a, % errorlog_path
-        MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
+        AppError("",  message "`n`nThis error has been saved to the file '" errorlog_path "'")
 
     } else {
         if (IsDebug()) {
@@ -51,7 +51,7 @@ MyErrorHandler(oError) {
             FileAppend % message "`n`n" a, *       ; throow to the db-console
 
         } else {
-            MsgBox,, % "Error thrown: ", % message "`n`nThis error has been saved to the file '" errorlog_path "'"
+            AppError("",  message "`n`nThis error has been saved to the file '" errorlog_path "'")
             a:=((script.config.Configurator_settings.bDebugSwitch || globalLogicSwitches.bIsDebug)?JSON_DUMP:"JSON NOT DUMPED")
             FileAppend % message "`n`n" a, % errorlog_path
         }
@@ -60,10 +60,10 @@ MyErrorHandler(oError) {
 }
 ExpressVariables(Variables) {
     Obj:={}
-    for sec_id,section in Variables {
+    for sec_id,_ in Variables {
         Obj[sec_id]:={}
-        for var_id, variable in Variables[sec_id] {
-            Obj[sec_id][variable]:=a:=Deref("%" variable "%")
+        for __, variable in Variables[sec_id] {
+            Obj[sec_id][variable]:=Deref("%" variable "%")
         }
     }
     return Obj

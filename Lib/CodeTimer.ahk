@@ -30,9 +30,9 @@
 
 
 ; #region:Code
-CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
+CodeTimer(Description:="",x:=500,y:=500,ClipboardFlag:=0)
 {
-    Global StartTimer
+    static StartTimer:=""
     If (StartTimer != "")
     {
         FinishTimer := A_TickCount
@@ -41,7 +41,9 @@ CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
         If (ClipboardFlag=1) {
             Clipboard.="`n" TimedDuration
         }
-        tooltip % String:="Timer " Description "`n" TimedDuration " ms have elapsed!",% x,% y
+        if (Description!="") {
+            tooltip % String:="Timer " Description "`n" TimedDuration " ms have elapsed!",% x,% y
+        }
         Return [TimedDuration,String]
     } Else {
         StartTimer := A_TickCount

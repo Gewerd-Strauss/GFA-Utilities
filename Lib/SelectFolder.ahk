@@ -35,6 +35,7 @@ SelectFolder(StartingFolder:="", Prompt:="", GuiHwnd:=0, ButtonLabel:="", Option
         return SelectedFolder
     }
     IFileDialog := ComObjCreate("{DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7}", "{42f85136-db7e-439c-85f1-e4075d135fc8}")
+
     vtable := NumGet(IFileDialog + 0)
     if ((StartingFolder != "") && FileExist(StartingFolder)) {															; If the directory exists and starting folder parameter is used
         VarSetCapacity(IID_IShellItem, 16, 0)

@@ -4,7 +4,7 @@
             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir,
             GFAR_createGUI(dynGUI.Arguments.PotsPerGroup.Value,dynGUI.Arguments.UniqueGroups.Value,OutDir,dynGUI)
         } else {
-            throw exception("currently selected config-file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist`n"  CallStack(),-1)
+            ttip("The selected configuration file '" dynGUI.GFA_Evaluation_Configfile_Location "' does not exist.")
         }
     } else {
         ttip("No configuration file has been selected yet.")
@@ -19,8 +19,8 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     global gfarPlantsPerGroup
     global GFARGui
     oH:=dynGUI.GCHWND
-    yP:=A_ScreenHeight-500
-    xP:=A_ScreenWidth-440
+    ypos:=A_ScreenHeight-500
+    xpos:=A_ScreenWidth-440
     gui GFAR: destroy
     gui GFAR: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +hwndGFARGui +Owner%oH% +LabelGFAR
     gui Font, s10
@@ -48,16 +48,16 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui add, edit, vgfarPlantsPerGroup w200, % PotsPerGroup
     ;gui, add, text,vvUsedStick, % "used Stick: " (device_name!=""? "'" device_name "'": "Device '" script.config.GFA_Renamer_settings.USB_Stick_Name "' could not be found.")
     gui add, Button, vSubmitButton gGFARSubmit, &Submit
-    gui add, Button, yp xp+64 hwndhwndgfarreselectfolder, Select &Different Folder
+    gui add, Button, ypos xpos+64 hwndhwndgfarreselectfolder, Select &Different Folder
     onReselectFolder:=Func("GFARReselectFolder").Bind(SearchStartLocation)
     guicontrol +g,%hwndgfarreselectfolder%,% onReselectFolder
     gui font, s7
-    gui add, text,yp+20 x350,% "v." script.version " by ~Gw"
-    gui GFAR: show, w430 x%xP% y%yP% ,% "Drop folder with images on this window"
+    gui add, text,ypos+20 x350,% "v." script.version " by ~Gw"
+    gui GFAR: show, w430 x%xpos% y%ypos% ,% "Drop folder with images on this window"
     GUI %oH%: +Disabled
 }
 
-GFARReselectFolder(SearchstartLocation) {
+GFARReselectFolder(SearchStartLocation) {
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
     try {
         ; A_DefaultGui
@@ -110,8 +110,7 @@ GFARSubmit() {
         Counts:=strsplit(gfarPlantsPerGroup,",")
         GroupNames:=strsplit(gfarNames,",")
         if (Counts.Count() != GroupNames.Count()) {
-            Gui +OwnDialogs
-            MsgBox 0x40010,% script.name " - Critical error: Parameters incompatible",% "You provided a list of varying number of pots/plants per group: `n" gfarPlantsPerGroup "`n for " Counts.Count() " groups`, but also provided names for " GroupNames.Count() " groups:`n" gfarNames "`n`nPlease fix this error by aligning both."
+            AppError("Parameters incompatible", "You provided a list of varying number of pots/plants per group: `n" gfarPlantsPerGroup "`n for " Counts.Count() " groups`, but also provided names for " GroupNames.Count() " groups:`n" gfarNames "`n`nPlease fix this error by aligning both.")
             return
         }
         for each, Name in GroupNames {
@@ -123,7 +122,7 @@ GFARSubmit() {
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
-            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,,bReset,gfarNames)
+            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,bReset,gfarNames)
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
         }
@@ -133,8 +132,7 @@ GFARSubmit() {
         loop % LoopCount
         {
             bReset:=(!(mod(A_Index,gfarPlantsPerGroup))) ;; force a reset in call_index every 'PlantsPerGroup'
-            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,,bReset,gfarNames)
-            Reset:=false
+            GroupName:=repeatElementIofarrayNKtimes(strsplit(gfarNames,","),gfarPlantsPerGroup,bReset,gfarNames)
             Number:=repeatIndex(gfarPlantsPerGroup)
             Arr.push(GroupName " (" Number ")")
         }
@@ -142,9 +140,8 @@ GFARSubmit() {
     TrueNumberOfFiles:=0
     ImagePaths:=[]
 
-    opt:=(bTestSet?"FR":"F")
     query:=gfarFolder "\*." script.config.GFA_Renamer_settings.filetype
-    Loop, Files, % query, % opt
+    Loop, Files, % query, % (bTestSet?"FR":"F")
     {
         if (InStr(A_LoopFileDir,"GFAR_WD")) {
             continue
@@ -164,9 +161,8 @@ GFARSubmit() {
     until you have them all line up again.
     */
     if (ImagePaths.Count() > Arr.Count()) {
-        MsgBox 0x40010, % script.name " - Critical error: More images than names defined"
-            , % "The folder you provided contains " ImagePaths.Count() " images. The combination of the 'number of groups' and 'plants per group' you provided only allows for renaming " Arr.Count() " images."
-            . "`nBe aware that only those first " Arr.Count() " images will be renamed, (and copied to the clipboard)"
+        AppError("More images than names defined", "The folder you provided contains " ImagePaths.Count() " images. The combination of the 'number of groups' and 'plants per group' you provided only allows for renaming " Arr.Count() " images."
+            . "`nBe aware that only those first " Arr.Count() " images will be renamed, (and copied to the clipboard)")
         ImageF:=ImagePaths[Arr.Count()]
     }
     gui GFAR_Exclude: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +hwndGFAR_ExcludeGui
@@ -180,9 +176,10 @@ GFARSubmit() {
     ;Clipboard:= "OLD:`n" StringifyObject(Arr) "`n---`n" StringifyObject(ImagePaths) "`n---`n" "`n---`nNEW:`n" StringifyObject(Arr2) "`n---`n" StringifyObject(ImagePaths2)
     f_UpdateLV(Arr,ImagePaths2)
     gui add, text,, % "Images/Names: (" ImagePaths.Count() "/" Arr.Count() ")"
-    gui add, Button, gGFAR_DuplicatetoShiftFrame vvGFAR_DuplicatetoShiftFrame disabled, &Duplicate to shift frame
+    gui add, Button, hwndhwndDuplicateShiftFrame vvGFAR_DuplicatetoShiftFrame disabled, &Duplicate to shift frame
     gui add, Button,yp xp+170 vvGFAR_ExcludeSubmitButton gGFAR_ExcludeSubmit, &Continue
-
+    fGFAR_DuplicatetoShiftFrame:=Func("GFAR_DuplicatetoShiftFrame").Bind(TEST_FOLDERPATH)
+    guicontrol +g, %hwndDuplicateShiftFrame%, % fGFAR_DuplicatetoShiftFrame
     GFAR_LastImage:=Func("GFAR_ExcludeOpenPath").Bind(ImageF)
     gui add, Button, yp xp+80 hwndGFAR_ExcludeOpenLastImage,Open &Last image
     GuiControl +g, %GFAR_ExcludeOpenLastImage%, % GFAR_LastImage
@@ -206,7 +203,7 @@ GFARSubmit() {
     return
 }
 
-GFAR_DuplicatetoShiftFrame() {
+GFAR_DuplicatetoShiftFrame(TEST_FOLDERPATH) {
     global
     static SourceImagesToDelete:=[]
 
@@ -278,7 +275,6 @@ GFAR_ExcludeInspectSelection() {
 GFAR_ExcludeEscape() {
     gui GFAR: -disabled
     gui GFAR_Exclude: destroy
-    ;MsgBox 0x40034, % script.name " - Confirm", % "No changes occured. Return to first GUI"
     return
 }
 
@@ -360,13 +356,11 @@ GFAR_ExcludeSubmit() {
             run % scriptWorkingDir
         }
     }
-    ttip(script.name " - Finished running")
-    OnMessage(0x44, "OnMsgBox2")
     FinalInfoBox_String:="The script finished running.`n"
     FinalInfoBox_String.= (script.config.GFA_Renamer_settings.PutFilesOnClipboard)
         ? "The renamed image files are now ready to be pasted into whatever folder you want. Just open your intended folder and press 'CTRL-V'.`n`nAdditionally, a log file is copied. This log-file displays for every file that got renamed its original path. Files which are not renamed - and thus are missing in the output - are not shown in the log."
         : "- The folder containing the renamed images will open once this message box is closed.`n`nA log mapping each image to its new name is given in the file '__gfa_renamer_log.txt' within the output directory 'GFAR_WD'. The original image files are preserved in the original folder."
-    MsgBox 0x40, % script.name " - Script finished",% FinalInfoBox_String
+    MsgBox 0x40, % script.name " > Image-Renamer - Script finished",% FinalInfoBox_String
     OnMessage(0x44, "")
     GFAR_ExcludeEscape()
     return
@@ -422,7 +416,7 @@ repeatIndex(repetitions) {
     return lastreturn
 }
 
-repeatElementIofarrayNKtimes(array:="",repetitions:="",bDebug:=true,resetCallIndex:=False,Names:="") {
+repeatElementIofarrayNKtimes(array:="",repetitions:="",resetCallIndex:=False,Names:="") {
     static k, callIndex, position, sites := []
     static lastNames:=""
     if (lastNames="") {
@@ -457,13 +451,11 @@ repeatElementIofarrayNKtimes(array:="",repetitions:="",bDebug:=true,resetCallInd
 ForceOrder(Array) {
     assoc_1 := {}
     for key, value in Array {
-        assoc_1.Insert(Value, Key)
-
+        assoc_1.Insert(value, key)
     }
     assoc_2 := {}
     for key, value in assoc_1 {
-        assoc_2.Insert(Value, Key)
-
+        assoc_2.Insert(value, key)
     }
     return assoc_2
 }

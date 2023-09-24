@@ -22,7 +22,6 @@ CountFilesR(Folder, callIndex) {																			                             
   else if (callIndex > ci) {
     Counter := 0
   }
-  f := Folder
   fso := fso ? fso : ComObjCreate("Scripting.FileSystemObject")
   Folder := fso.GetFolder(Folder), Counter += Counter ? 0 : CountFiles(Folder.path)
   For Subfolder in Folder.SubFolders

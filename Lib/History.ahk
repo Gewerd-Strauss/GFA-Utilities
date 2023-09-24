@@ -1,7 +1,7 @@
 ﻿
 buildHistory(History,NumberOfRecords,configpath:="") {
     examples:=[]
-    for each, file in History {
+    for _, file in History {
         if InStr(file,A_ScriptDir) {
             examples.push(file)
         }
@@ -16,7 +16,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
     if (ret.Count()>NumberOfRecords) {
         ret.Delete(NumberOfRecords+1,ret.Count())
     }
-    for each, file in examples {
+    for _, file in examples {
         if !HasVal(ret,file) {
             ret.push(file)
         }
@@ -26,7 +26,7 @@ buildHistory(History,NumberOfRecords,configpath:="") {
 
 
 toggle_ReportTip() {
-    global
+    global hwndLV_ConfigHistory
     GuiControlGet vToggleLVReport
     GuiControl % (vToggleLVReport ? "+Tile" : "+Report"), % hwndLV_ConfigHistory
     if (vToggleLVReport) {
@@ -38,9 +38,9 @@ toggle_ReportTip() {
     return
 }
 toggle_ReportTip2() {
-    global
+    global hwndLV_RScriptHistory
     GuiControlGet vToggleLVReport2
-    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % global hwndLV_RScriptHistory
+    GuiControl % (vToggleLVReport2 ? "+Tile" : "+Report"), % hwndLV_RScriptHistory
     if (vToggleLVReport2) {
         LV_ModifyCol(1,"auto")
     } else {
@@ -73,7 +73,7 @@ loadRScriptFromLV(dynGUI,guiObject) {
     /*
     */
     if (rscriptPath!="") {
-        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+
         if (!InStr(rscriptPath,".R")) {
             rscriptPath:=rscriptPath ".R"
         }
@@ -90,32 +90,17 @@ loadRScriptFromLV(dynGUI,guiObject) {
         guiResize(guiObject)
     }
     if (rscriptPath!="") {
-        if (overwrite) {
-            ;; TODO:  overwriting file: we come from "Edit existing R Script, and need to first parse the existing script for its settings before we can overwrite it"
-            guiObject.RCodeTemplate:=handleCheckboxes()
-            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
-            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
-                configLocationFolder.="\"
-            }
-            WINDOWS:=strreplace(configLocationFolder,"/","\")
-            MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-            fillRC1(Code)
-        } else {
-            guiObject.RCodeTemplate:=handleCheckboxes()
-            configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
-            if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
-                configLocationFolder.="\"
-            }
-            WINDOWS:=strreplace(configLocationFolder,"/","\")
-            MAC:=strreplace(configLocationFolder,"/","\")
-            Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
-            Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
-            Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
-            fillRC1(Code)
+        guiObject.RCodeTemplate:=handleCheckboxes()
+        configLocationFolder:=guiObject.dynGUI.GFA_Evaluation_Configfile_Location
+        if ((subStr(configLocationFolder,-1)!="\") && (subStr(configLocationFolder,-1)!="/") && (subStr(configLocationFolder,-3)!=".ini")) {
+            configLocationFolder.="\"
         }
+        WINDOWS:=strreplace(configLocationFolder,"/","\")
+        MAC:=strreplace(configLocationFolder,"/","\")
+        Code:=strreplace(guiObject.RCodeTemplate,"%GFA_CONFIGLOCATIONFOLDER_WINDOWS%",WINDOWS)
+        Code:=strreplace(Code,"%GFA_EVALUATIONUTILITY%",strreplace(script.config.Configurator_settings.GFA_Evaluation_InstallationPath,"\","/"))
+        Code:=strreplace(Code,"%GFA_CONFIGLOCATIONFOLDER_MAC%",MAC)
+        fillRC1(Code)
         if (!InStr(rscriptPath,A_ScriptDir)) {
             script.config.LastRScriptHistory:=buildHistory(script.config.LastRScriptHistory,script.config.Configurator_settings.ConfigHistoryLimit,rscriptPath)
             updateLV(hwndLV_RScriptHistory,script.config.LastRScriptHistory)
@@ -146,9 +131,10 @@ getSelectedLVEntries2() {
     }
     return sCurrText2
 }
+
 On_WM_NOTIFY(W, L, M, H) {
     ;; taken from https://www.autohotkey.com/boards/viewtopic.php?t=28792
-    Global hwndLV_ConfigHistory, TThwnd
+    Global hwndLV_ConfigHistory, hwndLV_RScriptHistory, LVTTHWNDARR
     Static NMHDRSize := A_PtrSize * 3
     Static offText := NMHDRSize + A_PtrSize
     Static offItem := NMHDRSize + (A_PtrSize * 2) + 4
@@ -159,7 +145,7 @@ On_WM_NOTIFY(W, L, M, H) {
     Code := NumGet(L + (A_PtrSize * 2), "Int")
     HCTL := NumGet(L + 0, 0, "UPtr")
     ; HCTL is one of our listviews
-    If (HCTL = hwndLV_ConfigHistory) {
+    If ((HCTL = hwndLV_ConfigHistory) || (HCTL = hwndLV_RScriptHistory)) {
         ; LVN_GETINFOTIPW, LVN_GETINFOTIPA
         If (Code = LVN_GETINFOTIP) {
 
@@ -183,14 +169,14 @@ On_WM_NOTIFY(W, L, M, H) {
                 return
 
             ; Set the ToolTip's Title to the text from the first column
-            DllCall("SendMessage", "Ptr", TThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
+            DllCall("SendMessage", "Ptr", LVTTHWNDARR[HCTL], "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", &txt1)
             ; Populate the string buffer with newly added text for the ToolTip
             StrPut(txt2 "`n" txt3, textAddr, "UTF-16")
         }
         else {
             ; Remove ToolTip's title in case we are on a column other than 1
             ; May be another way to do this so we aren't setting to nothing so often.
-            DllCall("SendMessage", "Ptr", TThwnd, "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
+            DllCall("SendMessage", "Ptr", LVTTHWNDARR[HCTL], "UInt", TTM_SETTITLE, "Ptr", 0, "Ptr", "")
         }
     }
 }
