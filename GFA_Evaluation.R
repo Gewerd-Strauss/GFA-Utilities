@@ -203,6 +203,7 @@ calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE
     return(TimeSinceT0)
 }
 calculateChange <- function(DailyAnalyses,ChosenDays,returnTable=F) {
+    #calculateChange
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
     table <- as.data.frame(list())
@@ -520,6 +521,7 @@ fixdecimalplaces <- function(x, k){
     return(trimws(format(round(x, k), nsmall=k)))
 }
 getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
+    # getRelative_change
     # Funktion berechnet die relative Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der relative Unterschied dieser beiden Werte wird zurückgegeben
@@ -583,6 +585,7 @@ getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     }
 }
 getAbsolute_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
+    #getAbsoluteChange
     # Funktion berechnet die absolute Veränderung zwischen zwei Werten.
     
     # Fall 1: Parameter 'this' und 'last' sind numerisch: der absolute  Unterschied dieser beiden Werte wird zurückgegeben
