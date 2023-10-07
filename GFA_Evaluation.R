@@ -827,6 +827,14 @@ padAgeNumber <- function(Value,Length) {
     retVal <- str_pad(Value,width = Length,pad=as.character(0))
     return(retVal)
 }
+sanitisePath <- function(Path,forbiddenChars=":") {
+    for (character in strsplit(forbiddenChars,"")[[1]]) {
+        if (str_count(Path,character)>0) {
+            Path <- str_replace_all(Path,character,"")
+        }
+    }
+    return(Path)
+}
 setColnames <- function(Files,List,ini) {
     DateDifference_Integers <- calculateColnames(Files,ini)
     if (isTRUE(as.logical(ini$General$RelativeColnames))) {
@@ -1655,6 +1663,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 rm(new,old,clen,deslen,lendiff)
             }
             if (isTRUE(as.logical(saveFigures))) {
+                filename <- sanitisePath(filename)
                 ggsave(filename = filename
                        , plot=GFA_plot_box
                        , width=7
@@ -2075,6 +2084,7 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                 rm(new,old,clen,deslen,lendiff)
             }
             if (isTRUE(as.logical(saveFigures))) {
+                filename <- sanitisePath(filename)
                 ggsave(filename = filename
                        , plot=GFA_plot_box
                        , width=7
@@ -2650,9 +2660,11 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             filename <- str_c(filename2,".jpg")
         }
     }
+    filename <- sanitisePath(filename)
     #print(GFA_SummaryPlot)
     rm(new,clen,deslen,lendiff)
     if (isTRUE(as.logical(saveFigures))) {
+        filename <- sanitisePath(filename)
         ggsave(file=filename
                , plot=GFA_SummaryPlot, width=12, height=10, dpi = 300,path=str_c(folder_path,"ROutput\\"))
     }
@@ -2698,3 +2710,4 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         return(list(GFA_SummaryPlot,Titles,0,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
+plot_1 <- GFA_main(folder_path = r"(D:\Dokumente neu\Repositories\Grünflächen-Utilities\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)", returnDays = 1, saveFigures = 1, saveExcel = 0, saveRDATA = 0)
