@@ -1,6 +1,7 @@
 RSeding         -       AddToolTip                                                              - https://www.autohotkey.com/boards/viewtopic.php?t=2584
 tmplinshi       -       AutoXYWH                                                                - https://www.autohotkey.com/boards/viewtopic.php?t=1079
 SKAN            -       Base64PNG_to_HICON, reg. License                                        - https://www.autohotkey.com/boards/viewtopic.php?f=6&t=36636, https://www.autohotkey.com/board/topic/75906-about-my-scripts-and-snippets/
+DEO, Fragman    -       callstack                                                               - https://www.autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/?p=530453
 banane          -       CenterControls                                                          - http://de.autohotkey.com/forum/viewtopic.php?p=67802#67802
 wolf_II         -       checkDecimalsOnEdit                                                     - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
 G33kDude        -       cJSON,reg. License                                                      - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
@@ -17,14 +18,14 @@ Maestr0         -       MWAGetMonitor                                           
 maestrith       -       Obj2Str                                                                 - https://www.autohotkey.com/boards/viewtopic.php?t=60522#p255613
 anonymous1184   -       Quote                                                                   - https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 anonymous1184   -       RegexMatchAll/RegexMatchLines                                           - https://www.reddit.com/r/AutoHotkey/comments/12l4gr8/comment/jg6ngt7/?utm_source=reddit&utm_medium=web2x&context=3
-G33kDude        -       RichCode                                                                - https://github.com/G33kDude/Richcode.ahk, https://raw.githubusercontent.com/G33kDude/RichCode.ahk/v1-main/LICENSE
+G33kDude        -       RichCode, reg. License                                                  - https://github.com/G33kDude/Richcode.ahk, https://raw.githubusercontent.com/G33kDude/RichCode.ahk/v1-main/LICENSE
 shajul          -       RunAsAdmin                                                              - http://www.autohotkey.com/forum/viewtopic.php?t=50448
 Gewerd Strauss  -       partial, self-written subset of ScriptObj                               - https://gist.github.com/Gewerd-Strauss/8ee61682aef45c0d124b19afaeedc2fe
 JayC            -       SelectFolder                                                            - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=120019&p=532694&hilit=select+folder#p532681
-just me         -       SetExplorerTheme                                                        - https://www.autohotkey.com/boards/viewtopic.php?p=49416#p49416
+just me         -       SetExplorerTheme (considered PD by author)                              - https://www.autohotkey.com/boards/viewtopic.php?p=49416#p49416
 Lexikos         -       StdErr_Write, reg. License                                              - http://www.autohotkey.com/board/topic/50306-can-a-script-write-to-stderr/?hl=errorstdout#entry314658,https://www.autohotkey.com/board/topic/36032-lexikos-default-copyright-license/
 tidbit et al    -       st_count,st_removeDuplicates                                            - https://www.autohotkey.com/boards/viewtopic.php?t=53
-kczx3           -       tooltip in History-LV via LV_EX                                                   - https://www.autohotkey.com/boards/viewtopic.php?t=28792
+kczx3           -       tooltip in History-LV via LV_EX                                         - https://www.autohotkey.com/boards/viewtopic.php?t=28792
 Gewerd Strauss  -       ttip                                                                    - https://gist.github.com/Gewerd-Strauss/fad218c28b8120ab1a3cadea1a8dea9b
 anonymous1184   -       UriHandling via WinHttpRequest                                          - https://gist.github.com/anonymous1184/33b2511412158f286d8a719da4f38790
 Gewerd Strauss  -       writeFile
