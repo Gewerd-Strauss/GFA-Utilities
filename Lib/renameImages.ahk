@@ -46,9 +46,8 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui add, edit, vgfarNames w200, % UniqueGroups
     gui add, text,, % "Please set the number of pots/plants per group.`nValue must be an integer."
     gui add, edit, vgfarPlantsPerGroup w200, % PotsPerGroup
-    ;gui, add, text,vvUsedStick, % "used Stick: " (device_name!=""? "'" device_name "'": "Device '" script.config.GFA_Renamer_settings.USB_Stick_Name "' could not be found.")
     gui add, Button, vSubmitButton gGFARSubmit, &Submit
-    gui add, Button, ypos xpos+64 hwndhwndgfarreselectfolder, Select &Different Folder
+    gui add, Button, xp+60 hwndhwndgfarreselectfolder, Select &Different Folder
     onReselectFolder:=Func("GFARReselectFolder").Bind(SearchStartLocation)
     guicontrol +g,%hwndgfarreselectfolder%,% onReselectFolder
     gui font, s7
@@ -60,7 +59,6 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
 GFARReselectFolder(SearchStartLocation) {
     SelectedFolder:=SelectFolder(SearchStartLocation,"Select Folder containing images to be renamed")
     try {
-        ; A_DefaultGui
         LastRunCount:=false
         if FileExist(SelectedFolder) {
             LastRunCount:=CountFiles(SelectedFolder)
@@ -70,7 +68,6 @@ GFARReselectFolder(SearchStartLocation) {
     }
     if (LastRunCount) {
         guicontrol ,, gfarFolder,% SelectedFolder
-        ;gui add, Edit, w400 h110 vFolder disabled, % SelectedFolder
     } else {
 
     }
@@ -171,9 +168,7 @@ GFARSubmit() {
     gui Font, s10
     gui add, text,,% "Please UNTICK any name you do not have an image for (at that position).`nNotes:`n - Files are not actually skipped. Instead, by unticking a row you prevent the name of a pot that you don't have an image`nof from being applied to the 'next-in-line' image.)`n - Double-click an entry in this list to view the image`n - Select an image and press F2 if you want to change the name it will be assigned (and you know what you are doing.)"
     gui add, Listview, Checked vvLV_SelectedEntries w700 R30 -ReadOnly WantF2 Report gGFAR_ExcludeInspectSelection, Name | Expected Filepath
-    ;Arr2:=ForceOrder(Arr)
     ImagePaths2:=ForceOrder(ImagePaths)
-    ;Clipboard:= "OLD:`n" StringifyObject(Arr) "`n---`n" StringifyObject(ImagePaths) "`n---`n" "`n---`nNEW:`n" StringifyObject(Arr2) "`n---`n" StringifyObject(ImagePaths2)
     f_UpdateLV(Arr,ImagePaths2)
     gui add, text,, % "Images/Names: (" ImagePaths.Count() "/" Arr.Count() ")"
     gui add, Button, hwndhwndDuplicateShiftFrame vvGFAR_DuplicatetoShiftFrame disabled, &Duplicate to shift frame
@@ -190,7 +185,6 @@ GFARSubmit() {
     gui add, Button, yp xp+130 hwndGFAR_ExcludeInspect, Open &Selected Image
     GuiControl +g, %GFAR_ExcludeOpenFolder%, % GFAR_OpenFolder
     GuiControl +g, %GFAR_ExcludeInspect%, % GFAR_OpenSelectedImage
-    ;gui, add, Button, yp xp+80 gGFAR_ExcludeAbort
     if (ImagePaths.Count()<Arr.Count()) {
         guicontrol GFAR_Exclude: Disable,vGFAR_ExcludeSubmitButton
         guicontrol GFAR_Exclude: Enable,vGFAR_DuplicatetoShiftFrame
@@ -219,8 +213,6 @@ GFAR_DuplicatetoShiftFrame(TEST_FOLDERPATH) {
     }
     FileCopy % InspectedImage,% Padding_Name, 0
 
-    ;; Arr
-    ;; ImagePaths
     Position_Original:=HasVal(ImagePaths,InspectedImage)
     Position_Duplicate:=Position_Original
     LV_Insert(Position_Duplicate, "Check", sel2[2] " (blank)", sel2[3] " (padding)")
@@ -248,10 +240,8 @@ f_UpdateLV(Array,Array2) {
 
 GFAR_ExcludeOpenPath(Path) {
     gui GFAR_Exclude: -AlwaysOnTop
-
     Run % Path
     gui GFAR_Exclude: +AlwaysOnTop
-
     return
 }
 
@@ -281,15 +271,12 @@ GFAR_ExcludeEscape() {
 GFAR_ExcludeSubmit() {
     global
     gui GFAR: -disabled
-
     Sel:=f_GetCheckedLVEntries() ;; retrieve all rows of the Listview that we have checked/not unchecked
     gui GFAR_Exclude: Submit ;; submit the GUI to get all data inputted into it formally.
 
     Count_CopiedImages:=0 ;; if duplicates are excluded or padding files exist, we want less files in the output than in the Working Directory.
-
     /*
     ;; we have deselected some files in the final GUI. Thus, we cannot  use a fileloop easily. This can have the following reasons:
-
     1. We have deselected images because they are wrong, but all images afterwards are correct
     (aka, all intended images have been assigned the names they should receive, but for whatever reason we don't want the image X to be processed - maybe it was damaged and the plant was removed, but the image was shot beforehand, or was shot to make processing easier.)
     */
