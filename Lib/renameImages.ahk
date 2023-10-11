@@ -48,7 +48,7 @@ GFAR_createGUI(PotsPerGroup,UniqueGroups,SearchStartLocation,dynGUI) {
     gui add, edit, vgfarPlantsPerGroup w200, % PotsPerGroup
     ;gui, add, text,vvUsedStick, % "used Stick: " (device_name!=""? "'" device_name "'": "Device '" script.config.GFA_Renamer_settings.USB_Stick_Name "' could not be found.")
     gui add, Button, vSubmitButton gGFARSubmit, &Submit
-    gui add, Button, ypos xpos+64 hwndhwndgfarreselectfolder, Select &Different Folder
+    gui add, Button, xp+60 hwndhwndgfarreselectfolder, Select &Different Folder
     onReselectFolder:=Func("GFARReselectFolder").Bind(SearchStartLocation)
     guicontrol +g,%hwndgfarreselectfolder%,% onReselectFolder
     gui font, s7
