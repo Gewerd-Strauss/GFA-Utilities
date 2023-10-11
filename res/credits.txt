@@ -1,6 +1,7 @@
 RSeding         -       AddToolTip                                                              - https://www.autohotkey.com/boards/viewtopic.php?t=2584
 tmplinshi       -       AutoXYWH                                                                - https://www.autohotkey.com/boards/viewtopic.php?t=1079
 SKAN            -       Base64PNG_to_HICON, reg. License                                        - https://www.autohotkey.com/boards/viewtopic.php?f=6&t=36636, https://www.autohotkey.com/board/topic/75906-about-my-scripts-and-snippets/
+DEO, Fragman    -       callstack                                                               - https://www.autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/?p=530453
 banane          -       CenterControls                                                          - http://de.autohotkey.com/forum/viewtopic.php?p=67802#67802
 wolf_II         -       checkDecimalsOnEdit                                                     - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
 G33kDude        -       cJSON,reg. License                                                      - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
