@@ -1423,23 +1423,26 @@ exitApp() {
 set_template() {
     template=
         (LTRIM
-            get_os <- function(){
+            get_os <- function() {
             `tsysinf <- Sys.info()
-            `tif (!is.null(sysinf)){
-            `t`tos <- sysinf['sysname']
-            `t`tif (os == 'Darwin')
+            `tif (!is.null(sysinf)) {
+            `t`tos <- sysinf["sysname"]
+            `t`tif (os == "Darwin") {
             `t`t`tos <- "osx"
+            `t`t}
             `t} else { ## mystery machine
             `t`tos <- .Platform$OS.type
-            `t`tif (grepl("^darwin", R.version$os))
+            `t`tif (grepl("^darwin", R.version$os)) {
             `t`t`tos <- "osx"
-            `t`tif (grepl("linux-gnu", R.version$os))
+            `t`t}
+            `t`tif (grepl("linux-gnu", R.version$os)) {
             `t`t`tos <- "linux"
+            `t`t}
             `t}
             `treturn(tolower(os))
             }
             source("{GFA_EVALUATIONUTILITY}")       
-            if (isTRUE(as.logical(get_os()=='windows'))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
+            if (isTRUE(as.logical(get_os() == "windows"))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {`t# MAC:
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_MAC})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
