@@ -2713,4 +2713,4 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         return(list(GFA_SummaryPlot,Titles,0,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     }
 }
-plot_1 <- GFA_main(folder_path = r"(D:\Dokumente neu\Repositories\Grünflächen-Utilities\res\Examples\Example 3 - Analog zum Tomaten-Verlauf\GFA_Evaluation_Example\Beispiel-Konfiguration für Veersuch mit Behandlung.ini)", returnDays = 1, saveFigures = 1, saveExcel = 0, saveRDATA = 0)
+
