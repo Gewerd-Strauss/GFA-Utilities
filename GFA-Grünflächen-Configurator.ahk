@@ -1185,6 +1185,7 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
 }
 compareRScripts(new_contents,current_contents,HWND,Filepath) {
     global compare_contents_UseNew:=""
+    global compare_returnedContent:=""
     if (script.config.Configurator_settings.SizeSetting="auto") { ; auto
         SysGet A, MonitorWorkArea
         guiHeight:=ABottom - 2*30
@@ -1252,11 +1253,11 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
 
     gui add, text, x15 y15 w0 h0, % "anchor"
     gui add, text, x15 y25 h15, % "Old Code"
-    RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , Func("HighlightR"))
+    global RC_Old:=new GC_RichCode(RESettings2, "y45" " x" 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
     gui add, button,% "xp"+ RCWidth - 160 " yp+560 gcompareKeepOld w160", % "Keep &old contents"
     gui add, edit,%  "hwndhwndcompare_contentsCurrPath h15 disabled x" 0.3*guiWidth " w" guiWidth*(1-2*0.3), % Filepath
     gui add, text,%  "x" 15 + RCWidth + 15 " y25 h15", % "New Code"
-    RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , Func("HighlightR"))
+    global RC_New:=new GC_RichCode(RESettings2, "y45" " x" 15 + RCWidth + 15 " w" RCWidth " h560" , HighlightBound=Func("HighlightR"))
     gui add, button,% "xp" +0 - 0 " yp+560 gcompareUseNew w160", % "Overwrite with &new contents"
     RC_Old.Settings.Highlighter:= "HighlightR"
         , RC_Old.Value:= current_contents
@@ -1267,11 +1268,7 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
     CenterControl(CCHWND,hwndcompare_contentsCurrPath,0,0)
     WinWaitClose % script.name " - Select script contents to keep"
     gui %HWND%:-Disabled
-    if (compare_contents_UseNew) {
-        return new_contents
-    } else {
-        return current_contents
-    }
+    return compare_returnedContent
 
 }
 #if WinActive("ahk_id " CCHWND)
@@ -1311,14 +1308,16 @@ runRScript(dynGUI) {
     return
 }
 compareKeepOld() {
+    global RC_Old
     gui compare_contents: Submit
-    global compare_contents_UseNew:=false
+    global compare_returnedContent:=RC_Old.Value
     gui compare_contents: destroy
     return
 }
 compareUseNew() {
+    global RC_New
     gui compare_contents: Submit
-    global compare_contents_UseNew:=true
+    global compare_returnedContent:=RC_New.Value
     gui compare_contents: destroy
     return
 }
