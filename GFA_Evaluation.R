@@ -154,341 +154,38 @@ library(stats)
     # shapiro.test
 
 
-assignDaysToVariables <- function(Files, List, ini) {
-    return(List <- setColnames(Files, List, ini))
-}
-calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
-    ## function takes the 
-    TimeSinceT0 <- list() # Initiate a list
-    Ind <- 1
-    strLen_max <- 0
-    for (file in Files){
-        Date <- str_extract(file,"\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
-        Date <- as.Date.character(Date,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
-        Conditions <- {}
-        #as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
-        if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
-            TimeSinceT0[Ind] <- as.character.Date(Date,"%d.%m.%Y")
-            #todo: figure out how to format them as date instead of character ._.
-            Ind <- Ind+1
-            next
-        } else {                                                          # print relative date-spans
-            DateDiff <- Date - as.Date.character(ini$Experiment$T0,format = "%d.%m.%Y")
-            TimeSinceT0[Ind] <- as.numeric(DateDiff)
-            if (str_length(as.numeric(DateDiff))>strLen_max) {
-                strLen_max <- as.integer(str_length(as.numeric(DateDiff)))
-            }
-            Ind <- Ind+1
-            IndA <- 1
-        }
-    }
-    if (bForceActualDates) {
-        return(TimeSinceT0)
-    }
-    if (as.logical(ini$General$RelativeColnames)) {
-        for (file in Files) {
-            TimeSinceT0[[IndA]] <- as.character(padAgeNumber(TimeSinceT0[[IndA]],strLen_max))
-            IndA <- IndA+1
-            
-        }
-    }
-    IndB <- 1
-    if (isFALSE(as.logical(ini$General$RelativeColnames)) & bGetDiff) {
-        for (file in Files) {
-            TimeSinceT0[[IndB]] <- as.character(padAgeNumber(TimeSinceT0[[IndB]],strLen_max))
-            IndB <- IndB+1
-            
-        }
-    }
-    return(TimeSinceT0)
-}
-calculateChange <- function(DailyAnalyses,ChosenDays,returnTable=F) {
-    #calculateChange
-    dayID <- 1
-    ChosenDays <- str_trim(ChosenDays)
-    table <- as.data.frame(list())
-    SortedFormattedDates <- as.character.Date(sort(as.Date.character(unlist(str_trim(ChosenDays)),format = "%d.%m.%Y")),format = "%d.%m.%Y")
-    if (isFALSE(returnTable)) {
-        #print("Changes in Leaf-Area relative to the previous day: ")
-    }
-    names <- c("Time","Groups","Last mean [cm^2]","abs. Change [cm^2]","rel. Change [%]", "this mean [cm^2]")
-    for (curr_day in SortedFormattedDates) {
-        if (dayID==1) {
-            ld <- curr_day
-            dayID <- dayID + 1
-            lastVals <- DailyAnalyses[[str_trim(curr_day)]]
-            lastmean <- lastVals$Res$summary$mean
-            name <- lastVals$Res$summary$name
-            if (isFALSE(returnTable)) {
-                #print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
-            } else {
-                
-            }
-            next
-        } else {
-            lastVals <- DailyAnalyses[[str_trim(ld)]]
-            lastmean <- lastVals$Res$summary$mean
-            thisVals <- DailyAnalyses[[str_trim(curr_day)]]
-            thismean <- thisVals$Res$summary$mean
-            absolute_change <- (thismean-lastmean)
-            relative_change <- absolute_change/abs(lastmean)*100
-            name <- lastVals$Res$summary$name
-            console_print <- str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 12,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "left",width = 12),str_pad(" [cm^2]",width = 13,side="left"),"    |absC: ", absolute_change, " [cm^2]","    |relC: ", relative_change, " [%]")
-            #print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
-            CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
-            CurrSum$relative_change <- relative_change
-            CurrSum$absolute_change <- absolute_change
-            DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum #todo: figure out how to do this right!!
-            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
-            if (isFALSE(returnTable)) {
-                #print(console_print)
-                #print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
-            } else {
-                
-                table2 <- dplyr::tibble(Change=str_c(ld, " -> ",curr_day)
-                                       , Name=as.character(thisVals$Res$summary$name)
-                                       , LastMean=as.character(lastmean)
-                                       , Abs_change=as.character(absolute_change)
-                                       , Rel_change=as.character(relative_change)
-                                       , ThisMean=as.character(thismean))
-                table2 <- as.data.frame(table2)
-                table <- rbind(table,table2)
-            }
-            ld <- curr_day
-        }
-    }
-    if (isFALSE(returnTable)) {
-        return(DailyAnalyses)
-    } else {
-        colnames(table) <- names
-        return(table)
-    }
-}
-
-calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
-    strictLimitsValidation <- T
-    if (hasName(ini$Experiment,"ForceAxes")) {                                          ## The user wants to force the axis to a specific range
-        if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-            if (hasName(ini$Experiment,"BreakStepSize")) {
-                if (isTRUE(is.numeric(as.numeric(ini$Experiment$BreakStepSize)))) {
-                    StepSize <- as.numeric(ini$Experiment$BreakStepSize)
-                } else {
-                    StepSize <- 25
-                }
-            } else {
-                StepSize <- 25
-            }
-            temp <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
-            breaks <- getBreaks(ini,Limits)
-            if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user (in the config, thus in 'temp') is smaller than the dataset's maximum.
-                if (strictLimitsValidation) {
-                    
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,1"
-                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                  , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, and thus the upper y-limit will be forced to its next-larger multiple")
-                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
-                                  , "\nAdjustments have been made, the user-defined Limits will NOT take effect."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
-                } else {
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,2"
-                                  , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                  , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, but a user has set the internal logic-switch 'strictLimitsValidation' of this function to false.")
-                                  , "\nAs a result, the aforementioned user-defined upper y-limit will NOT be adjusted and WILL take effect."
-                                  , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
-                                  , "\nNo adjustments have been made, the user-defined Limits will take effect"))
-                    options(warn = wrnopt)
-                    Limits <- temp
-                    if (Limits[[2]]<min(as.vector(data),na.rm = T)) {
-                        Error <- simpleError(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,3"
-                                                   , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
-                                                   , str_c("\nlies below the smallest value (",floor(min(as.vector(data),na.rm = T)),") of your dataset. This is not valid for ggplot, and will always throw an error.")
-                                                   , str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
-                                                   , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
-                        stop(Error)
-                    }
-                }
-            } else {                                                                   ## The upper y-limit selected by the user is within 10% of the data's maximum - this can become really bad if we want to plot statistics
-                if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
-                    breaks$breaknumber <- breaks$breaknumber + 1
-                    if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
-                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
-                        breaks$breaknumber <- breaks$breaknumber + 1
-                    }
-                }
-            }
-            rm(temp)
-        } else {
-            # define breaks and labels for the y-scale                                  ## Limits is always larger than then dataset here.
-            breaks <- getBreaks(ini,Limits)
-            if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
-                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,4"
-                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                                  , "\nand has been rounded up to the nearest multiple of it."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
-                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,5"
-                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                                  , " would underscale the upper y limit."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-                }
-            } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){          ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
-                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,6"
-                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                                  , "\nand has been rounded up to the nearest multiple of it."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                    wrnopt <- getOption("warn")
-                    options(warn = 1)
-                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,7"
-                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                                  , " would underscale the upper y limit."
-                                  , "\nThe number of breaks have been adjusted accordingly."))
-                    options(warn = wrnopt)
-                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-                }
-            } else {                                                                    ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
-                
-            }
-        }
-    } else {                                                                    ## get breaks based on the data only. Thus, the limit will always be large enough, now we only need to validate the breaks themselves.
-        # define breaks and labels for the y-scale
-        breaks <- getBreaks(ini,Limits)
-        if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                    ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
-            if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,8"
-                              , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                              , "\nand has been rounded up to the nearest multiple of it."
-                              , "\nThe number of breaks have been adjusted accordingly."))
-                options(warn = wrnopt)
-                Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
-            } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,9"
-                              , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                              , " would underscale the upper y limit."
-                              , "\nThe number of breaks have been adjusted accordingly."))
-                options(warn = wrnopt)
-                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-            }
-        } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){              ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
-            if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,10"
-                              , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
-                              , "\nand has been rounded up to the nearest multiple of it."
-                              , "\nThe number of breaks have been adjusted accordingly."))
-                options(warn = wrnopt)
-                Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
-                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
-            } else {                                                                ## the upper y limit is a multiple of the breakstepsize
-                wrnopt <- getOption("warn")
-                options(warn = 1)
-                warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,11"
-                              , "\nThe breaks defined by the user-defined function 'getBreaks()'"
-                              , " would underscale the upper y limit."
-                              , "\nThe number of breaks have been adjusted accordingly."))
-                options(warn = wrnopt)
-                breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
-            }
-        } else {                                                                        ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
-            
-        }
-    }
-    return(list(Limits=Limits,breaks=breaks))
-}
 
 
-writeChangetoFile <- function(DailyAnalyses) {
-    for (Object in DailyAnalyses) {
-        write.xlsx(
-            list("Data" = Object$Res$Data
-                 ,"Outlier"= Object$Res$Outliers
-                 , "data_wo_Outlier" = Object$Res$wo_outliers
-                 , "Norm" = Object$Res$norm
-                 , "BT" = Object$Res$BT
-                 , "T.test" = Object$Res$stat.test
-                 , "summary" = Object$Res$summary)
-            , file = Object$XLSX_Path
-            , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
-        xlsx <- loadWorkbook(Object$XLSX_Path)
-        
-        writeComment(xlsx,"summary",col = "O",row = 1,comment = createComment(comment = str_c("Change is relative to ",Object$PreviousDay,"\n\n Comment generated by GFA_Evaluation.R"),visible = F,author = str_c("GFA_Evaluation.R")))
-        writeComment(xlsx,"summary",col = "P",row = 1,comment = createComment(comment = str_c("Change is relative to ",Object$PreviousDay,"\n\n Comment generated by GFA_Evaluation.R"),visible = F,author = str_c("GFA_Evaluation.R")))
-        saveWorkbook(xlsx,file = Object$XLSX_Path,overwrite = T)
-    }
-}
-checkSign <- function(x) {
-    return(ifelse(x >= 0, T, F))
-}
+#----- MAIN SCRIPT
+#
+##
 fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive_sign=F) {
-    if (str_count(number,"e")) {
-        if (str_count(number,"e-")) {
-            split <- strsplit(as.character(number),split = "e-")
-            Power <- split[[1]][[2]]
-            value <- split[[1]][[1]]
-            value <- round(as.numeric(value),number_of_decimals)
-            if (renderpositive_sign) {
-                if (checkSign(value)) {
-                    str <- str_c("$+",value," \\times 10^{-",Power,"}$")
-                } else {
-                    str <- str_c("$",value," \\times 10^{-",Power,"}$")
-                }
+    checkSign <- function(x) {
+        return(ifelse(x >= 0, T, F))
+    }
+    fixdecimalplaces <- function(x, k){
+        return(trimws(format(round(x, k), nsmall=k)))
+    }
+if (str_count(number,"e")) {
+    if (str_count(number,"e-")) {
+        split <- strsplit(as.character(number),split = "e-")
+        Power <- split[[1]][[2]]
+        value <- split[[1]][[1]]
+        value <- round(as.numeric(value),number_of_decimals)
+        if (renderpositive_sign) {
+            if (checkSign(value)) {
+                str <- str_c("$+",value," \\times 10^{-",Power,"}$")
             } else {
                 str <- str_c("$",value," \\times 10^{-",Power,"}$")
             }
         } else {
-            split <- strsplit(as.character(number),split = "e+")
-            if (length(split)==1) {
-                Power <- split[[1]][[2]]
-                Power <- str_replace(Power,'\\+',"")
-                value <- split[[1]][[1]]
-                value <- round(as.numeric(value),number_of_decimals)
-                if (renderpositive_sign) {
-                    if (checkSign(value)) {
-                        str <- str_c("$+",value," \\times 10^{",Power,"}$")
-                    } else {
-                        str <- str_c("$",value," \\times 10^{",Power,"}$")
-                    }
-                } else {
-                    str <- str_c("$",value," \\times 10^{",Power,"}$")
-                }
-                
-                #print(str)
-                return(str)
-            }
+            str <- str_c("$",value," \\times 10^{-",Power,"}$")
+        }
+    } else {
+        split <- strsplit(as.character(number),split = "e+")
+        if (length(split)==1) {
             Power <- split[[1]][[2]]
             Power <- str_replace(Power,'\\+',"")
-            if (isFALSE((Power>20) || (-20>Power))) {
-                #print("normal")
-                return(format_power(number,format=fp_format))
-            }
             value <- split[[1]][[1]]
             value <- round(as.numeric(value),number_of_decimals)
             if (renderpositive_sign) {
@@ -500,25 +197,43 @@ fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive
             } else {
                 str <- str_c("$",value," \\times 10^{",Power,"}$")
             }
+            
+            #print(str)
+            return(str)
         }
-    } else {
-        value <- round(as.numeric(number),number_of_decimals)
-        value <- fixdecimalplaces(number,number_of_decimals)
+        Power <- split[[1]][[2]]
+        Power <- str_replace(Power,'\\+',"")
+        if (isFALSE((Power>20) || (-20>Power))) {
+            #print("normal")
+            return(format_power(number,format=fp_format))
+        }
+        value <- split[[1]][[1]]
+        value <- round(as.numeric(value),number_of_decimals)
         if (renderpositive_sign) {
             if (checkSign(value)) {
-                str <- str_c("$+",value,"$")
+                str <- str_c("$+",value," \\times 10^{",Power,"}$")
             } else {
-                str <- str_c("$",value,"$")
+                str <- str_c("$",value," \\times 10^{",Power,"}$")
             }
+        } else {
+            str <- str_c("$",value," \\times 10^{",Power,"}$")
+        }
+    }
+} else {
+    value <- round(as.numeric(number),number_of_decimals)
+    value <- fixdecimalplaces(number,number_of_decimals)
+    if (renderpositive_sign) {
+        if (checkSign(value)) {
+            str <- str_c("$+",value,"$")
         } else {
             str <- str_c("$",value,"$")
         }
+    } else {
+        str <- str_c("$",value,"$")
     }
-    #print("custom")
-    return(str)
 }
-fixdecimalplaces <- function(x, k){
-    return(trimws(format(round(x, k), nsmall=k)))
+#print("custom")
+return(str)
 }
 getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # getRelative_change
@@ -657,533 +372,1550 @@ getMeanofVectorElements <- function(Vector, Elements) {
     mean <- mean(selection)
     return(mean)
 }
-checkExistence <-function(Path=""){
-    if (isFALSE(file.exists(Path))) {
-        return(FALSE)
-    } else {
-        return(TRUE)
+GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteEncoding="") {
+    
+    
+    ## define local functions
+    # These functions are used internally by GFA_main, and are not used internally by RunDetailed. 
+    # They are set up as local functions so that the environment beecomes less cluttered visually.
+    
+    RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
+        isNormallyDistributed <- function(norm_obj,Threshold=0.05) {
+            # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
+            boolean <- ""
+            Count <- dim(norm_obj)[1]
+            ThresholdPassing <- subset(norm_obj,subset = statistic>Threshold) # Get the entries which fulfill the Threshold.
+            Count_Threshold <- dim(ThresholdPassing)[1]
+            boolean <- (Count==Count_Threshold) #Evaluate threshold comparison
+            return(boolean)
+        }
+        # Create objects
+        
+        ret <- list()           # for returning all results from this functions
+        retOutliers <- list()
+        
+        RObj=list()             # for keeping all results of a day together
+        #1. Load Data
+        Day_Index <- 0
+        for (curr_Day in ChosenDays) {
+            for (curr_file in Files) {
+                if ((isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) && (isFALSE(as.logical(str_count(curr_file,format(as.Date(str_trim(curr_Day),tryFormats = c("%Y-%m-%d","%d.%m.%Y",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)))))))){
+                    next
+                }
+                
+                #Data <- as.data.frame(importCSV_Data1(curr_file,""))
+                if (ini$General$used_filesuffix=="csv") {
+                    csv1 <- read.csv(curr_file,sep=";")
+                    if (hasName(csv1,"plant_area")) {
+                        csv1$plant_area <- str_replace(csv1$plant_area,",",".")
+                        csv1$plant_area <- as.numeric(csv1$plant_area)
+                    }
+                    if (hasName(csv1,"plant_area_drought")) {
+                        csv1$plant_area_drought <- str_replace(csv1$plant_area_drought,",",".")
+                        csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
+                    }
+                    if (hasName(csv1,"plant_area_green")) {
+                        csv1$plant_area_green <- str_replace(csv1$plant_area_green,",",".")
+                        csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
+                    }
+                    if (hasName(csv1,"plant_area_complete")){
+                        csv1$plant_area_complete <- str_replace(csv1$plant_area_complete,",",".")
+                        csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
+                    }
+                    if (hasName(csv1,"pixel_area")){
+                        csv1$pixel_area <- str_replace(csv1$pixel_area,",",".")
+                        csv1$pixel_area <- as.numeric(csv1$pixel_area)
+                    }
+                    if (hasName(csv1,"plant_pixel_count")) {
+                        csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count,",",".")
+                        csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
+                    }
+                    Data <- csv1
+                    #file <- csv2xlsx(file)
+                    #csv <- read_xlsx(file)
+                    #view(csv1)
+                    #view(csv)
+                } else {
+                    Data <- read_xlsx(curr_file)
+                }
+                if (ini$Experiment$Normalise) {
+                    if (hasName(Data,"plant_area_normalised")) {
+                        Data$plant_area_normalised <- Data$plant_area_normalised
+                    } else {
+                        if (hasName(Data,"plants_in_pot")) {
+                            Data$plant_area_normalised <- Data$plant_area/Data$plants_in_pot
+                        }
+                    }
+                    Data$plant_area_nonnormalised <- Data$plant_area
+                    Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead. 
+                } else {
+                    if (!hasName(Data,"plant_area")) {
+                        if (hasName(Data,"plant_area_complete")) {
+                            Data$plant_area <- Data$plant_area_complete
+                        } else {
+                            Error <- simpleError(str_c(str_c(" Data-file: '",curr_file,"' does not contain either the column 'plant_area' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"),ErrorString ,sep = "\n"))
+                            stop(Error)
+                        }
+                    }
+                }
+                break
+            }
+            Day_Index <- Day_Index + 1
+            #Data <- cbind(Data,Gruppe,Nummer)
+            if (ini$Experiment$Facet2D) {
+                Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
+                if (as.integer(PotsPerGroup)*length(groups_as_ordered_in_datafile)==dim(Data)[1]) {
+                    Gruppe  <- rep(groups_as_ordered_in_datafile,each=as.integer(PotsPerGroup))
+                } else {
+                    Gruppe  <- rep(groups_as_ordered_in_datafile,each=as.integer(PotsPerGroup)*2)
+                }
+                # green pixels per day
+                Data$Gruppe <- Gruppe
+                Data$Nummer <- Nummer
+                treatments2 <- unlist(strsplit(ini$Experiment$Facet2DVar,","))
+                Facet <- rep(treatments2, each = PotsPerGroup)
+                Data$Facet <- Facet
+                Data$Gruppe <- factor(Data$Gruppe,levels = unique(groups_as_ordered_in_datafile))
+                Data$interactions <- interaction(Data$Gruppe,Data$Facet)
+                Data$GruppeSplitPerTreatment <- factor(Data$Gruppe,levels = unique(groups_as_ordered_in_datafile))
+                
+                
+                ## statistics
+                summary <- describeBy(Data$plant_area,Data$interactions) #todo: implement logic for choosing normalised data. 
+                #in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
+                #
+                #
+                Outliers <- Data %>%
+                    group_by(interactions) %>%
+                    identify_outliers("plant_area") 
+                
+                labelOutliers <- function(y) {
+                    o  <- boxplot.stats(y)$out
+                    if(length(o) == 0) NA else o
+                }
+                summary <- do.call("rbind",summary)
+                summary <- data.frame(name=row.names(summary), summary)
+                
+                GFA_p_Outlier <- ggplot(Data
+                                        , aes(x = interactions, y = plant_area)) +
+                    geom_boxplot(outlier.color = "red"
+                                 , outlier.size = 2)
+                p_Outlier2 <- ggplot(Data
+                                     , aes(x = interactions, y = plant_area)) +
+                    scale_x_discrete() +
+                    scale_y_discrete() +
+                    ggtitle(str_c("Day: ", curr_Day))+
+                    geom_boxplot(outlier.color = "red"
+                                 , outlier.size = 2) +
+                    stat_summary(
+                        aes(label = str_c(round(stat(y),1))),
+                        geom="text",
+                        fun=labelOutliers,
+                        hjust = -1
+                    )
+                
+                
+                #print(p_Outlier2) # this will label the outlier with its value. 
+                
+                #TODO: figure out what to group_by by... 
+                Outliers <- Data %>%
+                    group_by(interactions) %>%
+                    identify_outliers("plant_area") 
+                
+                wo_outliers <- Data %>% 
+                    anti_join(Outliers, by = "file") 
+                
+                
+                ## Execute tests for 
+                ##  Daten normalverteilt?
+                ## if TRUE  -> uniforme Varianz durch Bartlett's Test | nutze wo_outliers_data
+                ## if FALSE -> Varianz durch Levene-Test | nutze wo_outliers_data
+                
+                ##  
+                
+                norm <- wo_outliers %>%
+                    group_by(interactions) %>%
+                    dplyr::summarise(statistic = shapiro.test(plant_area)$statistic,
+                                     p.value = shapiro.test(plant_area)$p.value)
+                
+                if (isNormallyDistributed(norm)) {
+                    BT   <- bartlett.test(plant_area ~ interactions, wo_outliers)
+                    BT <- do.call("rbind", BT)
+                    BT <- data.frame(names = row.names(BT), BT)
+                    
+                    #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
+                    Data_stat_test <- subset(Data, select = -c(file) )
+                    Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    Data_stat_test <- group_by(Data)
+                    Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
+                    stat.test <- Data_stat_test %>%
+                        t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "interactions")
+                } else {
+                    levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
+                    
+                    #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
+                    stat.test <- Data %>%
+                        group_by(Gruppe) %>%
+                        wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "interactions")
+                }
+                XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
+                                   , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
+                                   ,".xlsx")
+                if (isTRUE(as.logical(saveExcel))) {
+                    write.xlsx(
+                        list("Data" = Data
+                             ,"Outlier"= Outliers
+                             , "data_wo_Outlier" = wo_outliers
+                             , "Norm" = norm
+                             , "BT" = BT
+                             , "T.test" = stat.test
+                             , "summary" = summary)
+                        , file = XLSX_Path
+                        , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
+                }
+                
+                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
+                # Select the required number of colours from a sequencial color palette
+                Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+                Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+                if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
+                }
+                if (hasName(ini$Experiment,"Palette_Lines")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+                }
+                
+                if (hasName(ini$General,"Theme")) {
+                    Theme_Index <- ini$General$Theme
+                }  else {
+                    Theme_Index <- 1   
+                }
+                numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
+                
+                
+                #
+                set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+                
+                # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
+                Theme <- switch(as.integer(Theme_Index),
+                                theme_tufte(base_size = 10),
+                                theme_bw(base_size = 10),
+                                theme_pubr(base_size = 10),
+                                theme_pubclean(base_size = 10),
+                                labs_pubr(10),
+                                theme_pubclean(base_size = 10),
+                                clean_theme())
+                
+                # Select the required number of colours from a sequencial color palette
+                Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+                Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+                if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
+                }
+                if (hasName(ini$Experiment,"Palette_Lines")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+                }
+                
+                # assemble label strings
+                unit_x <- str_split(ini$General$axis_units_x,",")
+                unit_y <- str_split(ini$General$axis_units_y,",")
+                unit_x <- if_else(as.logical(ini$General$language=='German')
+                                  , true=unit_x[[1]][1]
+                                  , false=unit_x[[1]][2])
+                unit_y <- if_else(as.logical(ini$General$language=='German')
+                                  , true=unit_y[[1]][1]
+                                  , false=unit_y[[1]][2])
+                
+                TitleTimeSpan <- calculateColnames(Files,ini,T)
+                if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
+                    plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                } else {
+                    plot_Title <- if_else(as.logical(ini$General$language=='German')
+                                          , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                                          , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
+                }
+                if (as.logical(ini$General$Debug)) {
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                           , "\nT0: ", ini$Experiment$T0
+                                           # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                           , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
+                                           , "\nPots per Group: ", PotsPerGroup
+                                           , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                           , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                           , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                           , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
+                } else {
+                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                    } else {
+                        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                               , if_else(as.logical(ini$General$language=='German')
+                                                         , true=str_c("\nUmtopfen: ", ini$Experiment$T0
+                                                                      ,"\nSample-Size: ", PotsPerGroup)
+                                                         , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
+                                                                       ,"\nSample-Size: ", PotsPerGroup))
+                                               ,""
+                                               ,"")
+                    }
+                }
+                
+                
+                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
+                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
+                } else {
+                    x_label <- if_else(as.logical(ini$General$language=='German')
+                                       , true=str_c("Versuchs-Gruppen")
+                                       , false=str_c("Treatment groups")
+                                       , missing=if_else(as.logical(ini$General$RelativeColnames)
+                                                         , true=str_c("Versuchs-Gruppen")
+                                                         , false=str_c("Treatment groups")))
+                    
+                }
+                
+                if (isFALSE(is.null(ini$Experiment$YLabel))) {
+                    y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
+                } else {
+                    y_label <- if_else(as.logical(ini$Experiment$Normalise), 
+                                       if_else(as.logical(ini$General$language=='German')
+                                               , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
+                                               , false=str_c("normalised green plant area [",unit_y,"]")
+                                               , missing=str_c("normalised green plant area [",unit_y,"]")),
+                                       if_else(as.logical(ini$General$language=='German')
+                                               , true=str_c("Grünfläche  [",unit_y,"]")
+                                               , false=str_c("Green plant area [",unit_y,"]")
+                                               , missing=str_c("Green plant area [",unit_y,"]")))
+                }
+                filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
+                                  , " ("
+                                  , ini$Experiment$Name
+                                  , ", "
+                                  , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
+                                  , ") "
+                                  , if_else(as.logical(ini$Experiment$Normalise)
+                                            , "norm"
+                                            , "non-norm")
+                                  , "_"
+                                  , if_else(as.logical(ini$General$RelativeColnames)
+                                            , "relColNms"
+                                            , "absColNms")
+                                  , "_"
+                                  , ini$General$language
+                                  , "_"
+                                  , Theme_Index
+                                  , ").jpg")
+                Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
+                GFA_plot_box <-  ggboxplot(Data, x= "interactions"
+                                           , y = "plant_area"
+                                           , fill = "interactions"
+                                           , color = "black"
+                                           , add = "jitter"
+                                           , ylab = y_label
+                                           , xlab = x_label) +
+                    font("xy.text", size = 10, color = "black") +
+                    font("ylab", size = 10, color = "black") +
+                    font("legend.title", size = 10, color = "black")
+                if (isTRUE(as.logical(ini$General$Debug))) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(plot_Title,plot_SubTitle)
+                } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                    dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                    TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                    if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                    } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(label = TitleObj$plot_Title)
+                    } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(subtitle = TitleObj$plot_SubTitle)
+                    }
+                }
+                if (hasName(ini$Experiment,"LegendEntries")) {
+                    
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot,labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
+                    
+                }
+                scale_y_lowerEnd <- 0
+                Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+                if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+                    if (hasName(ini$Experiment,"YLimits")) {
+                        Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
+                    } else {
+                        Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
+                    }
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+                    Limits[[2]] <- scale_y_upperEnd
+                } else {
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+                    Limits[[2]] <- scale_y_upperEnd
+                }
+                if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
+                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+                }
+                if ((Limits[[2]]-(Limits[[2]]*0.10))<=max(as.vector(Data$plant_area))) {                            ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
+                    Limits[[2]] <- max(as.vector(Data$plant_area)) + (max(as.vector(Data$plant_area)))*0.10
+                    Limits[[2]] <- round_any(Limits[[2]],25,f = ceiling)
+                }
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
+                Limits <- Yscale_Data$Limits
+                breaks <- Yscale_Data$breaks
+                while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
+                    Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                    breaks$breaknumber <- breaks$breaknumber + 1
+                }
+                mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2) ## generate minor breaks always inbetween major breaks.
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                                  limits = c(Limits[[1]],Limits[[2]]))
+                
+                if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
+                    pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
+                } else {
+                    pval_size <- 2.5
+                }
+                #Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
+                stat.test <- Data_stat_test %>%
+                    t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
+                stat.test <- stat.test %>%
+                    add_significance("p") %>%
+                    add_xy_position(x = "interactions")
+                stat.test$p.scient <- formatPValue(stat.test$p)
+                GFA_plot_box2 <- GFA_plot_box
+                if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
+                    Diff <- Limits[[2]]-max(max(Data$plant_area))
+                    stat_ypos <- Limits[[2]]-(Diff*0.1)
+                } else {
+                    stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
+                }
+                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test
+                                                                  , label = "{p.scient} {p.adj.signif}"
+                                                                  , size = pval_size
+                                                                  , remove.bracket = T
+                                                                  , y.position = stat_ypos)
+                #GFA_plot_box2 <- GFA_plot_box2 + geom_pwc(aes(group = ),data = Data_stat_test,method = "t_test",ref.group = ini$Experiment$RefGroup,)
+                GFA_plot_box <- GFA_plot_box + 
+                    guides(fill=guide_legend(title="Groups")) +
+                    theme(plot.title = element_text(hjust = 0.5))
+                
+                
+                
+                
+                GFA_plot_box <- GFA_plot_box + 
+                    guides(fill=guide_legend(title="Groups")) +
+                    theme(plot.title = element_text(hjust = 0.5))
+                
+                if (ini$General$Debug) {
+                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
+                }
+                
+                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y",linetype=1)
+                if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
+                }
+                
+                # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
+                if (as.logical(ini$General$PlotSampleSize)) {
+                    if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+                        n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+                    } else {
+                        n_size <- 2.5
+                    }
+                    ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
+                    GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
+                                                                , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                                , geom = "text"
+                                                                , hjust = 0.5
+                                                                , size = n_size
+                                                                , fontface = "bold"
+                                                                , position = position_dodge(width=0.75))
+                }
+                if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
+                    clen <- str_length(str_c(folder_path,"ROutput\\",filename))
+                    deslen <- 256
+                    lendiff <- clen-deslen+4
+                    filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
+                    new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
+                    old <- str_c(folder_path,"ROutput\\",filename2)
+                    if (str_length(new)==256) {
+                        filename <- str_c(filename2,".jpg")
+                    }
+                    rm(new,old,clen,deslen,lendiff)
+                }
+                if (isTRUE(as.logical(saveFigures))) {
+                    filename <- sanitisePath(filename)
+                    ggsave(filename = filename
+                           , plot=GFA_plot_box
+                           , width=7
+                           , height=5
+                           , dpi = 300
+                           , path = str_c(folder_path,"ROutput\\"))
+                }
+                Results=list("Data" = Data
+                             ,"Outlier"= Outliers
+                             , "data_wo_Outlier" = wo_outliers
+                             , "Norm" = norm
+                             , "BT" = BT
+                             , "T.test" = stat.test
+                             , "summary" = summary)
+                ret[[str_trim(curr_Day)]]=list(boxplot=GFA_plot_box,outlierplot=GFA_p_Outlier,Res=Results,XLSX_Path=XLSX_Path)
+            } else {
+                ## normal, no facetting occured, so we can use the old pathway
+                Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
+                Gruppe  <- rep(groups_as_ordered_in_datafile,each=PotsPerGroup)
+                # green pixels per day
+                Data$Gruppe <- Gruppe
+                Data$Nummer <- Nummer
+                Data$Gruppe <- factor(Data$Gruppe,levels = groups_as_ordered_in_datafile)
+                
+                summary <- describeBy(Data$plant_area,Data$Gruppe) #todo: implement logic for choosing normalised data. 
+                #in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
+                #
+                #
+                Outliers <- Data %>%
+                    group_by(Gruppe) %>%
+                    identify_outliers("plant_area") 
+                
+                labelOutliers <- function(y) {
+                    o  <- boxplot.stats(y)$out
+                    if(length(o) == 0) NA else o
+                }
+                summary <- do.call("rbind",summary)
+                summary <- data.frame(name=row.names(summary), summary)
+                
+                GFA_p_Outlier <- ggplot(Data
+                                        , aes(x = Gruppe, y = plant_area)) +
+                    geom_boxplot(outlier.color = "red"
+                                 , outlier.size = 2)
+                p_Outlier2 <- ggplot(Data
+                                     , aes(x = Gruppe, y = plant_area)) +
+                    scale_x_discrete() +
+                    scale_y_discrete() +
+                    ggtitle(str_c("Day: ", curr_Day))+
+                    geom_boxplot(outlier.color = "red"
+                                 , outlier.size = 2) +
+                    stat_summary(
+                        aes(label = str_c(round(stat(y),1))),
+                        geom="text",
+                        fun=labelOutliers,
+                        hjust = -1
+                    )
+                
+                
+                #print(p_Outlier2) # this will label the outlier with its value. 
+                
+                #TODO: figure out what to group_by by... 
+                Outliers <- Data %>%
+                    group_by(Gruppe) %>%
+                    identify_outliers("plant_area") 
+                
+                wo_outliers <- Data %>% 
+                    anti_join(Outliers, by = "file") 
+                
+                
+                ## Execute tests for 
+                ##  Daten normalverteilt?
+                ## if TRUE  -> uniforme Varianz durch Bartlett's Test, Data: without outliers
+                ## if TRUE  -> Significanz durch t_test, Data: all data / with outliers*
+                ## if FALSE -> Varianz durch Levene-Test, Data: without outliers
+                ## if FALSE -> Significance durch Wilcox-Test, Data: all data / with outliers*
+                
+                ## *This is analogous to how it is done in the script 'Grünflächenanalyse_v3.R'
+                
+                ##  
+                
+                norm <- wo_outliers %>%
+                    group_by(Gruppe) %>%
+                    dplyr::summarise(statistic = shapiro.test(plant_area)$statistic,
+                                     p.value = shapiro.test(plant_area)$p.value)
+                
+                if (isNormallyDistributed(norm)) {
+                    #print(norm)
+                    BT   <- bartlett.test(plant_area ~ Gruppe, wo_outliers)
+                    BT <- do.call("rbind", BT)
+                    BT <- data.frame(names = row.names(BT), BT)
+                    
+                    Data_stat_test <- subset(Data, select = -c(file) )
+                    Data_stat_test <- cbind(Data_stat_test,Data$file)               # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    Data_stat_test <- group_by(Data)
+                    Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
+                    stat.test <- Data_stat_test %>%
+                        t_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "Gruppe")
+                } else {
+                    levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
+                    
+                    stat.test <- Data %>%
+                        group_by(Gruppe) %>%
+                        wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "Gruppe")
+                }
+                XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
+                                   ,format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
+                                   ,".xlsx")
+                if (isTRUE(as.logical(saveExcel))) {
+                    write.xlsx(
+                        list("Data" = Data
+                             ,"Outlier"= Outliers
+                             , "data_wo_Outlier" = wo_outliers
+                             , "Norm" = norm
+                             , "BT" = BT
+                             , "T.test" = stat.test
+                             , "summary" = summary)
+                        , file = XLSX_Path
+                        , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
+                }
+                
+                
+                
+                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
+                # Select the required number of colours from a sequencial color palette
+                Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+                Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+                if (hasName(ini$Experiment,"Palette_Boxplot")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
+                }
+                if (hasName(ini$Experiment,"Palette_Lines")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
+                }
+                
+                if (hasName(ini$General,"Theme")) {
+                    Theme_Index <- ini$General$Theme
+                }  else {
+                    Theme_Index <- 1   
+                }
+                numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
+                
+                
+                #
+                set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
+                
+                # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
+                Theme <- switch(as.integer(Theme_Index),
+                                theme_tufte(base_size = 10),
+                                theme_bw(base_size = 10),
+                                theme_pubr(base_size = 10),
+                                theme_pubclean(base_size = 10),
+                                labs_pubr(10),
+                                theme_pubclean(base_size = 10),
+                                clean_theme())
+                
+                # Select the required number of colours from a sequencial color palette
+                Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
+                Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
+                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
+                Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
+                Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
+                if (hasName(ini$Experiment,"Palette_Boxplot2")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2,","))
+                }
+                if (hasName(ini$Experiment,"Palette_Lines2")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2,","))
+                }
+                
+                # assemble label strings
+                unit_x <- str_split(ini$General$axis_units_x,",")
+                unit_y <- str_split(ini$General$axis_units_y,",")
+                unit_x <- if_else(as.logical(ini$General$language=='German')
+                                  , true=unit_x[[1]][1]
+                                  , false=unit_x[[1]][2])
+                unit_y <- if_else(as.logical(ini$General$language=='German')
+                                  , true=unit_y[[1]][1]
+                                  , false=unit_y[[1]][2])
+                
+                TitleTimeSpan <- calculateColnames(Files,ini,T)
+                if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
+                    plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                } else {
+                    plot_Title <- if_else(as.logical(ini$General$language=='German')
+                                          , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                                          , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")"))
+                }
+                if (as.logical(ini$General$Debug)) {
+                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                           , "\nT0: ", ini$Experiment$T0
+                                           , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
+                                           , "\nPots per Group: ", PotsPerGroup
+                                           , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                           , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                           , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                           , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
+                    
+                } else {
+                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
+                    } else {
+                        plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                               , if_else(as.logical(ini$General$language=='German')
+                                                         , true=str_c("\nUmtopfen: ", ini$Experiment$T0
+                                                                      ,"\nSample-Size: ", PotsPerGroup)
+                                                         , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
+                                                                       ,"\nSample-Size: ", PotsPerGroup))
+                                               ,""
+                                               ,"")
+                    }
+                }
+                
+                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
+                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
+                } else {
+                    x_label <- if_else(as.logical(ini$General$language=='German')
+                                       , true=str_c("Versuchs-Gruppen")
+                                       , false=str_c("Treatment groups")
+                                       , missing=if_else(as.logical(ini$General$RelativeColnames)
+                                                         , true=str_c("Versuchs-Gruppen")
+                                                         , false=str_c("Treatment groups")))
+                    
+                }
+                
+                if (isFALSE(is.null(ini$Experiment$YLabel))) {
+                    y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
+                } else {
+                    y_label <- if_else(as.logical(ini$Experiment$Normalise), 
+                                       if_else(as.logical(ini$General$language=='German')
+                                               , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
+                                               , false=str_c("normalised green plant area [",unit_y,"]")
+                                               , missing=str_c("normalised green plant area [",unit_y,"]")),
+                                       if_else(as.logical(ini$General$language=='German')
+                                               , true=str_c("Grünfläche  [",unit_y,"]")
+                                               , false=str_c("Green plant area [",unit_y,"]")
+                                               , missing=str_c("Green plant area [",unit_y,"]")))
+                }
+                filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
+                                  , " ("
+                                  , ini$Experiment$Name
+                                  , ", "
+                                  , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
+                                  , ") "
+                                  , if_else(as.logical(ini$Experiment$Normalise)
+                                            , "norm"
+                                            , "non-norm")
+                                  , "_"
+                                  , if_else(as.logical(ini$General$RelativeColnames)
+                                            , "relColNms"
+                                            , "absColNms")
+                                  , "_"
+                                  , ini$General$language
+                                  , "_"
+                                  , Theme_Index
+                                  , ").jpg")
+                
+                Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
+                GFA_plot_box <-  ggboxplot(Data, x= "Gruppe"
+                                           , y = "plant_area"
+                                           , fill = "Gruppe"
+                                           , palette = Palette_Boxplot
+                                           , color = "black"
+                                           , add = "jitter"
+                                           , ylab = y_label
+                                           , xlab = x_label) +
+                    font("xy.text", size = 10, color = "black") +
+                    font("ylab", size = 10, color = "black") +
+                    font("legend.title", size = 10, color = "black")
+                if (isTRUE(as.logical(ini$General$Debug))) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        ggtitle(plot_Title,plot_SubTitle)
+                } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
+                    dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+                    TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
+                    if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
+                    } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(label = TitleObj$plot_Title)
+                    } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
+                        GFA_plot_box <- GFA_plot_box + 
+                            ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)   ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
+                    }
+                }
+                scale_y_lowerEnd <- 0
+                Limits <- c(0,1)                                                    ## otherwhise initialise the vector so we can modify the second element below
+                if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+                    if (hasName(ini$Experiment,"YLimits")) {
+                        Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
+                    } else {
+                        Limits <- c(0,1)                                            ## otherwhise initialise the vector so we can modify the second element below
+                    }
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+                    Limits[[2]] <- scale_y_upperEnd
+                } else {
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
+                    Limits[[2]] <- scale_y_upperEnd
+                }
+                if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset. 
+                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a lower value, ggplot will fail.
+                }
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
+                Limits <- Yscale_Data$Limits
+                breaks <- Yscale_Data$breaks
+                while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
+                    Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                    breaks$breaknumber <- breaks$breaknumber + 1
+                }
+                mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2)           ## generate minor breaks always inbetween major breaks.
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                                  limits = c(Limits[[1]],Limits[[2]]))
+                
+                stat.test$p.scient <- formatPValue(stat.test$p)
+                if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
+                    pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
+                } else {
+                    pval_size <- 2.5
+                }
+                if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
+                    Diff <- Limits[[2]]-max(max(Data$plant_area))
+                    stat_ypos <- Limits[[2]]-(Diff*0.1)
+                } else {
+                    stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
+                }
+                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
+                                                                  , label = "{p.scient} {p.adj.signif}"
+                                                                  , size = pval_size
+                                                                  , remove.bracket = T
+                                                                  , y.position = stat_ypos)
+                if (hasName(ini$Experiment,"LegendEntries")) {
+                    GFA_plot_box <- GFA_plot_box + 
+                        scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))+
+                        scale_colour_manual(values = Palette_Lines)
+                } else {
+                    GFA_plot_box <- GFA_plot_box + 
+                        scale_fill_manual(values = Palette_Boxplot)+
+                        scale_colour_manual(values = Palette_Lines)
+                } 
+                
+                GFA_plot_box <- GFA_plot_box + 
+                    guides(fill=guide_legend(title="Groups")) +
+                    theme(plot.title = element_text(hjust = 0.5))
+                
+                if (ini$General$Debug) {
+                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
+                }
+                
+                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
+                if (hasName(ini$Fontsizes,"Fontsize_General")) {
+                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
+                }
+                if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+                } else {
+                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
+                }
+                
+                # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
+                if (as.logical(ini$General$PlotSampleSize)) {
+                    if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
+                        n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+                    } else {
+                        n_size <- 2.5
+                    }
+                    ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
+                    GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
+                                                                , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
+                                                                , geom = "text"
+                                                                , hjust = 0.5
+                                                                , size = n_size
+                                                                , fontface = "bold"
+                                                                , position = position_dodge(width=0.75))
+                }
+                if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
+                    clen <- str_length(str_c(folder_path,"ROutput\\",filename))
+                    deslen <- 256
+                    lendiff <- clen-deslen+4
+                    filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
+                    new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
+                    old <- str_c(folder_path,"ROutput\\",filename2)
+                    if (str_length(new)==256) {
+                        filename <- str_c(filename2,".jpg")
+                    }
+                    rm(new,old,clen,deslen,lendiff)
+                }
+                if (isTRUE(as.logical(saveFigures))) {
+                    filename <- sanitisePath(filename)
+                    ggsave(filename = filename
+                           , plot=GFA_plot_box
+                           , width=7
+                           , height=5
+                           , dpi = 300
+                           , path = str_c(folder_path,"ROutput\\"))
+                }
+                Results=list("Data" = Data
+                             ,"Outlier"= Outliers
+                             , "data_wo_Outlier" = wo_outliers
+                             , "Norm" = norm
+                             , "BT" = BT
+                             , "T.test" = stat.test
+                             , "summary" = summary)
+                ret[[str_trim(curr_Day)]]=list(boxplot=GFA_plot_box,outlierplot=GFA_p_Outlier,Res=Results,XLSX_Path=XLSX_Path)
+            }
+            
+            
+            
+            
+            
+        }
+        return(ret)
     }
     
-}
-createFactors <- function(List,Groups) {
-    # Diese Function formatiert die Spalte List$Group zum datentyp "Faktor" um. Notwendig um die Daten im GGPLot anhand der Gruppe zu unterteilen.
-    List$Group <- factor(List$Group,levels=unique(Groups))
-    #List$Group <- factor(List$Group,levels=Da)
-    # Listas.factor()
-    return(List)
-}
-csv2xlsx <- function(path) {
-    df <- read.csv(path,sep = ";",header = T)
-    filename <- file_path_sans_ext(path)
-    xlsx <- loadWorkbook(path)
-    comment <- createComment()
-    write.xlsx(df
-               , file = str_c(filename,".xlsx")
-               , colNames=T
-               , sheetName="1"
-               , asTable = T
-               , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
-    return(str_c(filename,".xlsx"))
-}
-forcePLANT_AREAtoNumeric <- function(List,ini) {
-    if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-        List[,4:(length(List)-0)] <- sapply(List[,4:(length(List)-0)], as.numeric)
-    } else {
-        List[,3:(length(List)-0)] <- sapply(List[,3:(length(List)-0)], as.numeric)
-    }
-    return(List)
-}
-formatPValue = function(x) {
-    if_else(
-        is.na(x), 
-        NA_character_,
-        if_else(x < 0.001, format(x, digits = 3, scientific = TRUE), format(round(x, 3), scientific = F))
-    )
-}
-getFilesInFolder <- function(folder,filesuffix="csv",out_prefix="GFResults_",recursive=TRUE){
-    if (substring(filesuffix,1,1)==".") {
-        filesuffix=substring(filesuffix,2)
-    }
-    fileQuery <- paste0(folder,".+.",filesuffix) 
-    pattern <- paste0(".",filesuffix,"$") ## used when all Files are in the same folder
-    Files <- list.files(
-        path = folder,
-        pattern=pattern,
-        full.names=TRUE,
-        recursive = TRUE)
-    if (isFALSE(exists("Conditions$IsIncluded",where = -1))) {
-        print(paste0("Selected Folder: ",folder))
-        print(paste0("Selected File Suffix: ",filesuffix))
-        print(paste0("Selected File Prefix: ",out_prefix))
-    }
-    otp <- out_prefix
-    lapply(Files,checkExistence)
-    Files <- RemoveOutputFiles(as.list(Files),"ROutput")
-    if (length(Files)==0) {
-        Error <- simpleError(str_c(str_c("getFilesInFolder() [user-defined]:\n The file-query: '",fileQuery,"' did not return any files; the directory does not contain any matching files of type '", filesuffix ,"'. The script will exit now.") ,sep = "\n"))
-        stop(Error)
-    }
-    return(Files)
-}
-getLastNElementsOfPalette <- function(palette,n) {
-    pal <- brewer.pal(n = 99,palette)  # load the palette
-    Max <- length(pal) # get the number of entries
-    logical <- rep(TRUE,Max) # create a logical vector
-    logical[Max-n:Max] <- FALSE # populate the last values with 
-    return(pal[logical])
-}
-importCSV_Data1 <- function(Files,List,ini) {
-    for (file in Files) {
-        if (ini$General$used_filesuffix=="csv") {
-            csv1 <- read.csv(file,sep=";")
-            if (hasName(csv1,"plant_area")) {
-                csv1$plant_area <- str_replace(csv1$plant_area,",",".")
-                csv1$plant_area <- as.numeric(csv1$plant_area)
-            }
-            if (hasName(csv1,"plant_area_drought")) {
-                csv1$plant_area_drought <- str_replace(csv1$plant_area_drought,",",".")
-                csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
-            }
-            if (hasName(csv1,"plant_area_green")) {
-                csv1$plant_area_green <- str_replace(csv1$plant_area_green,",",".")
-                csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
-            }
-            if (hasName(csv1,"plant_area_complete")){
-                csv1$plant_area_complete <- str_replace(csv1$plant_area_complete,",",".")
-                csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
-            }
-            if (hasName(csv1,"pixel_area")){
-                csv1$pixel_area <- str_replace(csv1$pixel_area,",",".")
-                csv1$pixel_area <- as.numeric(csv1$pixel_area)
-            }
-            if (hasName(csv1,"plant_pixel_count")) {
-                csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count,",",".")
-                csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
-            }
-            if (hasName(csv1,"drought_fraction")) {
-                csv1$drought_fraction <- str_replace(csv1$drought_fraction,",",".")
-                csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
-            }
-            csv <- csv1
-            #file <- csv2xlsx(file)
-            #csv <- read_xlsx(file)
-            #view(csv1)
-            #view(csv)
-        } else if (ini$General$used_filesuffix=="xlsx") {
-            csv <- read_xlsx(file)
-        }
-        if (ini$Experiment$Normalise) {  
-            if (hasName(csv,"plant_area_normalised")) {
-                csv$plant_area_normalised <- csv$plant_area_normalised
-            }
-            else {
-                if (hasName(csv,"plants_in_pot")) {
-                    csv$plant_area_normalised <- csv$plant_area/csv$plants_in_pot
-                } else {
-                    ErrorString <- ""
-                        Error <- simpleError(str_c(str_c(" Data-file: '",file,"' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."),ErrorString ,sep = "\n"))
-                        stop(Error)
-                }
-            }
-            List <- cbind(List,csv$plant_area_normalised);
-        } else {
-            if (hasName(csv,"plant_area")) {
-                List <- cbind(List,csv$plant_area);
+    labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularN){
+        Value <- length(x)
+        Threshold <- as.numeric(PotsPerGroup)
+        if (as.logical(ShowOnlyIrregularN)) {
+            if (Value<Threshold) {
+                df <- data.frame(y = as.numeric(y)
+                                 ,label = paste0("n=",Value))
             } else {
-                List <- cbind(List,csv$plant_area_complete);
+                df <- data.frame(y = as.numeric(y)
+                                 ,label = paste0(""))
             }
-        }
-    }
-    return(List)
-}
-is.dmy <- function(x) {
-    ret <- !is.na(dmy(x,quiet = TRUE))
-    return(ret) 
-}
-isNormallyDistributed <- function(norm_obj,Threshold=0.05) {
-    # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
-    boolean <- ""
-    Count <- dim(norm_obj)[1]
-    ThresholdPassing <- subset(norm_obj,subset = statistic>Threshold) # Get the entries which fulfill the Threshold.
-    Count_Threshold <- dim(ThresholdPassing)[1]
-    boolean <- (Count==Count_Threshold) #Evaluate threshold comparison
-    return(boolean)
-}
-labelSample_n <- function(x,y,PotsPerGroup,ShowOnlyIrregularN){
-    Value <- length(x)
-    Threshold <- as.numeric(PotsPerGroup)
-    if (as.logical(ShowOnlyIrregularN)) {
-        if (Value<Threshold) {
+        } else {
             df <- data.frame(y = as.numeric(y)
                              ,label = paste0("n=",Value))
-        } else {
-            df <- data.frame(y = as.numeric(y)
-                             ,label = paste0(""))
         }
-    } else {
-        df <- data.frame(y = as.numeric(y)
-                         ,label = paste0("n=",Value))
+        return(df)
     }
-    return(df)
-}
-padAgeNumber <- function(Value,Length) {
-    retVal <- str_pad(Value,width = Length,pad=as.character(0))
-    return(retVal)
-}
-sanitisePath <- function(Path,forbiddenChars=":") {
-    for (character in strsplit(forbiddenChars,"")[[1]]) {
-        if (str_count(Path,character)>0) {
-            Path <- str_replace_all(Path,character,"")
-        }
-    }
-    return(Path)
-}
-setColnames <- function(Files,List,ini) {
-    DateDifference_Integers <- calculateColnames(Files,ini)
-    if (isTRUE(as.logical(ini$General$RelativeColnames))) {
-        if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-            colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
-        } else {
-            colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
-        }
-    } else {
-        DateDifference_Integers <- calculateColnames(Files,ini)
-        CharacterString <- as.character(unlist(DateDifference_Integers))
-        factoredDates <- as.factor(CharacterString)
-        updated <- as.Date(CharacterString,format = "%d.%m.%Y")
-        updated <- as.list.Date(updated,format = "%d.%m.%Y")
-        #vect <- unlist(strsplit(DateDifference_Integers," "))
-        #colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- updated
-        if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-            colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- unlist(as.character(factoredDates,format="%d.%m.%Y"))
-            order <- c(c(1,2,3),unlist(order(as.Date(CharacterString,format="%d.%m.%Y"))+3))
-        } else {
-            order <- c(c(1,2),unlist(order(as.Date(CharacterString,format="%d.%m.%Y"))+2))
-            colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- unlist(as.character(factoredDates,format="%d.%m.%Y"))
-        }
-        #colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.Date(vect,format="%d.%m.%Y")
-        List <- List[order]
-    }
-    return(List)
-}
-validateINI <- function(ini_List) {
-    #toValidate:
-    #Experiment               
-    # T0                    Must be validated
-    # PotsPerGroup          can't be validated, must be given in good faith
-    # UniqueGroups          can't be validated, must be given in good faith
-    # Normalise            falls back if not prepared TODO: give notice if falllback to plant_area/plant_number, so that user knows they must provide the column or not use the number
-    #General                  
-    # Debug                 not applicable, the debug switch is used to generate more detailed information on what is going on
-    # Theme                 falls back to 
-    # language              
-    # used_filesuffix       
-    # axis_units_x          
-    # axis_units_y          
     
-    Experiment <- list(Name="character"
-                       ,Facet2D="logical"
-                       ,Facet2DVar="character"
-                       ,T0="character"
-                       ,PotsPerGroup="double"
-                       ,UniqueGroups="character"
-                       ,GroupsOrderX="character"
-                       ,RefGroup="character"
-                       ,FixateAxes="logical"
-                       ,ForceAxes="logical"
-                       ,XLabel="character"
-                       ,XLabel_Daily="character"
-                       ,YLabel="character"
-                       ,YLimits="character"
-                       ,Normalise="logical"
-                       ,Filename_Prefix="character"
-                       ,Palette_Boxplot="character"
-                       ,Palette_Lines="character"
-                       ,Palette_Boxplot2="character"
-                       ,Palette_Lines2="character")
-    General <- list( ShowNatallboxplots="logical"
-                     ,ShowTitle="logical"
-                     ,PlotMeanLine="logical"
-                     ,PlotSampleSize="logical"
-                     ,Debug="logical"
-                     ,Theme="double"
-                     ,language="character"
-                     ,used_filesuffix="character"
-                     ,axis_units_x="character"
-                     ,axis_units_y="character"
-                     ,RelativeColnames="logical"
-                     ,ShowBothColnames="logical")
-    #T0
-    optional_arguments <- str_c("XLabel_Daily","YLabel_Daily")
-    ret <- FALSE
-    bIsDateValid <- is.dmy(ini_List$Experiment$T0)
-    LogicalSubSet <- c("F","T","FALSE","TRUE",1,0)
-    #if (ini_List$Experiment$Facet2D!="FALSE") && 
-    if (isFALSE(bIsDateValid)) {
-        ret <- "'Date' in 'configfile'->'Experiment'->'T0' is not valid"
+    assignDaysToVariables <- function(Files, List, ini) {
+        return(List <- setColnames(Files, List, ini))
     }
-    for (i in seq_along(ini_List$Experiment)) {
-        name <- names(ini_List$Experiment)[[i]]
-        value <- ini_List$Experiment[[i]]
-        if (hasName(Experiment,name)) {
-            if (Experiment[[name]]=="logical") {
-                if (isFALSE(testSubset(value,LogicalSubSet))) {
-                    ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected values: '1/0/T/F/TRUE/FALSE'\n\tPlease correct the contents of the key")
-                }
-                
-            } else if (Experiment[[name]]=="character") {
-                if (isFALSE(testSubset(typeof(value),"character"))) {
-                    ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'character'\n\tPlease correct the contents of the key")
-                }
-                
-            } else if ((Experiment[[name]]=="double") || (Experiment[[name]]=="numeric")) {
-                if (isTRUE(is.na(as.numeric(value)))) {
-                    ret <- str_c(ret,"\nConfig Key\t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'double/numeric'\n\tCould not be converted to numeric. Please correct the contents of the key")
-                }
-            } 
-        } else {
-            if (str_count(optional_arguments,name)) {
-                #todo: handle these? also:
-                #todo: ylabel_daily and xlabel_daily are not implemented
-            }
+    calculateChange <- function(DailyAnalyses,ChosenDays,returnTable=F) {
+        #calculateChange
+        dayID <- 1
+        ChosenDays <- str_trim(ChosenDays)
+        table <- as.data.frame(list())
+        SortedFormattedDates <- as.character.Date(sort(as.Date.character(unlist(str_trim(ChosenDays)),format = "%d.%m.%Y")),format = "%d.%m.%Y")
+        if (isFALSE(returnTable)) {
+            #print("Changes in Leaf-Area relative to the previous day: ")
         }
-    }
-    return(ret)
-}
-getMaximumDateRange  <- function(Colnames) {
-    CharacterString <- as.character(unlist(Colnames))
-    updated <- as.Date(CharacterString,format = "%d.%m.%Y")
-    min <- min(updated)
-    min <- format(min,"%d.%m.%Y")
-    max <- max(updated)
-    max <- format(max,"%d.%m.%Y")
-    return(list(min,max))
-}
-getBreaks <- function(ini,Limits) {
-    # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
-    if (hasName(ini$Experiment,"BreakStepSize")) {
-        BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
-        if (Limits[[2]] %% 4) {
-            nbreaks <- 4
-        } else {
-            nbreaks <- 5
-        }
-    } else {
-        maximum <- Limits[[2]]
-        if (maximum<100) {
-            BreakStepSize <- 20
-            if (Limits[[2]] %% 4) {
-                nbreaks <- 4
+        names <- c("Time","Groups","Last mean [cm^2]","abs. Change [cm^2]","rel. Change [%]", "this mean [cm^2]")
+        for (curr_day in SortedFormattedDates) {
+            if (dayID==1) {
+                ld <- curr_day
+                dayID <- dayID + 1
+                lastVals <- DailyAnalyses[[str_trim(curr_day)]]
+                lastmean <- lastVals$Res$summary$mean
+                name <- lastVals$Res$summary$name
+                if (isFALSE(returnTable)) {
+                    #print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
+                } else {
+                    
+                }
+                next
             } else {
-                nbreaks <- 5
+                lastVals <- DailyAnalyses[[str_trim(ld)]]
+                lastmean <- lastVals$Res$summary$mean
+                thisVals <- DailyAnalyses[[str_trim(curr_day)]]
+                thismean <- thisVals$Res$summary$mean
+                absolute_change <- (thismean-lastmean)
+                relative_change <- absolute_change/abs(lastmean)*100
+                name <- lastVals$Res$summary$name
+                console_print <- str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 12,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "left",width = 12),str_pad(" [cm^2]",width = 13,side="left"),"    |absC: ", absolute_change, " [cm^2]","    |relC: ", relative_change, " [%]")
+                #print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
+                CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
+                CurrSum$relative_change <- relative_change
+                CurrSum$absolute_change <- absolute_change
+                DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum #todo: figure out how to do this right!!
+                DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
+                if (isFALSE(returnTable)) {
+                    #print(console_print)
+                    #print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
+                } else {
+                    
+                    table2 <- dplyr::tibble(Change=str_c(ld, " -> ",curr_day)
+                                            , Name=as.character(thisVals$Res$summary$name)
+                                            , LastMean=as.character(lastmean)
+                                            , Abs_change=as.character(absolute_change)
+                                            , Rel_change=as.character(relative_change)
+                                            , ThisMean=as.character(thismean))
+                    table2 <- as.data.frame(table2)
+                    table <- rbind(table,table2)
+                }
+                ld <- curr_day
             }
         }
-        if (maximum>2500) {
-            wrnopt <- getOption("warn")
-            options(warn = 1)
-            warning(str_c("getBreaks() [user-defined]: your largest y-value "
-                          , Limits[[2]]
-                          , " exceeds 2500, which is the last step for which the author of this script predefined"
-                          , "\nthe number of displayed numbers and the steps inbetween them."
-                          , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
-                          , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
-                          , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
-            options(warn = wrnopt)
-            BreakStepSize=Limits[[2]]/10
-            nbreaks=10
+        if (isFALSE(returnTable)) {
+            return(DailyAnalyses)
+        } else {
+            colnames(table) <- names
+            return(table)
+        }
+    }
+    calculateColnames  <-  function(Files,ini,bGetDiff=FALSE,bForceActualDates=FALSE) {
+        padAgeNumber <- function(Value,Length) {
+            retVal <- str_pad(Value,width = Length,pad=as.character(0))
+            return(retVal)
+        }
+        ## function takes the 
+        TimeSinceT0 <- list() # Initiate a list
+        Ind <- 1
+        strLen_max <- 0
+        for (file in Files){
+            Date <- str_extract(file,"\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
+            Date <- as.Date.character(Date,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
+            Conditions <- {}
+            #as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
+            if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
+                TimeSinceT0[Ind] <- as.character.Date(Date,"%d.%m.%Y")
+                #todo: figure out how to format them as date instead of character ._.
+                Ind <- Ind+1
+                next
+            } else {                                                          # print relative date-spans
+                DateDiff <- Date - as.Date.character(ini$Experiment$T0,format = "%d.%m.%Y")
+                TimeSinceT0[Ind] <- as.numeric(DateDiff)
+                if (str_length(as.numeric(DateDiff))>strLen_max) {
+                    strLen_max <- as.integer(str_length(as.numeric(DateDiff)))
+                }
+                Ind <- Ind+1
+                IndA <- 1
+            }
+        }
+        if (bForceActualDates) {
+            return(TimeSinceT0)
+        }
+        if (as.logical(ini$General$RelativeColnames)) {
+            for (file in Files) {
+                TimeSinceT0[[IndA]] <- as.character(padAgeNumber(TimeSinceT0[[IndA]],strLen_max))
+                IndA <- IndA+1
+                
+            }
+        }
+        IndB <- 1
+        if (isFALSE(as.logical(ini$General$RelativeColnames)) & bGetDiff) {
+            for (file in Files) {
+                TimeSinceT0[[IndB]] <- as.character(padAgeNumber(TimeSinceT0[[IndB]],strLen_max))
+                IndB <- IndB+1
+                
+            }
+        }
+        return(TimeSinceT0)
+    }
+    calculateLimitsandBreaksforYAxis <- function(data,Limits,ini) {
+        getBreaks <- function(ini,Limits) {
+            # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
+            if (hasName(ini$Experiment,"BreakStepSize")) {
+                BreakStepSize <- as.numeric(ini$Experiment$BreakStepSize)
+                if (Limits[[2]] %% 4) {
+                    nbreaks <- 4
+                } else {
+                    nbreaks <- 5
+                }
+            } else {
+                maximum <- Limits[[2]]
+                if (maximum<100) {
+                    BreakStepSize <- 20
+                    if (Limits[[2]] %% 4) {
+                        nbreaks <- 4
+                    } else {
+                        nbreaks <- 5
+                    }
+                }
+                if (maximum>2500) {
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("getBreaks() [user-defined]: your largest y-value "
+                                  , Limits[[2]]
+                                  , " exceeds 2500, which is the last step for which the author of this script predefined"
+                                  , "\nthe number of displayed numbers and the steps inbetween them."
+                                  , "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now."
+                                  , "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'."
+                                  , "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."))
+                    options(warn = wrnopt)
+                    BreakStepSize=Limits[[2]]/10
+                    nbreaks=10
+                    return(list(BreakStepSize=BreakStepSize
+                                , breaknumber=nbreaks))
+                }
+                if (maximum<=2500) {
+                    BreakStepSize <- 500
+                    nbreaks <- 5
+                }
+                if (maximum<=1500) {
+                    BreakStepSize <- 300
+                    nbreaks <- 5
+                }
+                if (maximum<=1000) {
+                    BreakStepSize <- 250
+                    nbreaks <- 4
+                }
+                if (maximum<=750) {
+                    BreakStepSize <- 125
+                    nbreaks <- 6
+                }
+                if (maximum<=500) {
+                    BreakStepSize <- 125
+                    nbreaks <- 4
+                }
+                if (maximum<=300) {
+                    BreakStepSize <- 100
+                    nbreaks <- 3
+                }
+                if (maximum<=150) {
+                    BreakStepSize <- 50
+                    nbreaks <- 3
+                }
+                if (maximum<=100) {
+                    BreakStepSize <- 25
+                    nbreaks <- 4
+                }
+                
+            }
             return(list(BreakStepSize=BreakStepSize
                         , breaknumber=nbreaks))
         }
-        if (maximum<=2500) {
-            BreakStepSize <- 500
-            nbreaks <- 5
+        strictLimitsValidation <- T
+        if (hasName(ini$Experiment,"ForceAxes")) {                                          ## The user wants to force the axis to a specific range
+            if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
+                if (hasName(ini$Experiment,"BreakStepSize")) {
+                    if (isTRUE(is.numeric(as.numeric(ini$Experiment$BreakStepSize)))) {
+                        StepSize <- as.numeric(ini$Experiment$BreakStepSize)
+                    } else {
+                        StepSize <- 25
+                    }
+                } else {
+                    StepSize <- 25
+                }
+                temp <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
+                breaks <- getBreaks(ini,Limits)
+                if (Limits[[2]]>temp[[2]]) {                                               ## The upper y-limit selected by the user (in the config, thus in 'temp') is smaller than the dataset's maximum.
+                    if (strictLimitsValidation) {
+                        
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,1"
+                                      , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                      , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, and thus the upper y-limit will be forced to its next-larger multiple")
+                                      , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
+                                      , "\nAdjustments have been made, the user-defined Limits will NOT take effect."))
+                        options(warn = wrnopt)
+                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
+                    } else {
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,2"
+                                      , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                      , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, but a user has set the internal logic-switch 'strictLimitsValidation' of this function to false.")
+                                      , "\nAs a result, the aforementioned user-defined upper y-limit will NOT be adjusted and WILL take effect."
+                                      , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"
+                                      , "\nNo adjustments have been made, the user-defined Limits will take effect"))
+                        options(warn = wrnopt)
+                        Limits <- temp
+                        if (Limits[[2]]<min(as.vector(data),na.rm = T)) {
+                            Error <- simpleError(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,3"
+                                                       , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
+                                                       , str_c("\nlies below the smallest value (",floor(min(as.vector(data),na.rm = T)),") of your dataset. This is not valid for ggplot, and will always throw an error.")
+                                                       , str_c("\nPlease provide an upper y limit exceeding the dataset's minimum value (",floor(min(as.vector(data),na.rm = T)),").")
+                                                       , "\nIt is advised to adjust the configuration key 'YLimits' in the 'Experiments'-section of your config accordingly"))
+                            stop(Error)
+                        }
+                    }
+                } else {                                                                   ## The upper y-limit selected by the user is within 10% of the data's maximum - this can become really bad if we want to plot statistics
+                    if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
+                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
+                        breaks$breaknumber <- breaks$breaknumber + 1
+                        if (Limits[[2]]-Limits[[2]]*0.1<=max(data)) {
+                            Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling) + breaks$BreakStepSize
+                            breaks$breaknumber <- breaks$breaknumber + 1
+                        }
+                    }
+                }
+                rm(temp)
+            } else {
+                # define breaks and labels for the y-scale                                  ## Limits is always larger than then dataset here.
+                breaks <- getBreaks(ini,Limits)
+                if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
+                    if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,4"
+                                      , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                      , "\nand has been rounded up to the nearest multiple of it."
+                                      , "\nThe number of breaks have been adjusted accordingly."))
+                        options(warn = wrnopt)
+                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                        breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
+                    } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,5"
+                                      , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                      , " would underscale the upper y limit."
+                                      , "\nThe number of breaks have been adjusted accordingly."))
+                        options(warn = wrnopt)
+                        breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                    }
+                } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){          ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
+                    if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,6"
+                                      , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                      , "\nand has been rounded up to the nearest multiple of it."
+                                      , "\nThe number of breaks have been adjusted accordingly."))
+                        options(warn = wrnopt)
+                        Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
+                        breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                    } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                        wrnopt <- getOption("warn")
+                        options(warn = 1)
+                        warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,7"
+                                      , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                      , " would underscale the upper y limit."
+                                      , "\nThe number of breaks have been adjusted accordingly."))
+                        options(warn = wrnopt)
+                        breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                    }
+                } else {                                                                    ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
+                    
+                }
+            }
+        } else {                                                                    ## get breaks based on the data only. Thus, the limit will always be large enough, now we only need to validate the breaks themselves.
+            # define breaks and labels for the y-scale
+            breaks <- getBreaks(ini,Limits)
+            if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                    ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
+                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,8"
+                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                  , "\nand has been rounded up to the nearest multiple of it."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
+                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,9"
+                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                  , " would underscale the upper y limit."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                }
+            } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){              ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
+                if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,10"
+                                  , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
+                                  , "\nand has been rounded up to the nearest multiple of it."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)  ## it is not, as the test above leaves a reminder. So we first push limits up to a multiple of breakstepsize
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
+                } else {                                                                ## the upper y limit is a multiple of the breakstepsize
+                    wrnopt <- getOption("warn")
+                    options(warn = 1)
+                    warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,11"
+                                  , "\nThe breaks defined by the user-defined function 'getBreaks()'"
+                                  , " would underscale the upper y limit."
+                                  , "\nThe number of breaks have been adjusted accordingly."))
+                    options(warn = wrnopt)
+                    breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so make sure that we add enough breaks to reach the upper y limit
+                }
+            } else {                                                                        ## the number of breaks determined by getBreaks() will _exactly_ scale the minimum-viable limit, so we can relax and do nothing, cuz everything is fine.
+                
+            }
         }
-        if (maximum<=1500) {
-            BreakStepSize <- 300
-            nbreaks <- 5
-        }
-        if (maximum<=1000) {
-            BreakStepSize <- 250
-            nbreaks <- 4
-        }
-        if (maximum<=750) {
-            BreakStepSize <- 125
-            nbreaks <- 6
-        }
-        if (maximum<=500) {
-            BreakStepSize <- 125
-            nbreaks <- 4
-        }
-        if (maximum<=300) {
-            BreakStepSize <- 100
-            nbreaks <- 3
-        }
-        if (maximum<=150) {
-            BreakStepSize <- 50
-            nbreaks <- 3
-        }
-        if (maximum<=100) {
-            BreakStepSize <- 25
-            nbreaks <- 4
-        }
-        
+        return(list(Limits=Limits,breaks=breaks))
     }
-    return(list(BreakStepSize=BreakStepSize
-             , breaknumber=nbreaks))
-}
-RemoveOutputFiles <- function(Files="",Output_prefix="") {
-    Files_out <- Files[!str_detect(Files,pattern=Output_prefix)]
-    return(Files_out)
-}
-getTitle <- function(isSummaryPlot,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,TitleTimeSpan,unit_x,ini) {
-    ret <- list()
-    if (as.logical(isSummaryPlot)) {                                            ## summary plots
-        
-        ## set defaults
-        plot_Title <- if_else(as.logical(ini$General$language=='German')
-                              , true=str_c("Entwicklung der Grünfläche")
-                              , false=str_c("Green area development"))
-                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
-                              #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
-        if (as.logical(ini$General$Debug)) {
-            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                   , "\nT0: ", ini$Experiment$T0
-                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                                   , "\nSample-Size: ", PotsPerGroup
-                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
-                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
-                                   , "\n  Palette: ", str_c(str_c(Palette_BoxPlot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
-                                   , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
+    checkExistence <- function(Path=""){
+        if (isFALSE(file.exists(Path))) {
+            return(FALSE)
         } else {
-            
-            plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                   #, if_else(as.logical(ini$General$language=='German')
-                                   #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
-                                   #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
-                                   , if_else(as.logical(ini$General$language=='German')
-                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
-                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
-                                   ,""
-                                   ,"")
-        }
-        
-        ## overwrite defaults
-        if (as.logical(ini$General$ShowTitle)) {
-            if (hasName(ini$General,"Title")) {
-                plot_Title <- str_c(ini$General$Title)
-            }
-            if (ini$General$ShowTitleDateWhere=="Title") {
-                plot_Title <- str_c(plot_Title," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
-                                                           , true=" nach Umtopfen)"
-                                                           , false=" post repotting)"))
-            }
-        } else {
-            plot_Title <- 0
-        }
-        if (as.logical(ini$General$ShowTitleSub)) {
-            if (hasName(ini$General,"TitleSub")) {
-                plot_SubTitle <- str_c(ini$General$TitleSub)
-            }
-            if (ini$General$ShowTitleDateWhere=="SubTitle") {
-                plot_SubTitle <- str_c(plot_SubTitle," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
-                                                           , true=" nach Umtopfen)"
-                                                           , false=" post repotting)"))
-            }
-        } else {
-            plot_SubTitle <- 0
-        }
-        
-        ## bundle the list to return
-        if (plot_Title!=0) {
-            ret$plot_Title <- plot_Title
-        }
-        if (plot_SubTitle!=0) {
-            ret$plot_SubTitle <- plot_SubTitle
-        }
-    } else {                                                                    ## daily plots
-        
-        ## set defaults
-        plot_TitleDaily <- if_else(as.logical(ini$General$language=='German')
-                              , true=str_c("Grünfläche (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
-                              , false=str_c("Green area (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
-        if (as.logical(ini$General$Debug)) {
-            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
-                                   , "\nT0: ", ini$Experiment$T0
-                                   # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                                   , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
-                                   , "\nPots per Group: ", PotsPerGroup
-                                   , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
-                                   , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                   , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
-                                   , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", ")))
-        } else {
-            plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
-                                   , if_else(as.logical(ini$General$language=='German')
-                                             , true=str_c("\nUmtopfen: ", ini$Experiment$T0
-                                                          ,"\nSample-Size: ", PotsPerGroup)
-                                             , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
-                                                           ,"\nSample-Size: ", PotsPerGroup))
-                                   ,""
-                                   ,"")
-        }
-        
-        ## overwrite defaults
-        if (as.logical(ini$General$ShowTitle_Daily)) {
-            if (hasName(ini$General,"Title_Daily")) {
-                plot_TitleDaily <- str_c(ini$General$Title_Daily)
-            }
-            if (ini$General$ShowTitleDateWhere=="Title") {
-                plot_TitleDaily <- str_c(plot_TitleDaily," (",max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
-                                                                                                                                                          , true=" nach Umtopfen)"
-                                                                                                                                                          , false=" post repotting)"))
-            }
-        } else {
-            plot_TitleDaily <- 0
-        }
-        if (as.logical(ini$General$ShowTitleSub_Daily)) {
-            if (hasName(ini$General,"TitleSub_Daily")) {
-                plot_SubtitleDaily <- str_c(ini$General$TitleSub_Daily)
-            }
-            if (ini$General$ShowTitleDateWhere=="SubTitle") {
-                plot_SubtitleDaily <- str_c(plot_SubtitleDaily," (",TitleTimeSpan," ",unit_x, if_else(as.logical(ini$General$language=='German')
-                                                                                             , true=" nach Umtopfen)"
-                                                                                             , false=" post repotting)"))
-            }
-        } else {
-            plot_SubtitleDaily <- 0
-        }
-        
-        ## bundle the list to return
-        if (plot_TitleDaily!=0) {
-            ret$plot_Title <- plot_TitleDaily
-        }
-        if (plot_SubtitleDaily!=0) {
-            ret$plot_SubTitle <- plot_SubtitleDaily
+            return(TRUE)
         }
     }
-    
-    
-    return(ret)
-}
-RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
-    # Create objects
-    
-    ret <- list()           # for returning all results from this functions
-    retOutliers <- list()
-    
-    RObj=list()             # for keeping all results of a day together
-    #1. Load Data
-    Day_Index <- 0
-    for (curr_Day in ChosenDays) {
-        for (curr_file in Files) {
-            if ((isFALSE(as.logical(str_count(curr_file,str_trim(curr_Day))))) && (isFALSE(as.logical(str_count(curr_file,format(as.Date(str_trim(curr_Day),tryFormats = c("%Y-%m-%d","%d.%m.%Y",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)))))))){
-                next
+    createFactors <- function(List,Groups) {
+        # Diese Function formatiert die Spalte List$Group zum datentyp "Faktor" um. Notwendig um die Daten im GGPLot anhand der Gruppe zu unterteilen.
+        List$Group <- factor(List$Group,levels=unique(Groups))
+        #List$Group <- factor(List$Group,levels=Da)
+        # Listas.factor()
+        return(List)
+    }
+    # csv2xlsx <- function(path) {
+    #     df <- read.csv(path,sep = ";",header = T)
+    #     filename <- file_path_sans_ext(path)
+    #     xlsx <- loadWorkbook(path)
+    #     comment <- createComment()
+    #     write.xlsx(df
+    #                , file = str_c(filename,".xlsx")
+    #                , colNames=T
+    #                , sheetName="1"
+    #                , asTable = T
+    #                , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
+    #     return(str_c(filename,".xlsx"))
+    # }
+    forcePLANT_AREAtoNumeric <- function(List,ini) {
+        if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
+            List[,4:(length(List)-0)] <- sapply(List[,4:(length(List)-0)], as.numeric)
+        } else {
+            List[,3:(length(List)-0)] <- sapply(List[,3:(length(List)-0)], as.numeric)
+        }
+        return(List)
+    }
+    formatPValue = function(x) {
+        if_else(
+            is.na(x), 
+            NA_character_,
+            if_else(x < 0.001, format(x, digits = 3, scientific = TRUE), format(round(x, 3), scientific = F))
+        )
+    }
+    getFilesInFolder <- function(folder, filesuffix = "csv", out_prefix = "GFResults_", recursive = TRUE) {
+        if (substring(filesuffix, 1, 1) == ".") {
+            filesuffix = substring(filesuffix, 2)
+        }
+        fileQuery <- paste0(folder, ".+.", filesuffix)
+        pattern <- paste0(".", filesuffix, "$") ## used when all Files are in the same folder
+        Files <- list.files(
+            path = folder,
+            pattern = pattern,
+            full.names = TRUE,
+            recursive = TRUE
+        )
+        if (isFALSE(exists("Conditions$IsIncluded", where = -1))) {
+            print(paste0("Selected Folder: ", folder))
+            print(paste0("Selected File Suffix: ", filesuffix))
+            print(paste0("Selected File Prefix: ", out_prefix))
+        }
+        otp <- out_prefix
+        lapply(Files, checkExistence)
+        Files <- RemoveOutputFiles(as.list(Files), "ROutput")
+        if (length(Files) == 0) {
+            Error <- simpleError(str_c(str_c("getFilesInFolder() [user-defined]:\n The file-query: '", fileQuery, "' did not return any files; the directory does not contain any matching files of type '", filesuffix, "'. The script will exit now."), sep = "\n"))
+            stop(Error)
+        }
+        return(Files)
+    }
+    getLastNElementsOfPalette <- function(palette,n) {
+        pal <- brewer.pal(n = 99,palette)  # load the palette
+        Max <- length(pal) # get the number of entries
+        logical <- rep(TRUE,Max) # create a logical vector
+        logical[Max-n:Max] <- FALSE # populate the last values with 
+        return(pal[logical])
+    }
+    getMaximumDateRange  <- function(Colnames) {
+        CharacterString <- as.character(unlist(Colnames))
+        updated <- as.Date(CharacterString,format = "%d.%m.%Y")
+        min <- min(updated)
+        min <- format(min,"%d.%m.%Y")
+        max <- max(updated)
+        max <- format(max,"%d.%m.%Y")
+        return(list(min,max))
+    }
+    getTitle <- function(isSummaryPlot,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,TitleTimeSpan,unit_x,ini) {
+        ret <- list()
+        if (as.logical(isSummaryPlot)) {                                            ## summary plots
+            
+            ## set defaults
+            plot_Title <- if_else(as.logical(ini$General$language=='German')
+                                  , true=str_c("Entwicklung der Grünfläche")
+                                  , false=str_c("Green area development"))
+                                  #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x," nach Umtopfen)")
+                                  #(", min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x ," post repotting)"))
+            if (as.logical(ini$General$Debug)) {
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                       , "\nT0: ", ini$Experiment$T0
+                                       # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                       , "\nSample-Size: ", PotsPerGroup
+                                       , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                       , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                       , "\n  Palette: ", str_c(str_c(Palette_BoxPlot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", "))
+                                       , "\n  Date-Range: ", str_c(TitleDates[[1]]," - ", TitleDates[[2]]))
+            } else {
+                
+                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
+                                       #, if_else(as.logical(ini$General$language=='German')
+                                       #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                       #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                       , if_else(as.logical(ini$General$language=='German')
+                                                 , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
+                                                 , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
+                                       ,""
+                                       ,"")
             }
             
-            #Data <- as.data.frame(importCSV_Data1(curr_file,""))
+            ## overwrite defaults
+            if (as.logical(ini$General$ShowTitle)) {
+                if (hasName(ini$General,"Title")) {
+                    plot_Title <- str_c(ini$General$Title)
+                }
+                if (ini$General$ShowTitleDateWhere=="Title") {
+                    plot_Title <- str_c(plot_Title," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                               , true=" nach Umtopfen)"
+                                                               , false=" post repotting)"))
+                }
+            } else {
+                plot_Title <- 0
+            }
+            if (as.logical(ini$General$ShowTitleSub)) {
+                if (hasName(ini$General,"TitleSub")) {
+                    plot_SubTitle <- str_c(ini$General$TitleSub)
+                }
+                if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                    plot_SubTitle <- str_c(plot_SubTitle," (",min(as.vector(unlist(TitleTimeSpan))), "-", max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                               , true=" nach Umtopfen)"
+                                                               , false=" post repotting)"))
+                }
+            } else {
+                plot_SubTitle <- 0
+            }
+            
+            ## bundle the list to return
+            if (plot_Title!=0) {
+                ret$plot_Title <- plot_Title
+            }
+            if (plot_SubTitle!=0) {
+                ret$plot_SubTitle <- plot_SubTitle
+            }
+        } else {                                                                    ## daily plots
+            
+            ## set defaults
+            plot_TitleDaily <- if_else(as.logical(ini$General$language=='German')
+                                  , true=str_c("Grünfläche (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
+                                  , false=str_c("Green area (", format(as.Date(str_trim(TitleTimeSpan),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
+            if (as.logical(ini$General$Debug)) {
+                plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                       , "\nT0: ", ini$Experiment$T0
+                                       # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                                       , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
+                                       , "\nPots per Group: ", PotsPerGroup
+                                       , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
+                                       , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
+                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
+                                       , "\n  Palette: ", str_c(str_c(Palette_Boxplot,collapse = ", ")," || ",str_c(Palette_Lines,collapse = ", ")))
+            } else {
+                plot_SubtitleDaily <- str_c("Experiment: " , ini$Experiment$Name
+                                       , if_else(as.logical(ini$General$language=='German')
+                                                 , true=str_c("\nUmtopfen: ", ini$Experiment$T0
+                                                              ,"\nSample-Size: ", PotsPerGroup)
+                                                 , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
+                                                               ,"\nSample-Size: ", PotsPerGroup))
+                                       ,""
+                                       ,"")
+            }
+            
+            ## overwrite defaults
+            if (as.logical(ini$General$ShowTitle_Daily)) {
+                if (hasName(ini$General,"Title_Daily")) {
+                    plot_TitleDaily <- str_c(ini$General$Title_Daily)
+                }
+                if (ini$General$ShowTitleDateWhere=="Title") {
+                    plot_TitleDaily <- str_c(plot_TitleDaily," (",max(as.vector(unlist(TitleTimeSpan)))," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                                                                                              , true=" nach Umtopfen)"
+                                                                                                                                                              , false=" post repotting)"))
+                }
+            } else {
+                plot_TitleDaily <- 0
+            }
+            if (as.logical(ini$General$ShowTitleSub_Daily)) {
+                if (hasName(ini$General,"TitleSub_Daily")) {
+                    plot_SubtitleDaily <- str_c(ini$General$TitleSub_Daily)
+                }
+                if (ini$General$ShowTitleDateWhere=="SubTitle") {
+                    plot_SubtitleDaily <- str_c(plot_SubtitleDaily," (",TitleTimeSpan," ",unit_x, if_else(as.logical(ini$General$language=='German')
+                                                                                                 , true=" nach Umtopfen)"
+                                                                                                 , false=" post repotting)"))
+                }
+            } else {
+                plot_SubtitleDaily <- 0
+            }
+            
+            ## bundle the list to return
+            if (plot_TitleDaily!=0) {
+                ret$plot_Title <- plot_TitleDaily
+            }
+            if (plot_SubtitleDaily!=0) {
+                ret$plot_SubTitle <- plot_SubtitleDaily
+            }
+        }
+        
+        
+        return(ret)
+    }
+    importCSV_Data1 <- function(Files,List,ini) {
+        for (file in Files) {
             if (ini$General$used_filesuffix=="csv") {
-                csv1 <- read.csv(curr_file,sep=";")
+                csv1 <- read.csv(file,sep=";")
                 if (hasName(csv1,"plant_area")) {
                     csv1$plant_area <- str_replace(csv1$plant_area,",",".")
                     csv1$plant_area <- as.numeric(csv1$plant_area)
@@ -1208,916 +1940,195 @@ RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_o
                     csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count,",",".")
                     csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
                 }
-                Data <- csv1
+                if (hasName(csv1,"drought_fraction")) {
+                    csv1$drought_fraction <- str_replace(csv1$drought_fraction,",",".")
+                    csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+                }
+                csv <- csv1
                 #file <- csv2xlsx(file)
                 #csv <- read_xlsx(file)
                 #view(csv1)
                 #view(csv)
-            } else {
-                Data <- read_xlsx(curr_file)
+            } else if (ini$General$used_filesuffix=="xlsx") {
+                csv <- read_xlsx(file)
             }
-            if (ini$Experiment$Normalise) {
-                if (hasName(Data,"plant_area_normalised")) {
-                    Data$plant_area_normalised <- Data$plant_area_normalised
-                } else {
-                    if (hasName(Data,"plants_in_pot")) {
-                        Data$plant_area_normalised <- Data$plant_area/Data$plants_in_pot
-                    }
+            if (ini$Experiment$Normalise) {  
+                if (hasName(csv,"plant_area_normalised")) {
+                    csv$plant_area_normalised <- csv$plant_area_normalised
                 }
-                Data$plant_area_nonnormalised <- Data$plant_area
-                Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead. 
-            } else {
-                if (!hasName(Data,"plant_area")) {
-                    if (hasName(Data,"plant_area_complete")) {
-                        Data$plant_area <- Data$plant_area_complete
+                else {
+                    if (hasName(csv,"plants_in_pot")) {
+                        csv$plant_area_normalised <- csv$plant_area/csv$plants_in_pot
                     } else {
-                        Error <- simpleError(str_c(str_c(" Data-file: '",curr_file,"' does not contain either the column 'plant_area' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"),ErrorString ,sep = "\n"))
+                        ErrorString <- ""
+                        Error <- simpleError(str_c(str_c(" Data-file: '",file,"' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."),ErrorString ,sep = "\n"))
                         stop(Error)
                     }
                 }
+                List <- cbind(List,csv$plant_area_normalised);
+            } else {
+                if (hasName(csv,"plant_area")) {
+                    List <- cbind(List,csv$plant_area);
+                } else {
+                    List <- cbind(List,csv$plant_area_complete);
+                }
             }
-            break
         }
-        Day_Index <- Day_Index + 1
-        #Data <- cbind(Data,Gruppe,Nummer)
-        if (ini$Experiment$Facet2D) {
-            Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
-            if (as.integer(PotsPerGroup)*length(groups_as_ordered_in_datafile)==dim(Data)[1]) {
-                Gruppe  <- rep(groups_as_ordered_in_datafile,each=as.integer(PotsPerGroup))
-            } else {
-                Gruppe  <- rep(groups_as_ordered_in_datafile,each=as.integer(PotsPerGroup)*2)
-            }
-            # green pixels per day
-            Data$Gruppe <- Gruppe
-            Data$Nummer <- Nummer
-            treatments2 <- unlist(strsplit(ini$Experiment$Facet2DVar,","))
-            Facet <- rep(treatments2, each = PotsPerGroup)
-            Data$Facet <- Facet
-            Data$Gruppe <- factor(Data$Gruppe,levels = unique(groups_as_ordered_in_datafile))
-            Data$interactions <- interaction(Data$Gruppe,Data$Facet)
-            Data$GruppeSplitPerTreatment <- factor(Data$Gruppe,levels = unique(groups_as_ordered_in_datafile))
-            
-            
-            ## statistics
-            summary <- describeBy(Data$plant_area,Data$interactions) #todo: implement logic for choosing normalised data. 
-            #in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
-            #
-            #
-            Outliers <- Data %>%
-                group_by(interactions) %>%
-                identify_outliers("plant_area") 
-            
-            labelOutliers <- function(y) {
-                o  <- boxplot.stats(y)$out
-                if(length(o) == 0) NA else o
-            }
-            summary <- do.call("rbind",summary)
-            summary <- data.frame(name=row.names(summary), summary)
-            
-            GFA_p_Outlier <- ggplot(Data
-                                    , aes(x = interactions, y = plant_area)) +
-                geom_boxplot(outlier.color = "red"
-                             , outlier.size = 2)
-            p_Outlier2 <- ggplot(Data
-                                 , aes(x = interactions, y = plant_area)) +
-                scale_x_discrete() +
-                scale_y_discrete() +
-                ggtitle(str_c("Day: ", curr_Day))+
-                geom_boxplot(outlier.color = "red"
-                             , outlier.size = 2) +
-                stat_summary(
-                    aes(label = str_c(round(stat(y),1))),
-                    geom="text",
-                    fun=labelOutliers,
-                    hjust = -1
-                )
-            
-            
-            #print(p_Outlier2) # this will label the outlier with its value. 
-            
-            #TODO: figure out what to group_by by... 
-            Outliers <- Data %>%
-                group_by(interactions) %>%
-                identify_outliers("plant_area") 
-            
-            wo_outliers <- Data %>% 
-                anti_join(Outliers, by = "file") 
-            
-            
-            ## Execute tests for 
-            ##  Daten normalverteilt?
-            ## if TRUE  -> uniforme Varianz durch Bartlett's Test | nutze wo_outliers_data
-            ## if FALSE -> Varianz durch Levene-Test | nutze wo_outliers_data
-            
-            ##  
-            
-            norm <- wo_outliers %>%
-                group_by(interactions) %>%
-                dplyr::summarise(statistic = shapiro.test(plant_area)$statistic,
-                          p.value = shapiro.test(plant_area)$p.value)
-            
-            if (isNormallyDistributed(norm)) {
-                BT   <- bartlett.test(plant_area ~ interactions, wo_outliers)
-                BT <- do.call("rbind", BT)
-                BT <- data.frame(names = row.names(BT), BT)
-                
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
-                Data_stat_test <- subset(Data, select = -c(file) )
-                Data_stat_test <- cbind(Data_stat_test,Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                Data_stat_test <- group_by(Data)
-                Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
-                stat.test <- Data_stat_test %>%
-                    t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
-                    add_significance("p") %>%
-                    add_xy_position(x = "interactions")
-            } else {
-                levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
-                
-                #TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
-                stat.test <- Data %>%
-                    group_by(Gruppe) %>%
-                    wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
-                    add_significance("p") %>%
-                    add_xy_position(x = "interactions")
-            }
-            XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
-                               , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
-                               ,".xlsx")
-            if (isTRUE(as.logical(saveExcel))) {
-                write.xlsx(
-                    list("Data" = Data
-                         ,"Outlier"= Outliers
-                         , "data_wo_Outlier" = wo_outliers
-                         , "Norm" = norm
-                         , "BT" = BT
-                         , "T.test" = stat.test
-                         , "summary" = summary)
-                    , file = XLSX_Path
-                    , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
-            }
-            
-            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
-            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
-            if (hasName(ini$Experiment,"Palette_Boxplot")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
-            }
-            if (hasName(ini$Experiment,"Palette_Lines")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
-            }
-            
-            if (hasName(ini$General,"Theme")) {
-                Theme_Index <- ini$General$Theme
-            }  else {
-                Theme_Index <- 1   
-            }
-            numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            
-            
-            #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-            
-            # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
-            Theme <- switch(as.integer(Theme_Index),
-                            theme_tufte(base_size = 10),
-                            theme_bw(base_size = 10),
-                            theme_pubr(base_size = 10),
-                            theme_pubclean(base_size = 10),
-                            labs_pubr(10),
-                            theme_pubclean(base_size = 10),
-                            clean_theme())
-            
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
-            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
-            if (hasName(ini$Experiment,"Palette_Boxplot")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
-            }
-            if (hasName(ini$Experiment,"Palette_Lines")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
-            }
-            
-            # assemble label strings
-            unit_x <- str_split(ini$General$axis_units_x,",")
-            unit_y <- str_split(ini$General$axis_units_y,",")
-            unit_x <- if_else(as.logical(ini$General$language=='German')
-                              , true=unit_x[[1]][1]
-                              , false=unit_x[[1]][2])
-            unit_y <- if_else(as.logical(ini$General$language=='German')
-                              , true=unit_y[[1]][1]
-                              , false=unit_y[[1]][2])
-            
-            TitleTimeSpan <- calculateColnames(Files,ini,T)
-            if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
-            } else {
-                plot_Title <- if_else(as.logical(ini$General$language=='German')
-                                      , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
-                                      , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")"))
-            }
-            if (as.logical(ini$General$Debug)) {
-                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                       , "\nT0: ", ini$Experiment$T0
-                                       # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                                       , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
-                                       , "\nPots per Group: ", PotsPerGroup
-                                       , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
-                                       , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
-                                       , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
-            } else {
-                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
-                } else {
-                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                           , if_else(as.logical(ini$General$language=='German')
-                                                     , true=str_c("\nUmtopfen: ", ini$Experiment$T0
-                                                                  ,"\nSample-Size: ", PotsPerGroup)
-                                                     , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
-                                                                   ,"\nSample-Size: ", PotsPerGroup))
-                                           ,""
-                                           ,"")
-                }
-            }
-            
-            
-            if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-            } else {
-                x_label <- if_else(as.logical(ini$General$language=='German')
-                                   , true=str_c("Versuchs-Gruppen")
-                                   , false=str_c("Treatment groups")
-                                   , missing=if_else(as.logical(ini$General$RelativeColnames)
-                                                     , true=str_c("Versuchs-Gruppen")
-                                                     , false=str_c("Treatment groups")))
-                
-            }
-            
-            if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
-            } else {
-                y_label <- if_else(as.logical(ini$Experiment$Normalise), 
-                                   if_else(as.logical(ini$General$language=='German')
-                                           , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
-                                           , false=str_c("normalised green plant area [",unit_y,"]")
-                                           , missing=str_c("normalised green plant area [",unit_y,"]")),
-                                   if_else(as.logical(ini$General$language=='German')
-                                           , true=str_c("Grünfläche  [",unit_y,"]")
-                                           , false=str_c("Green plant area [",unit_y,"]")
-                                           , missing=str_c("Green plant area [",unit_y,"]")))
-            }
-            filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
-                              , " ("
-                              , ini$Experiment$Name
-                              , ", "
-                              , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
-                              , ") "
-                              , if_else(as.logical(ini$Experiment$Normalise)
-                                        , "norm"
-                                        , "non-norm")
-                              , "_"
-                              , if_else(as.logical(ini$General$RelativeColnames)
-                                        , "relColNms"
-                                        , "absColNms")
-                              , "_"
-                              , ini$General$language
-                              , "_"
-                              , Theme_Index
-                              , ").jpg")
-            Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
-            GFA_plot_box <-  ggboxplot(Data, x= "interactions"
-                                       , y = "plant_area"
-                                       , fill = "interactions"
-                                       , color = "black"
-                                       , add = "jitter"
-                                       , ylab = y_label
-                                       , xlab = x_label) +
-                font("xy.text", size = 10, color = "black") +
-                font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black")
-            if (isTRUE(as.logical(ini$General$Debug))) {
-                GFA_plot_box <- GFA_plot_box + 
-                    ggtitle(plot_Title,plot_SubTitle)
-            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
-                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
-                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
-                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
-                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(label = TitleObj$plot_Title)
-                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(subtitle = TitleObj$plot_SubTitle)
-                }
-            }
-            if (hasName(ini$Experiment,"LegendEntries")) {
-                
-                GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
-                GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries,",")))
-            } else {
-                GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot,labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
-                GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = paste(str_split(ini$Experiment$UniqueGroups,",")[[1]],str_split(ini$Experiment$Facet2DVar,",")[[1]]))
-                
-            }
-            scale_y_lowerEnd <- 0
-            Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
-            if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-                if (hasName(ini$Experiment,"YLimits")) {
-                    Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
-                } else {
-                    Limits <- c(0,1) ## otherwhise initialise the vector so we can modify the second element below
-                }
-                scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-                Limits[[2]] <- scale_y_upperEnd
-            } else {
-                scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-                Limits[[2]] <- scale_y_upperEnd
-            }
-            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset. 
-                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a kiwer value, ggplot will fail.
-            }
-            if ((Limits[[2]]-(Limits[[2]]*0.10))<=max(as.vector(Data$plant_area))) {                            ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
-                Limits[[2]] <- max(as.vector(Data$plant_area)) + (max(as.vector(Data$plant_area)))*0.10
-                Limits[[2]] <- round_any(Limits[[2]],25,f = ceiling)
-            }
-            Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
-            Limits <- Yscale_Data$Limits
-            breaks <- Yscale_Data$breaks
-            while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
-                Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
-                breaks$breaknumber <- breaks$breaknumber + 1
-            }
-            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2) ## generate minor breaks always inbetween major breaks.
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                              limits = c(Limits[[1]],Limits[[2]]))
-            
-            if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
-                pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
-            } else {
-                pval_size <- 2.5
-            }
-            #Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
-            stat.test <- Data_stat_test %>%
-                t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
-            stat.test <- stat.test %>%
-                add_significance("p") %>%
-                add_xy_position(x = "interactions")
-            stat.test$p.scient <- formatPValue(stat.test$p)
-            GFA_plot_box2 <- GFA_plot_box
-            if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
-                Diff <- Limits[[2]]-max(max(Data$plant_area))
-                stat_ypos <- Limits[[2]]-(Diff*0.1)
-            } else {
-                stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
-            }
-            GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test
-                                                              , label = "{p.scient} {p.adj.signif}"
-                                                              , size = pval_size
-                                                              , remove.bracket = T
-                                                              , y.position = stat_ypos)
-            #GFA_plot_box2 <- GFA_plot_box2 + geom_pwc(aes(group = ),data = Data_stat_test,method = "t_test",ref.group = ini$Experiment$RefGroup,)
-            GFA_plot_box <- GFA_plot_box + 
-                guides(fill=guide_legend(title="Groups")) +
-                theme(plot.title = element_text(hjust = 0.5))
-            
-            
-            
-            
-            GFA_plot_box <- GFA_plot_box + 
-                guides(fill=guide_legend(title="Groups")) +
-                theme(plot.title = element_text(hjust = 0.5))
-            
-            if (ini$General$Debug) {
-                GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-            }
-            
-            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y",linetype=1)
-            if (hasName(ini$Fontsizes,"Fontsize_General")) {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
-                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
-                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
-            }
-            
-            # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
-            if (as.logical(ini$General$PlotSampleSize)) {
-                if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
-                    n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
-                } else {
-                    n_size <- 2.5
-                }
-                ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
-                GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
-                                                            , geom = "text"
-                                                            , hjust = 0.5
-                                                            , size = n_size
-                                                            , fontface = "bold"
-                                                            , position = position_dodge(width=0.75))
-            }
-            if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
-                clen <- str_length(str_c(folder_path,"ROutput\\",filename))
-                deslen <- 256
-                lendiff <- clen-deslen+4
-                filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
-                new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
-                old <- str_c(folder_path,"ROutput\\",filename2)
-                if (str_length(new)==256) {
-                    filename <- str_c(filename2,".jpg")
-                }
-                rm(new,old,clen,deslen,lendiff)
-            }
-            if (isTRUE(as.logical(saveFigures))) {
-                filename <- sanitisePath(filename)
-                ggsave(filename = filename
-                       , plot=GFA_plot_box
-                       , width=7
-                       , height=5
-                       , dpi = 300
-                       , path = str_c(folder_path,"ROutput\\"))
-            }
-            Results=list("Data" = Data
-                         ,"Outlier"= Outliers
-                         , "data_wo_Outlier" = wo_outliers
-                         , "Norm" = norm
-                         , "BT" = BT
-                         , "T.test" = stat.test
-                         , "summary" = summary)
-            ret[[str_trim(curr_Day)]]=list(boxplot=GFA_plot_box,outlierplot=GFA_p_Outlier,Res=Results,XLSX_Path=XLSX_Path)
-        } else {
-            ## normal, no facetting occured, so we can use the old pathway
-            Nummer <- rep(c(1:PotsPerGroup),times=numberofGroups)
-            Gruppe  <- rep(groups_as_ordered_in_datafile,each=PotsPerGroup)
-            # green pixels per day
-            Data$Gruppe <- Gruppe
-            Data$Nummer <- Nummer
-            Data$Gruppe <- factor(Data$Gruppe,levels = groups_as_ordered_in_datafile)
-            
-            summary <- describeBy(Data$plant_area,Data$Gruppe) #todo: implement logic for choosing normalised data. 
-            #in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
-            #
-            #
-            Outliers <- Data %>%
-                group_by(Gruppe) %>%
-                identify_outliers("plant_area") 
-            
-            labelOutliers <- function(y) {
-                o  <- boxplot.stats(y)$out
-                if(length(o) == 0) NA else o
-            }
-            summary <- do.call("rbind",summary)
-            summary <- data.frame(name=row.names(summary), summary)
-            
-            GFA_p_Outlier <- ggplot(Data
-                                    , aes(x = Gruppe, y = plant_area)) +
-                geom_boxplot(outlier.color = "red"
-                             , outlier.size = 2)
-            p_Outlier2 <- ggplot(Data
-                                 , aes(x = Gruppe, y = plant_area)) +
-                scale_x_discrete() +
-                scale_y_discrete() +
-                ggtitle(str_c("Day: ", curr_Day))+
-                geom_boxplot(outlier.color = "red"
-                             , outlier.size = 2) +
-                stat_summary(
-                    aes(label = str_c(round(stat(y),1))),
-                    geom="text",
-                    fun=labelOutliers,
-                    hjust = -1
-                )
-            
-            
-            #print(p_Outlier2) # this will label the outlier with its value. 
-            
-            #TODO: figure out what to group_by by... 
-            Outliers <- Data %>%
-                group_by(Gruppe) %>%
-                identify_outliers("plant_area") 
-            
-            wo_outliers <- Data %>% 
-                anti_join(Outliers, by = "file") 
-            
-            
-            ## Execute tests for 
-            ##  Daten normalverteilt?
-            ## if TRUE  -> uniforme Varianz durch Bartlett's Test, Data: without outliers
-            ## if TRUE  -> Significanz durch t_test, Data: all data / with outliers*
-            ## if FALSE -> Varianz durch Levene-Test, Data: without outliers
-            ## if FALSE -> Significance durch Wilcox-Test, Data: all data / with outliers*
-            
-            ## *This is analogous to how it is done in the script 'Grünflächenanalyse_v3.R'
-            
-            ##  
-            
-            norm <- wo_outliers %>%
-                group_by(Gruppe) %>%
-                dplyr::summarise(statistic = shapiro.test(plant_area)$statistic,
-                          p.value = shapiro.test(plant_area)$p.value)
-            
-            if (isNormallyDistributed(norm)) {
-                #print(norm)
-                BT   <- bartlett.test(plant_area ~ Gruppe, wo_outliers)
-                BT <- do.call("rbind", BT)
-                BT <- data.frame(names = row.names(BT), BT)
-                
-                Data_stat_test <- subset(Data, select = -c(file) )
-                Data_stat_test <- cbind(Data_stat_test,Data$file)               # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                Data_stat_test <- group_by(Data)
-                Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
-                stat.test <- Data_stat_test %>%
-                    t_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
-                    add_significance("p") %>%
-                    add_xy_position(x = "Gruppe")
-            } else {
-                levene   <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
-                
-                stat.test <- Data %>%
-                    group_by(Gruppe) %>%
-                    wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
-                    add_significance("p") %>%
-                    add_xy_position(x = "Gruppe")
-            }
-            XLSX_Path <- str_c(folder_path,"\\ROutput\\",ini$Experiment$Filename_Prefix,"Results_"
-                               ,format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
-                               ,".xlsx")
-            if (isTRUE(as.logical(saveExcel))) {
-                write.xlsx(
-                    list("Data" = Data
-                         ,"Outlier"= Outliers
-                         , "data_wo_Outlier" = wo_outliers
-                         , "Norm" = norm
-                         , "BT" = BT
-                         , "T.test" = stat.test
-                         , "summary" = summary)
-                    , file = XLSX_Path
-                    , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
-            }
-            
-            
-            
-            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
-            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
-            if (hasName(ini$Experiment,"Palette_Boxplot")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot,","))
-            }
-            if (hasName(ini$Experiment,"Palette_Lines")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines,","))
-            }
-            
-            if (hasName(ini$General,"Theme")) {
-                Theme_Index <- ini$General$Theme
-            }  else {
-                Theme_Index <- 1   
-            }
-            numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-            
-            
-            #
-            set_theme <- switch(as.integer(Theme_Index),"tufte","bw","pubr","pubclean","labs_pubr","pubclean","clean") ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code. 
-            
-            # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
-            Theme <- switch(as.integer(Theme_Index),
-                            theme_tufte(base_size = 10),
-                            theme_bw(base_size = 10),
-                            theme_pubr(base_size = 10),
-                            theme_pubclean(base_size = 10),
-                            labs_pubr(10),
-                            theme_pubclean(base_size = 10),
-                            clean_theme())
-            
-            # Select the required number of colours from a sequencial color palette
-            Palette_Boxplot <- getLastNElementsOfPalette("Reds",numberofGroups)
-            Palette_Lines   <- getLastNElementsOfPalette("Reds",numberofGroups)
-            # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-            Palette_Boxplot <- replace(Palette_Boxplot,list = 1,"white") 
-            Palette_Lines <- replace(Palette_Lines,list = 1,"#112734")
-            if (hasName(ini$Experiment,"Palette_Boxplot2")) {
-                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2,","))
-            }
-            if (hasName(ini$Experiment,"Palette_Lines2")) {
-                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2,","))
-            }
-            
-            # assemble label strings
-            unit_x <- str_split(ini$General$axis_units_x,",")
-            unit_y <- str_split(ini$General$axis_units_y,",")
-            unit_x <- if_else(as.logical(ini$General$language=='German')
-                              , true=unit_x[[1]][1]
-                              , false=unit_x[[1]][2])
-            unit_y <- if_else(as.logical(ini$General$language=='German')
-                              , true=unit_y[[1]][1]
-                              , false=unit_y[[1]][2])
-            
-            TitleTimeSpan <- calculateColnames(Files,ini,T)
-            if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
-            } else {
-                plot_Title <- if_else(as.logical(ini$General$language=='German')
-                                      , true=str_c("Grünfläche (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")")
-                                      , false=str_c("Green area (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format) ,")"))
-            }
-            if (as.logical(ini$General$Debug)) {
-                plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                       , "\nT0: ", ini$Experiment$T0
-                                       , "\nNormalised: ", as.logical(ini$Experiment$Normalise)
-                                       , "\nPots per Group: ", PotsPerGroup
-                                       , "\nFigure generated: ", as.character.POSIXt(now(),"%d.%m.%Y %H:%M:%S")
-                                       , "\n  Theme: ",set_theme, " (", Theme_Index, ")"
-                                       , "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize)," Only Irregular:",as.logical(ini$General$ShowOnlyIrregularN))
-                                       , "\n  Palette:", str_c(Palette_Boxplot,collapse = ", "))
-                
-            } else {
-                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]]," (", format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$figure_date_format),")")
-                } else {
-                    plot_SubTitle <- str_c("Experiment: " , ini$Experiment$Name
-                                           , if_else(as.logical(ini$General$language=='German')
-                                                     , true=str_c("\nUmtopfen: ", ini$Experiment$T0
-                                                                  ,"\nSample-Size: ", PotsPerGroup)
-                                                     , false=str_c("\nDate of Repotting: ", ini$Experiment$T0
-                                                                   ,"\nSample-Size: ", PotsPerGroup))
-                                           ,""
-                                           ,"")
-                }
-            }
-            
-            if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-            } else {
-                x_label <- if_else(as.logical(ini$General$language=='German')
-                                   , true=str_c("Versuchs-Gruppen")
-                                   , false=str_c("Treatment groups")
-                                   , missing=if_else(as.logical(ini$General$RelativeColnames)
-                                                     , true=str_c("Versuchs-Gruppen")
-                                                     , false=str_c("Treatment groups")))
-                
-            }
-            
-            if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                y_label <- str_c(ini$Experiment$YLabel[[1]]," [",unit_y,"]")
-            } else {
-                y_label <- if_else(as.logical(ini$Experiment$Normalise), 
-                                   if_else(as.logical(ini$General$language=='German')
-                                           , true=str_c("Normalisierte Grünfläche  [",unit_y,"]")
-                                           , false=str_c("normalised green plant area [",unit_y,"]")
-                                           , missing=str_c("normalised green plant area [",unit_y,"]")),
-                                   if_else(as.logical(ini$General$language=='German')
-                                           , true=str_c("Grünfläche  [",unit_y,"]")
-                                           , false=str_c("Green plant area [",unit_y,"]")
-                                           , missing=str_c("Green plant area [",unit_y,"]")))
-            }
-            filename <- str_c(ini$Experiment$Filename_Prefix,"Einzelanalyse"
-                              , " ("
-                              , ini$Experiment$Name
-                              , ", "
-                              , format(as.Date(str_trim(curr_Day),"%d.%m.%Y"),format=ini$Experiment$filename_date_format)
-                              , ") "
-                              , if_else(as.logical(ini$Experiment$Normalise)
-                                        , "norm"
-                                        , "non-norm")
-                              , "_"
-                              , if_else(as.logical(ini$General$RelativeColnames)
-                                        , "relColNms"
-                                        , "absColNms")
-                              , "_"
-                              , ini$General$language
-                              , "_"
-                              , Theme_Index
-                              , ").jpg")
-            
-            Data$Gruppe <- factor(Data$Gruppe,levels=unlist(str_split(ini$Experiment$GroupsOrderX,",")))
-            GFA_plot_box <-  ggboxplot(Data, x= "Gruppe"
-                                       , y = "plant_area"
-                                       , fill = "Gruppe"
-                                       , palette = Palette_Boxplot
-                                       , color = "black"
-                                       , add = "jitter"
-                                       , ylab = y_label
-                                       , xlab = x_label) +
-                font("xy.text", size = 10, color = "black") +
-                font("ylab", size = 10, color = "black") +
-                font("legend.title", size = 10, color = "black")
-            if (isTRUE(as.logical(ini$General$Debug))) {
-                GFA_plot_box <- GFA_plot_box + 
-                    ggtitle(plot_Title,plot_SubTitle)
-            } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
-                dte <- as.Date.character(curr_Day,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))-as.Date.character(ini$Experiment$T0,tryFormats = c("%Y-%m-%d","%d.%m.%Y"))
-                TitleObj <- getTitle(FALSE,PotsPerGroup,set_theme,Theme_Index,Palette_BoxPlot,Palette_Lines,dte,unit_x,ini)
-                if (hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(label = TitleObj$plot_Title,subtitle = TitleObj$plot_SubTitle)
-                } else if (hasName(TitleObj,"plot_Title") && !hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(label = TitleObj$plot_Title)
-                } else if (!hasName(TitleObj,"plot_Title") && hasName(TitleObj,"plot_SubTitle")) {
-                    GFA_plot_box <- GFA_plot_box + 
-                        ggtitle(label = "",subtitle = TitleObj$plot_SubTitle)   ## we unfortunately must specify a "label" iof we want to plot a subtitle. 
-                }
-            }
-            scale_y_lowerEnd <- 0
-            Limits <- c(0,1)                                                    ## otherwhise initialise the vector so we can modify the second element below
-            if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
-                if (hasName(ini$Experiment,"YLimits")) {
-                    Limits <- as.numeric(unlist(str_split(ini$Experiment$YLimits,",")))
-                } else {
-                    Limits <- c(0,1)                                            ## otherwhise initialise the vector so we can modify the second element below
-                }
-                scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-                Limits[[2]] <- scale_y_upperEnd
-            } else {
-                scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)
-                Limits[[2]] <- scale_y_upperEnd
-            }
-            if (Limits[[2]]<round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)) {     ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset. 
-                Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area),na.rm = T)),25,f = ceiling)     ## if you force the upper y-limit to a lower value, ggplot will fail.
-            }
-            Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area,Limits,ini)
-            Limits <- Yscale_Data$Limits
-            breaks <- Yscale_Data$breaks
-            while ((Limits[[2]]-(Limits[[2]]*0.05))<max(as.vector(Data$plant_area))) {
-                Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
-                breaks$breaknumber <- breaks$breaknumber + 1
-            }
-            mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2)           ## generate minor breaks always inbetween major breaks.
-            GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                              limits = c(Limits[[1]],Limits[[2]]))
-            
-            stat.test$p.scient <- formatPValue(stat.test$p)
-            if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
-                pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
-            } else {
-                pval_size <- 2.5
-            }
-            if ((Limits[[2]]-Limits[[2]]*0.10)<max(max(Data$plant_area))) {
-                Diff <- Limits[[2]]-max(max(Data$plant_area))
-                stat_ypos <- Limits[[2]]-(Diff*0.1)
-            } else {
-                stat_ypos <- Limits[[2]]-Limits[[2]]*0.1
-            }
-            GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,xmin="group2"
-                                                              , label = "{p.scient} {p.adj.signif}"
-                                                              , size = pval_size
-                                                              , remove.bracket = T
-                                                              , y.position = stat_ypos)
-            if (hasName(ini$Experiment,"LegendEntries")) {
-                GFA_plot_box <- GFA_plot_box + 
-                    scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))+
-                    scale_colour_manual(values = Palette_Lines)
-            } else {
-                GFA_plot_box <- GFA_plot_box + 
-                    scale_fill_manual(values = Palette_Boxplot)+
-                    scale_colour_manual(values = Palette_Lines)
-            } 
-            
-            GFA_plot_box <- GFA_plot_box + 
-                guides(fill=guide_legend(title="Groups")) +
-                theme(plot.title = element_text(hjust = 0.5))
-            
-            if (ini$General$Debug) {
-                GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-            }
-            
-            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y",linetype=1)
-            if (hasName(ini$Fontsizes,"Fontsize_General")) {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_General)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(text = element_text(size=10), title = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_XAxisTicks")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_YAxisTicks")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_XAxisLabel")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_YAxisLabel")) {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_LegendText")) {
-                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendText)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size=10))
-            }
-            if (hasName(ini$Fontsizes,"Fontsize_LegendTitle")) {
-                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
-            } else {
-                GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size=10))
-            }
-            
-            # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen 
-            if (as.logical(ini$General$PlotSampleSize)) {
-                if (hasName(ini$Fontsizes,"Fontsize_SampleSize")) {
-                    n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
-                } else {
-                    n_size <- 2.5
-                }
-                ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
-                GFA_plot_box <- GFA_plot_box + stat_summary(fun.data = labelSample_n
-                                                            , fun.args = c(if_else((Limits[[2]]-(Limits[[2]]*0.025)>max(as.vector(Data$plant_area))),Limits[[2]]-(Limits[[2]]*0.025),Limits[[2]]-(Limits[[2]]*0.0125)),as.integer(PotsPerGroup),ini$General$ShowOnlyIrregularN)
-                                                            , geom = "text"
-                                                            , hjust = 0.5
-                                                            , size = n_size
-                                                            , fontface = "bold"
-                                                            , position = position_dodge(width=0.75))
-            }
-            if (str_length(str_c(folder_path,"ROutput\\",filename))>256) {
-                clen <- str_length(str_c(folder_path,"ROutput\\",filename))
-                deslen <- 256
-                lendiff <- clen-deslen+4
-                filename2 <- str_sub(filename,1,str_length(filename)-lendiff)
-                new <- str_c(folder_path,"ROutput\\",filename2,".jpg")
-                old <- str_c(folder_path,"ROutput\\",filename2)
-                if (str_length(new)==256) {
-                    filename <- str_c(filename2,".jpg")
-                }
-                rm(new,old,clen,deslen,lendiff)
-            }
-            if (isTRUE(as.logical(saveFigures))) {
-                filename <- sanitisePath(filename)
-                ggsave(filename = filename
-                       , plot=GFA_plot_box
-                       , width=7
-                       , height=5
-                       , dpi = 300
-                       , path = str_c(folder_path,"ROutput\\"))
-            }
-            Results=list("Data" = Data
-                         ,"Outlier"= Outliers
-                         , "data_wo_Outlier" = wo_outliers
-                         , "Norm" = norm
-                         , "BT" = BT
-                         , "T.test" = stat.test
-                         , "summary" = summary)
-            ret[[str_trim(curr_Day)]]=list(boxplot=GFA_plot_box,outlierplot=GFA_p_Outlier,Res=Results,XLSX_Path=XLSX_Path)
-        }
-        
-        
-        
-        
-        
+        return(List)
     }
-    return(ret)
-}
-
-
-#----- MAIN SCRIPT
-#
-#
-GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteEncoding="") {
+    sanitisePath <- function(Path,forbiddenChars=":") {
+        for (character in strsplit(forbiddenChars,"")[[1]]) {
+            if (str_count(Path,character)>0) {
+                Path <- str_replace_all(Path,character,"")
+            }
+        }
+        return(Path)
+    }
+    setColnames <- function(Files,List,ini) {
+        DateDifference_Integers <- calculateColnames(Files,ini)
+        if (isTRUE(as.logical(ini$General$RelativeColnames))) {
+            if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
+                colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
+            } else {
+                colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.integer(DateDifference_Integers)
+            }
+        } else {
+            DateDifference_Integers <- calculateColnames(Files,ini)
+            CharacterString <- as.character(unlist(DateDifference_Integers))
+            factoredDates <- as.factor(CharacterString)
+            updated <- as.Date(CharacterString,format = "%d.%m.%Y")
+            updated <- as.list.Date(updated,format = "%d.%m.%Y")
+            #vect <- unlist(strsplit(DateDifference_Integers," "))
+            #colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- updated
+            if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
+                colnames(List)[c(4:(4+length(DateDifference_Integers)-1))] <- unlist(as.character(factoredDates,format="%d.%m.%Y"))
+                order <- c(c(1,2,3),unlist(order(as.Date(CharacterString,format="%d.%m.%Y"))+3))
+            } else {
+                order <- c(c(1,2),unlist(order(as.Date(CharacterString,format="%d.%m.%Y"))+2))
+                colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- unlist(as.character(factoredDates,format="%d.%m.%Y"))
+            }
+            #colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.Date(vect,format="%d.%m.%Y")
+            List <- List[order]
+        }
+        return(List)
+    }
+    RemoveOutputFiles <- function(Files="",Output_prefix="") {
+        Files_out <- Files[!str_detect(Files,pattern=Output_prefix)]
+        return(Files_out)
+    }
+    validateINI <- function(ini_List) {
+        is.dmy <- function(x) {
+            ret <- !is.na(dmy(x,quiet = TRUE))
+            return(ret) 
+        }
+        #toValidate:
+        #Experiment               
+        # T0                    Must be validated
+        # PotsPerGroup          can't be validated, must be given in good faith
+        # UniqueGroups          can't be validated, must be given in good faith
+        # Normalise            falls back if not prepared TODO: give notice if falllback to plant_area/plant_number, so that user knows they must provide the column or not use the number
+        #General                  
+        # Debug                 not applicable, the debug switch is used to generate more detailed information on what is going on
+        # Theme                 falls back to 
+        # language              
+        # used_filesuffix       
+        # axis_units_x          
+        # axis_units_y          
+        
+        Experiment <- list(Name="character"
+                           ,Facet2D="logical"
+                           ,Facet2DVar="character"
+                           ,T0="character"
+                           ,PotsPerGroup="double"
+                           ,UniqueGroups="character"
+                           ,GroupsOrderX="character"
+                           ,RefGroup="character"
+                           ,FixateAxes="logical"
+                           ,ForceAxes="logical"
+                           ,XLabel="character"
+                           ,XLabel_Daily="character"
+                           ,YLabel="character"
+                           ,YLimits="character"
+                           ,Normalise="logical"
+                           ,Filename_Prefix="character"
+                           ,Palette_Boxplot="character"
+                           ,Palette_Lines="character"
+                           ,Palette_Boxplot2="character"
+                           ,Palette_Lines2="character")
+        General <- list( ShowNatallboxplots="logical"
+                         ,ShowTitle="logical"
+                         ,PlotMeanLine="logical"
+                         ,PlotSampleSize="logical"
+                         ,Debug="logical"
+                         ,Theme="double"
+                         ,language="character"
+                         ,used_filesuffix="character"
+                         ,axis_units_x="character"
+                         ,axis_units_y="character"
+                         ,RelativeColnames="logical"
+                         ,ShowBothColnames="logical")
+        #T0
+        optional_arguments <- str_c("XLabel_Daily","YLabel_Daily")
+        ret <- FALSE
+        bIsDateValid <- is.dmy(ini_List$Experiment$T0)
+        LogicalSubSet <- c("F","T","FALSE","TRUE",1,0)
+        #if (ini_List$Experiment$Facet2D!="FALSE") && 
+        if (isFALSE(bIsDateValid)) {
+            ret <- "'Date' in 'configfile'->'Experiment'->'T0' is not valid"
+        }
+        for (i in seq_along(ini_List$Experiment)) {
+            name <- names(ini_List$Experiment)[[i]]
+            value <- ini_List$Experiment[[i]]
+            if (hasName(Experiment,name)) {
+                if (Experiment[[name]]=="logical") {
+                    if (isFALSE(testSubset(value,LogicalSubSet))) {
+                        ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected values: '1/0/T/F/TRUE/FALSE'\n\tPlease correct the contents of the key")
+                    }
+                    
+                } else if (Experiment[[name]]=="character") {
+                    if (isFALSE(testSubset(typeof(value),"character"))) {
+                        ret <- str_c(ret,"\nConfig Key \t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'character'\n\tPlease correct the contents of the key")
+                    }
+                    
+                } else if ((Experiment[[name]]=="double") || (Experiment[[name]]=="numeric")) {
+                    if (isTRUE(is.na(as.numeric(value)))) {
+                        ret <- str_c(ret,"\nConfig Key\t'", name,"'\n\ttype '", typeof(value),"'\tvalue '",value,"'\n\tExpected type: 'double/numeric'\n\tCould not be converted to numeric. Please correct the contents of the key")
+                    }
+                } 
+            } else {
+                if (str_count(optional_arguments,name)) {
+                    #todo: handle these? also:
+                    #todo: ylabel_daily and xlabel_daily are not implemented
+                }
+            }
+        }
+        return(ret)
+    }
+    writeChangetoFile <- function(DailyAnalyses) {
+        for (Object in DailyAnalyses) {
+            write.xlsx(
+                list("Data" = Object$Res$Data
+                     ,"Outlier"= Object$Res$Outliers
+                     , "data_wo_Outlier" = Object$Res$wo_outliers
+                     , "Norm" = Object$Res$norm
+                     , "BT" = Object$Res$BT
+                     , "T.test" = Object$Res$stat.test
+                     , "summary" = Object$Res$summary)
+                , file = Object$XLSX_Path
+                , creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))) ## sign the file with being created by this username on this machine.
+            xlsx <- loadWorkbook(Object$XLSX_Path)
+            
+            writeComment(xlsx,"summary",col = "O",row = 1,comment = createComment(comment = str_c("Change is relative to ",Object$PreviousDay,"\n\n Comment generated by GFA_Evaluation.R"),visible = F,author = str_c("GFA_Evaluation.R")))
+            writeComment(xlsx,"summary",col = "P",row = 1,comment = createComment(comment = str_c("Change is relative to ",Object$PreviousDay,"\n\n Comment generated by GFA_Evaluation.R"),visible = F,author = str_c("GFA_Evaluation.R")))
+            saveWorkbook(xlsx,file = Object$XLSX_Path,overwrite = T)
+        }
+    }
+    
+    
+    #
+    # Start GFA_main
+    #
+    #
     ## first validate that the path given as 'folder_path' points to supported inputs
     if (file_test("-f", folder_path) && !file_test("-d",folder_path) && str_count(folder_path,".ini")) {          ## folder_path is a a file with fileending .ini
         path <- folder_path
