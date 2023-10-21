@@ -558,7 +558,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                             Data$plant_area_normalised <- Data$plant_area/Data$plants_in_pot
                         }
                     }
-                    Data$plant_area_nonnormalised <- Data$plant_area
                     Data$plant_area <- Data$plant_area_normalised #TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead. 
                 } else {
                     if (!hasName(Data,"plant_area")) {
@@ -1059,7 +1058,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     )
                 
                 
-                #print(p_Outlier2) # this will label the outlier with its value. 
                 
                 #TODO: figure out what to group_by by... 
                 Outliers <- Data %>%
@@ -1087,7 +1085,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                      p.value = shapiro.test(plant_area)$p.value)
                 
                 if (isNormallyDistributed(norm)) {
-                    #print(norm)
                     BT   <- bartlett.test(plant_area ~ Gruppe, wo_outliers)
                     BT <- do.call("rbind", BT)
                     BT <- data.frame(names = row.names(BT), BT)
@@ -2327,7 +2324,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         } else {
             
         }
-        Number <- rep(1:Number, times = numberofGroups)
         data_pivot_CA <- pivot_longer(data_all_CA,cols=4:(length(data_all_CA)-0),names_to = "Days")
         data_pivot_CA$Group <- factor(data_pivot_CA$Group)
         data_pivot_CA$Facet <- factor(data_pivot_CA$Facet)
@@ -2728,7 +2724,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     filename <- sanitisePath(filename)
     #print(GFA_SummaryPlot)
-    rm(new,clen,deslen,lendiff)
     if (isTRUE(as.logical(saveFigures))) {
         filename <- sanitisePath(filename)
         ggsave(file=filename
