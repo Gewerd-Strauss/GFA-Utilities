@@ -524,7 +524,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     #view(csv1)
                     #view(csv)
                 } else {
-                    Data <- read_xlsx(curr_file)
+                    Data <- read_xlsx(curr_file,.name_repair = "unique_quiet")
                 }
                 if (ini$Experiment$Normalise) {
                     if (hasName(Data,"plant_area_normalised")) {
@@ -1291,9 +1291,6 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
                 mb <- seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize/2)           ## generate minor breaks always inbetween major breaks.
-                GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                                                                  limits = c(Limits[[1]],Limits[[2]]))
-                
                 stat.test$p.scient <- formatPValue(stat.test$p)
                 if (hasName(ini$Fontsizes,"Fontsize_PValue")) {
                     pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
@@ -1311,6 +1308,9 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                                                                   , size = pval_size
                                                                   , remove.bracket = T
                                                                   , y.position = stat_ypos)
+                GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
+                # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten. 
+                # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
                 if (hasName(ini$Experiment,"LegendEntries")) {
                     GFA_plot_box <- GFA_plot_box + 
                         scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries,",")))+
@@ -1320,7 +1320,8 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                         scale_fill_manual(values = Palette_Boxplot)+
                         scale_colour_manual(values = Palette_Lines)
                 } 
-                
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(breaks = seq(Limits[[1]],Limits[[2]],breaks$BreakStepSize),minor_breaks = mb,n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                                                                  limits = c(Limits[[1]],Limits[[2]]))
                 GFA_plot_box <- GFA_plot_box + 
                     guides(fill=guide_legend(title="Groups")) +
                     theme(plot.title = element_text(hjust = 0.5))
@@ -1792,7 +1793,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         return(Files)
     }
     getLastNElementsOfPalette <- function(palette,n) {
-        pal <- brewer.pal(n = 99,palette)  # load the palette
+        j <- brewer.pal.info %>%
+            rownames_to_column(var = "name") %>%
+            filter(name == palette)
+        pal <- brewer.pal(n = j$maxcolors,palette)  # load the palette
         Max <- length(pal) # get the number of entries
         logical <- rep(TRUE,Max) # create a logical vector
         logical[Max-n:Max] <- FALSE # populate the last values with 
@@ -1976,7 +1980,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                 #view(csv1)
                 #view(csv)
             } else if (ini$General$used_filesuffix=="xlsx") {
-                csv <- read_xlsx(file)
+                csv <- read_xlsx(file,.name_repair = "unique_quiet")
             }
             if (ini$Experiment$Normalise) {  
                 if (hasName(csv,"plant_area_normalised")) {
@@ -1991,12 +1995,12 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                         stop(Error)
                     }
                 }
-                List <- cbind(List,csv$plant_area_normalised);
+                List <- cbind(List,csv$plant_area_normalised)
             } else {
                 if (hasName(csv,"plant_area")) {
-                    List <- cbind(List,csv$plant_area);
+                    List <- cbind(List,csv$plant_area)
                 } else {
-                    List <- cbind(List,csv$plant_area_complete);
+                    List <- cbind(List,csv$plant_area_complete)
                 }
             }
         }
@@ -2257,11 +2261,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     # calculate group sizes and set up the group name vectors for the data_all_CA-object
     if (ini$Experiment$Facet2D) {
         PotsPerGroup <- ini$Experiment$PotsPerGroup
-        Number <- as.integer(PotsPerGroup)
         UniqueGroups <- ini$Experiment$UniqueGroups
         UniqueGroups <- as.character(UniqueGroups)
         numberofGroups <- length(strsplit(UniqueGroups,",")[1][[1]])
-        Number <- rep(1:Number, times = numberofGroups)
+        Number <- rep(1:as.integer(PotsPerGroup), times = numberofGroups)
         groups_as_ordered_in_datafile <- unlist(strsplit(UniqueGroups, split = ','))
         Group <- rep(groups_as_ordered_in_datafile, each = PotsPerGroup)
         data_all_CA <- cbind(Group,Number)
@@ -2273,11 +2276,10 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         
     } else {
         PotsPerGroup <- ini$Experiment$PotsPerGroup
-        Number <- as.integer(PotsPerGroup)
         UniqueGroups <- ini$Experiment$UniqueGroups
         UniqueGroups <- as.character(UniqueGroups)
         numberofGroups <- length(strsplit(UniqueGroups,",")[1][[1]])
-        Number <- rep(1:Number, times = numberofGroups)
+        Number <- rep(1:as.integer(PotsPerGroup), times = numberofGroups)
         groups_as_ordered_in_datafile <- unlist(strsplit(UniqueGroups, split = ','))
         Group <- rep(groups_as_ordered_in_datafile, each = PotsPerGroup)
         data_all_CA <- cbind(Group,Number)
