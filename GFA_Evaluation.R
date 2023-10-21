@@ -1,3 +1,6 @@
+#! /usr/bin/env Rscript --vanilla
+# DO NOT REMOVE THE ABOVE COMMENT LINE. It is required for using the script via 
+# the command line/shell.
 # Nach Vorlage von 'Grünfläche_Verlauf.R' und 'Grünflächenanalyse_v3.R'
 # abgewandelt zur Anwendung im Rahmen des Versuches 2 meines Praktikums
 #
@@ -10,6 +13,31 @@
 #----- FUNCTIONS
 #
 #
+library(optparse) # required for allowing command line interaction to the script
+
+if (sys.nframe()==0) {                                                          ## check if script is run by rscript  -> this will return 0. If it returns >0, it is either sourced or run directly. if it is run via bash, this will return 0
+    option_list = list(
+        make_option(c("-i", "--input"), type="character", default=NULL,metavar = "filepath", 
+                    help="Full path to configuration File."),
+        make_option(c("-d", "--returnDays"), type="integer", default=0, 
+                    help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles execution of per-day analyses", metavar="[integer]"),
+        make_option(c("-f", "--saveFigures"), type="integer", default=0, 
+                    help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not figures generated are saved to disk or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
+        make_option(c("-e", "--saveExcel"), type="integer", default=0, 
+                    help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not statistical evaluation and results generated are saved to disk as an '.xlsx'-file or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
+        make_option(c("-r", "--saveRDATA"), type="integer", default=0, 
+                    help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not all generated data (plots, loaded configuration data, relevant evaluation functions) are saved to an '.RData'-file or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
+        make_option(c("-c", "--overwriteEncoding"), type="character", 
+                    help="manual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar="[string]")
+    )
+    opt_parser = OptionParser(option_list=option_list);
+    opt = parse_args(opt_parser);
+    if (is.null(opt$i)){                                                     ## check if at least one argument is supplied.
+        print_help(opt_parser)
+        stop("At least one argument must be supplied when executing via command line interface (input file).", call.=FALSE)
+    }
+}
+
 library(car)
     # leveneTest
 #library(writexl)
@@ -152,7 +180,6 @@ library(formatdown)
 library(stats)
     # bartlett.test
     # shapiro.test
-
 
 
 
@@ -2718,10 +2745,21 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
+    cat(str_c("1: Summary Plot","2: Titles","3: Daily Analyses","4: Dates","5: configuration","6: configuration-path","7: RDATA_Path","8: function 'getRelative_change()'","9: function 'getAbsolute_change()'","10: function\t 'formatPValue()'",sep = "\n"))
     if (returnDays) {
         return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
         return(list(GFA_SummaryPlot,Titles,0,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
+    }
+}
+if (sys.nframe()==0) {                                                          ## check if script is run by rscript  -> this will return 0. If it returns >0, it is either sourced or run directly. if it is run via bash, this will return 0
+    if (is.null(opt$i)){                                                        ## check if at least one argument is supplied.
+        print_help(opt_parser)
+        stop("At least one argument must be supplied when executing via command line interface (input file).", call.=FALSE)
+    } else {
+        print(opt)
+        plot_1 <- GFA_main(opt$input, opt$returnDays, opt$saveFigures, opt$saveExcel, opt$saveRDATA)
+        print(plot_1[[1]])
     }
 }
 
