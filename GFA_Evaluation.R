@@ -14,7 +14,7 @@
 #
 #
 library(optparse) # required for allowing command line interaction to the script
-
+library(stringr)
 if (sys.nframe()==0) {                                                          ## check if script is run by rscript  -> this will return 0. If it returns >0, it is either sourced or run directly. if it is run via bash, this will return 0
     option_list = list(
         make_option(c("-i", "--input"), type="character", default=NULL,metavar = "filepath", 
@@ -28,11 +28,35 @@ if (sys.nframe()==0) {                                                          
         make_option(c("-r", "--saveRDATA"), type="integer", default=0, 
                     help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not all generated data (plots, loaded configuration data, relevant evaluation functions) are saved to an '.RData'-file or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
         make_option(c("-w", "--warning"),type="integer",default=1,
-                    help="numerical Flag, between -1<=x<=2 [Default: %default].\n\n\t\tIt is not recommended to change the default value if the results are unknown and not validated,\n\t\tinstead it is recommended to only mute all warnings if the calculation must be repeated and the console output is supposed to be as clean as possible. Does not affect errors.\n\n\t\t-1:\tAll Warnings are ignored and will no be printedn\n\t\t 0:\tWarnings will print after top-level function has completed.\n\t\t 1:\tWarnings are printed as they occur.\n\t\t 2:\tTreat all warnings as errors."),
+                    help="numerical Flag, between -1<=x<=2 [Default: %default].\n\n\t\tIt is not recommended to change the default value if the results are unknown and not validated,\n\t\tinstead it is recommended to only mute all warnings if the calculation must be repeated and the console output is supposed to be as clean as possible. Does not affect errors.\n\n\t\t-1:\tAll Warnings are ignored and will not be printed\n\t\t 0:\tWarnings will print after top-level function has completed.\n\t\t 1:\tWarnings are printed as they occur.\n\t\t 2:\tTreat all warnings as errors."),
         make_option(c("-c", "--overwriteEncoding"), type="character", 
                     help="manual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar="[string]")
     )
-    opt_parser = OptionParser(option_list=option_list);
+    Object_Key <- str_c("","Object Key","1: Summary Plot","2: Titles","3: Daily Analyses","4: Dates","5: configuration","6: configuration-path","7: RDATA_Path","8: function 'getRelative_change()'","9: function 'getAbsolute_change()'","10: function\t 'formatPValue()'",sep = "\n")
+    retDocs <- str_c(    "return\t\t\t\t\t\t Object containing the following elements\t\t\t\t\t\t\t\t [list]",
+                         "return[[1]]\t\t\t\t\t Summary-Plot displaying progression over time\t\t\t\t\t\t\t\t [ggplot]",
+                         "return[[2]]\t\t\t\t\t plot_title, plot_subtitle, min age and max age\t\t\t\t\t\t\t\t [list]",
+                         "return[[3]]\t\t\t\t\t Daily Analyses\t\t\t\t\t\t\t\t\t\t\t\t [list]",
+                         "\t$'dd.mm.YYYY' \t\t\t\t Day-Object containing all results for a specified date, f.e. return[[3]]$'30.05.2023'\t\t\t [list]",
+                         "\t\t$boxplot\t\t\t figure for the date. contains p-values and sample-sizes\t\t\t\t\t\t [ggplot]",
+                         "\t\t$Outlierplot\t\t\t rudimentary outlier-plot. Outliers are marked red.\t\t\t\t\t\t\t [ggplot]",
+                         "\t\t$Res\t\t\t\t all statistical data for a given date\t\t\t\t\t\t\t\t\t [list]",
+                         "\t\t\t $Data\t\t\t data loaded IN from the respective Excel-Sheet.\t\t\t\t\t\t\t [tbl_df]",
+                         "\t\t\t $Outlier\t\t returns outliers as identified via 'identify_outliers()' (rstatix)\t\t\t\t\t [tbl_df]",
+                         "\t\t\t $data_wo_Outliers\t returns data minus the outliers present in $Outlier\t\t\t\t\t\t\t [tbl_df]",
+                         "\t\t\t $Norm\t\t\t Result of the Normality-Tests\t\t\t\t\t\t\t\t\t\t [list]",
+                         "\t\t\t $BT\t\t\t Result of the Bartlett-Tests\t\t\t\t\t\t\t\t\t\t [list]",
+                         "\t\t\t $T.Test  \t\t Result of the T.Tests\t\t\t\t\t\t\t\t\t\t\t [list]",
+                         "\t\t\t $summary \t\t Result of the 'summary'-Command\t\t\t\t\t\t\t\t\t [list].\n\t\t\t\t\t\t NOTE: Additionally, the absolute [cm^2] and relative [%] change relative to\n\t\t\t\t\t\t the previous measuring-date is printed for measurement dates 2+.",
+                         "return[[4]] \t\t\t\t\t returns the dates in ISO-format\t\t\t\t\t\t\t\t\t [Date]",
+                         "return[[5]] \t\t\t\t\t configuration used during execution, as loaded from the configuration path provided.\t\t\t [list]",
+                         "return[[6]] \t\t\t\t\t path to the configuration-file loaded\t\t\t\t\t\t\t\t\t [string]",
+                         "return[[7]] \t\t\t\t\t path to the RDATA-file containing this object (if saveRDATA=1, otherwhise this path does not exist)\t [string]",
+                         "return[[8]]  - getRelative_change\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",
+                         "return[[9]]  - getAbsolute_change\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",
+                         "return[[10]] - formatPValue\t\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",sep = "\n")
+    opt_parser = OptionParser(option_list=option_list,epilogue = str_c("returnValue 'return':\n",retDocs));
+    
     opt = parse_args(opt_parser);
     if (is.null(opt$i)){                                                     ## check if at least one argument is supplied.
         print_help(opt_parser)
@@ -2746,7 +2770,29 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
     }
     
     Titles <- list(plot_Title=plot_Title,plot_SubTitle=plot_SubTitle, numbers=c(min(as.vector(unlist(TitleTimeSpan))), max(as.vector(unlist(TitleTimeSpan)))))
-    cat(str_c("1: Summary Plot","2: Titles","3: Daily Analyses","4: Dates","5: configuration","6: configuration-path","7: RDATA_Path","8: function 'getRelative_change()'","9: function 'getAbsolute_change()'","10: function\t 'formatPValue()'",sep = "\n"))
+    #cat(str_c("\n\nreturn\t\t\t\t\t\t Object containing the following elements\t\t\t\t\t\t\t\t [list]",
+    #        "return[[1]]\t\t\t\t\t Summary-Plot displaying progression over time\t\t\t\t\t\t\t\t [ggplot]",
+    #        "return[[2]]\t\t\t\t\t plot_title, plot_subtitle, min age and max age\t\t\t\t\t\t\t\t [list]",
+    #        "return[[3]]\t\t\t\t\t Daily Analyses\t\t\t\t\t\t\t\t\t\t\t\t [list]",
+    #        "\t$'dd.mm.YYYY' \t\t\t\t Day-Object containing all results for a specified date, f.e. return[[3]]$'30.05.2023'\t\t\t [list]",
+    #        "\t\t$boxplot\t\t\t figure for the date. contains p-values and sample-sizes\t\t\t\t\t\t [ggplot]",
+    #        "\t\t$Outlierplot\t\t\t rudimentary outlier-plot. Outliers are marked red.\t\t\t\t\t\t\t [ggplot]",
+    #        "\t\t$Res\t\t\t\t all statistical data for a given date\t\t\t\t\t\t\t\t\t [list]",
+    #        "\t\t\t $Data\t\t\t data loaded IN from the respective Excel-Sheet.\t\t\t\t\t\t\t [tbl_df]",
+    #        "\t\t\t $Outlier\t\t returns outliers as identified via 'identify_outliers()' (rstatix)\t\t\t\t\t [tbl_df]",
+    #        "\t\t\t $data_wo_Outliers\t returns data minus the outliers present in $Outlier\t\t\t\t\t\t\t [tbl_df]",
+    #        "\t\t\t $Norm\t\t\t Result of the Normality-Tests\t\t\t\t\t\t\t\t\t\t [list]",
+    #        "\t\t\t $BT\t\t\t Result of the Bartlett-Tests\t\t\t\t\t\t\t\t\t\t [list]",
+    #        "\t\t\t $T.Test  \t\t Result of the T.Tests\t\t\t\t\t\t\t\t\t\t\t [list]",
+    #        "\t\t\t $summary \t\t Result of the 'summary'-Command\t\t\t\t\t\t\t\t\t [list].\n\t\t\t\t\t\t NOTE: Additionally, the absolute [cm^2] and relative [%] change relative to\n\t\t\t\t\t\t the previous measuring-date is printed for measurement dates 2+.",
+    #        "return[[4]] \t\t\t\t\t returns the dates in ISO-format\t\t\t\t\t\t\t\t\t [Date]",
+    #        "return[[5]] \t\t\t\t\t configuration used during execution, as loaded from the configuration path provided.\t\t\t [list]",
+    #        "return[[6]] \t\t\t\t\t path to the configuration-file loaded\t\t\t\t\t\t\t\t\t [string]",
+    #        "return[[7]] \t\t\t\t\t path to the RDATA-file containing this object (if saveRDATA=1, otherwhise this path does not exist)\t [string]",
+    #        "return[[8]]  - getRelative_change\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",
+    #        "return[[9]]  - getAbsolute_change\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",
+    #        "return[[10]] - formatPValue\t\t\t refer to documentation for details\t\t\t\t\t\t\t\t\t [function]",sep = "\n"))
+    cat("\n<-- GFA_Main(): Execution finished")
     if (returnDays) {
         return(list(GFA_SummaryPlot,Titles,GFA_DailyAnalyses,Dates,ini,path,RDATA_Path,getRelative_change,getAbsolute_change,formatPValue))
     } else {
