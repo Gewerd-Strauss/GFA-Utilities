@@ -27,6 +27,8 @@ if (sys.nframe()==0) {                                                          
                     help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not statistical evaluation and results generated are saved to disk as an '.xlsx'-file or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
         make_option(c("-r", "--saveRDATA"), type="integer", default=0, 
                     help="pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tToggles whether or not all generated data (plots, loaded configuration data, relevant evaluation functions) are saved to an '.RData'-file or not. Files are saved to a subfolder relative to configuration file supplied via the option '-i'", metavar="[integer]"),
+        make_option(c("-w", "--warning"),type="integer",default=1,
+                    help="numerical Flag, between -1<=x<=2 [Default: %default].\n\n\t\tIt is not recommended to change the default value if the results are unknown and not validated,\n\t\tinstead it is recommended to only mute all warnings if the calculation must be repeated and the console output is supposed to be as clean as possible. Does not affect errors.\n\n\t\t-1:\tAll Warnings are ignored and will no be printedn\n\t\t 0:\tWarnings will print after top-level function has completed.\n\t\t 1:\tWarnings are printed as they occur.\n\t\t 2:\tTreat all warnings as errors."),
         make_option(c("-c", "--overwriteEncoding"), type="character", 
                     help="manual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar="[string]")
     )
@@ -351,7 +353,7 @@ getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
             }
         } else {
             wrnopt <- getOption("warn")
-            options(warn = 1)
+            options(warn=overwriteWarnings)
             warning(str_c("getRelativeChange() [user-defined]: your value for "
                           , ifelse(!is.numeric(this),str_c("[this]: '", this),str_c("[last]: '",last))
                           , "' is not numeric, and thus cannot be used for comparison."
@@ -415,7 +417,7 @@ getAbsolute_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
             }
         } else {
             wrnopt <- getOption("warn")
-            options(warn = 1)
+            options(warn=overwriteWarnings)
             warning(str_c("getRelativeChange() [user-defined]: your value for "
                           , ifelse(!is.numeric(this),str_c("[this]: '", this),str_c("[last]: '",last))
                           , "' is not numeric, and thus cannot be used for comparison."
@@ -461,14 +463,14 @@ getMeanofVectorElements <- function(Vector, Elements) {
     mean <- mean(selection)
     return(mean)
 }
-GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteEncoding="") {
+GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteEncoding="",overwriteWarnings=1) {
     
     
     ## define local functions
     # These functions are used internally by GFA_main, and are not used internally by RunDetailed. 
     # They are set up as local functions so that the environment beecomes less cluttered visually.
     
-    RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE) {
+    RunDetailed <- function(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures=FALSE,saveExcel=FALSE,saveRDATA=FALSE,overwriteWarnings=1) {
         isNormallyDistributed <- function(norm_obj,Threshold=0.05) {
             # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
             boolean <- ""
@@ -1516,7 +1518,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                 }
                 if (maximum>2500) {
                     wrnopt <- getOption("warn")
-                    options(warn = 1)
+                    options(warn=overwriteWarnings)
                     warning(str_c("getBreaks() [user-defined]: your largest y-value "
                                   , Limits[[2]]
                                   , " exceeds 2500, which is the last step for which the author of this script predefined"
@@ -1585,7 +1587,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     if (strictLimitsValidation) {
                         
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,1"
                                       , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
                                       , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, and thus the upper y-limit will be forced to its next-larger multiple")
@@ -1595,7 +1597,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                         Limits[[2]] <- round_any(Limits[[2]],breaks$BreakStepSize,ceiling)
                     } else {
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,2"
                                       , str_c("\nThe upper y limit defined by the configuration (", temp[[2]],")")
                                       , str_c("\nlies below the maximum (",max(as.vector(data),na.rm = T),") value of your dataset. By default, this is not allowed, but a user has set the internal logic-switch 'strictLimitsValidation' of this function to false.")
@@ -1630,7 +1632,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                 if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
                     if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,4"
                                       , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
                                       , "\nand has been rounded up to the nearest multiple of it."
@@ -1640,7 +1642,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                         breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
                     } else {                                                                ## the upper y limit is a multiple of the breakstepsize
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,5"
                                       , "\nThe breaks defined by the user-defined function 'getBreaks()'"
                                       , " would underscale the upper y limit."
@@ -1651,7 +1653,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                 } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){          ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
                     if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,6"
                                       , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
                                       , "\nand has been rounded up to the nearest multiple of it."
@@ -1661,7 +1663,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                         breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
                     } else {                                                                ## the upper y limit is a multiple of the breakstepsize
                         wrnopt <- getOption("warn")
-                        options(warn = 1)
+                        options(warn=overwriteWarnings)
                         warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,7"
                                       , "\nThe breaks defined by the user-defined function 'getBreaks()'"
                                       , " would underscale the upper y limit."
@@ -1679,7 +1681,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             if (Limits[[2]]<(breaks$breaknumber*breaks$BreakStepSize)) {                    ## the number of breaks determined by getBreaks() will overscale the minimum-viable limit
                 if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## the upper y limit is not a multiple of the Breakstepsize
                     wrnopt <- getOption("warn")
-                    options(warn = 1)
+                    options(warn=overwriteWarnings)
                     warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,8"
                                   , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
                                   , "\nand has been rounded up to the nearest multiple of it."
@@ -1689,7 +1691,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## and recalculate the number of breaks required
                 } else {                                                                ## the upper y limit is a multiple of the breakstepsize
                     wrnopt <- getOption("warn")
-                    options(warn = 1)
+                    options(warn=overwriteWarnings)
                     warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,9"
                                   , "\nThe breaks defined by the user-defined function 'getBreaks()'"
                                   , " would underscale the upper y limit."
@@ -1700,7 +1702,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
             } else if (Limits[[2]]>(breaks$breaknumber*breaks$BreakStepSize)){              ## the number of breaks determined by getBreaks() will underscale the minimum-viable limit
                 if (Limits[[2]]%%breaks$BreakStepSize!=0) {                             ## hence we need to first check if the mimimum viable limit is a multiple of the stepsize, 
                     wrnopt <- getOption("warn")
-                    options(warn = 1)
+                    options(warn=overwriteWarnings)
                     warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,10"
                                   , "\nThe upper y limit is not a multiple of the 'BreakStepSize',"
                                   , "\nand has been rounded up to the nearest multiple of it."
@@ -1710,7 +1712,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
                     breaks$breaknumber <- Limits[[2]]/breaks$BreakStepSize              ## so push the upper y limit to a multiple of breakstepsize, then adjust the break number
                 } else {                                                                ## the upper y limit is a multiple of the breakstepsize
                     wrnopt <- getOption("warn")
-                    options(warn = 1)
+                    options(warn=overwriteWarnings)
                     warning(str_c("calculateLimitsandBreaksforYAxis() [user-defined]: Task: y-scaling,11"
                                   , "\nThe breaks defined by the user-defined function 'getBreaks()'"
                                   , " would underscale the upper y limit."
@@ -2720,7 +2722,7 @@ GFA_main <- function(folder_path,returnDays=FALSE,saveFigures=FALSE,saveExcel=FA
         print("RUNNING DAYLIES")
         
         ChosenDays <- unlist(strsplit(ChosenDays,","))
-        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA)
+        GFA_DailyAnalyses <- RunDetailed(ChosenDays,Files,PotsPerGroup,numberofGroups,groups_as_ordered_in_datafile,folder_path,Conditions,ini,data_all_dailies,saveFigures,saveExcel,saveRDATA,overwriteWarnings)
         GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = F)
         kable_table <- kable(calculateChange(GFA_DailyAnalyses,ChosenDays,returnTable = T),caption = "Relative and Absolute change for subsequent groups, on the same group")
         print(kable_table)
