@@ -257,26 +257,45 @@ fixscient <- function(number,number_of_decimals=2,fp_format="sci",renderpositive
     fixdecimalplaces <- function(x, k){
         return(trimws(format(round(x, k), nsmall=k)))
     }
-if (str_count(number,"e")) {
-    if (str_count(number,"e-")) {
-        split <- strsplit(as.character(number),split = "e-")
-        Power <- split[[1]][[2]]
-        value <- split[[1]][[1]]
-        value <- round(as.numeric(value),number_of_decimals)
-        if (renderpositive_sign) {
-            if (checkSign(value)) {
-                str <- str_c("$+",value," \\times 10^{-",Power,"}$")
+    if (str_count(number,"e")) {
+        if (str_count(number,"e-")) {
+            split <- strsplit(as.character(number),split = "e-")
+            Power <- split[[1]][[2]]
+            value <- split[[1]][[1]]
+            value <- round(as.numeric(value),number_of_decimals)
+            if (renderpositive_sign) {
+                if (checkSign(value)) {
+                    str <- str_c("$+",value," \\times 10^{-",Power,"}$")
+                } else {
+                    str <- str_c("$",value," \\times 10^{-",Power,"}$")
+                }
             } else {
                 str <- str_c("$",value," \\times 10^{-",Power,"}$")
             }
         } else {
-            str <- str_c("$",value," \\times 10^{-",Power,"}$")
-        }
-    } else {
-        split <- strsplit(as.character(number),split = "e+")
-        if (length(split)==1) {
+            split <- strsplit(as.character(number),split = "e+")
+            if (length(split)==1) {
+                Power <- split[[1]][[2]]
+                Power <- str_replace(Power,'\\+',"")
+                value <- split[[1]][[1]]
+                value <- round(as.numeric(value),number_of_decimals)
+                if (renderpositive_sign) {
+                    if (checkSign(value)) {
+                        str <- str_c("$+",value," \\times 10^{",Power,"}$")
+                    } else {
+                        str <- str_c("$",value," \\times 10^{",Power,"}$")
+                    }
+                } else {
+                    str <- str_c("$",value," \\times 10^{",Power,"}$")
+                }
+                return(str)
+            }
             Power <- split[[1]][[2]]
             Power <- str_replace(Power,'\\+',"")
+            if (isFALSE((Power>20) || (-20>Power))) {
+                #print("normal")
+                return(format_power(number,format=fp_format))
+            }
             value <- split[[1]][[1]]
             value <- round(as.numeric(value),number_of_decimals)
             if (renderpositive_sign) {
@@ -288,43 +307,21 @@ if (str_count(number,"e")) {
             } else {
                 str <- str_c("$",value," \\times 10^{",Power,"}$")
             }
-            
-            #print(str)
-            return(str)
         }
-        Power <- split[[1]][[2]]
-        Power <- str_replace(Power,'\\+',"")
-        if (isFALSE((Power>20) || (-20>Power))) {
-            #print("normal")
-            return(format_power(number,format=fp_format))
-        }
-        value <- split[[1]][[1]]
-        value <- round(as.numeric(value),number_of_decimals)
+    } else {
+        value <- round(as.numeric(number),number_of_decimals)
+        value <- fixdecimalplaces(number,number_of_decimals)
         if (renderpositive_sign) {
             if (checkSign(value)) {
-                str <- str_c("$+",value," \\times 10^{",Power,"}$")
+                str <- str_c("$+",value,"$")
             } else {
-                str <- str_c("$",value," \\times 10^{",Power,"}$")
+                str <- str_c("$",value,"$")
             }
-        } else {
-            str <- str_c("$",value," \\times 10^{",Power,"}$")
-        }
-    }
-} else {
-    value <- round(as.numeric(number),number_of_decimals)
-    value <- fixdecimalplaces(number,number_of_decimals)
-    if (renderpositive_sign) {
-        if (checkSign(value)) {
-            str <- str_c("$+",value,"$")
         } else {
             str <- str_c("$",value,"$")
         }
-    } else {
-        str <- str_c("$",value,"$")
     }
-}
-#print("custom")
-return(str)
+    return(str)
 }
 getRelative_change <- function(this,last,Object=FALSE,returnTable=FALSE) {
     # getRelative_change
