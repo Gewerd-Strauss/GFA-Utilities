@@ -1286,9 +1286,9 @@ runRScript(dynGUI) {
         if (dynGUI.GFA_Evaluation_RScript_Location!="") {
             if (FileExist(dynGUI.GFA_Evaluation_RScript_Location)) {
                 try {
-                    run % "*edit " dynGUI.GFA_Evaluation_RScript_Location
+                    run % "*edit " dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                     if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        run % "explore " dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                         if (ErrorLevel!=0) {
                             SplitPath % dynGUI.GFA_Evaluation_RScript_Location, , OutDir
                             Run %  OutDir
@@ -1296,7 +1296,7 @@ runRScript(dynGUI) {
                     }
                 } catch {
                     if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        run % dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                         if (ErrorLevel!=0) {
                             SplitPath % dynGUI.GFA_Evaluation_RScript_Location,, OutDir
                             Run %  OutDir
@@ -1318,8 +1318,8 @@ runConfig(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_Configfile_Location")) {
         if (dynGUI.GFA_Evaluation_Configfile_Location!="") {
             if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
-                            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , OutDir
-                            Run %  OutDir
+                SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , OutDir
+                Run %  OutDir
             } else {
                 ttip("The selected Configuration does not exist.")
             }
