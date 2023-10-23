@@ -255,7 +255,7 @@ guiCreate() {
     gui add, text,% "y15 x" Sections[1].XAnchor+5 " h0 w0",leftanchor
     gui add, text,% "y20 x" Sections[1].XAnchor+5 " h40 w350",% "Select the configuration file you want to use. Alternatively, choose a folder containing your data - where you want your configuration file to sit. All '.xlsx'/'.csv'-files in any subfolder will be used."
     ;gui add, button, y60 xp w80 hwndselectConfigLocation,% "Select &Folder"
-    gui add, button,% "y60 w80 hwndnewConfigurationBtn x" Sections[1].XAnchor+5,% "New &Config in Folder"
+    gui add, button,% "y60 w80 hwndnewConfigurationBtn x" Sections[1].XAnchor+5,% "New Config in Folder"
     gui add, button,% "yp w80 hwndeditConfigurationBtn x" Sections[1].XAnchor+95,% "Edit existing Config"
     gui add, edit,% "yp w160 hwnddropFilesEdit disabled -vscroll -hscroll x" Sections[1].XAnchor+180,% "Drop config file or config destination folder here"
     gui add, text,% "y100 x" Sections[1].XAnchor+5 "w0 h0"
@@ -269,7 +269,7 @@ guiCreate() {
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
     gui add, text,% "y20 x" Sections[2].XAnchor+5 " h40 w350", % "Configure the R-Script used for running the GF-Analysis-Skript"
-    gui add, button,% "y60 w80 hwndnewStarterScriptBtn x" Sections[2].XAnchor+5, % "New &R-StarterScript"
+    gui add, button,% "y60 w80 hwndnewStarterScriptBtn x" Sections[2].XAnchor+5, % "New R-StarterScript"
     gui add, button,% "y60 w80 hwndeditStarterScriptBtn x" Sections[2].XAnchor+95, % "Edit existing R-StarterScript"
     gui add, edit,% "y60 w160 hwnddropFilesEdit2 disabled -vscroll -hscroll x" Sections[2].XAnchor+180,% "Drop RScript-file or RScript-destination folder here"
     gui add, text,% "y100 x" Sections[2].XAnchor+5 "w0 h0"
