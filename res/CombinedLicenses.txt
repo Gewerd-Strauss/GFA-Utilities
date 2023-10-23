@@ -1,5 +1,5 @@
 ﻿Licenses which could be downloaded directly from raw webpage-content; may not include all licenses linked
-License cJSON (by G33kDude, retrieved 20231023204719)
+License cJSON (by G33kDude, retrieved 20231023204922)
 
 MIT License
 
@@ -25,7 +25,7 @@ SOFTWARE.
 
 
 -------
-License DateParse (by polythene, retrieved 20231023204719)
+License DateParse (by polythene, retrieved 20231023204923)
 
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
@@ -369,7 +369,7 @@ Public License instead of this License.
 
 
 -------
-License LV_EX (by just me, retrieved 20231023204719)
+License LV_EX (by just me, retrieved 20231023204923)
 
 This is free and unencumbered software released into the public domain.
 
@@ -398,7 +398,7 @@ For more information, please refer to <http://unlicense.org>
 
 
 -------
-License RichCode (by G33kDude, retrieved 20231023204719)
+License RichCode (by G33kDude, retrieved 20231023204923)
 
 MIT License
 
