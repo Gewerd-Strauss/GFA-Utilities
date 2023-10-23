@@ -1318,24 +1318,8 @@ runConfig(dynGUI) {
     if (dynGUI.HasKey("GFA_Evaluation_Configfile_Location")) {
         if (dynGUI.GFA_Evaluation_Configfile_Location!="") {
             if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
-                try {
-                    run % "*edit " dynGUI.GFA_Evaluation_Configfile_Location
-                    if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_Configfile_Location
-                        if (ErrorLevel!=0) {
                             SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , OutDir
                             Run %  OutDir
-                        }
-                    }
-                } catch {
-                    if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_Configfile_Location
-                        if (ErrorLevel!=0) {
-                            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
-                            Run %  OutDir
-                        }
-                    }
-                }
             } else {
                 ttip("The selected Configuration does not exist.")
             }
