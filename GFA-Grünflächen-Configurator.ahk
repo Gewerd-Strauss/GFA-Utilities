@@ -255,7 +255,7 @@ guiCreate() {
     gui add, text,% "y15 x" Sections[1].XAnchor+5 " h0 w0",leftanchor
     gui add, text,% "y20 x" Sections[1].XAnchor+5 " h40 w350",% "Select the configuration file you want to use. Alternatively, choose a folder containing your data - where you want your configuration file to sit. All '.xlsx'/'.csv'-files in any subfolder will be used."
     ;gui add, button, y60 xp w80 hwndselectConfigLocation,% "Select &Folder"
-    gui add, button,% "y60 w80 hwndnewConfigurationBtn x" Sections[1].XAnchor+5,% "New &Config in Folder"
+    gui add, button,% "y60 w80 hwndnewConfigurationBtn x" Sections[1].XAnchor+5,% "New Config in Folder"
     gui add, button,% "yp w80 hwndeditConfigurationBtn x" Sections[1].XAnchor+95,% "Edit existing Config"
     gui add, edit,% "yp w160 hwnddropFilesEdit disabled -vscroll -hscroll x" Sections[1].XAnchor+180,% "Drop config file or config destination folder here"
     gui add, text,% "y100 x" Sections[1].XAnchor+5 "w0 h0"
@@ -269,7 +269,7 @@ guiCreate() {
     ;; middle
     gui add, text,% "y15 x" Sections[2].XAnchor+5 " h0 w0", middleanchor
     gui add, text,% "y20 x" Sections[2].XAnchor+5 " h40 w350", % "Configure the R-Script used for running the GF-Analysis-Skript"
-    gui add, button,% "y60 w80 hwndnewStarterScriptBtn x" Sections[2].XAnchor+5, % "New &R-StarterScript"
+    gui add, button,% "y60 w80 hwndnewStarterScriptBtn x" Sections[2].XAnchor+5, % "New R-StarterScript"
     gui add, button,% "y60 w80 hwndeditStarterScriptBtn x" Sections[2].XAnchor+95, % "Edit existing R-StarterScript"
     gui add, edit,% "y60 w160 hwnddropFilesEdit2 disabled -vscroll -hscroll x" Sections[2].XAnchor+180,% "Drop RScript-file or RScript-destination folder here"
     gui add, text,% "y100 x" Sections[2].XAnchor+5 "w0 h0"
@@ -356,9 +356,10 @@ guiCreate() {
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndgenerateConfigurationBtn x" Sections[4].XAnchor+185, % "Generate Configuration"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndEditSettingsBtn gfEditSettings  x" Sections[4].XAnchor+275, % "Open &program settings"
     gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndOpenRScriptBtn x" Sections[4].XAnchor+365, % "Open current &script"
-    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndExitProgramBtn gexitApp x" Sections[4].XAnchor+455, % "Exit Program"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndOpenConfigBtn x" Sections[4].XAnchor+455, % "Open current &config"
+    gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80 hwndExitProgramBtn gexitApp x" Sections[4].XAnchor+545, % "Exit Program"
     if (globalLogicSwitches.bIsAuthor) {
-        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gprepare_release hwndrecompileBtn x" Sections[4].XAnchor+545, % "Recompile"
+        gui add, button,% "y" (45+489+5+25+(guiHeight-(45+489+5+40+5+5+buttonHeight+5))+5) " w80  gprepare_release hwndrecompileBtn x" Sections[4].XAnchor+635, % "Recompile"
     }
 
     gui add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow
@@ -397,6 +398,7 @@ guiCreate() {
         , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
         , onrenameImages := Func("renameImages").Bind(dynGUI)
         , onOpencurrentScript := Func("runRScript").Bind(dynGUI)
+        , onOpencurrentConfig := Func("runConfig").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
         onNewConfiguration := Func("createConfiguration").Bind(A_ScriptDir,guiObject)
         oncreateRScript := Func("createRScript").Bind(A_ScriptDir)
@@ -419,6 +421,7 @@ guiCreate() {
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
     guiControl GC:+g, %openRScriptBtn%, % onOpencurrentScript
+    guiControl GC:+g, %openConfigBtn%, % onOpencurrentConfig
 
 
     guiControl GC:+g, %CheckreturnDays%, % onCheckreturnDays
@@ -451,6 +454,7 @@ guiCreate() {
     AddToolTip(generateConfigurationBtn,"Write the configuration options selected in section 1 to a file.")
     AddToolTip(EditSettingsBtn,"Open the settings for this program itself.")
     AddToolTip(openRScriptBtn,"Open the currently selected R-Script (see section 3, top). This program will`nattempt to open the script via the program associated with '.R'-files. If this`ndoes not work, it will recover by opening the containing folder instead.")
+    AddToolTip(openConfigBtn,"Open the currently selected configuration-file (see section 3, bottom). This program will`nattempt to open the configuration via the program associated with '-ini'-files. If this`ndoes not work, it will recover by opening the containing folder instead.")
     AddToolTip(ExitProgramBtn,"Exit this program.")
     return guiObject
 }
@@ -550,6 +554,7 @@ GCSize() {
     global EditSettingsBtn
     global ExitProgramBtn
     global OpenRScriptBtn
+    global OpenConfigBtn
     global recompileBtn
     global RC
     global RC2
@@ -567,7 +572,9 @@ GCSize() {
     AutoXYWH("w", hwndUsedConfigLocation)
     AutoXYWH("y", EditSettingsBtn, ExitProgramBtn)
     AutoXYWH("y", OpenRScriptBtn)
+    AutoXYWH("y", OpenConfigBtn)
     AutoXYWH("y", "Open current &script")
+    AutoXYWH("y", "Open current &config")
     AutoXYWH("y", "Open &program settings")
     AutoXYWH("y", "Exit Program")
     AutoXYWH("y", "Generate Configuration")
@@ -1279,9 +1286,9 @@ runRScript(dynGUI) {
         if (dynGUI.GFA_Evaluation_RScript_Location!="") {
             if (FileExist(dynGUI.GFA_Evaluation_RScript_Location)) {
                 try {
-                    run % "*edit " dynGUI.GFA_Evaluation_RScript_Location
+                    run % "*edit " dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                     if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        run % "explore " dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                         if (ErrorLevel!=0) {
                             SplitPath % dynGUI.GFA_Evaluation_RScript_Location, , OutDir
                             Run %  OutDir
@@ -1289,7 +1296,7 @@ runRScript(dynGUI) {
                     }
                 } catch {
                     if (ErrorLevel!=0) {
-                        run % dynGUI.GFA_Evaluation_RScript_Location
+                        run % dynGUI.GFA_Evaluation_RScript_Location,,UseErrorLevel
                         if (ErrorLevel!=0) {
                             SplitPath % dynGUI.GFA_Evaluation_RScript_Location,, OutDir
                             Run %  OutDir
@@ -1304,6 +1311,23 @@ runRScript(dynGUI) {
         }
     } else {
         ttip("No R-Script has been selected yet.")
+    }
+    return
+}
+runConfig(dynGUI) {
+    if (dynGUI.HasKey("GFA_Evaluation_Configfile_Location")) {
+        if (dynGUI.GFA_Evaluation_Configfile_Location!="") {
+            if (FileExist(dynGUI.GFA_Evaluation_Configfile_Location)) {
+                SplitPath % dynGUI.GFA_Evaluation_Configfile_Location, , OutDir
+                Run %  OutDir
+            } else {
+                ttip("The selected Configuration does not exist.")
+            }
+        } else {
+            ttip("No Configuration has been selected yet.")
+        }
+    } else {
+        ttip("No Configuration has been selected yet.")
     }
     return
 }
