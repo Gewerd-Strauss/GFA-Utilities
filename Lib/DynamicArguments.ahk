@@ -14,8 +14,9 @@ Class dynamicGUI {
             ExitApp
             return
         }
-
-        FileRead Text, % ConfigFile
+        fo:=fileOpen(ConfigFile,"r")
+        Text:=fo.read()
+        fo.Close()
         Text:=strreplace(Text,"`n","`r`n")
             , Lines:=strsplit(Text,Format "`r`n").2
             , Lines:=strsplit(Lines,"`r`n`r`n").1
@@ -38,7 +39,7 @@ Class dynamicGUI {
             if (RegexMatch(Line,"^\s+\S+")) {
                 while (p := RegExMatch(Line, regex, match, p)) {
                     ; do stuff
-                    if !InStr(Line,"|") { ;; not a parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
+                    if !InStr(Line,"|") { ;; not a Parameter being defined. This occurs on lines like `bookdown::word_document2` which should define a new output format instead
                         p+=StrLen(Match)
                     } else {
                         matchKey:=SubStr(matchKey,1,StrLen(matchKey)-1) ;; remove the doublepoint.
@@ -67,8 +68,8 @@ Class dynamicGUI {
         }
         this.AssumeDefaults()
             , this._Adjust()
-            , this.ArgumentsBackup:=this.Arguments.Clone()
     }
+    ;@ahk-neko-ignore 1 line; Method too big.
     __Init() {
         this.Errors:={ ;; negative errors are hard failures, which will not let the program continue. positive errors are positive, and allow limited continuation. Functionality may be limited
                 -1:{String:"Provided Configfile does not exist:`n`n",EndString:"`n`n---`nExiting Script",Criticality:-100,ID:-1}
@@ -209,10 +210,10 @@ Class dynamicGUI {
     }
     AdjustMinMax() {
         for Parameter, Value in this.Arguments {
-            if RegexMatch(Value.Other,"Max\:(?<Max>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Max\:(?<Max>\d*)",v_) {
                 Value.Max:=v_Max+0
             }
-            if RegexMatch(Value.Other,"Min\:(?<Min>\d*)",v_) {
+            if RegexMatch(Value.Other,"gmi)Min\:(?<Min>\d*)",v_) {
                 Value.Min:=v_Min+0
             }
             if Value.HasKey("Max") && Value.Value>Value.Max {
@@ -229,7 +230,7 @@ Class dynamicGUI {
         }
     }
     AdjustNulls() {
-        for _, Value in this.Arguments {
+        for Parameter, Value in this.Arguments {
             if Value.Value="NULL" {
                 Value.Value:=strreplace(Value.Value,"""")
             }
@@ -266,7 +267,7 @@ Class dynamicGUI {
         gui %GUI_ID% default
         SplitPath % Chosen,,,,ChosenName
         if (Chosen!="") {
-            ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:44:47 AM ; case sensitivity
+
             guicontrol %GUI_ID%,v%VarName%, % ChosenName A_Space this.DDL_ParamDelimiter A_Space Chosen
         }
     }
@@ -276,7 +277,7 @@ Class dynamicGUI {
         run % OutDir
     }
 
-    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,xpos_control:=false,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
+    GenerateGUI(x:="",y:="",AttachBottom:=true,GUI_ID:="ParamsGUI:",destroyGUI:=true,Tab3Width:=674,ShowGui:=false,fontsize:=8) {
         global ;; this cannot be made static or this.SubmitDynamicArguments() will not receive modified values (aka it will always assemble the default)
         if (destroyGUI) {
             gui %GUI_ID% destroy
@@ -328,12 +329,11 @@ Class dynamicGUI {
                 }
             }
         }
-        WideControlWidth:=330
-        gui %GUI_ID% add, Tab3,% "vvTab3 h900 w" Tab3Width, % Tab3String
+        gui %GUI_ID% add, Tab3,% "vvTab3 hwndhwndDA" " h900 w" Tab3Width, % Tab3String
         if (this.StepsizedGuishow) {
             gui %GUI_ID% show
         }
-        for Tab, Object in TabHeaders {
+        for Tab, _ in TabHeaders {
             if HiddenHeaders[Tab] {
                 continue
             }
@@ -354,34 +354,43 @@ Class dynamicGUI {
                 if InStr(Parameter,"pandoc") {
 
                 }
+                if (Value.HasKey("Link")) {
+                    Value.Link:=DA_FormatEx(Value.Link,script.metadataArr)
+                    Value.Link:=DA_FormatEx(Value.Link,{"Parameter":regexreplace(Parameter,".*","$L0")})
+                }
                 if (!RegexMatch(Value.String,"^" strreplace(Parameter,"___","-"))) && (Value.Control!="Text") {
                     Value.String:= "" strreplace(Parameter,"___","-") "" ":" A_Space Value.String
                 }
                 ControlHeight:=0
                 if (Tab=Value.Tab3Parent) {
                     Control:=Value.Control
-                    if (Options="") {
-                        Options:=""
-                    }
                     if (Value.Control="Edit") {
                         GuiControl Choose, vTab3, % Tab
                         if Value.HasKey("Link") {
-                            gui %GUI_ID%  add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space Value.String
+                            gui %GUI_ID% add, Link,% "h20 hwndDALink" Parameter, % "<a href=""" Value.Link """>?</a>" A_Space Value.String
                         } else {
-                            gui %GUI_ID%  add, text,h20, % Value.String
+                            gui %GUI_ID%  add, text,% "h20  hwndDALink" Parameter, % Value.String
                         }
                         ControlHeight+=20
                         if (Value.ctrlOptions="Number") {
                             if (Value.Max!="") && (Value.Min!="") {
                                 Value.ctrlOptions.= A_Space
                                 gui %GUI_ID% add, Edit,
-                                gui %GUI_ID% add, UpDown, % "h20 w80 Range" Value.Min "-" Value.Max " vv" Parameter, % Value.Default + 0
+                                gui %GUI_ID% add, UpDown, % "h20 w80 Range" Value.Min "-" Value.Max " vv" Parameter " hwndDA" Parameter, % Value.Default + 0
                                 ControlHeight+=20
                                 GuiControl %GUI_ID% Move, vTab3, % "h" TabHeight + ControlHeight + 16
                                 TabHeight+=ControlHeight
                                 GuiControl %GUI_ID% Move, vTab3, % "h" TabHeight + 16
                                 if (this.StepsizedGuishow) {
                                     gui %GUI_ID% show
+                                }
+                                if Value.HasKey("TTIP") {
+                                    if AddToolTip(Deref("%DA" Parameter "%"), strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                                    }
+                                    if AddToolTip(Deref("%DALink" Parameter "%"), strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                                    }
                                 }
                                 continue
                             }
@@ -395,7 +404,7 @@ Class dynamicGUI {
                             Value.ctrlOptions.= " h35"
                             ControlHeight+=35
                         }
-                        gui %GUI_ID% add, % "edit", % Value.ctrlOptions " vv" Parameter, % (Value.Value="NULL"?:Value.Value)
+                        gui %GUI_ID% add, % "edit", % Value.ctrlOptions " vv" Parameter " hwndDA" Parameter, % (Value.Value="NULL"?:Value.Value)
                         GuiControl Move, vTab3, % "h" TabHeight + ControlHeight + 32
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -403,13 +412,13 @@ Class dynamicGUI {
                         ;GuiControl Move, vTab3, % "h" TabHeight
                     } else if (Value.Control="File") {
                         if Value.HasKey("Link") {
-                            gui %GUI_ID%  add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space Value.String
+                            gui %GUI_ID% add, Link,% "h20 hwndDALink" Parameter, % "<a href=""" Value.Link """>?</a>" A_Space Value.String
                         } else {
-                            gui %GUI_ID%  add, text,TabHeight+20, % Value.String
+                            gui %GUI_ID%  add, text,% TabHeight+20 " hwndDALink" Parameter, % Value.String
                         }
                         ControlHeight+=20
                         ;GuiControl Move, vTab3, % "h" TabHeight + ControlHeight
-                        gui %GUI_ID% add, edit, % Value.ctrlOptions " vv" Parameter " disabled w200 yp+30 h60", % Value.Value
+                        gui %GUI_ID% add, edit, % Value.ctrlOptions " vv" Parameter " hwndDA" Parameter " disabled w200 yp+30 h60", % Value.Value
                         ControlHeight+=90
                         ;GuiControl Move, vTab3, % "h" TabHeight + ControlHeight
                         gui %GUI_ID% add, button, yp+70 hwndSelectFile, % "Select &File"
@@ -428,9 +437,15 @@ Class dynamicGUI {
                         }
                     } else if (Value.Control="DDL") || (Value.Control="ComboBox") {
                         if Value.HasKey("Link") {
-                            gui %GUI_ID%  add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space Value.String
+                            gui %GUI_ID% add, Link,% "h20 hwndDALink" Parameter, % "<a href=""" Value.Link """>?</a>" A_Space Value.String
                         } else {
-                            gui %GUI_ID%  add, text,h20, % Value.String
+                            gui %GUI_ID%  add, text,% "h20 hwndDALink" Parameter, % Value.String
+                        }
+                        if (RegexMatch(Value.ctrlOptions,"^r(?<Rows>\d+)\,.+$",v)) {
+                            Value.ctrlOptions2:=vRows
+                            Value.ctrlOptions:=RegExReplace(Value.ctrlOptions, "r\d+\,")
+                        } else {
+                            Value.ctrlOptions2:=0
                         }
                         if Instr(Value.ctrlOptions,",") && !Instr(Value.ctrlOptions,"|") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,",","|")
@@ -447,25 +462,25 @@ Class dynamicGUI {
                         if !Instr(Value.ctrlOptions,Value.Default "||") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.ctrlOptions "|")
                         }
-                        Threshold:=5
+                        Threshold:=(Value.ctrlOptions2>0?Value.ctrlOptions2:5)
                             , tmpctrlOptions:=LTrim(RTrim(strreplace(Value.ctrlOptions,"||","|"),"|"),"|")
                             , tmpctrlOptions_arr:=strsplit(tmpctrlOptions,"|")
                             , Count:=tmpctrlOptions_arr.Count()
                             , shown_rows:=(Count<=1?1:(Count>Threshold?Threshold:Count))
-                        gui %GUI_ID% add, % Value.Control, % "  vv" Parameter " r" shown_rows , % Value.ctrlOptions
+                        gui %GUI_ID% add, % Value.Control, % "  vv" Parameter " hwndDA" Parameter " r" shown_rows , % Value.ctrlOptions
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
                         }
                         ControlHeight+=75
                     } else if (Value.Control="DateTime"){
                         if Value.HasKey("Link") {
-                            gui %GUI_ID%  add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space Value.String
+                            gui %GUI_ID% add, Link,% "h20 hwndDALink" Parameter, % "<a href=""" Value.Link """>?</a>" A_Space Value.String
                         } else {
-                            gui %GUI_ID%  add, text,h20, % Value.String
+                            gui %GUI_ID%  add, text,% "h20 hwndDALink" Parameter, % Value.String
                         }
                         AHKVARIABLES := { "A_ScriptDir": A_ScriptDir, "A_ScriptName": A_ScriptName, "A_ScriptFullPath": A_ScriptFullPath, "A_ScriptHwnd": A_ScriptHwnd, "A_LineNumber": A_LineNumber, "A_LineFile": A_LineFile, "A_ThisFunc": A_ThisFunc, "A_ThisLabel": A_ThisLabel, "A_AhkVersion": A_AhkVersion, "A_AhkPath": A_AhkPath, "A_IsUnicode": A_IsUnicode, "A_IsCompiled": A_IsCompiled, "A_ExitReason": A_ExitReason, "A_YYYY": A_YYYY, "A_MM": A_MM, "A_DD": A_DD, "A_MMMM": A_MMMM, "A_MMM": A_MMM, "A_DDDD":A_DDDD,"A_DDD":A_DDD,"A_WDay":A_WDay,"A_YDay":A_YDay,"A_YWeek":A_YWeek,"A_Hour":A_Hour,"A_Min":A_Min,"A_Sec":A_Sec,"A_MSec":A_MSec,"A_Now":A_Now,"A_NowUTC":A_NowUTC,"A_TickCount":A_TickCount,"A_IsSuspended":A_IsSuspended,"A_IsPaused":A_IsPaused,"A_IsCritical":A_IsCritical,"A_BatchLines":A_BatchLines,"A_ListLines":A_ListLines,"A_TitleMatchMode":A_TitleMatchMode,"A_TitleMatchModeSpeed":A_TitleMatchModeSpeed,"A_DetectHiddenWindows":A_DetectHiddenWindows,"A_DetectHiddenText":A_DetectHiddenText,"A_AutoTrim":A_AutoTrim,"A_StringCaseSense":A_StringCaseSense,"A_FileEncoding":A_FileEncoding,"A_FormatInteger":A_FormatInteger,"A_FormatFloat":A_FormatFloat,"A_SendMode":A_SendMode,"A_SendLevel":A_SendLevel,"A_StoreCapsLockMode":A_StoreCapsLockMode,"A_KeyDelay":A_KeyDelay,"A_KeyDuration":A_KeyDuration,"A_KeyDelayPlay":A_KeyDelayPlay,"A_KeyDurationPlay":A_KeyDurationPlay,"A_WinDelay":A_WinDelay,"A_ControlDelay":A_ControlDelay,"A_MouseDelay":A_MouseDelay,"A_MouseDelayPlay":A_MouseDelayPlay,"A_DefaultMouseSpeed":A_DefaultMouseSpeed,"A_CoordModeToolTip":A_CoordModeToolTip,"A_CoordModePixel":A_CoordModePixel,"A_CoordModeMouse":A_CoordModeMouse,"A_CoordModeCaret":A_CoordModeCaret,"A_CoordModeMenu":A_CoordModeMenu,"A_RegView":A_RegView,"A_IconHidden":A_IconHidden,"A_IconTip":A_IconTip,"A_IconFile":A_IconFile,"A_IconNumber":A_IconNumber,"A_TimeIdle":A_TimeIdle,"A_TimeIdlePhysical":A_TimeIdlePhysical,"A_TimeIdleKeyboard":A_TimeIdleKeyboard,"A_TimeIdleMouse":A_TimeIdleMouse,"A_DefaultGUI":A_DefaultGUI,"A_DefaultListView":A_DefaultListView,"A_DefaultTreeView":A_DefaultTreeView,"A_Gui":A_Gui,"A_GuiControl":A_GuiControl,"A_GuiWidth":A_GuiWidth,"A_GuiHeight":A_GuiHeight,"A_GuiX":A_GuiX,"A_GuiY":A_GuiY,"A_GuiEvent":A_GuiEvent,"A_GuiControlEvent":A_GuiControlEvent,"A_EventInfo":A_EventInfo,"A_ThisMenuItem":A_ThisMenuItem,"A_ThisMenu":A_ThisMenu,"A_ThisMenuItemPos":A_ThisMenuItemPos,"A_ThisHotkey":A_ThisHotkey,"A_PriorHotkey":A_PriorHotkey,"A_PriorKey":A_PriorKey,"A_TimeSinceThisHotkey":A_TimeSinceThisHotkey,"A_TimeSincePriorHotkey":A_TimeSincePriorHotkey,"A_EndChar":A_EndChar,"A_ComSpec":A_ComSpec,"A_Temp":A_Temp,"A_OSType":A_OSType,"A_OSVersion":A_OSVersion,"A_Is64bitOS":A_Is64bitOS,"A_PtrSize":A_PtrSize,"A_Language":A_Language,"A_ComputerName":A_ComputerName,"A_UserName":A_UserName,"A_WinDir":A_WinDir,"A_ProgramFiles":A_ProgramFiles,"A_AppData":A_AppData,"A_AppDataCommon":A_AppDataCommon,"A_Desktop":A_Desktop,"A_DesktopCommon":A_DesktopCommon,"A_DesktopCommon":A_DesktopCommon}
 
-                        gui %GUI_ID%  add, DateTime, % Value.ctrlOptions " h30 vv" Parameter, % "dd.MM.yyyy"
+                        gui %GUI_ID%  add, DateTime, % Value.ctrlOptions " h30 vv" Parameter " hwndDA" Parameter, % "dd.MM.yyyy"
                         guicontrol %GUI_ID%,v%Parameter%,% DA_DateParse(DA_FormatEx(Value.Value, AHKVARIABLES))
                         if (this.StepsizedGuishow) {
                             gui %GUI_ID% show
@@ -473,26 +488,34 @@ Class dynamicGUI {
                     } else {
                         if Value.HasKey("Link") {
                             if (Value.Control="Checkbox") { 
-                                gui %GUI_ID% add, Link,h20, % "<a href=" Value.Link ">?</a>" A_Space
-                                gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions "yp-8 xp+8 h30 vv" Parameter, % Value.String
+                                gui %GUI_ID% add, Link,% "h20 hwndDALink" Parameter, % "<a href=""" Value.Link """>?</a>" A_Space
+                                gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions "yp-8 xp+8 h30 vv" Parameter " hwndDA" Parameter, % Value.String
                                 gui %GUI_ID% add, text, h0 w0 xp-8 yp+20
                                 if (this.StepsizedGuishow) {
                                     gui %GUI_ID% show
                                 }
                             }
                             if (Value.Control="Text") {
-                                gui %GUI_ID% add, text, % Value.ctrlOptions " h30 vv" Parameter "D", % Value.String
+                                gui %GUI_ID% add, text, % Value.ctrlOptions " h30 vv" Parameter " hwndDALink" Parameter, % Value.String
                             }
                         } else {
-                            gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter, % Value.String
+                            gui %GUI_ID% add, % Value.Control, % Value.ctrlOptions " h30 vv" Parameter " hwndDA" Parameter, % Value.String
                             if (this.StepsizedGuishow) {
                                 gui %GUI_ID% show
                             }
                         }
                         ControlHeight+=30
                     }
+                    if Value.HasKey("TTIP") {
+                        if AddToolTip(Deref("%DA" Parameter "%"),  strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                        }
+                        if AddToolTip(Deref("%DALink" Parameter "%"),  strreplace(Value.TTIP,"\n","`n"),,hwndDA) {
+
+                        }
+                    }
                     if (Value.Control="Checkbox") {
-                        ;@ahk-neko-ignore-fn 1 line; at 4/28/2023, 9:49:09 AM ; case sensitivity
+
                         guicontrol %GUI_ID% ,v%Parameter%, % Value.Default
                     }
 
@@ -519,9 +542,10 @@ Class dynamicGUI {
                 continue
             }
             if (Tab.Height>maxTabHeight) {
-                maxTabHeight:=Tab.Height + 80
+                maxTabHeight:=Tab.Height
             }
         }
+        maxTabHeight+=80
         GuiControl Move, vTab3, % "h" maxTabHeight
         maxTabHeight+=25
         GuiControl Choose, vTab3, 1
@@ -548,10 +572,8 @@ Class dynamicGUI {
         SysGet MonCount, MonitorCount
         if (MonCount>1) {
             SysGet Mon, Monitor,% currentMonitor
-            SysGet MonW,MonitorWorkArea, % currentMonitor
         } else {
             SysGet Mon, Monitor, 1
-            SysGet MonW,MonitorWorkArea, 1
         }
         MonWidth:=(MonLeft?MonLeft:MonRight)
             , MonWidth:=MonRight-MonLeft
@@ -591,13 +613,10 @@ Class dynamicGUI {
         WinWaitClose % "ahk_PID" PID
         Gui +OwnDialogs
         OnMessage(0x44, "DA_OnMsgBox")
-        MsgBox 0x40044, % this.ClassName " > " A_ThisFunc "()", You modified the configuration for this class.`nReload?
+        answer := AppError(this.ClassName " > " A_ThisFunc "()", "You modified the configuration for this class.`nReload?", 0x44)
         OnMessage(0x44, "")
-
-        IfMsgBox Yes, {
-            reload
-        } Else IfMsgBox No, {
-
+        if (answer = "Yes") {
+            reload()
         }
 
     }
@@ -611,12 +630,12 @@ Class dynamicGUI {
             gui %GUI_ID% Submit, NoHide
         }
         for Parameter,_ in this.Arguments {
-            ;@ahk-neko-ignore 1 line; at 4/28/2023, 9:49:42 AM ; https://github.com/CoffeeChaton/vscode-autohotkey-NekoHelp/blob/main/note/code107.md
-            parameter:=strreplace(parameter,"-","___")
+
+            Parameter:=strreplace(Parameter,"-","___")
             ;k=v%Parameter% ;; i know this is jank, but I can't seem to fix it. just don't touch for now?
             ;a:=%k%
             GuiControlGet val,, v%Parameter%
-            parameter:=strreplace(parameter,"___","-")
+            Parameter:=strreplace(Parameter,"___","-")
             this["Arguments",Parameter].Value:=val
         }
         if (destroy) {
@@ -733,13 +752,15 @@ DA_DateParse(str) {
     Else If !RegExMatch(str, "^\W*(\d{1,2}+)(\d{2})\W*$", t)
         RegExMatch(str, "i)(\d{1,2})\s*:\s*(\d{1,2})(?:\s*(\d{1,2}))?(?:\s*([ap]m))?", t)
         , RegExMatch(str, e2, d)
-    f = %A_FormatFloat%
+    f := A_FormatFloat
+
     SetFormat Float, 02.0
     d := (d3 ? (StrLen(d3) = 2 ? 20 : "") . d3 : A_YYYY)
         . ((d2 := d2 + 0 ? d2 : (InStr(e2, SubStr(d2, 1, 3)) - 40) // 4 + 1.0) > 0
         ? d2 + 0.0 : A_MM) . ((d1 += 0.0) ? d1 : A_DD) . t1
         + (t1 = 12 ? t4 = "am" ? -12.0 : 0.0 : t4 = "am" ? 0.0 : 12.0) . t2 + 0.0 . t3 + 0.0
-    SetFormat Float, %f%
+
+    SetFormat Float, % f
     Return, d
 }
 
@@ -1103,8 +1124,11 @@ DA_FormatEx(FormatStr, Values*) {
     for _, part in Values {
         for search, replace in part {
             replacements.Push(replace)
-            FormatStr := StrReplace(FormatStr, "{" search "}", "{"++index "}")
+            FormatStr := StrReplace(FormatStr, "{" search "}", "{" ++index "}")
         }
     }
     return Format(FormatStr, replacements*)
+}
+sink() {
+
 }

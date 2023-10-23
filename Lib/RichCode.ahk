@@ -174,7 +174,6 @@ class GC_RichCode
 
     __New(Settings, Options:="")
     {
-        static Test
         this.Settings := Settings
             , FGColor := this.BGRFromRGB(Settings.FGColor)
             , BGColor := this.BGRFromRGB(Settings.BGColor)
@@ -224,7 +223,7 @@ class GC_RichCode
         ; Create the right click menu
             , this.MenuName := this.__Class . &this
             , RCMBound := this.RightClickMenu.Bind(&this)
-        for Index, Entry in this.MenuItems
+        for _, Entry in this.MenuItems
             Menu % this.MenuName, Add, %Entry%, %RCMBound%
 
         ; Get the ITextDocument object
@@ -235,6 +234,7 @@ class GC_RichCode
             , this.pITextDocument := ComObjQuery(this.IRichEditOle, this.IID_ITextDocument)
             , this.ITextDocument := ComObject(9, this.pITextDocument, 1), ObjAddRef(this.pITextDocument)
     }
+
 
     RightClickMenu(ItemName, ItemPos, MenuName)
     {
@@ -279,6 +279,7 @@ class GC_RichCode
 
     ; --- Event Handlers ---
 
+
     OnMessage(wParam, lParam, Msg, hWnd)
     {
         if !IsObject(this)
@@ -320,6 +321,7 @@ class GC_RichCode
         }
     }
 
+
     CtrlEvent(CtrlHwnd, GuiEvent, EventInfo, _ErrorLevel:="")
     {
         if (GuiEvent == "Normal" && EventInfo == 0x300) ; EN_CHANGE
@@ -357,7 +359,7 @@ class GC_RichCode
 
         ; Run the highlighter
         Highlighter := this.Settings.Highlighter
-            , RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
+        RTF := %Highlighter%(this.Settings, NewVal.Length() ? NewVal[1] : this.Value)
 
         ; "TRichEdit suspend/resume undo function"
         ; https://stackoverflow.com/a/21206620
@@ -504,7 +506,7 @@ HighlightINI(Settings, ByRef Code)
 
     GenHighlighterCache(Settings)
     Map := Settings.Cache.ColorMap
-
+    RTF:=""
     Pos := 1
     while (FoundPos := RegExMatch(Code, Needle, Match, Pos))
     {
@@ -579,7 +581,7 @@ HighlightR(Settings, ByRef Code)
 
     GenHighlighterCache(Settings)
     Map := Settings.Cache.ColorMap
-
+    RTF:=""
     Pos := 1
     while (FoundPos := RegExMatch(Code, Needle, Match, Pos))
     {
@@ -665,6 +667,8 @@ GenHighlighterCache(Settings)
     RTF .= "}"
 
     ; Font Table
+
+    FontTable:=""
     if Settings.Font
     {
         FontTable .= "{\fonttbl{\f0\fmodern\fcharset0 "
@@ -687,7 +691,7 @@ GetCharWidthTwips(Font)
     static Cache := {}
 
     if Cache.HasKey(Font.Typeface "_" Font.Size "_" Font.Bold)
-        return Cache[Font.Typeface "_" font.Size "_" Font.Bold]
+        return Cache[Font.Typeface "_" Font.Size "_" Font.Bold]
 
     ; Calculate parameters of CreateFont
     Height	:= -Round(Font.Size*A_ScreenDPI/72)
@@ -727,7 +731,7 @@ GetCharWidthTwips(Font)
 
 EscapeRTF(Code)
 {
-    for each, Char in ["\", "{", "}", "`n"]
+    for _, Char in ["\", "{", "}", "`n"]
         Code := StrReplace(Code, Char, "\" Char)
     return StrReplace(StrReplace(Code, "`t", "\tab "), "`r")
 }

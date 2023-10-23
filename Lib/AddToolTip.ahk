@@ -53,11 +53,12 @@
 ; #endregion:Description
 
 ; #region:Code
-AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                                        			;-- very easy to use function to add a tooltip to a control
+AddToolTip(_CtrlHwnd, _TipText, _Modify = 0,GuiHwnd:="") {                                                        			;-- very easy to use function to add a tooltip to a control
 
-    Static TTHwnds, GuiHwnds, Ptr
-        , LastGuiHwnd
-        , LastTTHwnd
+    Static TTHwnds := ""
+        , GuiHwnds := ""
+        , LastGuiHwnd := ""
+        , LastTTHwnd := ""
         , TTM_DELTOOLA := 1029
         , TTM_DELTOOLW := 1075
         , TTM_ADDTOOLA := 1028
@@ -68,8 +69,7 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                  
         , WS_POPUP := 0x80000000
         , BS_AUTOCHECKBOX = 0x3
         , CW_USEDEFAULT := 0x80000000
-
-    Ptr := A_PtrSize ? "Ptr" : "UInt"
+        , Ptr := A_PtrSize ? "Ptr" : "UInt"
 
     /*                              	NOTE
 
@@ -122,13 +122,15 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                  
 
         Return
     }
-
-    If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
-        Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
+    if (GuiHwnd="") {
+        If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
+            Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
+    }
 
     ; If this GUI is the same one as the potential previous one
     ; else look through the list of previous GUIs this function
     ; has operated on and find the existing TTHwnd if one exists.
+    TTHwnd := 0
     If (GuiHwnd = LastGuiHwnd)
         TTHwnd := LastTTHwnd
     Else
@@ -250,6 +252,7 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) {                                  
 
     Return
     RemoveCachedHwnd:
+    NewGuiHwnds := NewTTHwnds := ""
     Loop, Parse, GuiHwnds, |
         NewGuiHwnds .= (A_LoopField = GuiHwnd ? "" : ((NewGuiHwnds = "" ? "" : "|") A_LoopField))
 
