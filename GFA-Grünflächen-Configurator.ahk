@@ -146,7 +146,7 @@ main() {
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
     guiResize(guiObject)
-    Menu Tray, Add, Show/Hide GUI, % f5
+    Menu Tray, Add, Show GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
     }
@@ -468,21 +468,11 @@ guiShow3(guiObject,ShowThirdPane:=true) {
 }
 guiShow2(guiObject) {
     if (WinActive("ahk_id " guiObject.dynGUI.GCHWND)) {
-        if (guiObject.dynGUI.guiVisible) {
-            guiHide()
-            guiObject.dynGUI.guiVisible:=false
-        } else {
-            guiShow(guiObject)
-            guiObject.dynGUI.guiVisible:=true
-        }
+        guiShow(guiObject)
+        guiObject.dynGUI.guiVisible:=true
     } else {
-        if (guiObject.dynGUI.guiVisible) {
-            guiHide()
-            guiObject.dynGUI.guiVisible:=false
-        } else {
-            guiShow(guiObject)
-            guiObject.dynGUI.guiVisible:=true
-        }
+        guiShow(guiObject)
+        guiObject.dynGUI.guiVisible:=true
     }
     return
 }
