@@ -420,11 +420,15 @@ class script_ {
             if (Path ~= "^\\") {
                 Path := A_ScriptDir Path
             }
-            fo:=fileopen(Path,"r")
+            fo:=fileopen(Path,"r","utf-8")
             text:=fo.Read()
             fo.Close()
             text := Trim(text, "`r")
-            text := StrSplit(text, "`r`n")
+            if (InStr(text,"`r`n")) {
+                text:=strsplit(text, "`r`n")
+            } else if (InStr(text,"`n")) {
+                text:=StrSplit(text, "`n")
+            }
             meta := {}
             this.metadata:=text
             this.metadataArr := {}
