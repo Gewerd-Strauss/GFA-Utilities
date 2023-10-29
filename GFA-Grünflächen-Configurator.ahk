@@ -145,11 +145,13 @@ main() {
     guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
+        , f7:=func("copyGFA_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
     guiResize(guiObject)
     Menu Tray, Add, Show/Hide GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
     }
+    Menu Tray, Add, Copy GFA_Evaluation-Path, % f7
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
     fillRC1(guiObject.RCodeTemplate)
@@ -1329,6 +1331,10 @@ runConfig(dynGUI) {
     } else {
         ttip("No Configuration has been selected yet.")
     }
+    return
+}
+copyGFA_EvaluationFolder(Path) {
+    Clipboard:=strreplace(Path,"\","/")
     return
 }
 compareKeepOld() {
