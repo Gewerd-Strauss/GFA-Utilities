@@ -1334,7 +1334,7 @@ runConfig(dynGUI) {
     return
 }
 copyGFA_EvaluationFolder(Path) {
-    Clipboard:=Path
+    Clipboard:=strreplace(Path,"\","/")
     return
 }
 compareKeepOld() {
