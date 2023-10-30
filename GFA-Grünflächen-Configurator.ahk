@@ -146,12 +146,14 @@ main() {
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
         , f7:=func("copyGFA_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
+        , f8:=func("openCommandline_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
     guiResize(guiObject)
     Menu Tray, Add, Show GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
     }
     Menu Tray, Add, Copy GFA_Evaluation-Path, % f7
+    Menu Tray, Add, Open CMD, % f8
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
     fillRC1(guiObject.RCodeTemplate)
@@ -1325,6 +1327,11 @@ runConfig(dynGUI) {
 }
 copyGFA_EvaluationFolder(Path) {
     Clipboard:=strreplace(Path,"\","/")
+    return
+}
+openCommandline_EvaluationFolder(Path) {
+    SplitPath % Path, , OutDir
+    run cmd /K rscript GFA_Evaluation.R -h,% OutDir
     return
 }
 compareKeepOld() {
