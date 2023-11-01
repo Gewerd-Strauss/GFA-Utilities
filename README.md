@@ -2,11 +2,15 @@
 
 A Windows-only script to easily create a configuration for the enclosed GFA_Evaluation.R script.
 
+## Detailed documentation
+
+A detailed documentation can be found [here](https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/res/Manual.html).
+
 ## License
 
 See accompanying license file.
 
-## Paraneter Quick-Reference
+## Parameter Quick-Reference
 
 For further, and particularly usage-dependent information, see the tooltip informations on each parameter.
 This section serves as a quick reference for modifying an existing config-file without necessarily opening the program, and assumes the user is informed about the basic functionality of the parameters they alter.
