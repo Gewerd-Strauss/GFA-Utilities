@@ -1548,7 +1548,6 @@ return
 #Include <AddToolTip>
 #Include <RichCode>
 #Include <HasVal>
-#Include <Obj2Str>
 #Include <AutoXYWH>
 #Include <History>
 #Include <LV_EX>
@@ -1557,14 +1556,11 @@ return
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
 #Include <csv2xlsx>
-#Include <UriHandling>
-#Include <WinHttpRequest>
 #Include <SelectFolder>
 #Include <StdErr_Write>
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
 #Include <renameImages>
-#Include <cJSON>
 #Include <CenterControl>
 #Include <messageboxes>
 #Include <DerefAHKVariables>
