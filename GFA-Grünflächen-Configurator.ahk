@@ -1329,13 +1329,17 @@ copyGFA_EvaluationFolder(Path) {
     Clipboard:=strreplace(Path,"\","/")
     return
 }
-openCommandline_EvaluationFolder(gfa_evaluationPath) {
+openCommandline_EvaluationFolder(Path) {
     global guiObject
+    if (!FileExist(Path)) {
+        ttip("Critical: configuration path '" Path "' does not exist. Commandline cannot be openend at directory.")
+        return
+    }
     if (FileExist(guiObject.dynGUI.GFA_Evaluation_Configfile_Location)) {
         Clipboard:="rscript gfa_evaluation.r -i " . """" guiObject.dynGUI.GFA_Evaluation_Configfile_Location """"
         ttip("Configuration Path '" guiObject.dynGUI.GFA_Evaluation_Configfile_Location "' was put onto your clipboard")
     }
-    SplitPath % gfa_evaluationPath, , OutDir
+    SplitPath % Path, , OutDir
     run cmd /K rscript GFA_Evaluation.R -h,% OutDir
     return
 }
