@@ -839,7 +839,11 @@ fCallBack_StatusBarMainWindow() {
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
-        script.Update()
+        if (script.config.Configurator_settings.UpdateChannel="stable") {
+            script.Update(script.vfile,script.rfile,1)
+        } else if (script.config.Configurator_settings.UpdateChannel="development") {
+            script.Update(script.vfile_dev,script.rfile_dev,1)
+        }
         gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
         gui % "GC: Default"
         gui % "GC: +OwnDialogs"
