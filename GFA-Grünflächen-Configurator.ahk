@@ -1548,7 +1548,6 @@ return
 #Include <AddToolTip>
 #Include <RichCode>
 #Include <HasVal>
-#Include <Obj2Str>
 #Include <AutoXYWH>
 #Include <History>
 #Include <LV_EX>

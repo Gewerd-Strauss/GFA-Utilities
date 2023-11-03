@@ -15,7 +15,6 @@ jNizM           -       HasVal                                                  
 just me         -       LV_EX, reg. License                                                     - https://github.com/AHK-just-me/LV_EX, https://raw.githubusercontent.com/AHK-just-me/LV_EX/master/LICENSE
 Gewerd Strauss  -       main script, 
 Maestr0         -       MWAGetMonitor                                                           - https://www.autohotkey.com/boards/viewtopic.php?p=342716#p342716
-maestrith       -       Obj2Str                                                                 - https://www.autohotkey.com/boards/viewtopic.php?t=60522#p255613
 anonymous1184   -       Quote                                                                   - https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 anonymous1184   -       RegexMatchAll/RegexMatchLines                                           - https://www.reddit.com/r/AutoHotkey/comments/12l4gr8/comment/jg6ngt7/?utm_source=reddit&utm_medium=web2x&context=3
 G33kDude        -       RichCode, reg. License                                                  - https://github.com/G33kDude/Richcode.ahk, https://raw.githubusercontent.com/G33kDude/RichCode.ahk/v1-main/LICENSE
