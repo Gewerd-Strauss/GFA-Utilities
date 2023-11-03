@@ -1561,7 +1561,6 @@ return
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
 #Include <renameImages>
-#Include <cJSON>
 #Include <CenterControl>
 #Include <messageboxes>
 #Include <DerefAHKVariables>

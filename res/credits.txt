@@ -4,7 +4,6 @@ SKAN            -       Base64PNG_to_HICON, reg. License                        
 DEO, Fragman    -       callstack                                                               - https://www.autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/?p=530453
 banane          -       CenterControls                                                          - http://de.autohotkey.com/forum/viewtopic.php?p=67802#67802
 wolf_II         -       checkDecimalsOnEdit                                                     - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
-G33kDude        -       cJSON,reg. License                                                      - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
 just me         -       ClipboardSetFiles (considered PD by author)                             - https://www.autohotkey.com/boards/viewtopic.php?p=63914#p63914
 CodeKnight      -       CodeTimer                                                               - https://www.autohotkey.com/boards/viewtopic.php?p=316296#p316296
 polythene       -       DateParse, reg. License                                                 - https://www.autohotkey.com/board/topic/18760-date-parser-convert-any-date-format-to-yyyymmddhh24miss/?p=124324, https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
