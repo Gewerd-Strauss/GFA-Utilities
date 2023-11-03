@@ -1557,8 +1557,6 @@ return
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
 #Include <csv2xlsx>
-#Include <UriHandling>
-#Include <WinHttpRequest>
 #Include <SelectFolder>
 #Include <StdErr_Write>
 #Include <ClipboardSetFiles>
