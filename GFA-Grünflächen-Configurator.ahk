@@ -34,12 +34,11 @@ script := { base: script.base
         , aboutPath: A_ScriptDir "\res\About.html"
         , reqInternet: false
         , rfile: "https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/archive/refs/heads/master.zip"
-        , vfile_raw: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/master/version.ini"
-        , vfile: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/master/version.ini"
+        , vfile_raw: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/master/version_check.txt"
+        , vfile: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/master/version_check.txt"
         , rfile_dev: "https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/archive/refs/heads/dev.zip"
-        , vfile_raw_dev: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/dev/version.ini"
-        , vfile_dev: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/dev/version.ini"
-    ; , vfile_local : A_ScriptDir "\res\version.ini"
+        , vfile_raw_dev: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/dev/version_check.txt"
+        , vfile_dev: "https://raw.githubusercontent.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/dev/version_check.txt"
         , EL: "359b3d07acd54175a1257e311b5dfaa8370467c95f869d80dba32f4afdcae19f4485d67815d9c1f4fe9a024586584b3a0e37489e7cfaad8ce4bbc657ed79bd74"
         , authorID: "Laptop-C"
         , author: "Gewerd Strauss"
@@ -145,11 +144,15 @@ main() {
     guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
+        , f7:=func("copyGFA_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
+        , f8:=func("openCommandline_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
     guiResize(guiObject)
-    Menu Tray, Add, Show/Hide GUI, % f5
+    Menu Tray, Add, Show GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
     }
+    Menu Tray, Add, Copy GFA_Evaluation-Path, % f7
+    Menu Tray, Add, Open CMD, % f8
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
     fillRC1(guiObject.RCodeTemplate)
@@ -468,21 +471,11 @@ guiShow3(guiObject,ShowThirdPane:=true) {
 }
 guiShow2(guiObject) {
     if (WinActive("ahk_id " guiObject.dynGUI.GCHWND)) {
-        if (guiObject.dynGUI.guiVisible) {
-            guiHide()
-            guiObject.dynGUI.guiVisible:=false
-        } else {
-            guiShow(guiObject)
-            guiObject.dynGUI.guiVisible:=true
-        }
+        guiShow(guiObject)
+        guiObject.dynGUI.guiVisible:=true
     } else {
-        if (guiObject.dynGUI.guiVisible) {
-            guiHide()
-            guiObject.dynGUI.guiVisible:=false
-        } else {
-            guiShow(guiObject)
-            guiObject.dynGUI.guiVisible:=true
-        }
+        guiShow(guiObject)
+        guiObject.dynGUI.guiVisible:=true
     }
     return
 }
@@ -845,7 +838,11 @@ fCallBack_StatusBarMainWindow() {
     if ((A_GuiEvent="DoubleClick") && (A_EventInfo=1)) {        ; part 0  -  ??
 
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) { ; part 1  -  build/version - check for updates
-        script.Update()
+        if (script.config.Configurator_settings.UpdateChannel="stable") {
+            script.Update(script.vfile,script.rfile,1)
+        } else if (script.config.Configurator_settings.UpdateChannel="development") {
+            script.Update(script.vfile_dev,script.rfile_dev,1)
+        }
         gui % "GC: "((script.config.Configurator_settings.AlwaysOnTop)?"+":"-") "AlwaysOnTop"
         gui % "GC: Default"
         gui % "GC: +OwnDialogs"
@@ -1331,6 +1328,24 @@ runConfig(dynGUI) {
     }
     return
 }
+copyGFA_EvaluationFolder(Path) {
+    Clipboard:=strreplace(Path,"\","/")
+    return
+}
+openCommandline_EvaluationFolder(Path) {
+    global guiObject
+    if (!FileExist(Path)) {
+        ttip("Critical: configuration path '" Path "' does not exist. Commandline cannot be openend at directory.")
+        return
+    }
+    if (FileExist(guiObject.dynGUI.GFA_Evaluation_Configfile_Location)) {
+        Clipboard:="rscript gfa_evaluation.r -i " . """" guiObject.dynGUI.GFA_Evaluation_Configfile_Location """"
+        ttip("Configuration Path '" guiObject.dynGUI.GFA_Evaluation_Configfile_Location "' was put onto your clipboard")
+    }
+    SplitPath % Path, , OutDir
+    run cmd /K rscript GFA_Evaluation.R -h,% OutDir
+    return
+}
 compareKeepOld() {
     global RC_Old
     gui compare_contents: Submit
@@ -1465,7 +1480,9 @@ set_template() {
             `t}
             `treturn(tolower(os))
             }
-            source("{GFA_EVALUATIONUTILITY}")       
+            if (isFALSE(exists("GFA_main", where = -1,mode = "function"))) { # this checks if a function of this name exists in the current scope - in this case, in the entire environment. If it does, there is no point in re-sourcing it again, so we can skip this time-consuming step.
+            `tsource("{GFA_EVALUATIONUTILITY}")       
+            }
             if (isTRUE(as.logical(get_os() == "windows"))) { # this is an optimistic approach to the problem, I won't try to anticipate all possible OS-names`t# WINDOWS: 
             `tplot_1 <- GFA_main(folder_path = r"({GFA_CONFIGLOCATIONFOLDER_WINDOWS})",returnDays = `%breturnDays`%,saveFigures = `%bsaveFigures`%,saveExcel = `%bsaveExcel`%,saveRDATA = `%bsaveRDATA`%)
             } else {`t# MAC:
@@ -1540,7 +1557,6 @@ return
 #Include <AddToolTip>
 #Include <RichCode>
 #Include <HasVal>
-#Include <Obj2Str>
 #Include <AutoXYWH>
 #Include <History>
 #Include <LV_EX>
@@ -1549,14 +1565,11 @@ return
 #Include <checkDecimalsOnEdit>
 #Include <Deref>
 #Include <csv2xlsx>
-#Include <UriHandling>
-#Include <WinHttpRequest>
 #Include <SelectFolder>
 #Include <StdErr_Write>
 #Include <ClipboardSetFiles>
 #Include <CountFilesR>
 #Include <renameImages>
-#Include <cJSON>
 #Include <CenterControl>
 #Include <messageboxes>
 #Include <DerefAHKVariables>

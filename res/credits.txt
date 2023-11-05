@@ -4,7 +4,6 @@ SKAN            -       Base64PNG_to_HICON, reg. License                        
 DEO, Fragman    -       callstack                                                               - https://www.autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/?p=530453
 banane          -       CenterControls                                                          - http://de.autohotkey.com/forum/viewtopic.php?p=67802#67802
 wolf_II         -       checkDecimalsOnEdit                                                     - https://www.autohotkey.com/boards/viewtopic.php?f=76&t=31251&start=20
-G33kDude        -       cJSON,reg. License                                                      - https://github.com/G33kDude/cJson.ahk, https://raw.githubusercontent.com/G33kDude/cJson.ahk/main/LICENSE
 just me         -       ClipboardSetFiles (considered PD by author)                             - https://www.autohotkey.com/boards/viewtopic.php?p=63914#p63914
 CodeKnight      -       CodeTimer                                                               - https://www.autohotkey.com/boards/viewtopic.php?p=316296#p316296
 polythene       -       DateParse, reg. License                                                 - https://www.autohotkey.com/board/topic/18760-date-parser-convert-any-date-format-to-yyyymmddhh24miss/?p=124324, https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
@@ -15,7 +14,6 @@ jNizM           -       HasVal                                                  
 just me         -       LV_EX, reg. License                                                     - https://github.com/AHK-just-me/LV_EX, https://raw.githubusercontent.com/AHK-just-me/LV_EX/master/LICENSE
 Gewerd Strauss  -       main script, 
 Maestr0         -       MWAGetMonitor                                                           - https://www.autohotkey.com/boards/viewtopic.php?p=342716#p342716
-maestrith       -       Obj2Str                                                                 - https://www.autohotkey.com/boards/viewtopic.php?t=60522#p255613
 anonymous1184   -       Quote                                                                   - https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 anonymous1184   -       RegexMatchAll/RegexMatchLines                                           - https://www.reddit.com/r/AutoHotkey/comments/12l4gr8/comment/jg6ngt7/?utm_source=reddit&utm_medium=web2x&context=3
 G33kDude        -       RichCode, reg. License                                                  - https://github.com/G33kDude/Richcode.ahk, https://raw.githubusercontent.com/G33kDude/RichCode.ahk/v1-main/LICENSE
@@ -27,7 +25,6 @@ Lexikos         -       StdErr_Write, reg. License                              
 tidbit et al    -       st_count,st_removeDuplicates                                            - https://www.autohotkey.com/boards/viewtopic.php?t=53
 kczx3           -       tooltip in History-LV via LV_EX                                         - https://www.autohotkey.com/boards/viewtopic.php?t=28792
 Gewerd Strauss  -       ttip                                                                    - https://gist.github.com/Gewerd-Strauss/fad218c28b8120ab1a3cadea1a8dea9b
-anonymous1184   -       UriHandling via WinHttpRequest                                          - https://gist.github.com/anonymous1184/33b2511412158f286d8a719da4f38790
 Gewerd Strauss  -       writeFile
 anonymous1184   -       support for various issues, reworks, providing input and generally being an awesome person. 
 
