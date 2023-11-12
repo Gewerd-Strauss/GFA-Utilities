@@ -6,3 +6,4 @@
 **/Excludes/**
 .vscode/
 Errorlog.txt
+build.ahk
