@@ -1528,7 +1528,10 @@ prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
 }
-
+#if WinExist("ahk_id " guiObject.dynGUI.GCHWND)
+::gfc.s::
+guiShow2(guiObject)
+return
 #if DEBUG ;; hard-coded reload for when running through vsc, not usable in compiled form.
 NumpadDot::reload()
 #if globalLogicSwitches.bIsDebug
