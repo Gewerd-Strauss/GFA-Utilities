@@ -867,14 +867,14 @@ class script_ {
                 MsgBox 0x40040,,Update Finished
                 FileRemoveDir % Backup_Temp,1
                 FileRemoveDir % Update_Temp,1
-                reload
+                return true
             }
             Else IfMsgBox No
             {	; no update, cleanup the previously downloaded files from the tmp
                 MsgBox 0x40040,,Update Aborted
                 FileRemoveDir % Backup_Temp,1
                 FileRemoveDir % Update_Temp,1
-
+                return false
             }
             if (err1 || err2)
             {
