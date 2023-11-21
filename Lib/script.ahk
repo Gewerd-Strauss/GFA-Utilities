@@ -628,7 +628,7 @@ class script_ {
         }
     }
 
-    Update(vfile:="", rfile:="",bSilentCheck:=false,Backup:=true,DataOnly:=false)
+    Update(vfile:="", rfile:="",bSilentCheck:=false,Backup:=true,DataOnly:=false,CheckOnly:=false)
     {
         dfg:=A_DefaultGui
         ; Error Codes
@@ -828,7 +828,13 @@ class script_ {
                 ; 	msgbox, 4144,% this.Name " - " "New Update Available" ,   % e.Message "`n`n" e.Extra "`nResuming normal operation now.`n"
                 return
             }
+            if (CheckOnly) {
+                run % "www." script.metadataArr["GH-Tags"]
+                Gui +OwnDialogs
+                MsgBox 0x40, `% this.name " - New Update Available", Please download the following release from the 'Releases'-section.`n`nThe script will exit. To update`, simply install the new version in the appropriate place.
+                ExitApp
 
+            }
             ; Create temporal dirs
             filecreatedir % Update_Temp := a_temp "\" regexreplace(a_scriptname, "\..*$")
             filecreatedir % Update_Temp "\uzip"
@@ -867,14 +873,14 @@ class script_ {
                 MsgBox 0x40040,,Update Finished
                 FileRemoveDir % Backup_Temp,1
                 FileRemoveDir % Update_Temp,1
-                reload
+                return true
             }
             Else IfMsgBox No
             {	; no update, cleanup the previously downloaded files from the tmp
                 MsgBox 0x40040,,Update Aborted
                 FileRemoveDir % Backup_Temp,1
                 FileRemoveDir % Update_Temp,1
-
+                return false
             }
             if (err1 || err2)
             {

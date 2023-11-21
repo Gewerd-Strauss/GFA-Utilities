@@ -43,7 +43,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=130
-            GFC_version=1.5.29
+            GFC_version=1.5.30
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden:
@@ -113,10 +113,10 @@ setupdefaultconfig(Switch) {
             ;Custom_R_Script_Template As a rule of thumb, your template should not change this default portion of it. 
             ;Custom_R_Script_Template You may add additional lines above or below.
             ;Custom_R_Script_Template Be aware that clearing the workspace after the lines sourcing 'GFA_Evaluation.R' will cause the script to fail.
-            CheckUpdatesOnScriptStart=0
+            CheckUpdatesOnScriptStart=1
             ;CheckUpdatesOnScriptStart Type: Checkbox
             ;CheckUpdatesOnScriptStart CheckboxName: Do you want to always check for updates when running the program?
-            ;CheckUpdatesOnScriptStart Default:0
+            ;CheckUpdatesOnScriptStart Default:1
             UpdateChannel=stable
             ;UpdateChannel Do you want to check for updates to the stable release, or keep up to date with the development-version?
             ;UpdateChannel Type: DropDown development||stable
