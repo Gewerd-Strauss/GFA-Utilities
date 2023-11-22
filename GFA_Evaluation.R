@@ -41,8 +41,8 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
             help = "numerical Flag, between -1<=x<=2 [Default: %default].\n\n\t\tIt is not recommended to change the default value if the results are unknown and not validated,\n\t\tinstead it is recommended to only mute all warnings if the calculation must be repeated and the console output is supposed to be as clean as possible. Does not affect errors.\n\n\t\t-1:\tAll Warnings are ignored and will not be printed\n\t\t 0:\tWarnings will print after top-level function has completed.\n\t\t 1:\tWarnings are printed as they occur.\n\t\t 2:\tTreat all warnings as errors."
         ),
         make_option(c("-c", "--overwriteEncoding"),
-            type = "character",
-            help = "manual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar = "[string]"
+            type = "character", default = "UTF-16LE",
+            help = "string [Default: %default].\n\t\tManual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar = "[string]"
         )
     )
     Object_Key <- str_c("", "Object Key", "1: Summary Plot", "2: Titles", "3: Daily Analyses", "4: Dates", "5: configuration", "6: configuration-path", "7: RDATA_Path", "8: function 'getRelative_change()'", "9: function 'getAbsolute_change()'", "10: function\t 'formatPValue()'", sep = "\n")
