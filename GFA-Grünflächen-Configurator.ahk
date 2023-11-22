@@ -247,7 +247,7 @@ guiCreate() {
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
-    Names:=["1. Configuration File","2. R Starter Script Configuration","4. Auxiliary Utilities","3. Preview"]
+    Names:=["1. Configuration File","2. R-Script- && CLI-Execution Configuration","4. Auxiliary Utilities","3. Preview"]
     ;gui GC: Show, % "w" guiWidth " h" guiHeight
 
     for each, section in Sections {
@@ -284,10 +284,11 @@ guiCreate() {
     gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Configurations and Image-renaming||R Scripts
     gui tab, Configurations and Image-renaming
     gui add, checkbox, % "hwndCheckToggleLVReport gtoggle_ReportTip x+5 y+5 vvToggleLVReport", % "Toggle Report-View?"
-    gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+130", % "csv&2xlsx"
-    gui add, button, % "hwndrenameImagesBtn yp xp+60", % "rename &Images"
+    gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+120", % "csv&2xlsx"
+    gui add, button, % "hwndrenameImagesBtn yp xp+55", % "rename &Images"
+    gui add, button, % "hwndexecuteCLIBtn yp xp+87", % "CLI"
 
-    gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-190 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
+    gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-262 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
     updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
 
@@ -400,6 +401,7 @@ guiCreate() {
         , onLoadRScriptFromLV:=Func("loadRScriptFromLV").Bind(dynGUI,guiObject)
         , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
         , onrenameImages := Func("renameImages").Bind(dynGUI)
+        , onexecuteCLI := Func("runCLI").Bind(dynGUI)
         , onOpencurrentScript := Func("runRScript").Bind(dynGUI)
         , onOpencurrentConfig := Func("runConfig").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
@@ -423,6 +425,7 @@ guiCreate() {
     guiControl GC:+g, %hwndLV_RScriptHistory%, % onLoadRScriptFromLV
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
+    guiControl GC:+g, %executeCLIBtn%, % onexecuteCLI
     guiControl GC:+g, %openRScriptBtn%, % onOpencurrentScript
     guiControl GC:+g, %openConfigBtn%, % onOpencurrentConfig
 
@@ -451,6 +454,7 @@ guiCreate() {
     AddToolTip(CheckToggleLVReport2,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
     AddToolTip(renameImagesBtn,"It is recommended to rename images prior to analysis,`nand to do so with consistent naming scheme so that the resulting data is always sorted in the same manner.")
     AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author.",, GCHWND)
+    AddToolTip(executeCLIBtn,"After selecting a configuration file and execution options, you`nmay run the GFA_Evaluation-Script with these parameters via R's command line.",, GCHWND)
 
     AddToolTip(generateRScriptBtn,"Write the RScript to the selected file.")
     AddToolTip(PreviewConfigurationBtn,"Preview the configuration options selected in section 1 without writing them to a file.")
@@ -1321,15 +1325,82 @@ runConfig(dynGUI) {
                 ttip("The selected Configuration does not exist.")
             }
         } else {
-            ttip("No Configuration has been selected yet.")
+            ttip("No configuration has been selected yet.")
         }
     } else {
-        ttip("No Configuration has been selected yet.")
+        ttip("No configuration has been selected yet.")
     }
     return
 }
 copyGFA_EvaluationFolder(Path) {
     Clipboard:=strreplace(Path,"\","/")
+    return
+}
+runCLI(dynGUI) {
+    if (dynGUI.GFA_Evaluation_Configfile_Location!="") {
+        GetStdStreams_WithInput("where rscript", A_ScriptDir,InOut)
+        InOut:=strreplace(InOut,"`n")
+        if (!FileExist(InOut)) {
+            t:="'RScript' not found"
+            m:="'RScript.exe' is not part of the 'PATH'-Variable.`nPlease refer to the documentation for further details. Open documentation now?"
+            answer := AppError(t,m,0x4," - ")
+            OnMessage(0x44, "")
+            if (answer = "Yes") {
+                run % "https://htmlpreview.github.io/?https://" script.metadataArr.Documentation2
+            }
+            return
+        } else {
+            global vreturnDays
+            global vSaveFigures
+            global vsaveRDATA
+            global vSaveExcel
+            gui GC: submit, nohide
+            sF:=1
+                , sD:=(vreturnDays?1:0)
+                , sR:=(vsaveRDATA?1:0)
+                , sE:=(vSaveExcel?1:0)
+
+            Command:="rscript gfa_evaluation.r -i """ dynGUI.GFA_Evaluation_Configfile_Location """ -d " sD " -f " sF " -e " sE " -r " sR
+            SplitPath % script.config.Configurator_settings.GFA_Evaluation_InstallationPath,, OutDir
+            ttip("Executing 'GFA_Evaluation()'...",5)
+            ts:=A_Now
+            GetStdStreams_WithInput(Command,OutDir, InOut)
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+            tf:=A_Now
+                , errorlog:=OutDir "\GFA_Evaluation_EL_" A_Now ".txt"
+            if (!InStr(InOut,"<-- GFA_Main(): Execution finished")) {
+                ttip("GFA_Evaluation: Execution failed.")
+                Title:=script.name " - " A_ThisFunc " - Script-Execution failed" 
+                Message:="The R-Script 'GFA_Evaluation.R' (Path:" dynGUI.GFA_Evaluation_InstallationPath ") failed to finish execution. The complete callstack of the execution was printed to the file '" errorlog "'`n`nOpen the errorlog now?"
+                writeFile(errorlog,InOut,,,true)
+                Gui +OwnDialogs
+                AppError(Title, Message,0x14)
+                IfMsgBox Yes, {
+                    Run %  "*edit " errorlog
+                } Else IfMsgBox No, {
+                    return
+                }
+            } else {
+                if (InStr(InOut,"GFA_Main(): Execution finished")) {
+                    tdiff:=tf-ts
+                    time:=Format("{:02}:{:02}", tdiff//60, Mod(tdiff, 60))
+                    ttip("GFA_Evaluation: Execution finished in " time " [mm:ss]")
+                }
+                Title:=script.name " - " A_ThisFunc " - Script-Execution succeeded" 
+                    , Message:="GFA_Evaluation: Execution finished.`nThe complete callstack of the execution was printed to the file '" errorlog "'.`n`nOpen the errorlog now?"
+                Gui +OwnDialogs
+                AppError(Title, Message,0x44)
+                IfMsgBox Yes, {
+                    Run %  "*edit " errorlog
+                } Else IfMsgBox No, {
+                    return
+                }
+            }
+        }
+    } else {
+        ttip("No configuration has been selected yet.")
+        return
+    }
     return
 }
 openCommandline_EvaluationFolder(Path) {
@@ -1577,3 +1648,4 @@ return
 #Include <messageboxes>
 #Include <DerefAHKVariables>
 #Include <callstack>
+#Include <GetStdStreams_WithInput>
