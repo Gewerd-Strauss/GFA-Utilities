@@ -3165,7 +3165,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             fontface = "bold"
         )
     }
-    GFA_SummaryPlot + grids("y", linetype = 1)
+    GFA_SummaryPlot <- GFA_SummaryPlot + grids("y", linetype = 1)
 
 
     if (hasName(ini$General, "Theme")) { ## choosing a theme via the config only takes effect when you plot a specific theme. if you plot all themes, you won't see this.
