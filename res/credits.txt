@@ -10,6 +10,7 @@ polythene       -       DateParse, reg. License                                 
 AHK v1 Docs     -       Deref, reg. License                                                     - https://www.autohotkey.com/docs/v1/lib/RegExMatch.htm#ExDeref, https://www.autohotkey.com/docs/v1/license.htm
 anonymous1184   -       DerefAHKVariables
 anonymous1184   -       FormatEx
+anonymous1184   -       GetStdStreams_WithInput
 jNizM           -       HasVal                                                                  - https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
 just me         -       LV_EX, reg. License                                                     - https://github.com/AHK-just-me/LV_EX, https://raw.githubusercontent.com/AHK-just-me/LV_EX/master/LICENSE
 Gewerd Strauss  -       main script, 
