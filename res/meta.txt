@@ -1,0 +1,15 @@
+author          - Gewerd Strauss
+email           - 
+ghtext          - GitHub-Repository
+GH-Author       - Gewerd-Strauss
+GH-Repo         - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities
+GH-Tags         - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/tags
+doctext         - Documentation
+Documentation   - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities#readme
+Documentation2  - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/res/Manual.html
+donatelink      - 
+homepage        - google.com
+forum           - google.com
+Issues          - github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/issues
+About           - Utility script for better facilitating ease-of-use of the 'GFA_Evaluation.R'-script within the repo
+Name            - GFA-Grünflächen-Configurator
