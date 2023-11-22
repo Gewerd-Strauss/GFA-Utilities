@@ -1337,6 +1337,70 @@ copyGFA_EvaluationFolder(Path) {
     return
 }
 runCLI(dynGUI) {
+    if (dynGUI.GFA_Evaluation_Configfile_Location!="") {
+        GetStdStreams_WithInput("where rscript", A_ScriptDir,InOut)
+        InOut:=strreplace(InOut,"`n")
+        if (!FileExist(InOut)) {
+            t:="'RScript' not found"
+            m:="'RScript.exe' is not part of the 'PATH'-Variable.`nPlease refer to the documentation for further details. Open documentation now?"
+            answer := AppError(t,m,0x4," - ")
+            OnMessage(0x44, "")
+            if (answer = "Yes") {
+                run % "https://htmlpreview.github.io/?https://" script.metadataArr.Documentation2
+            }
+            return
+        } else {
+            global vreturnDays
+            global vSaveFigures
+            global vsaveRDATA
+            global vSaveExcel
+            gui GC: submit, nohide
+            sF:=1
+                , sD:=(vreturnDays?1:0)
+                , sR:=(vsaveRDATA?1:0)
+                , sE:=(vSaveExcel?1:0)
+
+            Command:="rscript gfa_evaluation.r -i """ dynGUI.GFA_Evaluation_Configfile_Location """ -d " sD " -f " sF " -e " sE " -r " sR
+            SplitPath % script.config.Configurator_settings.GFA_Evaluation_InstallationPath,, OutDir
+            ttip("Executing 'GFA_Evaluation()'...",5)
+            ts:=A_Now
+            GetStdStreams_WithInput(Command,OutDir, InOut)
+            SplitPath % dynGUI.GFA_Evaluation_Configfile_Location,, OutDir
+            tf:=A_Now
+                , errorlog:=OutDir "\GFA_Evaluation_EL_" A_Now ".txt"
+            if (!InStr(InOut,"<-- GFA_Main(): Execution finished")) {
+                ttip("GFA_Evaluation: Execution failed.")
+                Title:=script.name " - " A_ThisFunc " - Script-Execution failed" 
+                Message:="The R-Script 'GFA_Evaluation.R' (Path:" dynGUI.GFA_Evaluation_InstallationPath ") failed to finish execution. The complete callstack of the execution was printed to the file '" errorlog "'`n`nOpen the errorlog now?"
+                writeFile(errorlog,InOut,,,true)
+                Gui +OwnDialogs
+                AppError(Title, Message,0x14)
+                IfMsgBox Yes, {
+                    Run %  "*edit " errorlog
+                } Else IfMsgBox No, {
+                    return
+                }
+            } else {
+                if (InStr(InOut,"GFA_Main(): Execution finished")) {
+                    tdiff:=tf-ts
+                    time:=Format("{:02}:{:02}", tdiff//60, Mod(tdiff, 60))
+                    ttip("GFA_Evaluation: Execution finished in " time " [mm:ss]")
+                }
+                Title:=script.name " - " A_ThisFunc " - Script-Execution succeeded" 
+                    , Message:="GFA_Evaluation: Execution finished.`nThe complete callstack of the execution was printed to the file '" errorlog "'.`n`nOpen the errorlog now?"
+                Gui +OwnDialogs
+                AppError(Title, Message,0x44)
+                IfMsgBox Yes, {
+                    Run %  "*edit " errorlog
+                } Else IfMsgBox No, {
+                    return
+                }
+            }
+        }
+    } else {
+        ttip("No configuration has been selected yet.")
+        return
+    }
     return
 }
 openCommandline_EvaluationFolder(Path) {
