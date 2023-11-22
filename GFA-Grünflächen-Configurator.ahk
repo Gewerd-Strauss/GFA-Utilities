@@ -1325,10 +1325,10 @@ runConfig(dynGUI) {
                 ttip("The selected Configuration does not exist.")
             }
         } else {
-            ttip("No Configuration has been selected yet.")
+            ttip("No configuration has been selected yet.")
         }
     } else {
-        ttip("No Configuration has been selected yet.")
+        ttip("No configuration has been selected yet.")
     }
     return
 }
