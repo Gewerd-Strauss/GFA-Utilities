@@ -3328,6 +3328,5 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
         tt <- round(et - st,2)
         cat(str_c(" [",tt,"]"))
         rm(st,et,tt)
-        
     }
 }
