@@ -247,7 +247,7 @@ guiCreate() {
     if (globalLogicSwitches.DEBUG) {
         gui -AlwaysOnTop
     }
-    Names:=["1. Configuration File","2. R Starter Script Configuration","4. Auxiliary Utilities","3. Preview"]
+    Names:=["1. Configuration File","2. R-Script- && CLI-Execution Configuration","4. Auxiliary Utilities","3. Preview"]
     ;gui GC: Show, % "w" guiWidth " h" guiHeight
 
     for each, section in Sections {
