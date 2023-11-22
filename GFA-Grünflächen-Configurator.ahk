@@ -1577,3 +1577,4 @@ return
 #Include <messageboxes>
 #Include <DerefAHKVariables>
 #Include <callstack>
+#Include <GetStdStreams_WithInput>
