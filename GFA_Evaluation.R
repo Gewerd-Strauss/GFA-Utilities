@@ -3318,7 +3318,9 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
         stop("At least one argument must be supplied when executing via command line interface (input file).", call. = FALSE)
     } else {
         st <- Sys.time()
-        print(opt)
+        if (opt$warning>-1) {
+            print(opt)
+        }
         pdf(NULL)
         plot_1 <- GFA_main(opt$input, opt$returnDays, opt$saveFigures, opt$saveExcel, opt$saveRDATA,opt$overwriteEncoding,opt$warning)
         print(plot_1[[1]])
