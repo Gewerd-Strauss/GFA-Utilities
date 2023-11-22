@@ -3319,8 +3319,8 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
     } else {
         st <- Sys.time()
         print(opt)
-        plot_1 <- GFA_main(opt$input, opt$returnDays, opt$saveFigures, opt$saveExcel, opt$saveRDATA)
         pdf(NULL)
+        plot_1 <- GFA_main(opt$input, opt$returnDays, opt$saveFigures, opt$saveExcel, opt$saveRDATA,opt$overwriteEncoding,opt$warning)
         print(plot_1[[1]])
         et <- Sys.time()
         tt <- round(et - st,2)
