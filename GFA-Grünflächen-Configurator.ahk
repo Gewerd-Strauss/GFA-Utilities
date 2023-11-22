@@ -284,10 +284,11 @@ guiCreate() {
     gui add, tab3, % "hwndhwndTab3_2 x" Sections[3].XAnchor+5 " y" Sections[3].YAnchor+20 " h" (Sections[3].Height-(1*3 + 20)-2*15) " w" (Sections[3].Width - 3*5), Configurations and Image-renaming||R Scripts
     gui tab, Configurations and Image-renaming
     gui add, checkbox, % "hwndCheckToggleLVReport gtoggle_ReportTip x+5 y+5 vvToggleLVReport", % "Toggle Report-View?"
-    gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+130", % "csv&2xlsx"
-    gui add, button, % "hwndrenameImagesBtn yp xp+60", % "rename &Images"
+    gui add, button, % "hwndcsv2xlsxBtn yp-5 xp+120", % "csv&2xlsx"
+    gui add, button, % "hwndrenameImagesBtn yp xp+55", % "rename &Images"
+    gui add, button, % "hwndexecuteCLIBtn yp xp+87", % "CLI"
 
-    gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-190 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
+    gui add, Listview, % "hwndhwndLV_ConfigHistory +LV0x400 +LV0x10000 xp-262 y+5 h" (Sections[3].Height-(1*3 + 20)-2*15-3*5-5-35-20) " w" (Sections[3].Width - 3*5 - 3*5), Experiment's Name in Config|File Name|Full Path
 
     updateLV(hwndLV_ConfigHistory,script.config.LastConfigsHistory)
 
@@ -400,6 +401,7 @@ guiCreate() {
         , onLoadRScriptFromLV:=Func("loadRScriptFromLV").Bind(dynGUI,guiObject)
         , oncsv2xlsx := Func("convertCSV2XLSX").Bind(dynGUI)
         , onrenameImages := Func("renameImages").Bind(dynGUI)
+        , onexecuteCLI := Func("runCLI").Bind(dynGUI)
         , onOpencurrentScript := Func("runRScript").Bind(dynGUI)
         , onOpencurrentConfig := Func("runConfig").Bind(dynGUI)
     if (globalLogicSwitches.DEBUG) {
@@ -423,6 +425,7 @@ guiCreate() {
     guiControl GC:+g, %hwndLV_RScriptHistory%, % onLoadRScriptFromLV
     guiControl GC:+g, %csv2xlsxBtn%, % oncsv2xlsx
     guiControl GC:+g, %renameImagesBtn%, % onrenameImages
+    guiControl GC:+g, %executeCLIBtn%, % onexecuteCLI
     guiControl GC:+g, %openRScriptBtn%, % onOpencurrentScript
     guiControl GC:+g, %openConfigBtn%, % onOpencurrentConfig
 
@@ -451,6 +454,7 @@ guiCreate() {
     AddToolTip(CheckToggleLVReport2,"Change the view-type for the listview below between report and the traditional list view.`nList view is more compact, but Report-view may give more details on a specific file. Also people have preferences.")
     AddToolTip(renameImagesBtn,"It is recommended to rename images prior to analysis,`nand to do so with consistent naming scheme so that the resulting data is always sorted in the same manner.")
     AddToolTip(csv2xlsxBtn,"If a config-file has been selected (by the ListView below, or any other means), you`ncan use this button to automatically create xlsx-files for any csv-file which does not`nn have an xlsx-version. CSV-files are supported, but heavily discouraged by the author.",, GCHWND)
+    AddToolTip(executeCLIBtn,"After selecting a configuration file and execution options, you`nmay run the GFA_Evaluation-Script with these parameters via R's command line.",, GCHWND)
 
     AddToolTip(generateRScriptBtn,"Write the RScript to the selected file.")
     AddToolTip(PreviewConfigurationBtn,"Preview the configuration options selected in section 1 without writing them to a file.")
@@ -1330,6 +1334,9 @@ runConfig(dynGUI) {
 }
 copyGFA_EvaluationFolder(Path) {
     Clipboard:=strreplace(Path,"\","/")
+    return
+}
+runCLI(dynGUI) {
     return
 }
 openCommandline_EvaluationFolder(Path) {
