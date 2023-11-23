@@ -1759,6 +1759,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         Ind <- 1
         strLen_max <- 0
         for (file in Files) {
+            file <- basename(file) ## this line is necessary to prevent the below regex needle from matching potential substrings of the absolute path.
             Date <- str_extract(file, "\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
             Date <- as.Date.character(Date, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
             Conditions <- {}
