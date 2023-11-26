@@ -1649,3 +1649,5 @@ return
 #Include <DerefAHKVariables>
 #Include <callstack>
 #Include <GetStdStreams_WithInput>
+#Include <FormatEX>
+#Include <CodeTimer>
