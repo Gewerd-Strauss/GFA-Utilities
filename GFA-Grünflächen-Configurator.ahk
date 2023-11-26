@@ -185,6 +185,7 @@ guiCreate() {
                 ,"guiHeight: " guiHeight
                 ,"A_ScreenHeight " A_ScreenHeight
                 ,"A_ScreenWidth " A_ScreenWidth
+                , "A_DPI " A_ScreenDPI
                 ,script.config.SizeSetting
                 ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
                 ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
