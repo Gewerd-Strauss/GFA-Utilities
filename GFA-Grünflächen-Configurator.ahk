@@ -176,6 +176,10 @@ guiCreate() {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
+    DPIAdjustmentFactor:=(1/(A_ScreenDPI/96))
+    guiWidth:=guiWidth * DPIAdjustmentFactor
+    guiHeight:=guiHeight * DPIAdjustmentFactor
+    ;guiHeight:=990
     if (globalLogicSwitches.DEBUG) {
         ttip(["guiWidth: " guiWidth
                 ,"guiHeight: " guiHeight
@@ -1205,6 +1209,9 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
+    DPIAdjustmentFactor:=(1/(A_ScreenDPI/96))
+    guiWidth:=guiWidth * DPIAdjustmentFactor
+    guiHeight:=guiHeight * DPIAdjustmentFactor
     RCWidth:=(guiWidth-3*15)/2
 
     gui compare_contents: destroy
