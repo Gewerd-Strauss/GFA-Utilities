@@ -148,7 +148,7 @@ ttip_Obj2Str(Obj,FullPath:=1,BottomBlank:=0){
 	if(IsObject(Obj)){
 		for a,b in Obj{
 			if(IsObject(b))
-			ttip_Obj2Str(b,FullPath "." a,BottomBlank)
+			String:= ttip_Obj2Str(b,FullPath "." a,BottomBlank) A_Space
 			else{
 				if(BottomBlank=0)
 				String.=FullPath "." a " = " b "`n"

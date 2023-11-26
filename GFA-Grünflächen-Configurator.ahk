@@ -874,6 +874,17 @@ fCallBack_StatusBarMainWindow() {
             SoundBeep 1750, 150
             SoundBeep 1750, 150
             SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",4)
+            Clipboard:=ttip(["guiWidth: " guiWidth
+                    ,"guiHeight: " guiHeight
+                    ,"A_ScreenHeight " A_ScreenHeight
+                    ,"A_ScreenWidth " A_ScreenWidth
+                    , "A_DPI " A_ScreenDPI
+                    , "Size Setting  " script.config.SizeSetting
+                    ,"height-mwa 1440p: " 1392 - 2*30
+                    ,"guiWidth 1440p: " 2560 - 2*30
+                    ,"guiWidth  1080p: " 1920 - 2*30
+                    ,"height-mwa 1080p: " 1032 - 2*30,["bIsAuthor: " globalLogicSwitches.bIsAuthor,"bisDEBUG: " globalLogicSwitches.bIsDebug,"DEBUG " globalLogicSwitches.DEBUG]
+                    , ["Loaded script Configuration: ",script.config]],1,2300)
             ListLines On
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
