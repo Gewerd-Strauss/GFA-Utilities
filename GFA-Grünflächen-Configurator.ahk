@@ -1620,7 +1620,7 @@ return
 #Include <DynamicArguments>
 #Include <isDebug>
 #Include <MWAGetMonitor>
-#Include <OnExit>
+#Include <onExit>
 #Include <Quote>
 #Include <st_stringthings_functions>
 #Include <ttip>
@@ -1649,3 +1649,5 @@ return
 #Include <DerefAHKVariables>
 #Include <callstack>
 #Include <GetStdStreams_WithInput>
+#Include <FormatEX>
+#Include <CodeTimer>
