@@ -4,7 +4,7 @@ A Windows-only script to easily create a configuration for the enclosed GFA_Eval
 
 ## Detailed documentation
 
-A detailed documentation can be found [here](https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/res/Manual.html).
+A detailed documentation can be found [here](https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/GFA-Utilities/blob/docs/Manual.html).
 
 ## License
 
