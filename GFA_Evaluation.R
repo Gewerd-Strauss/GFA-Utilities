@@ -1225,7 +1225,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
                 if (isNormallyDistributed(norm)) {
                     Results$bartlett <- BT
-                    Results$"T.Test" <- stat.test
+                    Results$"t.test" <- stat.test
                 } else {
                     Results$levene <- levene
                     Results$"wilcox.test" <- stat.test
