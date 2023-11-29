@@ -651,38 +651,42 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 # Data <- as.data.frame(importCSV_Data1(curr_file,""))
                 if (ini$General$used_filesuffix == "csv") {
                     csv1 <- read.csv(curr_file, sep = ";")
-                    if (hasName(csv1, "plant_area")) {
-                        csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
-                        csv1$plant_area <- as.numeric(csv1$plant_area)
-                    }
-                    if (hasName(csv1, "plant_area_drought")) {
-                        csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
-                        csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
-                    }
-                    if (hasName(csv1, "plant_area_green")) {
-                        csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
-                        csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
-                    }
-                    if (hasName(csv1, "plant_area_complete")) {
-                        csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
-                        csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
-                    }
-                    if (hasName(csv1, "pixel_area")) {
-                        csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
-                        csv1$pixel_area <- as.numeric(csv1$pixel_area)
-                    }
-                    if (hasName(csv1, "plant_pixel_count")) {
-                        csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
-                        csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
-                    }
-                    Data <- csv1
-                    # file <- csv2xlsx(file)
-                    # csv <- read_xlsx(file)
-                    # view(csv1)
-                    # view(csv)
                 } else {
-                    Data <- read_xlsx(curr_file, .name_repair = "unique_quiet")
+                    csv1 <- read_xlsx(curr_file, .name_repair = "unique_quiet")
                 }
+
+                if (hasName(csv1, "plant_area")) {
+                    csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
+                    csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
+                    csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
+                    csv1$plant_area <- as.numeric(csv1$plant_area)
+                }
+                if (hasName(csv1, "plant_area_drought")) {
+                    csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
+                    csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
+                }
+                if (hasName(csv1, "plant_area_green")) {
+                    csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
+                    csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
+                }
+                if (hasName(csv1, "plant_area_complete")) {
+                    csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
+                    csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
+                }
+                if (hasName(csv1, "pixel_area")) {
+                    csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
+                    csv1$pixel_area <- as.numeric(csv1$pixel_area)
+                }
+                if (hasName(csv1, "plant_pixel_count")) {
+                    csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
+                    csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
+                }
+                if (hasName(csv1, "drought_fraction")) {
+                    csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
+                    csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+                }
+                Data <- csv1
+                
                 if (ini$Experiment$Normalise) {
                     if (hasName(Data, "plant_area_normalised")) {
                         Data$plant_area_normalised <- Data$plant_area_normalised
@@ -2422,42 +2426,44 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         for (file in Files) {
             if (ini$General$used_filesuffix == "csv") {
                 csv1 <- read.csv(file, sep = ";")
-                if (hasName(csv1, "plant_area")) {
-                    csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
-                    csv1$plant_area <- as.numeric(csv1$plant_area)
-                }
-                if (hasName(csv1, "plant_area_drought")) {
-                    csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
-                    csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
-                }
-                if (hasName(csv1, "plant_area_green")) {
-                    csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
-                    csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
-                }
-                if (hasName(csv1, "plant_area_complete")) {
-                    csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
-                    csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
-                }
-                if (hasName(csv1, "pixel_area")) {
-                    csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
-                    csv1$pixel_area <- as.numeric(csv1$pixel_area)
-                }
-                if (hasName(csv1, "plant_pixel_count")) {
-                    csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
-                    csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
-                }
-                if (hasName(csv1, "drought_fraction")) {
-                    csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
-                    csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
-                }
-                csv <- csv1
                 # file <- csv2xlsx(file)
                 # csv <- read_xlsx(file)
                 # view(csv1)
                 # view(csv)
             } else if (ini$General$used_filesuffix == "xlsx") {
-                csv <- read_xlsx(file, .name_repair = "unique_quiet")
+                csv1 <- read_xlsx(file, .name_repair = "unique_quiet")
             }
+            if (hasName(csv1, "plant_area")) {
+                csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
+                csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
+                csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
+                csv1$plant_area <- as.numeric(csv1$plant_area)
+            }
+            if (hasName(csv1, "plant_area_drought")) {
+                csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
+                csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
+            }
+            if (hasName(csv1, "plant_area_green")) {
+                csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
+                csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
+            }
+            if (hasName(csv1, "plant_area_complete")) {
+                csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
+                csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
+            }
+            if (hasName(csv1, "pixel_area")) {
+                csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
+                csv1$pixel_area <- as.numeric(csv1$pixel_area)
+            }
+            if (hasName(csv1, "plant_pixel_count")) {
+                csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
+                csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
+            }
+            if (hasName(csv1, "drought_fraction")) {
+                csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
+                csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+            }
+            csv <- csv1
             if (ini$Experiment$Normalise) {
                 if (hasName(csv, "plant_area_normalised")) {
                     csv$plant_area_normalised <- csv$plant_area_normalised
