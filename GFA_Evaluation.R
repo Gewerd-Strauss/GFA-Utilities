@@ -634,15 +634,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @examples
     RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
-        isNormallyDistributed <- function(norm_obj, Threshold = 0.05) {
-            # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
-            boolean <- ""
-            Count <- dim(norm_obj)[1]
-            ThresholdPassing <- subset(norm_obj, subset = statistic > Threshold) # Get the entries which fulfill the Threshold.
-            Count_Threshold <- dim(ThresholdPassing)[1]
-            boolean <- (Count == Count_Threshold) # Evaluate threshold comparison
-            return(boolean)
-        }
+        
         # Create objects
 
         ret <- list() # for returning all results from this functions
@@ -2524,6 +2516,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @keywords internal
     #'
     #' @examples
+    isNormallyDistributed <- function(norm_obj, Threshold = 0.05) {
+        # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
+        boolean <- ""
+        Count <- dim(norm_obj)[1]
+        ThresholdPassing <- subset(norm_obj, subset = p.value > Threshold) # Get the entries which fulfill the Threshold.
+        Count_Threshold <- dim(ThresholdPassing)[1]
+        boolean <- (Count == Count_Threshold) # Evaluate threshold comparison
+        return(boolean)
+    }
     validateINI <- function(ini_List) {
         # toValidate:
         # Experiment
