@@ -634,7 +634,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @examples
     RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
-        
         # Create objects
 
         ret <- list() # for returning all results from this functions
@@ -792,7 +791,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         statistic = shapiro.test(plant_area)$statistic,
                         p.value = shapiro.test(plant_area)$p.value
                     )
-
                 if (isNormallyDistributed(norm)) {
                     BT <- bartlett.test(plant_area ~ interactions, wo_outliers)
                     BT <- do.call("rbind", BT)
@@ -801,7 +799,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     # TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    Data_stat_test <- group_by(Data)
                     Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                     stat.test <- Data_stat_test %>%
                         t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -820,9 +817,12 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
 
                     # TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
-                    stat.test <- Data %>%
-                        group_by(Gruppe) %>%
-                        wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+
+                    Data_stat_test <- subset(Data, select = -c(file))
+                    Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    # Data_stat_test <- group_by(Data)
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area ~ interactions, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "interactions")
                     XLSX_Object <- list(
@@ -1314,7 +1314,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    Data_stat_test <- group_by(Data)
                     Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                     stat.test <- Data_stat_test %>%
                         t_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
@@ -1332,9 +1331,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
 
-                    stat.test <- Data %>%
-                        group_by(Gruppe) %>%
-                        wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                    Data_stat_test <- subset(Data, select = -c(file))
+                    Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    # Data_stat_test <- group_by(Data)
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area ~ Gruppe, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "Gruppe")
                     XLSX_Object <- list(
