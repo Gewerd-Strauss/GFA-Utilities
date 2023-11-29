@@ -2710,10 +2710,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
             XLSX_Object <- na.omit(XLSX_Object)
             if (dim(XLSX_Object$outlier)[1] == 0) {
-                XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                XLSX_Object$outlier <- as.data.frame(list(pad = 2))
             }
             if (is.null(XLSX_Object$data_wo_Outlier)) {
-                XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 3))
             }
             write.xlsx(
                 XLSX_Object,
