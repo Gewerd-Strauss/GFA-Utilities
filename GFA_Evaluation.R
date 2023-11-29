@@ -807,6 +807,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "interactions")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "bartlett" = BT,
+                        "t.test" = stat.test,
+                        "summary" = summary
+                    )
                 } else {
                     levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
 
@@ -816,6 +825,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "interactions")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "levene" = levene,
+                        "wilcox.test" = stat.test,
+                        "summary" = summary
+                    )
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
@@ -823,17 +841,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
-                    write.xlsx(
-                        list(
-                            "Data" = Data,
-                            "Outlier" = Outliers,
-                            "data_wo_Outlier" = wo_outliers,
-                            "Norm" = norm,
-                            "BT" = BT,
-                            "T.test" = stat.test,
-                            "summary" = summary
-                        ),
-                        file = XLSX_Path,
+                    dir <- dirname(XLSX_Path)
+
+                    if (isFALSE(dir.exists(dir))) {
+                        dir.create(dir)
+                    }
+                    XLSX_Object <- na.omit(XLSX_Object)
+                    if (dim(XLSX_Object$outlier)[1] == 0) {
+                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                    }
+                    if (is.null(XLSX_Object$data_wo_Outlier)) {
+                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                    }
+                    write.xlsx(XLSX_Object,
+                        file = XLSX_Path, asTable = T,
                         creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
                     ) ## sign the file with being created by this username on this machine.
                 }
@@ -1193,15 +1214,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
                 Results <- list(
-                    "Data" = Data,
-                    "Outlier" = Outliers,
+                    "data" = Data,
+                    "outlier" = Outliers,
                     "data_wo_Outlier" = wo_outliers,
-                    "Norm" = norm,
-                    "BT" = BT,
-                    "T.test" = stat.test,
-                    "summary" = summary
+                    "norm" = norm
                 )
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path)
+                if (isNormallyDistributed(norm)) {
+                    Results$bartlett <- BT
+                    Results$"T.Test" <- stat.test
+                } else {
+                    Results$levene <- levene
+                    Results$"wilcox.test" <- stat.test
+                }
+                Results$summary <- summary
+                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
             } else {
                 ## normal, no facetting occured, so we can use the old pathway
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
@@ -1294,6 +1320,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         t_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "Gruppe")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "bartlett" = BT,
+                        "t.test" = stat.test,
+                        "summary" = summary
+                    )
                 } else {
                     levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
 
@@ -1302,6 +1337,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "Gruppe")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "levene" = levene,
+                        "wilcox.test" = stat.test,
+                        "summary" = summary
+                    )
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
@@ -1309,17 +1353,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
-                    write.xlsx(
-                        list(
-                            "Data" = Data,
-                            "Outlier" = Outliers,
-                            "data_wo_Outlier" = wo_outliers,
-                            "Norm" = norm,
-                            "BT" = BT,
-                            "T.test" = stat.test,
-                            "summary" = summary
-                        ),
-                        file = XLSX_Path,
+                    dir <- dirname(XLSX_Path)
+
+                    if (isFALSE(dir.exists(dir))) {
+                        dir.create(dir)
+                    }
+                    XLSX_Object <- na.omit(XLSX_Object)
+                    if (dim(XLSX_Object$outlier)[1] == 0) {
+                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                    }
+                    if (is.null(XLSX_Object$data_wo_Outlier)) {
+                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                    }
+                    write.xlsx(XLSX_Object,
+                        file = XLSX_Path, asTable = T,
                         creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
                     ) ## sign the file with being created by this username on this machine.
                 }
@@ -1668,15 +1715,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
                 Results <- list(
-                    "Data" = Data,
-                    "Outlier" = Outliers,
-                    "data_wo_Outlier" = wo_outliers,
-                    "Norm" = norm,
-                    "BT" = BT,
-                    "T.test" = stat.test,
-                    "summary" = summary
+                    "data" = Data,
+                    "outlier" = Outliers,
+                    "data_wo_outlier" = wo_outliers,
+                    "norm" = norm
                 )
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path)
+                if (isNormallyDistributed(norm)) {
+                    Results$bartlett <- BT
+                    Results$"t.test" <- stat.test
+                } else {
+                    Results$levene <- levene
+                    Results$"wilcox.test" <- stat.test
+                }
+                Results$summary <- summary
+                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
             }
         }
         return(ret)
@@ -2518,6 +2570,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @examples
     isNormallyDistributed <- function(norm_obj, Threshold = 0.05) {
         # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
+
         boolean <- ""
         Count <- dim(norm_obj)[1]
         ThresholdPassing <- subset(norm_obj, subset = p.value > Threshold) # Get the entries which fulfill the Threshold.
@@ -2621,24 +2674,51 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @examples
     writeChangetoFile <- function(DailyAnalyses) {
         for (Object in DailyAnalyses) {
-            write.xlsx(
-                list(
-                    "Data" = Object$Res$Data,
-                    "Outlier" = Object$Res$Outliers,
-                    "data_wo_Outlier" = Object$Res$wo_outliers,
-                    "Norm" = Object$Res$norm,
-                    "BT" = Object$Res$BT,
-                    "T.test" = Object$Res$stat.test,
+            dir <- dirname(Object$XLSX_Path)
+
+            if (isFALSE(dir.exists(dir))) {
+                dir.create(dir)
+            }
+            if (isNormallyDistributed(Object$Res$norm)) {
+                XLSX_Object <- list(
+                    "data" = Object$Res$data,
+                    "outlier" = Object$Res$outlier,
+                    "data_wo_Outlier" = Object$Res$data_wo_outlier,
+                    "norm" = Object$Res$norm,
+                    "bartlett" = Object$Res$bartlett,
+                    "t.test" = Object$Res$t.test,
                     "summary" = Object$Res$summary
-                ),
+                )
+            } else {
+                XLSX_Object <- list(
+                    "data" = Object$Res$data,
+                    "outlier" = Object$Res$outlier,
+                    "data_wo_Outlier" = Object$Res$data_wo_outlier,
+                    "norm" = Object$Res$norm,
+                    "levene" = Object$Res$levene,
+                    "wilcox.test" = Object$Res$wilcox.test,
+                    "summary" = Object$Res$summary
+                )
+            }
+
+            XLSX_Object <- na.omit(XLSX_Object)
+            if (dim(XLSX_Object$outlier)[1] == 0) {
+                XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+            }
+            if (is.null(XLSX_Object$data_wo_Outlier)) {
+                XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+            }
+            write.xlsx(
+                XLSX_Object,
+                asTable = T,
                 file = Object$XLSX_Path,
                 creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
             ) ## sign the file with being created by this username on this machine.
-            xlsx <- loadWorkbook(Object$XLSX_Path)
+            xlsx <- openxlsx::loadWorkbook(Object$XLSX_Path)
 
-            writeComment(xlsx, "summary", col = "O", row = 1, comment = createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
-            writeComment(xlsx, "summary", col = "P", row = 1, comment = createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
-            saveWorkbook(xlsx, file = Object$XLSX_Path, overwrite = T)
+            openxlsx::writeComment(xlsx, "summary", col = "O", row = 1, comment = openxlsx::createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
+            openxlsx::writeComment(xlsx, "summary", col = "P", row = 1, comment = openxlsx::createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
+            openxlsx::saveWorkbook(xlsx, file = Object$XLSX_Path, overwrite = T)
         }
     }
 
