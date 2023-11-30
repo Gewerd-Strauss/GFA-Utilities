@@ -119,9 +119,9 @@ main() {
         script_TraySetup(IconString)
     }
     if (script.requiresInternet(script.vfile,true) && script.config.Configurator_settings.CheckUpdatesOnScriptStart) {
-        if (script.config.Configurator_settings.UpdateChannel="stable") {
+        if ((script.config.Configurator_settings.UpdateChannel="stable") && !DEBUG) {
             script.Update(script.vfile,script.rfile,1,,,1)
-        } else if (script.config.Configurator_settings.UpdateChannel="development") {
+        } else if ((script.config.Configurator_settings.UpdateChannel="development") && !DEBUG) {
             script.Update(script.vfile_dev,script.rfile_dev,1,,,1)
         }
     }
