@@ -1389,6 +1389,7 @@ runCLI(dynGUI) {
                 }
                 Title:=script.name " - " A_ThisFunc " - Script-Execution succeeded" 
                     , Message:="GFA_Evaluation: Execution finished.`nThe complete callstack of the execution was printed to the file '" errorlog "'.`n`nOpen the errorlog now?"
+                writeFile(errorlog,InOut,,,true)
                 Gui +OwnDialogs
                 AppError(Title, Message,0x44)
                 IfMsgBox Yes, {
