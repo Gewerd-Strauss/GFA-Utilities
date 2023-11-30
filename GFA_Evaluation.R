@@ -654,10 +654,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     csv1 <- read_xlsx(curr_file, .name_repair = "unique_quiet")
                 }
-
+                if (isFALSE(hasName(csv1,ini$Experiment$used_plant_area))) {
+                    Error <- simpleError(str_c(str_c("The type of plant_area which is supposed to be loaded ('",ini$Experiment$used_plant_area,"') could not be found in the data-file",file,"."), ErrorString, sep = "\n"))
+                    stop(Error)
+                }
                 if (hasName(csv1, "plant_area")) {
-                    csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
-                    csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
                     csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
                     csv1$plant_area <- as.numeric(csv1$plant_area)
                 }
@@ -686,16 +687,21 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
                 }
                 Data <- csv1
-                
+                Values <- csv1[[ini$Experiment$used_plant_area]] ## extract the plant_area values that we need, based on the config-key
                 if (ini$Experiment$Normalise) {
                     if (hasName(Data, "plant_area_normalised")) {
-                        Data$plant_area_normalised <- Data$plant_area_normalised
+                        if (hasName(Data,"plants_in_pot")) {
+                            Values <- Values / Data$plants_in_pot
+                        } else {
+                            simpleError("Manually setting data-column 'plant_area_normalised' has been deprecated.\nPlease ensure that each data-file contains the column 'plants_in_pot' to normalise your data.\n\nThe script will exit now, please ensure the column 'plants_in_pot' exists")
+                        }
                     } else {
                         if (hasName(Data, "plants_in_pot")) {
-                            Data$plant_area_normalised <- Data$plant_area_plotted / Data$plants_in_pot
+                            Values <- Values / Data$plants_in_pot
+                        } else {
                         }
                     }
-                    Data$plant_area_plotted <- Data$plant_area_normalised # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
+                    Data$plant_area_plotted <- Values # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
                 } else {
                     if (!hasName(Data, "plant_area_plotted")) {
                         if (hasName(Data, "plant_area_complete")) {
@@ -2426,16 +2432,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         for (file in Files) {
             if (ini$General$used_filesuffix == "csv") {
                 csv1 <- read.csv(file, sep = ";")
-                # file <- csv2xlsx(file)
-                # csv <- read_xlsx(file)
-                # view(csv1)
-                # view(csv)
             } else if (ini$General$used_filesuffix == "xlsx") {
                 csv1 <- read_xlsx(file, .name_repair = "unique_quiet")
             }
+            if (isFALSE(hasName(csv1,ini$Experiment$used_plant_area))) {
+                Error <- simpleError(str_c(str_c("The type of plant_area which is supposed to be loaded ('",ini$Experiment$used_plant_area,"') could not be found in the data-file",file,"."), ErrorString, sep = "\n"))
+                stop(Error)
+            }
             if (hasName(csv1, "plant_area")) {
-                csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
-                csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
                 csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
                 csv1$plant_area <- as.numeric(csv1$plant_area)
             }
@@ -2464,25 +2468,27 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
             }
             csv <- csv1
+            Values <- csv1[[ini$Experiment$used_plant_area]] ## extract the plant_area values that we need, based on the config-key
+            
             if (ini$Experiment$Normalise) {
                 if (hasName(csv, "plant_area_normalised")) {
-                    csv$plant_area_normalised <- csv$plant_area_normalised
+                    if (hasName(csv,"plants_in_pot")) {
+                        Values <- Values / csv$plants_in_pot
+                    } else {
+                        simpleError("Manually setting data-column 'plant_area_normalised' has been deprecated.\nPlease ensure that each data-file contains the column 'plants_in_pot' to normalise your data.\n\nThe script will exit now, please ensure the column 'plants_in_pot' exists")
+                    }
                 } else {
                     if (hasName(csv, "plants_in_pot")) {
-                        csv$plant_area_normalised <- csv$plant_area_plotted / csv$plants_in_pot
+                        Values <- Values / csv$plants_in_pot
                     } else {
                         ErrorString <- ""
-                        Error <- simpleError(str_c(str_c(" Data-file: '", file, "' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."), ErrorString, sep = "\n"))
+                        Error <- simpleError(str_c(str_c(" Data-file: '", file, "' does not contain the column 'plants_in_pot' to normalise automatically.\nPlease ensure this column exists.\nThe script cannot generate a plot when 'Normalise=T' if this column does not exist.\nPlease resolve this issue in the displayed data-file, or turn off normalisation."), ErrorString, sep = "\n"))
                         stop(Error)
                     }
                 }
-                List <- cbind(List, csv$plant_area_normalised)
+                List <- cbind(List, Values)
             } else {
-                if (hasName(csv, "plant_area_plotted")) {
-                    List <- cbind(List, csv$plant_area_plotted)
-                } else {
-                    List <- cbind(List, csv$plant_area_complete)
-                }
+                List <- cbind(List, Values)
             }
         }
         return(List)
