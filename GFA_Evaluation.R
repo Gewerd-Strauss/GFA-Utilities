@@ -2719,6 +2719,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             if (is.null(XLSX_Object$data_wo_Outlier)) {
                 XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 3))
             }
+            ID <- 1
+            for (each in XLSX_Object) {
+                if (is.null(each)) {
+                    XLSX_Object[ID] <- as.data.frame(list(pad = 1))
+                }
+                ID <- ID + 1
+            }
             write.xlsx(
                 XLSX_Object,
                 asTable = T,
