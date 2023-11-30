@@ -634,15 +634,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @examples
     RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
-        isNormallyDistributed <- function(norm_obj, Threshold = 0.05) {
-            # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
-            boolean <- ""
-            Count <- dim(norm_obj)[1]
-            ThresholdPassing <- subset(norm_obj, subset = statistic > Threshold) # Get the entries which fulfill the Threshold.
-            Count_Threshold <- dim(ThresholdPassing)[1]
-            boolean <- (Count == Count_Threshold) # Evaluate threshold comparison
-            return(boolean)
-        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
@@ -660,53 +651,57 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 # Data <- as.data.frame(importCSV_Data1(curr_file,""))
                 if (ini$General$used_filesuffix == "csv") {
                     csv1 <- read.csv(curr_file, sep = ";")
-                    if (hasName(csv1, "plant_area")) {
-                        csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
-                        csv1$plant_area <- as.numeric(csv1$plant_area)
-                    }
-                    if (hasName(csv1, "plant_area_drought")) {
-                        csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
-                        csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
-                    }
-                    if (hasName(csv1, "plant_area_green")) {
-                        csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
-                        csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
-                    }
-                    if (hasName(csv1, "plant_area_complete")) {
-                        csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
-                        csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
-                    }
-                    if (hasName(csv1, "pixel_area")) {
-                        csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
-                        csv1$pixel_area <- as.numeric(csv1$pixel_area)
-                    }
-                    if (hasName(csv1, "plant_pixel_count")) {
-                        csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
-                        csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
-                    }
-                    Data <- csv1
-                    # file <- csv2xlsx(file)
-                    # csv <- read_xlsx(file)
-                    # view(csv1)
-                    # view(csv)
                 } else {
-                    Data <- read_xlsx(curr_file, .name_repair = "unique_quiet")
+                    csv1 <- read_xlsx(curr_file, .name_repair = "unique_quiet")
                 }
+
+                if (hasName(csv1, "plant_area")) {
+                    csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
+                    csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
+                    csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
+                    csv1$plant_area <- as.numeric(csv1$plant_area)
+                }
+                if (hasName(csv1, "plant_area_drought")) {
+                    csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
+                    csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
+                }
+                if (hasName(csv1, "plant_area_green")) {
+                    csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
+                    csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
+                }
+                if (hasName(csv1, "plant_area_complete")) {
+                    csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
+                    csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
+                }
+                if (hasName(csv1, "pixel_area")) {
+                    csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
+                    csv1$pixel_area <- as.numeric(csv1$pixel_area)
+                }
+                if (hasName(csv1, "plant_pixel_count")) {
+                    csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
+                    csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
+                }
+                if (hasName(csv1, "drought_fraction")) {
+                    csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
+                    csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+                }
+                Data <- csv1
+                
                 if (ini$Experiment$Normalise) {
                     if (hasName(Data, "plant_area_normalised")) {
                         Data$plant_area_normalised <- Data$plant_area_normalised
                     } else {
                         if (hasName(Data, "plants_in_pot")) {
-                            Data$plant_area_normalised <- Data$plant_area / Data$plants_in_pot
+                            Data$plant_area_normalised <- Data$plant_area_plotted / Data$plants_in_pot
                         }
                     }
-                    Data$plant_area <- Data$plant_area_normalised # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
+                    Data$plant_area_plotted <- Data$plant_area_normalised # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
                 } else {
-                    if (!hasName(Data, "plant_area")) {
+                    if (!hasName(Data, "plant_area_plotted")) {
                         if (hasName(Data, "plant_area_complete")) {
-                            Data$plant_area <- Data$plant_area_complete
+                            Data$plant_area_plotted <- Data$plant_area_complete
                         } else {
-                            Error <- simpleError(str_c(str_c(" Data-file: '", curr_file, "' does not contain either the column 'plant_area' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"), ErrorString, sep = "\n"))
+                            Error <- simpleError(str_c(str_c(" Data-file: '", curr_file, "' does not contain either the column 'plant_area_plotted' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"), ErrorString, sep = "\n"))
                             stop(Error)
                         }
                     }
@@ -734,13 +729,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
                 ## statistics
-                summary <- describeBy(Data$plant_area, Data$interactions) # todo: implement logic for choosing normalised data.
-                # in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
+                summary <- describeBy(Data$plant_area_plotted, Data$interactions) # todo: implement logic for choosing normalised data.
+                # in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area_plotted/Data$plants_in_pot'
                 #
                 #
                 Outliers <- Data %>%
                     group_by(interactions) %>%
-                    identify_outliers("plant_area")
+                    identify_outliers("plant_area_plotted")
 
                 labelOutliers <- function(y) {
                     o <- boxplot.stats(y)$out
@@ -751,7 +746,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 GFA_p_Outlier <- ggplot(
                     Data,
-                    aes(x = interactions, y = plant_area)
+                    aes(x = interactions, y = plant_area_plotted)
                 ) +
                     geom_boxplot(
                         outlier.color = "red",
@@ -759,7 +754,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 p_Outlier2 <- ggplot(
                     Data,
-                    aes(x = interactions, y = plant_area)
+                    aes(x = interactions, y = plant_area_plotted)
                 ) +
                     scale_x_discrete() +
                     scale_y_discrete() +
@@ -781,7 +776,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 # TODO: figure out what to group_by by...
                 Outliers <- Data %>%
                     group_by(interactions) %>%
-                    identify_outliers("plant_area")
+                    identify_outliers("plant_area_plotted")
 
                 wo_outliers <- Data %>%
                     anti_join(Outliers, by = "file")
@@ -797,33 +792,52 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 norm <- wo_outliers %>%
                     group_by(interactions) %>%
                     dplyr::summarise(
-                        statistic = shapiro.test(plant_area)$statistic,
-                        p.value = shapiro.test(plant_area)$p.value
+                        statistic = shapiro.test(plant_area_plotted)$statistic,
+                        p.value = shapiro.test(plant_area_plotted)$p.value
                     )
-
                 if (isNormallyDistributed(norm)) {
-                    BT <- bartlett.test(plant_area ~ interactions, wo_outliers)
+                    BT <- bartlett.test(plant_area_plotted ~ interactions, wo_outliers)
                     BT <- do.call("rbind", BT)
                     BT <- data.frame(names = row.names(BT), BT)
 
                     # TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    Data_stat_test <- group_by(Data)
                     Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                     stat.test <- Data_stat_test %>%
-                        t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "interactions")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "bartlett" = BT,
+                        "t.test" = stat.test,
+                        "summary" = summary
+                    )
                 } else {
-                    levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
+                    levene <- leveneTest(wo_outliers$plant_area_plotted, wo_outliers$Gruppe)
 
                     # TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
-                    stat.test <- Data %>%
-                        group_by(Gruppe) %>%
-                        wilcox_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+
+                    Data_stat_test <- subset(Data, select = -c(file))
+                    Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    # Data_stat_test <- group_by(Data)
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area_plotted ~ interactions, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "interactions")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "levene" = levene,
+                        "wilcox.test" = stat.test,
+                        "summary" = summary
+                    )
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
@@ -831,17 +845,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
-                    write.xlsx(
-                        list(
-                            "Data" = Data,
-                            "Outlier" = Outliers,
-                            "data_wo_Outlier" = wo_outliers,
-                            "Norm" = norm,
-                            "BT" = BT,
-                            "T.test" = stat.test,
-                            "summary" = summary
-                        ),
-                        file = XLSX_Path,
+                    dir <- dirname(XLSX_Path)
+
+                    if (isFALSE(dir.exists(dir))) {
+                        dir.create(dir)
+                    }
+                    XLSX_Object <- na.omit(XLSX_Object)
+                    if (dim(XLSX_Object$outlier)[1] == 0) {
+                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                    }
+                    if (is.null(XLSX_Object$data_wo_Outlier)) {
+                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                    }
+                    write.xlsx(XLSX_Object,
+                        file = XLSX_Path, asTable = T,
                         creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
                     ) ## sign the file with being created by this username on this machine.
                 }
@@ -1011,7 +1028,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
-                    y = "plant_area",
+                    y = "plant_area_plotted",
                     fill = "interactions",
                     color = "black",
                     add = "jitter",
@@ -1053,23 +1070,23 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     } else {
                         Limits <- c(0, 1) ## otherwhise initialise the vector so we can modify the second element below
                     }
-                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)
                     Limits[[2]] <- scale_y_upperEnd
                 } else {
-                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)
                     Limits[[2]] <- scale_y_upperEnd
                 }
-                if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset.
-                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a kiwer value, ggplot will fail.
+                if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset.
+                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a kiwer value, ggplot will fail.
                 }
-                if ((Limits[[2]] - (Limits[[2]] * 0.10)) <= max(as.vector(Data$plant_area))) { ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
-                    Limits[[2]] <- max(as.vector(Data$plant_area)) + (max(as.vector(Data$plant_area))) * 0.10
+                if ((Limits[[2]] - (Limits[[2]] * 0.10)) <= max(as.vector(Data$plant_area_plotted))) { ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
+                    Limits[[2]] <- max(as.vector(Data$plant_area_plotted)) + (max(as.vector(Data$plant_area_plotted))) * 0.10
                     Limits[[2]] <- round_any(Limits[[2]], 25, f = ceiling)
                 }
-                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area, Limits, ini)
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
-                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area))) {
+                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
                     Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
@@ -1086,14 +1103,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 # Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
                 stat.test <- Data_stat_test %>%
-                    t_test(plant_area ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
+                    t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
                 stat.test <- stat.test %>%
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
                 stat.test$p.scient <- formatPValue(stat.test$p)
                 GFA_plot_box2 <- GFA_plot_box
-                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area))) {
-                    Diff <- Limits[[2]] - max(max(Data$plant_area))
+                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
+                    Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
                 } else {
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
@@ -1169,7 +1186,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
                     GFA_plot_box <- GFA_plot_box + stat_summary(
                         fun.data = labelSample_n,
-                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
+                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area_plotted))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
                         geom = "text",
                         hjust = 0.5,
                         size = n_size,
@@ -1201,15 +1218,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
                 Results <- list(
-                    "Data" = Data,
-                    "Outlier" = Outliers,
+                    "data" = Data,
+                    "outlier" = Outliers,
                     "data_wo_Outlier" = wo_outliers,
-                    "Norm" = norm,
-                    "BT" = BT,
-                    "T.test" = stat.test,
-                    "summary" = summary
+                    "norm" = norm
                 )
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path)
+                if (isNormallyDistributed(norm)) {
+                    Results$bartlett <- BT
+                    Results$"t.test" <- stat.test
+                } else {
+                    Results$levene <- levene
+                    Results$"wilcox.test" <- stat.test
+                }
+                Results$summary <- summary
+                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
             } else {
                 ## normal, no facetting occured, so we can use the old pathway
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
@@ -1219,13 +1241,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 Data$Nummer <- Nummer
                 Data$Gruppe <- factor(Data$Gruppe, levels = groups_as_ordered_in_datafile)
 
-                summary <- describeBy(Data$plant_area, Data$Gruppe) # todo: implement logic for choosing normalised data.
-                # in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area/Data$plants_in_pot'
+                summary <- describeBy(Data$plant_area_plotted, Data$Gruppe) # todo: implement logic for choosing normalised data.
+                # in that case, we either take the Data$plant_area_normalised-column, or we normalise via 'Data$plant_area_plotted/Data$plants_in_pot'
                 #
                 #
                 Outliers <- Data %>%
                     group_by(Gruppe) %>%
-                    identify_outliers("plant_area")
+                    identify_outliers("plant_area_plotted")
 
                 labelOutliers <- function(y) {
                     o <- boxplot.stats(y)$out
@@ -1236,7 +1258,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 GFA_p_Outlier <- ggplot(
                     Data,
-                    aes(x = Gruppe, y = plant_area)
+                    aes(x = Gruppe, y = plant_area_plotted)
                 ) +
                     geom_boxplot(
                         outlier.color = "red",
@@ -1244,7 +1266,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 p_Outlier2 <- ggplot(
                     Data,
-                    aes(x = Gruppe, y = plant_area)
+                    aes(x = Gruppe, y = plant_area_plotted)
                 ) +
                     scale_x_discrete() +
                     scale_y_discrete() +
@@ -1265,7 +1287,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 # TODO: figure out what to group_by by...
                 Outliers <- Data %>%
                     group_by(Gruppe) %>%
-                    identify_outliers("plant_area")
+                    identify_outliers("plant_area_plotted")
 
                 wo_outliers <- Data %>%
                     anti_join(Outliers, by = "file")
@@ -1285,31 +1307,50 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 norm <- wo_outliers %>%
                     group_by(Gruppe) %>%
                     dplyr::summarise(
-                        statistic = shapiro.test(plant_area)$statistic,
-                        p.value = shapiro.test(plant_area)$p.value
+                        statistic = shapiro.test(plant_area_plotted)$statistic,
+                        p.value = shapiro.test(plant_area_plotted)$p.value
                     )
 
                 if (isNormallyDistributed(norm)) {
-                    BT <- bartlett.test(plant_area ~ Gruppe, wo_outliers)
+                    BT <- bartlett.test(plant_area_plotted ~ Gruppe, wo_outliers)
                     BT <- do.call("rbind", BT)
                     BT <- data.frame(names = row.names(BT), BT)
 
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    Data_stat_test <- group_by(Data)
                     Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                     stat.test <- Data_stat_test %>%
-                        t_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                        t_test(plant_area_plotted ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "Gruppe")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "bartlett" = BT,
+                        "t.test" = stat.test,
+                        "summary" = summary
+                    )
                 } else {
-                    levene <- leveneTest(wo_outliers$plant_area, wo_outliers$Gruppe)
+                    levene <- leveneTest(wo_outliers$plant_area_plotted, wo_outliers$Gruppe)
 
-                    stat.test <- Data %>%
-                        group_by(Gruppe) %>%
-                        wilcox_test(plant_area ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
+                    Data_stat_test <- subset(Data, select = -c(file))
+                    Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
+                    # Data_stat_test <- group_by(Data)
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area_plotted ~ Gruppe, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
                         add_xy_position(x = "Gruppe")
+                    XLSX_Object <- list(
+                        "data" = Data,
+                        "outlier" = Outliers,
+                        "data_wo_Outlier" = wo_outliers,
+                        "norm" = norm,
+                        "levene" = levene,
+                        "wilcox.test" = stat.test,
+                        "summary" = summary
+                    )
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
@@ -1317,17 +1358,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
-                    write.xlsx(
-                        list(
-                            "Data" = Data,
-                            "Outlier" = Outliers,
-                            "data_wo_Outlier" = wo_outliers,
-                            "Norm" = norm,
-                            "BT" = BT,
-                            "T.test" = stat.test,
-                            "summary" = summary
-                        ),
-                        file = XLSX_Path,
+                    dir <- dirname(XLSX_Path)
+
+                    if (isFALSE(dir.exists(dir))) {
+                        dir.create(dir)
+                    }
+                    XLSX_Object <- na.omit(XLSX_Object)
+                    if (dim(XLSX_Object$outlier)[1] == 0) {
+                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                    }
+                    if (is.null(XLSX_Object$data_wo_Outlier)) {
+                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                    }
+                    write.xlsx(XLSX_Object,
+                        file = XLSX_Path, asTable = T,
                         creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
                     ) ## sign the file with being created by this username on this machine.
                 }
@@ -1499,7 +1543,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "Gruppe",
-                    y = "plant_area",
+                    y = "plant_area_plotted",
                     fill = "Gruppe",
                     palette = Palette_Boxplot,
                     color = "black",
@@ -1535,19 +1579,19 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     } else {
                         Limits <- c(0, 1) ## otherwhise initialise the vector so we can modify the second element below
                     }
-                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)
                     Limits[[2]] <- scale_y_upperEnd
                 } else {
-                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)
+                    scale_y_upperEnd <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)
                     Limits[[2]] <- scale_y_upperEnd
                 }
-                if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset.
-                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a lower value, ggplot will fail.
+                if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset.
+                    Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a lower value, ggplot will fail.
                 }
-                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area, Limits, ini)
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
-                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area))) {
+                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
                     Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
@@ -1558,8 +1602,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     pval_size <- 2.5
                 }
-                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area))) {
-                    Diff <- Limits[[2]] - max(max(Data$plant_area))
+                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
+                    Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
                 } else {
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
@@ -1644,7 +1688,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
                     GFA_plot_box <- GFA_plot_box + stat_summary(
                         fun.data = labelSample_n,
-                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
+                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area_plotted))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
                         geom = "text",
                         hjust = 0.5,
                         size = n_size,
@@ -1676,15 +1720,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
                 Results <- list(
-                    "Data" = Data,
-                    "Outlier" = Outliers,
-                    "data_wo_Outlier" = wo_outliers,
-                    "Norm" = norm,
-                    "BT" = BT,
-                    "T.test" = stat.test,
-                    "summary" = summary
+                    "data" = Data,
+                    "outlier" = Outliers,
+                    "data_wo_outlier" = wo_outliers,
+                    "norm" = norm
                 )
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path)
+                if (isNormallyDistributed(norm)) {
+                    Results$bartlett <- BT
+                    Results$"t.test" <- stat.test
+                } else {
+                    Results$levene <- levene
+                    Results$"wilcox.test" <- stat.test
+                }
+                Results$summary <- summary
+                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
             }
         }
         return(ret)
@@ -2377,48 +2426,50 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         for (file in Files) {
             if (ini$General$used_filesuffix == "csv") {
                 csv1 <- read.csv(file, sep = ";")
-                if (hasName(csv1, "plant_area")) {
-                    csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
-                    csv1$plant_area <- as.numeric(csv1$plant_area)
-                }
-                if (hasName(csv1, "plant_area_drought")) {
-                    csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
-                    csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
-                }
-                if (hasName(csv1, "plant_area_green")) {
-                    csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
-                    csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
-                }
-                if (hasName(csv1, "plant_area_complete")) {
-                    csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
-                    csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
-                }
-                if (hasName(csv1, "pixel_area")) {
-                    csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
-                    csv1$pixel_area <- as.numeric(csv1$pixel_area)
-                }
-                if (hasName(csv1, "plant_pixel_count")) {
-                    csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
-                    csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
-                }
-                if (hasName(csv1, "drought_fraction")) {
-                    csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
-                    csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
-                }
-                csv <- csv1
                 # file <- csv2xlsx(file)
                 # csv <- read_xlsx(file)
                 # view(csv1)
                 # view(csv)
             } else if (ini$General$used_filesuffix == "xlsx") {
-                csv <- read_xlsx(file, .name_repair = "unique_quiet")
+                csv1 <- read_xlsx(file, .name_repair = "unique_quiet")
             }
+            if (hasName(csv1, "plant_area")) {
+                csv1$plant_area_plotted <- str_replace(csv1$plant_area, ",", ".")
+                csv1$plant_area_plotted <- as.numeric(csv1$plant_area)
+                csv1$plant_area <- str_replace(csv1$plant_area, ",", ".")
+                csv1$plant_area <- as.numeric(csv1$plant_area)
+            }
+            if (hasName(csv1, "plant_area_drought")) {
+                csv1$plant_area_drought <- str_replace(csv1$plant_area_drought, ",", ".")
+                csv1$plant_area_drought <- as.numeric(csv1$plant_area_drought)
+            }
+            if (hasName(csv1, "plant_area_green")) {
+                csv1$plant_area_green <- str_replace(csv1$plant_area_green, ",", ".")
+                csv1$plant_area_green <- as.numeric(csv1$plant_area_green)
+            }
+            if (hasName(csv1, "plant_area_complete")) {
+                csv1$plant_area_complete <- str_replace(csv1$plant_area_complete, ",", ".")
+                csv1$plant_area_complete <- as.numeric(csv1$plant_area_complete)
+            }
+            if (hasName(csv1, "pixel_area")) {
+                csv1$pixel_area <- str_replace(csv1$pixel_area, ",", ".")
+                csv1$pixel_area <- as.numeric(csv1$pixel_area)
+            }
+            if (hasName(csv1, "plant_pixel_count")) {
+                csv1$plant_pixel_count <- str_replace(csv1$plant_pixel_count, ",", ".")
+                csv1$plant_pixel_count <- as.numeric(csv1$plant_pixel_count)
+            }
+            if (hasName(csv1, "drought_fraction")) {
+                csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
+                csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
+            }
+            csv <- csv1
             if (ini$Experiment$Normalise) {
                 if (hasName(csv, "plant_area_normalised")) {
                     csv$plant_area_normalised <- csv$plant_area_normalised
                 } else {
                     if (hasName(csv, "plants_in_pot")) {
-                        csv$plant_area_normalised <- csv$plant_area / csv$plants_in_pot
+                        csv$plant_area_normalised <- csv$plant_area_plotted / csv$plants_in_pot
                     } else {
                         ErrorString <- ""
                         Error <- simpleError(str_c(str_c(" Data-file: '", file, "' does not contain either the column 'plant_area_normalised', nor the column 'plants_in_pot' to normalise automatically.\nPlease ensure these columns exist.\nThe script cannot generate a plot when 'Normalise=T' if these columns do not exist.\nPlease resolve this issue in the displayed data-file, or turn of normalisation."), ErrorString, sep = "\n"))
@@ -2427,8 +2478,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 List <- cbind(List, csv$plant_area_normalised)
             } else {
-                if (hasName(csv, "plant_area")) {
-                    List <- cbind(List, csv$plant_area)
+                if (hasName(csv, "plant_area_plotted")) {
+                    List <- cbind(List, csv$plant_area_plotted)
                 } else {
                     List <- cbind(List, csv$plant_area_complete)
                 }
@@ -2524,13 +2575,23 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @keywords internal
     #'
     #' @examples
+    isNormallyDistributed <- function(norm_obj, Threshold = 0.05) {
+        # Function überprüft, wie viele der Gruppen den Test zur Normalverteilung bestehen. Wenn alle ihn bestehen, gibt sie als boolean TRUE zurück
+
+        boolean <- ""
+        Count <- dim(norm_obj)[1]
+        ThresholdPassing <- subset(norm_obj, subset = p.value > Threshold) # Get the entries which fulfill the Threshold.
+        Count_Threshold <- dim(ThresholdPassing)[1]
+        boolean <- (Count == Count_Threshold) # Evaluate threshold comparison
+        return(boolean)
+    }
     validateINI <- function(ini_List) {
         # toValidate:
         # Experiment
         # T0                    Must be validated
         # PotsPerGroup          can't be validated, must be given in good faith
         # UniqueGroups          can't be validated, must be given in good faith
-        # Normalise            falls back if not prepared TODO: give notice if falllback to plant_area/plant_number, so that user knows they must provide the column or not use the number
+        # Normalise            falls back if not prepared TODO: give notice if falllback to plant_area_plotted/plant_number, so that user knows they must provide the column or not use the number
         # General
         # Debug                 not applicable, the debug switch is used to generate more detailed information on what is going on
         # Theme                 falls back to
@@ -2620,24 +2681,51 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @examples
     writeChangetoFile <- function(DailyAnalyses) {
         for (Object in DailyAnalyses) {
-            write.xlsx(
-                list(
-                    "Data" = Object$Res$Data,
-                    "Outlier" = Object$Res$Outliers,
-                    "data_wo_Outlier" = Object$Res$wo_outliers,
-                    "Norm" = Object$Res$norm,
-                    "BT" = Object$Res$BT,
-                    "T.test" = Object$Res$stat.test,
+            dir <- dirname(Object$XLSX_Path)
+
+            if (isFALSE(dir.exists(dir))) {
+                dir.create(dir)
+            }
+            if (isNormallyDistributed(Object$Res$norm)) {
+                XLSX_Object <- list(
+                    "data" = Object$Res$data,
+                    "outlier" = Object$Res$outlier,
+                    "data_wo_Outlier" = Object$Res$data_wo_outlier,
+                    "norm" = Object$Res$norm,
+                    "bartlett" = Object$Res$bartlett,
+                    "t.test" = Object$Res$t.test,
                     "summary" = Object$Res$summary
-                ),
+                )
+            } else {
+                XLSX_Object <- list(
+                    "data" = Object$Res$data,
+                    "outlier" = Object$Res$outlier,
+                    "data_wo_Outlier" = Object$Res$data_wo_outlier,
+                    "norm" = Object$Res$norm,
+                    "levene" = Object$Res$levene,
+                    "wilcox.test" = Object$Res$wilcox.test,
+                    "summary" = Object$Res$summary
+                )
+            }
+
+            XLSX_Object <- na.omit(XLSX_Object)
+            if (dim(XLSX_Object$outlier)[1] == 0) {
+                XLSX_Object$outlier <- as.data.frame(list(pad = 2))
+            }
+            if (is.null(XLSX_Object$data_wo_Outlier)) {
+                XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 3))
+            }
+            write.xlsx(
+                XLSX_Object,
+                asTable = T,
                 file = Object$XLSX_Path,
                 creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
             ) ## sign the file with being created by this username on this machine.
-            xlsx <- loadWorkbook(Object$XLSX_Path)
+            xlsx <- openxlsx::loadWorkbook(Object$XLSX_Path)
 
-            writeComment(xlsx, "summary", col = "O", row = 1, comment = createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
-            writeComment(xlsx, "summary", col = "P", row = 1, comment = createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
-            saveWorkbook(xlsx, file = Object$XLSX_Path, overwrite = T)
+            openxlsx::writeComment(xlsx, "summary", col = "O", row = 1, comment = openxlsx::createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
+            openxlsx::writeComment(xlsx, "summary", col = "P", row = 1, comment = openxlsx::createComment(comment = str_c("Change is relative to ", Object$PreviousDay, "\n Comment generated by GFA_Evaluation.R"), visible = F, author = str_c("GFA_Evaluation.R")))
+            openxlsx::saveWorkbook(xlsx, file = Object$XLSX_Path, overwrite = T)
         }
     }
 
