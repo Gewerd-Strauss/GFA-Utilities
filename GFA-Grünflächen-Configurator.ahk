@@ -1091,7 +1091,8 @@ createRScript(Path,forceSelection:=false,overwrite:=false) {
         }
     }
     if (Chosen!="") {
-        if (!InStr(Chosen,".R")) {
+        SplitPath % Chosen, , , OutExtension
+        if (!InStr(Chosen,".R") && (OutExtension!="R")) {
             Chosen:=Chosen ".R"
         }
         guicontrol % "GC:",vStarterRScriptLocation, % Chosen
