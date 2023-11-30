@@ -1324,7 +1324,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    Data_stat_test$Group <- as.character(Data_stat_test$Gruppe)
                     stat.test <- Data_stat_test %>%
                         t_test(plant_area_plotted ~ Gruppe, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
@@ -1343,7 +1342,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    # Data_stat_test <- group_by(Data)
                     stat.test <- Data_stat_test %>%
                         wilcox_test(plant_area_plotted ~ Gruppe, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
