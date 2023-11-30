@@ -1373,7 +1373,7 @@ runCLI(dynGUI) {
                 ttip("GFA_Evaluation: Execution failed.")
                 Title:= " - " A_ThisFunc " - Script-Execution failed" 
                 Message:="The R-Script 'GFA_Evaluation.R' (Path:" dynGUI.GFA_Evaluation_InstallationPath ") failed to finish execution. The complete callstack of the execution was printed to the file '" errorlog "'`n`nOpen the errorlog now?"
-                writeFile(errorlog,InOut,,,true)
+                writeFile(errorlog,InOut,"utf-8-raw",,true)
                 Gui +OwnDialogs
                 AppError(Title, Message,0x14,"")
                 IfMsgBox Yes, {
@@ -1389,7 +1389,7 @@ runCLI(dynGUI) {
                 }
                 Title:= " - " A_ThisFunc " - Script-Execution succeeded" 
                     , Message:="GFA_Evaluation: Execution finished.`nThe complete callstack of the execution was printed to the file '" errorlog "'.`n`nOpen the errorlog now?"
-                writeFile(errorlog,InOut,,,true)
+                writeFile(errorlog,InOut,"utf-8-raw",,true)
                 Gui +OwnDialogs
                 AppError(Title, Message,0x44,"")
                 IfMsgBox Yes, {
