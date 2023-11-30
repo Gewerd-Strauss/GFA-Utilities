@@ -200,6 +200,16 @@ Options         `xlsx||csv`
 Instruction     `used_filesuffix: Select the filetype you want to ingest`  
 Elaboration     `'xlsx' is recommended. 'csv' was tested, but not as adamantly as xlsx. It should not make any difference, but that is not guaranteed.`  
 
+#### `used_plant_area`
+
+Parameter       `used_plant_area` [Section:`General`]  
+Value           `plant_area`  
+Default         `plant_area`  
+Type            `String`  
+Options         `plant_area||plant_area_green|plant_area_complete|plant_area_drought`  
+Instruction     `used_plant_area: Select the name of the column which contains the area you are trying to plot. Editing allowed`  
+Elaboration     `Examples:\n- 'plant_area'\n- 'plant_area_green'\n- 'plant_area_complete'\n- 'plant_area_drought'.`  
+
 ### 3. Figure
 
 #### `Name`
