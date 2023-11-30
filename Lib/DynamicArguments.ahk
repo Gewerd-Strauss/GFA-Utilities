@@ -454,10 +454,10 @@ Class dynamicGUI {
                             Value.ctrlOptions.=((SubStr(Value.ctrlOptions,-1)="|")?"":"|") Value.Default
                         }
                         if !Instr(Value.ctrlOptions,Value.Default "|") {
-                            Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.Default,Value.Default "|")
+                            Value.ctrlOptions:=RegexReplace(Value.ctrlOptions,Value.Default "\b",Value.Default "|")
                         }
                         if !Instr(Value.ctrlOptions,Value.Default "||") {
-                            Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.Default,Value.Default "|")
+                            Value.ctrlOptions:=Regexreplace(Value.ctrlOptions,Value.Default "\b",Value.Default "|")
                         }
                         if !Instr(Value.ctrlOptions,Value.Default "||") {
                             Value.ctrlOptions:=strreplace(Value.ctrlOptions,Value.ctrlOptions "|")

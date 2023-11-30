@@ -43,7 +43,7 @@ setupdefaultconfig(Switch) {
             ;Version Type: Text
             ;Version Hidden:
             build=130
-            GFC_version=1.5.40
+            GFC_version=1.5.41
             [Configurator_settings]
             bDebugSwitch=0
             ;bDebugSwitch hidden:
@@ -197,6 +197,7 @@ setupdefaultconfig(Switch) {
             %A_Tab%Filename_Prefix:Edit|Type:String|Default:"GF"|TTIP:Decide the file-prefix used when saving figures and statistical results.\n\nATTENTION:\nChanging this if files have been generated before will result in those files not\nbeing overwritten so you will end up with an old and a current set of result-\nfiles (images/excel-sheets/RData-files)|Tab3Parent:2. GeneralConfiguration|Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%filename_date_format:Combobox|Type:String|Default:"`%Y-`%m-`%d"|String:"Select the date format for saved files. Editing allowed"|TTIP:Does not control the date format on the figure. For that, see option 'figure_date_format'.|ctrlOptions:r5,`%d.`%m.`%Y,`%Y-`%m-`%d|Tab3Parent:2. GeneralConfiguration|Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%Debug:Checkbox|Type:boolean|Default:0|String:"Do you want to print debug information?"|Tab3Parent:2. GeneralConfiguration|Link:Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}f|Linktext:?|ConfigSection:General
+            %A_Tab%used_plant_area:Combobox|Type:String|Default:"plant_area"|String:"Select the name of the column which contains the area you are trying to plot. Editing allowed"|TTIP:Examples:\n- 'plant_area'\n- 'plant_area_green'\n- 'plant_area_complete'\n- 'plant_area_drought'.|ctrlOptions:plant_area,plant_area_green,plant_area_complete,plant_area_drought|Tab3Parent:2. GeneralConfiguration|Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%;;; figure
             %A_Tab%Name:Edit|Type:String|Default:"Experiment X"|String:"Set the name of the Experiment as seen in the figure title"|Tab3Parent:3. Figure|Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}|Linktext:?|ConfigSection:Experiment
             %A_Tab%PlotMeanLine:Checkbox|Type:boolean|Default:1|String:"Do you want to plot the line connecting the means of each group's boxplots?"|Tab3Parent:3. Figure|Link:https://htmlpreview.github.io/?https://github.com/Gewerd-Strauss/Gr-nfl-chen-Utilities/blob/docs/Manual.html#sec-{Parameter}|Linktext:?|ConfigSection:General
