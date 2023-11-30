@@ -699,18 +699,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         if (hasName(Data, "plants_in_pot")) {
                             Values <- Values / Data$plants_in_pot
                         } else {
+                            ErrorString <- ""
+                            Error <- simpleError(str_c(str_c(" Data-file: '", file, "' does not contain the column 'plants_in_pot' to normalise automatically.\nPlease ensure this column exists.\nThe script cannot generate a plot when 'Normalise=T' if this column does not exist.\nPlease resolve this issue in the displayed data-file, or turn off normalisation."), ErrorString, sep = "\n"))
+                            stop(Error)
                         }
                     }
                     Data$plant_area_plotted <- Values # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
                 } else {
-                    if (!hasName(Data, "plant_area_plotted")) {
-                        if (hasName(Data, "plant_area_complete")) {
-                            Data$plant_area_plotted <- Data$plant_area_complete
-                        } else {
-                            Error <- simpleError(str_c(str_c(" Data-file: '", curr_file, "' does not contain either the column 'plant_area_plotted' or plant_area_complete'.\nPlease ensure these columns exist.\nThis script is not by default set up to work with differently-named plant-area columns.\nIf you need help adjusting this, open an issue on the GH-Repository,"), ErrorString, sep = "\n"))
-                            stop(Error)
-                        }
-                    }
+                    Data$plant_area_plotted <- Values # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
                 }
                 break
             }
