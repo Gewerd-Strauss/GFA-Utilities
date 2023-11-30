@@ -1371,11 +1371,11 @@ runCLI(dynGUI) {
                 , errorlog:=OutDir "\GFA_Evaluation_EL_" A_Now ".txt"
             if (!InStr(InOut,"<-- GFA_Main(): Execution finished")) {
                 ttip("GFA_Evaluation: Execution failed.")
-                Title:=script.name " - " A_ThisFunc " - Script-Execution failed" 
+                Title:= " - " A_ThisFunc " - Script-Execution failed" 
                 Message:="The R-Script 'GFA_Evaluation.R' (Path:" dynGUI.GFA_Evaluation_InstallationPath ") failed to finish execution. The complete callstack of the execution was printed to the file '" errorlog "'`n`nOpen the errorlog now?"
                 writeFile(errorlog,InOut,,,true)
                 Gui +OwnDialogs
-                AppError(Title, Message,0x14)
+                AppError(Title, Message,0x14,"")
                 IfMsgBox Yes, {
                     Run %  "*edit " errorlog
                 } Else IfMsgBox No, {
@@ -1387,11 +1387,11 @@ runCLI(dynGUI) {
                     time:=Format("{:02}:{:02}", tdiff//60, Mod(tdiff, 60))
                     ttip("GFA_Evaluation: Execution finished in " time " [mm:ss]")
                 }
-                Title:=script.name " - " A_ThisFunc " - Script-Execution succeeded" 
+                Title:= " - " A_ThisFunc " - Script-Execution succeeded" 
                     , Message:="GFA_Evaluation: Execution finished.`nThe complete callstack of the execution was printed to the file '" errorlog "'.`n`nOpen the errorlog now?"
                 writeFile(errorlog,InOut,,,true)
                 Gui +OwnDialogs
-                AppError(Title, Message,0x44)
+                AppError(Title, Message,0x44,"")
                 IfMsgBox Yes, {
                     Run %  "*edit " errorlog
                 } Else IfMsgBox No, {
