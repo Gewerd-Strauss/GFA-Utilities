@@ -176,11 +176,16 @@ guiCreate() {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
+    DPIAdjustmentFactor:=(1/(A_ScreenDPI/96))
+    guiWidth:=guiWidth * DPIAdjustmentFactor
+    guiHeight:=guiHeight * DPIAdjustmentFactor
+    ;guiHeight:=990
     if (globalLogicSwitches.DEBUG) {
         ttip(["guiWidth: " guiWidth
                 ,"guiHeight: " guiHeight
                 ,"A_ScreenHeight " A_ScreenHeight
                 ,"A_ScreenWidth " A_ScreenWidth
+                , "A_DPI " A_ScreenDPI
                 ,script.config.SizeSetting
                 ,"is1080: " (script.config.Configurator_settings.SizeSetting="1080p")
                 ,"is1440: " (script.config.Configurator_settings.SizeSetting="1440p")
@@ -869,6 +874,17 @@ fCallBack_StatusBarMainWindow() {
             SoundBeep 1750, 150
             SoundBeep 1750, 150
             SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",4)
+            Clipboard:=ttip(["guiWidth: " guiWidth
+                    ,"guiHeight: " guiHeight
+                    ,"A_ScreenHeight " A_ScreenHeight
+                    ,"A_ScreenWidth " A_ScreenWidth
+                    , "A_DPI " A_ScreenDPI
+                    , "Size Setting  " script.config.SizeSetting
+                    ,"height-mwa 1440p: " 1392 - 2*30
+                    ,"guiWidth 1440p: " 2560 - 2*30
+                    ,"guiWidth  1080p: " 1920 - 2*30
+                    ,"height-mwa 1080p: " 1032 - 2*30,["bIsAuthor: " globalLogicSwitches.bIsAuthor,"bisDEBUG: " globalLogicSwitches.bIsDebug,"DEBUG " globalLogicSwitches.DEBUG]
+                    , ["Loaded script Configuration: ",script.config]],1,2300)
             ListLines On
         }
     } else if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) { ; part 4 - script privileges
@@ -1206,6 +1222,9 @@ compareRScripts(new_contents,current_contents,HWND,Filepath) {
         guiWidth:=1920 - 2*30
             , guiHeight:=1032 - 2*30
     }
+    DPIAdjustmentFactor:=(1/(A_ScreenDPI/96))
+    guiWidth:=guiWidth * DPIAdjustmentFactor
+    guiHeight:=guiHeight * DPIAdjustmentFactor
     RCWidth:=(guiWidth-3*15)/2
 
     gui compare_contents: destroy

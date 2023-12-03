@@ -79,8 +79,6 @@
                     cleanedVal:=removeDuplicates(Argument.Value, ",",0)
                     cleanedVal:=RTrim(cleanedVal,",")
                     if (cleanedVal!=Argument.Value) { ;; different, thus duplicates got removed.
-                        ; TODO: Ask the user if the new value is correct, then enter it into the UI and guicontrol-fill the control containing it.
-
                         MsgBox 0x40034, % script.name " - " A_ThisFunc
                             , % "The value you have entered for the key '" checked_key "' contains (potentially case-differing) repetitions."
                             . "`nThe program tried to correct the problem, please check the new contents for the key '" checked_key "' and confirm again."
@@ -253,7 +251,6 @@
                     }
                 }
                 if (KeyNotPresent) {
-                    ;; TODO:: BUG:: fix that keys present in ne config leak over to another config if they are not defined there?!
                     this.ArgumentsValidate[param][param_key]:=param_val
                     this.ArgumentsValidate[param]["Value"]:=""
                 } else {
@@ -266,7 +263,7 @@
                 if (this.ArgumentsValidate.HasKey(current_key)) {
                     if (this.ArgumentsValidate[current_key].Type="boolean") {
                         if (Value="T" || Value = "TRUE" || Value = "F" || Value = "FALSE") {
-                            this.ArgumentsValidate[current_key].Value:=(InStr(Value,"T")?1:0) ; TODO: replace 2 and -2 with 1 and 0
+                            this.ArgumentsValidate[current_key].Value:=(InStr(Value,"T")?1:0)
                         }
                     } else if (this.ArgumentsValidate[current_key].Type="Integer") {
                         Value:=Value + 0
