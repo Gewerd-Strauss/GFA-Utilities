@@ -1,0 +1,9 @@
+*/*.R
+*.RData
+.Rhistory
+.vscode/launch.json
+**/INI-Files/*.ini
+**/Excludes/**
+.vscode/
+Errorlog.txt
+build.ahk
