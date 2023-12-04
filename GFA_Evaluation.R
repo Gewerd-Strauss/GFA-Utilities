@@ -1220,19 +1220,22 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         position = position_dodge(width = 0.75)
                     )
                 }
-                if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                    clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                    deslen <- 256
-                    lendiff <- clen - deslen + 4
-                    filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                    new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                    old <- str_c(folder_path, "ROutput\\", filename2)
-                    if (str_length(new) == 256) {
-                        filename <- str_c(filename2, ".jpg")
-                    }
-                    rm(new, old, clen, deslen, lendiff)
-                }
+                
+                
                 if (isTRUE(as.logical(saveFigures))) {
+                    ## ensure path length limits are conformed to
+                    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+                        deslen <- 256
+                        lendiff <- clen - deslen + 4
+                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+                        old <- str_c(folder_path, "ROutput\\", filename2)
+                        if (str_length(new) == 256) {
+                            filename <- str_c(filename2, ".jpg")
+                        }
+                        rm(new, old, clen, deslen, lendiff)
+                    }
                     filename <- sanitisePath(filename)
                     ggsave(
                         filename = filename,
@@ -1599,19 +1602,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         position = position_dodge(width = 0.75)
                     )
                 }
-                if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                    clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                    deslen <- 256
-                    lendiff <- clen - deslen + 4
-                    filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                    new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                    old <- str_c(folder_path, "ROutput\\", filename2)
-                    if (str_length(new) == 256) {
-                        filename <- str_c(filename2, ".jpg")
-                    }
-                    rm(new, old, clen, deslen, lendiff)
-                }
                 if (isTRUE(as.logical(saveFigures))) {
+                    ## ensure path length limits are conformed to
+                    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+                        deslen <- 256
+                        lendiff <- clen - deslen + 4
+                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+                        old <- str_c(folder_path, "ROutput\\", filename2)
+                        if (str_length(new) == 256) {
+                            filename <- str_c(filename2, ".jpg")
+                        }
+                        rm(new, old, clen, deslen, lendiff)
+                    }
                     filename <- sanitisePath(filename)
                     ggsave(
                         filename = filename,
@@ -3176,19 +3180,19 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y", linetype = 1)
 
     # Save the figure
-    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-        deslen <- 256
-        lendiff <- clen - deslen + 4
-        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-        if (str_length(new) == 256) {
-            filename <- str_c(filename2, ".jpg")
-        }
-    }
-    filename <- sanitisePath(filename)
     # print(GFA_SummaryPlot)
     if (isTRUE(as.logical(saveFigures))) {
+        ## ensure path length limits are conformed to
+        if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+            clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+            deslen <- 256
+            lendiff <- clen - deslen + 4
+            filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+            new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+            if (str_length(new) == 256) {
+                filename <- str_c(filename2, ".jpg")
+            }
+        }
         filename <- sanitisePath(filename)
         ggsave(
             file = filename,
