@@ -2266,10 +2266,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
 
             ## bundle the list to return
-            if (plot_TitleDaily != 0) {
+            if (isFALSE(is.na(plot_TitleDaily != 0)) && (plot_TitleDaily!=0)) {
                 ret$plot_Title <- plot_TitleDaily
             }
-            if (plot_SubtitleDaily != 0) {
+            if (isFALSE(is.na(plot_SubtitleDaily != 0)) && (plot_SubtitleDaily!=0)) {
                 ret$plot_SubTitle <- plot_SubtitleDaily
             }
         }
