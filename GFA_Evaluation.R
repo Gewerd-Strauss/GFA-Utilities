@@ -612,7 +612,73 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     ## define local functions
     # These functions are used internally by GFA_main, and are not used internally by RunDetailed.
     # They are set up as local functions so that the environment beecomes less cluttered visually.
-
+    formatFontsizes <- function(ggplot,ini) {
+        
+        if (ini$General$Debug) {
+            ggplot <- ggplot + theme(plot.subtitle = element_text(size = 5))
+        } else {
+            ggplot <- ggplot + theme(plot.subtitle = element_text(size = 5))
+        }
+        
+        
+        if (hasName(ini$Fontsizes, "Fontsize_General")) {
+            ggplot <- ggplot + theme(text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_General)))
+        } else {
+            ggplot <- ggplot + theme(text = element_text(size = 10), title = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_XAxisTicks")) {
+            ggplot <- ggplot + theme(axis.text.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+        } else {
+            ggplot <- ggplot + theme(axis.text.x = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_YAxisTicks")) {
+            ggplot <- ggplot + theme(axis.text.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+        } else {
+            ggplot <- ggplot + theme(axis.text.y = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_XAxisLabel")) {
+            ggplot <- ggplot + theme(axis.title.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+        } else {
+            ggplot <- ggplot + theme(axis.title.x = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_YAxisLabel")) {
+            ggplot <- ggplot + theme(axis.title.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+        } else {
+            ggplot <- ggplot + theme(axis.title.y = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_LegendText")) {
+            ggplot <- ggplot + theme(legend.text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+        } else {
+            ggplot <- ggplot + theme(legend.text = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_LegendTitle")) {
+            ggplot <- ggplot + theme(legend.title = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+        } else {
+            ggplot <- ggplot + theme(legend.title = element_text(size = 10))
+        }
+        return(ggplot)
+    }
+    
+    generateYLabel <- function(unit_y,ini) {
+        if (isFALSE(is.null(ini$Experiment$YLabel))) {
+            y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
+        } else {
+            y_label <- if_else(as.logical(ini$Experiment$Normalise),
+                               if_else(as.logical(ini$General$language == "German"),
+                                       true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
+                                       false = str_c("normalised green plant area [", unit_y, "]"),
+                                       missing = str_c("normalised green plant area [", unit_y, "]")
+                               ),
+                               if_else(as.logical(ini$General$language == "German"),
+                                       true = str_c("Grünfläche  [", unit_y, "]"),
+                                       false = str_c("Green plant area [", unit_y, "]"),
+                                       missing = str_c("Green plant area [", unit_y, "]")
+                               )
+            )
+        }
+        return(y_label)
+    }
+    
     #' Title
     #'
     #' @param ChosenDays
@@ -634,6 +700,93 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @examples
     RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
+        generateDailyPlotFilename <- function(Day,Theme_Index,ini) {
+            filename <- str_c(
+                ini$Experiment$Filename_Prefix, "Einzelanalyse",
+                " (",
+                ini$Experiment$Name,
+                ", ",
+                format(as.Date(str_trim(Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
+                ") ",
+                if_else(as.logical(ini$Experiment$Normalise),
+                        "norm",
+                        "non-norm"
+                ),
+                "_",
+                if_else(as.logical(ini$General$RelativeColnames),
+                        "relColNms",
+                        "absColNms"
+                ),
+                "_",
+                ini$General$language,
+                "_",
+                Theme_Index,
+                ").jpg"
+            )
+            return(filename)
+        }
+        generateXLabelDaily <- function(ini) {
+            if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
+                x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
+            } else {
+                x_label <- if_else(as.logical(ini$General$language == "German"),
+                                   true = str_c("Versuchs-Gruppen"),
+                                   false = str_c("Treatment groups"),
+                                   missing = if_else(as.logical(ini$General$RelativeColnames),
+                                                     true = str_c("Versuchs-Gruppen"),
+                                                     false = str_c("Treatment groups")
+                                   )
+                )
+            }
+            return(x_label)
+        }
+        generatePlotTitleDaily <- function(curr_Day,ini) {
+            if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+            } else {
+                plot_Title <- if_else(as.logical(ini$General$language == "German"),
+                  true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
+                  false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                )
+            }
+            return(plot_Title)
+        }
+        generatePlotSubTitleDaily <- function(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini) {
+            if (as.logical(ini$General$Debug)) {
+                plot_SubTitle <- str_c(
+                    "Experiment: ", ini$Experiment$Name,
+                    "\nT0: ", ini$Experiment$T0,
+                    # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                    , "\nNormalised: ", as.logical(ini$Experiment$Normalise),
+                    "\nPots per Group: ", PotsPerGroup,
+                    "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
+                    "\n  Theme: ", set_theme, " (", Theme_Index, ")",
+                    "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
+                    "\n  Palette: ", str_c(str_c(Palette_Boxplot, collapse = ", "), " || ", str_c(Palette_Lines, collapse = ", "))
+                )
+            } else {
+                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                } else {
+                    plot_SubTitle <- str_c(
+                        "Experiment: ", ini$Experiment$Name,
+                        if_else(as.logical(ini$General$language == "German"),
+                                true = str_c(
+                                    "\nUmtopfen: ", ini$Experiment$T0,
+                                    "\nSample-Size: ", PotsPerGroup
+                                ),
+                                false = str_c(
+                                    "\nDate of Repotting: ", ini$Experiment$T0,
+                                    "\nSample-Size: ", PotsPerGroup
+                                )
+                        ),
+                        "",
+                        ""
+                    )
+                }
+            }
+            return(plot_SubTitle)
+        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
@@ -865,18 +1018,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ) ## sign the file with being created by this username on this machine.
                 }
 
-                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
-                }
 
                 if (hasName(ini$General, "Theme")) {
                     Theme_Index <- ini$General$Theme
@@ -887,14 +1028,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
                 #
-                set_theme <- switch(as.integer(Theme_Index),
-                    "tufte",
-                    "bw",
-                    "pubr",
-                    "pubclean",
-                    "labs_pubr",
-                    "pubclean",
-                    "clean"
+                Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
+                set_theme <- switch(as.integer(Theme_Index), 
+                                    Themes
                 ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
@@ -913,16 +1049,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
                 Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
                 Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
+                if (hasName(ini$Experiment, "Palette_Boxplot2")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2, ","))
                 }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
+                if (hasName(ini$Experiment, "Palette_Lines2")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2, ","))
                 }
 
                 # assemble label strings
-                unit_x <- str_split(ini$General$axis_units_x, ",")
-                unit_y <- str_split(ini$General$axis_units_y, ",")
+                unit_x <- str_split(ini$General$axis_units_x_Daily, ",")
+                unit_y <- str_split(ini$General$axis_units_y_Daily, ",")
                 unit_x <- if_else(as.logical(ini$General$language == "German"),
                     true = unit_x[[1]][1],
                     false = unit_x[[1]][2]
@@ -933,100 +1069,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-                if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                    plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                } else {
-                    plot_Title <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
-                        false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    )
-                }
-                if (as.logical(ini$General$Debug)) {
-                    plot_SubTitle <- str_c(
-                        "Experiment: ", ini$Experiment$Name,
-                        "\nT0: ", ini$Experiment$T0
-                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise),
-                        "\nPots per Group: ", PotsPerGroup,
-                        "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
-                        "\n  Theme: ", set_theme, " (", Theme_Index, ")",
-                        "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
-                        "\n  Palette:", str_c(Palette_Boxplot, collapse = ", ")
-                    )
-                } else {
-                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    } else {
-                        plot_SubTitle <- str_c(
-                            "Experiment: ", ini$Experiment$Name,
-                            if_else(as.logical(ini$General$language == "German"),
-                                true = str_c(
-                                    "\nUmtopfen: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                ),
-                                false = str_c(
-                                    "\nDate of Repotting: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                )
-                            ),
-                            "",
-                            ""
-                        )
-                    }
-                }
-
-
-                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-                } else {
-                    x_label <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Versuchs-Gruppen"),
-                        false = str_c("Treatment groups"),
-                        missing = if_else(as.logical(ini$General$RelativeColnames),
-                            true = str_c("Versuchs-Gruppen"),
-                            false = str_c("Treatment groups")
-                        )
-                    )
-                }
-
-                if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
-                } else {
-                    y_label <- if_else(as.logical(ini$Experiment$Normalise),
-                        if_else(as.logical(ini$General$language == "German"),
-                            true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
-                            false = str_c("normalised green plant area [", unit_y, "]"),
-                            missing = str_c("normalised green plant area [", unit_y, "]")
-                        ),
-                        if_else(as.logical(ini$General$language == "German"),
-                            true = str_c("Grünfläche  [", unit_y, "]"),
-                            false = str_c("Green plant area [", unit_y, "]"),
-                            missing = str_c("Green plant area [", unit_y, "]")
-                        )
-                    )
-                }
-                filename <- str_c(
-                    ini$Experiment$Filename_Prefix, "Einzelanalyse",
-                    " (",
-                    ini$Experiment$Name,
-                    ", ",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                    ") ",
-                    if_else(as.logical(ini$Experiment$Normalise),
-                        "norm",
-                        "non-norm"
-                    ),
-                    "_",
-                    if_else(as.logical(ini$General$RelativeColnames),
-                        "relColNms",
-                        "absColNms"
-                    ),
-                    "_",
-                    ini$General$language,
-                    "_",
-                    Theme_Index,
-                    ").jpg"
-                )
+                plot_Title <- generatePlotTitleDaily(curr_Day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                x_label <- generateXLabelDaily(ini)
+                y_label <- generateYLabel(unit_y,ini)
+                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
@@ -1054,10 +1101,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                             ggtitle(label = TitleObj$plot_Title)
                     } else if (!hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
-                            ggtitle(subtitle = TitleObj$plot_SubTitle)
+                            ggtitle(label = "", subtitle = TitleObj$plot_SubTitle) ## we unfortunately must specify a "label" iof we want to plot a subtitle.
                     }
                 }
                 if (hasName(ini$Experiment, "LegendEntries")) {
+                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
                     GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
                 } else {
@@ -1104,13 +1152,12 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     pval_size <- 2.5
                 }
                 # Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
-                stat.test <- Data_stat_test %>%
-                    t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
+                # stat.test2 <- Data_stat_test %>%
+                #     t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
                 stat.test <- stat.test %>%
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
                 stat.test$p.scient <- formatPValue(stat.test$p)
-                GFA_plot_box2 <- GFA_plot_box
                 if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
                     Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
@@ -1118,65 +1165,18 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
                 }
                 GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
+                    xmin = "group2",
                     label = "{p.scient} {p.adj.signif}",
                     size = pval_size,
                     remove.bracket = T,
                     y.position = stat_ypos
                 )
-                # GFA_plot_box2 <- GFA_plot_box2 + geom_pwc(aes(group = ),data = Data_stat_test,method = "t_test",ref.group = ini$Experiment$RefGroup,)
                 GFA_plot_box <- GFA_plot_box +
                     guides(fill = guide_legend(title = "Groups")) +
                     theme(plot.title = element_text(hjust = 0.5))
 
-
-
-
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
-
-                if (ini$General$Debug) {
-                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
-                }
-
-                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + grids("y", linetype = 1)
-                if (hasName(ini$Fontsizes, "Fontsize_General")) {
-                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_General)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size = 10), title = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_XAxisTicks")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_YAxisTicks")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_XAxisLabel")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_YAxisLabel")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_LegendText")) {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendText)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_LegendTitle")) {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size = 10))
-                }
+                GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
+                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
 
                 # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen
                 if (as.logical(ini$General$PlotSampleSize)) {
@@ -1196,19 +1196,22 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         position = position_dodge(width = 0.75)
                     )
                 }
-                if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                    clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                    deslen <- 256
-                    lendiff <- clen - deslen + 4
-                    filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                    new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                    old <- str_c(folder_path, "ROutput\\", filename2)
-                    if (str_length(new) == 256) {
-                        filename <- str_c(filename2, ".jpg")
-                    }
-                    rm(new, old, clen, deslen, lendiff)
-                }
+                
+                
                 if (isTRUE(as.logical(saveFigures))) {
+                    ## ensure path length limits are conformed to
+                    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+                        deslen <- 256
+                        lendiff <- clen - deslen + 4
+                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+                        old <- str_c(folder_path, "ROutput\\", filename2)
+                        if (str_length(new) == 256) {
+                            filename <- str_c(filename2, ".jpg")
+                        }
+                        rm(new, old, clen, deslen, lendiff)
+                    }
                     filename <- sanitisePath(filename)
                     ggsave(
                         filename = filename,
@@ -1376,21 +1379,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ) ## sign the file with being created by this username on this machine.
                 }
 
-
-
-                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
-                }
-
                 if (hasName(ini$General, "Theme")) {
                     Theme_Index <- ini$General$Theme
                 } else {
@@ -1400,14 +1388,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
                 #
-                set_theme <- switch(as.integer(Theme_Index),
-                    "tufte",
-                    "bw",
-                    "pubr",
-                    "pubclean",
-                    "labs_pubr",
-                    "pubclean",
-                    "clean"
+                Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
+                set_theme <- switch(as.integer(Theme_Index), 
+                                    Themes
                 ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
@@ -1435,8 +1418,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
 
                 # assemble label strings
-                unit_x <- str_split(ini$General$axis_units_x, ",")
-                unit_y <- str_split(ini$General$axis_units_y, ",")
+                unit_x <- str_split(ini$General$axis_units_x_Daily, ",")
+                unit_y <- str_split(ini$General$axis_units_y_Daily, ",")
                 unit_x <- if_else(as.logical(ini$General$language == "German"),
                     true = unit_x[[1]][1],
                     false = unit_x[[1]][2]
@@ -1447,99 +1430,12 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-                if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                    plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                } else {
-                    plot_Title <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
-                        false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    )
-                }
-                if (as.logical(ini$General$Debug)) {
-                    plot_SubTitle <- str_c(
-                        "Experiment: ", ini$Experiment$Name,
-                        "\nT0: ", ini$Experiment$T0,
-                        "\nNormalised: ", as.logical(ini$Experiment$Normalise),
-                        "\nPots per Group: ", PotsPerGroup,
-                        "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
-                        "\n  Theme: ", set_theme, " (", Theme_Index, ")",
-                        "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
-                        "\n  Palette:", str_c(Palette_Boxplot, collapse = ", ")
-                    )
-                } else {
-                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    } else {
-                        plot_SubTitle <- str_c(
-                            "Experiment: ", ini$Experiment$Name,
-                            if_else(as.logical(ini$General$language == "German"),
-                                true = str_c(
-                                    "\nUmtopfen: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                ),
-                                false = str_c(
-                                    "\nDate of Repotting: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                )
-                            ),
-                            "",
-                            ""
-                        )
-                    }
-                }
 
-                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-                } else {
-                    x_label <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Versuchs-Gruppen"),
-                        false = str_c("Treatment groups"),
-                        missing = if_else(as.logical(ini$General$RelativeColnames),
-                            true = str_c("Versuchs-Gruppen"),
-                            false = str_c("Treatment groups")
-                        )
-                    )
-                }
-
-                if (isFALSE(is.null(ini$Experiment$YLabel))) {
-                    y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
-                } else {
-                    y_label <- if_else(as.logical(ini$Experiment$Normalise),
-                        if_else(as.logical(ini$General$language == "German"),
-                            true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
-                            false = str_c("normalised green plant area [", unit_y, "]"),
-                            missing = str_c("normalised green plant area [", unit_y, "]")
-                        ),
-                        if_else(as.logical(ini$General$language == "German"),
-                            true = str_c("Grünfläche  [", unit_y, "]"),
-                            false = str_c("Green plant area [", unit_y, "]"),
-                            missing = str_c("Green plant area [", unit_y, "]")
-                        )
-                    )
-                }
-                filename <- str_c(
-                    ini$Experiment$Filename_Prefix, "Einzelanalyse",
-                    " (",
-                    ini$Experiment$Name,
-                    ", ",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                    ") ",
-                    if_else(as.logical(ini$Experiment$Normalise),
-                        "norm",
-                        "non-norm"
-                    ),
-                    "_",
-                    if_else(as.logical(ini$General$RelativeColnames),
-                        "relColNms",
-                        "absColNms"
-                    ),
-                    "_",
-                    ini$General$language,
-                    "_",
-                    Theme_Index,
-                    ").jpg"
-                )
-
+                plot_Title <- generatePlotTitleDaily(curr_Day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                x_label <- generateXLabelDaily(ini)
+                y_label <- generateYLabel(unit_y,ini)
+                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "Gruppe",
@@ -1588,6 +1484,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset.
                     Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a lower value, ggplot will fail.
                 }
+                if ((Limits[[2]] - (Limits[[2]] * 0.10)) <= max(as.vector(Data$plant_area_plotted))) { ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
+                    Limits[[2]] <- max(as.vector(Data$plant_area_plotted)) + (max(as.vector(Data$plant_area_plotted))) * 0.10
+                    Limits[[2]] <- round_any(Limits[[2]], 25, f = ceiling)
+                }
                 Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
@@ -1596,29 +1496,28 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
                 mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
-                stat.test$p.scient <- formatPValue(stat.test$p)
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
+                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                    limits = c(Limits[[1]], Limits[[2]])
+                )
                 if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
                     pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
                 } else {
                     pval_size <- 2.5
                 }
+                stat.test$p.scient <- formatPValue(stat.test$p)
                 if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
                     Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
                 } else {
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
                 }
-                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
-                    xmin = "group2",
-                    label = "{p.scient} {p.adj.signif}",
-                    size = pval_size,
-                    remove.bracket = T,
-                    y.position = stat_ypos
-                )
+                
                 GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
                 if (hasName(ini$Experiment, "LegendEntries")) {
+                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box +
                         scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                         scale_colour_manual(values = Palette_Lines)
@@ -1627,56 +1526,25 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         scale_fill_manual(values = Palette_Boxplot) +
                         scale_colour_manual(values = Palette_Lines)
                 }
-                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
-                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                    limits = c(Limits[[1]], Limits[[2]])
-                )
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
 
                 if (ini$General$Debug) {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 } else {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 }
+                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
+                    xmin = "group2",
+                    label = "{p.scient} {p.adj.signif}",
+                    size = pval_size,
+                    remove.bracket = T,
+                    y.position = stat_ypos
+                )
+                GFA_plot_box <- GFA_plot_box +
+                    guides(fill = guide_legend(title = "Groups")) +
+                    theme(plot.title = element_text(hjust = 0.5))
 
+                GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
                 GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
-                if (hasName(ini$Fontsizes, "Fontsize_General")) {
-                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_General)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(text = element_text(size = 10), title = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_XAxisTicks")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.x = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_YAxisTicks")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.text.y = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_XAxisLabel")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.x = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_YAxisLabel")) {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(axis.title.y = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_LegendText")) {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendText)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.text = element_text(size = 10))
-                }
-                if (hasName(ini$Fontsizes, "Fontsize_LegendTitle")) {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
-                } else {
-                    GFA_plot_box <- GFA_plot_box + theme(legend.title = element_text(size = 10))
-                }
 
                 # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen
                 if (as.logical(ini$General$PlotSampleSize)) {
@@ -1696,19 +1564,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         position = position_dodge(width = 0.75)
                     )
                 }
-                if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                    clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                    deslen <- 256
-                    lendiff <- clen - deslen + 4
-                    filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                    new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                    old <- str_c(folder_path, "ROutput\\", filename2)
-                    if (str_length(new) == 256) {
-                        filename <- str_c(filename2, ".jpg")
-                    }
-                    rm(new, old, clen, deslen, lendiff)
-                }
                 if (isTRUE(as.logical(saveFigures))) {
+                    ## ensure path length limits are conformed to
+                    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+                        deslen <- 256
+                        lendiff <- clen - deslen + 4
+                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+                        old <- str_c(folder_path, "ROutput\\", filename2)
+                        if (str_length(new) == 256) {
+                            filename <- str_c(filename2, ".jpg")
+                        }
+                        rm(new, old, clen, deslen, lendiff)
+                    }
                     filename <- sanitisePath(filename)
                     ggsave(
                         filename = filename,
@@ -2401,10 +2270,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
 
             ## bundle the list to return
-            if (plot_TitleDaily != 0) {
+            if (isFALSE(is.na(plot_TitleDaily != 0)) && (plot_TitleDaily!=0)) {
                 ret$plot_Title <- plot_TitleDaily
             }
-            if (plot_SubtitleDaily != 0) {
+            if (isFALSE(is.na(plot_SubtitleDaily != 0)) && (plot_SubtitleDaily!=0)) {
                 ret$plot_SubTitle <- plot_SubtitleDaily
             }
         }
@@ -3013,23 +2882,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     }
 
 
-
-    if (isFALSE(is.null(ini$Experiment$YLabel))) {
-        y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
-    } else {
-        y_label <- if_else(as.logical(ini$Experiment$Normalise),
-            if_else(as.logical(ini$General$language == "German"),
-                true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
-                false = str_c("normalised green plant area [", unit_y, "]"),
-                missing = str_c("normalised green plant area [", unit_y, "]")
-            ),
-            if_else(as.logical(ini$General$language == "German"),
-                true = str_c("Grünfläche  [", unit_y, "]"),
-                false = str_c("Green plant area [", unit_y, "]"),
-                missing = str_c("Green plant area [", unit_y, "]")
-            )
-        )
-    }
+    #!!
+    y_label <- generateYLabel(unit_y,ini)
+    
 
 
 
@@ -3187,6 +3042,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
         if (hasName(ini$Experiment, "LegendEntries")) {
+            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3197,6 +3053,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         }
     } else {
         if (hasName(ini$Experiment, "LegendEntries")) {
+            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3279,59 +3136,27 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         clean_theme()
     )
     GFA_SummaryPlot <- GFA_SummaryPlot + curr_Theme
-    if (hasName(ini$Fontsizes, "Fontsize_General")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_General)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(text = element_text(size = 10), title = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_XAxisTicks")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_YAxisTicks")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.y = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_XAxisLabel")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.x = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_YAxisLabel")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.title.y = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_LegendText")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendText)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.text = element_text(size = 10))
-    }
-    if (hasName(ini$Fontsizes, "Fontsize_LegendTitle")) {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.title = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
-    } else {
-        GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.title = element_text(size = 10))
-    }
+    #!!
+    GFA_SummaryPlot <- formatFontsizes(GFA_SummaryPlot,ini)
+    
     GFA_SummaryPlot <- GFA_SummaryPlot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0)) # rotate the axis labels.
     GFA_SummaryPlot <- GFA_SummaryPlot + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) # set the legend stylings
     GFA_SummaryPlot <- GFA_SummaryPlot + ggpubr::grids("y", linetype = 1)
 
     # Save the figure
-    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-        deslen <- 256
-        lendiff <- clen - deslen + 4
-        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-        if (str_length(new) == 256) {
-            filename <- str_c(filename2, ".jpg")
-        }
-    }
-    filename <- sanitisePath(filename)
     # print(GFA_SummaryPlot)
     if (isTRUE(as.logical(saveFigures))) {
+        ## ensure path length limits are conformed to
+        if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+            clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+            deslen <- 256
+            lendiff <- clen - deslen + 4
+            filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+            new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+            if (str_length(new) == 256) {
+                filename <- str_c(filename2, ".jpg")
+            }
+        }
         filename <- sanitisePath(filename)
         ggsave(
             file = filename,
