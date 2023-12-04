@@ -1164,6 +1164,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
                 }
                 GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
+                    xmin = "group2",
                     label = "{p.scient} {p.adj.signif}",
                     size = pval_size,
                     remove.bracket = T,
