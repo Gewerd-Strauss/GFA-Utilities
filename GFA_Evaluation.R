@@ -1018,18 +1018,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     ) ## sign the file with being created by this username on this machine.
                 }
 
-                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
-                }
 
                 if (hasName(ini$General, "Theme")) {
                     Theme_Index <- ini$General$Theme
@@ -1182,14 +1170,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     remove.bracket = T,
                     y.position = stat_ypos
                 )
-                # GFA_plot_box2 <- GFA_plot_box2 + geom_pwc(aes(group = ),data = Data_stat_test,method = "t_test",ref.group = ini$Experiment$RefGroup,)
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
-
-
-
-
                 GFA_plot_box <- GFA_plot_box +
                     guides(fill = guide_legend(title = "Groups")) +
                     theme(plot.title = element_text(hjust = 0.5))
@@ -1396,21 +1376,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         file = XLSX_Path, asTable = T,
                         creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
                     ) ## sign the file with being created by this username on this machine.
-                }
-
-
-
-                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
                 }
 
                 if (hasName(ini$General, "Theme")) {
