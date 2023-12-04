@@ -1101,10 +1101,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                             ggtitle(label = TitleObj$plot_Title)
                     } else if (!hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
-                            ggtitle(subtitle = TitleObj$plot_SubTitle)
+                            ggtitle(label = "", subtitle = TitleObj$plot_SubTitle) ## we unfortunately must specify a "label" iof we want to plot a subtitle.
                     }
                 }
                 if (hasName(ini$Experiment, "LegendEntries")) {
+                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
                     GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
                 } else {
@@ -1512,6 +1513,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
                 if (hasName(ini$Experiment, "LegendEntries")) {
+                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box +
                         scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                         scale_colour_manual(values = Palette_Lines)
@@ -3036,6 +3038,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
         if (hasName(ini$Experiment, "LegendEntries")) {
+            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3046,6 +3049,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         }
     } else {
         if (hasName(ini$Experiment, "LegendEntries")) {
+            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
