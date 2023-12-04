@@ -1087,20 +1087,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
 
-
-                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-                } else {
-                    x_label <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Versuchs-Gruppen"),
-                        false = str_c("Treatment groups"),
-                        missing = if_else(as.logical(ini$General$RelativeColnames),
-                            true = str_c("Versuchs-Gruppen"),
-                            false = str_c("Treatment groups")
-                        )
-                    )
-                }
-
                 if (isFALSE(is.null(ini$Experiment$YLabel))) {
                     y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
                 } else {
@@ -1119,6 +1105,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 plot_Title <- generatePlotTitleDaily(curr_Day,ini)
                 plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                x_label <- generateXLabelDaily(ini)
                 filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
@@ -1501,19 +1488,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
 
-                if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
-                    x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
-                } else {
-                    x_label <- if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("Versuchs-Gruppen"),
-                        false = str_c("Treatment groups"),
-                        missing = if_else(as.logical(ini$General$RelativeColnames),
-                            true = str_c("Versuchs-Gruppen"),
-                            false = str_c("Treatment groups")
-                        )
-                    )
-                }
-
                 if (isFALSE(is.null(ini$Experiment$YLabel))) {
                     y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
                 } else {
@@ -1533,6 +1507,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 plot_Title <- generatePlotTitleDaily(curr_Day,ini)
                 plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                x_label <- generateXLabelDaily(ini)
                 filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
