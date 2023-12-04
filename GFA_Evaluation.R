@@ -612,7 +612,52 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     ## define local functions
     # These functions are used internally by GFA_main, and are not used internally by RunDetailed.
     # They are set up as local functions so that the environment beecomes less cluttered visually.
-
+    formatFontsizes <- function(ggplot,ini) {
+        
+        if (ini$General$Debug) {
+            ggplot <- ggplot + theme(plot.subtitle = element_text(size = 5))
+        } else {
+            ggplot <- ggplot + theme(plot.subtitle = element_text(size = 5))
+        }
+        
+        
+        if (hasName(ini$Fontsizes, "Fontsize_General")) {
+            ggplot <- ggplot + theme(text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_General)))
+        } else {
+            ggplot <- ggplot + theme(text = element_text(size = 10), title = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_XAxisTicks")) {
+            ggplot <- ggplot + theme(axis.text.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisTicks)))
+        } else {
+            ggplot <- ggplot + theme(axis.text.x = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_YAxisTicks")) {
+            ggplot <- ggplot + theme(axis.text.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisTicks)))
+        } else {
+            ggplot <- ggplot + theme(axis.text.y = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_XAxisLabel")) {
+            ggplot <- ggplot + theme(axis.title.x = element_text(size = as.numeric(ini$Fontsizes$Fontsize_XAxisLabel)))
+        } else {
+            ggplot <- ggplot + theme(axis.title.x = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_YAxisLabel")) {
+            ggplot <- ggplot + theme(axis.title.y = element_text(size = as.numeric(ini$Fontsizes$Fontsize_YAxisLabel)))
+        } else {
+            ggplot <- ggplot + theme(axis.title.y = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_LegendText")) {
+            ggplot <- ggplot + theme(legend.text = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendText)))
+        } else {
+            ggplot <- ggplot + theme(legend.text = element_text(size = 10))
+        }
+        if (hasName(ini$Fontsizes, "Fontsize_LegendTitle")) {
+            ggplot <- ggplot + theme(legend.title = element_text(size = as.numeric(ini$Fontsizes$Fontsize_LegendTitle)))
+        } else {
+            ggplot <- ggplot + theme(legend.title = element_text(size = 10))
+        }
+        return(ggplot)
+    }
     #' Title
     #'
     #' @param ChosenDays
