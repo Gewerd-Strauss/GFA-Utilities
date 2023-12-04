@@ -1040,14 +1040,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
                 #
-                set_theme <- switch(as.integer(Theme_Index),
-                    "tufte",
-                    "bw",
-                    "pubr",
-                    "pubclean",
-                    "labs_pubr",
-                    "pubclean",
-                    "clean"
+                Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
+                set_theme <- switch(as.integer(Theme_Index), 
+                                    Themes
                 ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
@@ -1427,14 +1422,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
                 #
-                set_theme <- switch(as.integer(Theme_Index),
-                    "tufte",
-                    "bw",
-                    "pubr",
-                    "pubclean",
-                    "labs_pubr",
-                    "pubclean",
-                    "clean"
+                Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
+                set_theme <- switch(as.integer(Theme_Index), 
+                                    Themes
                 ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
