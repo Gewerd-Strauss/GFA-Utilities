@@ -634,6 +634,31 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @examples
     RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
+        generateDailyPlotFilename <- function(Day,Theme_Index,ini) {
+            filename <- str_c(
+                ini$Experiment$Filename_Prefix, "Einzelanalyse",
+                " (",
+                ini$Experiment$Name,
+                ", ",
+                format(as.Date(str_trim(Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
+                ") ",
+                if_else(as.logical(ini$Experiment$Normalise),
+                        "norm",
+                        "non-norm"
+                ),
+                "_",
+                if_else(as.logical(ini$General$RelativeColnames),
+                        "relColNms",
+                        "absColNms"
+                ),
+                "_",
+                ini$General$language,
+                "_",
+                Theme_Index,
+                ").jpg"
+            )
+            return(filename)
+        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
