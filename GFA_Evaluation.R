@@ -1166,28 +1166,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         )
                     )
                 }
-                filename <- str_c(
-                    ini$Experiment$Filename_Prefix, "Einzelanalyse",
-                    " (",
-                    ini$Experiment$Name,
-                    ", ",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                    ") ",
-                    if_else(as.logical(ini$Experiment$Normalise),
-                        "norm",
-                        "non-norm"
-                    ),
-                    "_",
-                    if_else(as.logical(ini$General$RelativeColnames),
-                        "relColNms",
-                        "absColNms"
-                    ),
-                    "_",
-                    ini$General$language,
-                    "_",
-                    Theme_Index,
-                    ").jpg"
-                )
+                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
@@ -1678,29 +1657,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         )
                     )
                 }
-                filename <- str_c(
-                    ini$Experiment$Filename_Prefix, "Einzelanalyse",
-                    " (",
-                    ini$Experiment$Name,
-                    ", ",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                    ") ",
-                    if_else(as.logical(ini$Experiment$Normalise),
-                        "norm",
-                        "non-norm"
-                    ),
-                    "_",
-                    if_else(as.logical(ini$General$RelativeColnames),
-                        "relColNms",
-                        "absColNms"
-                    ),
-                    "_",
-                    ini$General$language,
-                    "_",
-                    Theme_Index,
-                    ").jpg"
-                )
 
+                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "Gruppe",
