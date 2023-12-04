@@ -1635,6 +1635,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
 
+                plot_Title <- generatePlotTitleDaily(curr_Day,ini)
                 filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
