@@ -1086,39 +1086,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-                if (as.logical(ini$General$Debug)) {
-                    plot_SubTitle <- str_c(
-                        "Experiment: ", ini$Experiment$Name,
-                        "\nT0: ", ini$Experiment$T0
-                        # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
-                        , "\nNormalised: ", as.logical(ini$Experiment$Normalise),
-                        "\nPots per Group: ", PotsPerGroup,
-                        "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
-                        "\n  Theme: ", set_theme, " (", Theme_Index, ")",
-                        "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
-                        "\n  Palette:", str_c(Palette_Boxplot, collapse = ", ")
-                    )
-                } else {
-                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    } else {
-                        plot_SubTitle <- str_c(
-                            "Experiment: ", ini$Experiment$Name,
-                            if_else(as.logical(ini$General$language == "German"),
-                                true = str_c(
-                                    "\nUmtopfen: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                ),
-                                false = str_c(
-                                    "\nDate of Repotting: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                )
-                            ),
-                            "",
-                            ""
-                        )
-                    }
-                }
 
 
                 if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
@@ -1151,6 +1118,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     )
                 }
                 plot_Title <- generatePlotTitleDaily(curr_Day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
                 filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
@@ -1572,38 +1540,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-                if (as.logical(ini$General$Debug)) {
-                    plot_SubTitle <- str_c(
-                        "Experiment: ", ini$Experiment$Name,
-                        "\nT0: ", ini$Experiment$T0,
-                        "\nNormalised: ", as.logical(ini$Experiment$Normalise),
-                        "\nPots per Group: ", PotsPerGroup,
-                        "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
-                        "\n  Theme: ", set_theme, " (", Theme_Index, ")",
-                        "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
-                        "\n  Palette:", str_c(Palette_Boxplot, collapse = ", ")
-                    )
-                } else {
-                    if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                        plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
-                    } else {
-                        plot_SubTitle <- str_c(
-                            "Experiment: ", ini$Experiment$Name,
-                            if_else(as.logical(ini$General$language == "German"),
-                                true = str_c(
-                                    "\nUmtopfen: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                ),
-                                false = str_c(
-                                    "\nDate of Repotting: ", ini$Experiment$T0,
-                                    "\nSample-Size: ", PotsPerGroup
-                                )
-                            ),
-                            "",
-                            ""
-                        )
-                    }
-                }
 
                 if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
                     x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
@@ -1636,6 +1572,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
 
                 plot_Title <- generatePlotTitleDaily(curr_Day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
                 filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
