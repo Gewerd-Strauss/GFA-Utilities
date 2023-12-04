@@ -1049,11 +1049,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
                 Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
                 Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot, ","))
+                if (hasName(ini$Experiment, "Palette_Boxplot2")) {
+                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2, ","))
                 }
-                if (hasName(ini$Experiment, "Palette_Lines")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines, ","))
+                if (hasName(ini$Experiment, "Palette_Lines2")) {
+                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2, ","))
                 }
 
                 # assemble label strings
