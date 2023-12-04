@@ -658,6 +658,27 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         }
         return(ggplot)
     }
+    
+    generateYLabel <- function(unit_y,ini) {
+        if (isFALSE(is.null(ini$Experiment$YLabel))) {
+            y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
+        } else {
+            y_label <- if_else(as.logical(ini$Experiment$Normalise),
+                               if_else(as.logical(ini$General$language == "German"),
+                                       true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
+                                       false = str_c("normalised green plant area [", unit_y, "]"),
+                                       missing = str_c("normalised green plant area [", unit_y, "]")
+                               ),
+                               if_else(as.logical(ini$General$language == "German"),
+                                       true = str_c("Grünfläche  [", unit_y, "]"),
+                                       false = str_c("Green plant area [", unit_y, "]"),
+                                       missing = str_c("Green plant area [", unit_y, "]")
+                               )
+            )
+        }
+        return(y_label)
+    }
+    
     #' Title
     #'
     #' @param ChosenDays
