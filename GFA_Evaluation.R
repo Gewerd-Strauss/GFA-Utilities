@@ -1491,25 +1491,23 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
                 mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
-                stat.test$p.scient <- formatPValue(stat.test$p)
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
+                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                    limits = c(Limits[[1]], Limits[[2]])
+                )
                 if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
                     pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
                 } else {
                     pval_size <- 2.5
                 }
+                stat.test$p.scient <- formatPValue(stat.test$p)
                 if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
                     Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
                 } else {
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
                 }
-                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
-                    xmin = "group2",
-                    label = "{p.scient} {p.adj.signif}",
-                    size = pval_size,
-                    remove.bracket = T,
-                    y.position = stat_ypos
-                )
+                
                 GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
@@ -1522,19 +1520,22 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         scale_fill_manual(values = Palette_Boxplot) +
                         scale_colour_manual(values = Palette_Lines)
                 }
-                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
-                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                    limits = c(Limits[[1]], Limits[[2]])
-                )
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
 
                 if (ini$General$Debug) {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 } else {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 }
+                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
+                    xmin = "group2",
+                    label = "{p.scient} {p.adj.signif}",
+                    size = pval_size,
+                    remove.bracket = T,
+                    y.position = stat_ypos
+                )
+                GFA_plot_box <- GFA_plot_box +
+                    guides(fill = guide_legend(title = "Groups")) +
+                    theme(plot.title = element_text(hjust = 0.5))
 
                 GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
                 GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
