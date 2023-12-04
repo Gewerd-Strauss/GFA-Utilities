@@ -1484,6 +1484,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (Limits[[2]] < round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the largest number of the dataset.
                     Limits[[2]] <- round_any(ceiling(max(as.vector(Data$plant_area_plotted), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a lower value, ggplot will fail.
                 }
+                if ((Limits[[2]] - (Limits[[2]] * 0.10)) <= max(as.vector(Data$plant_area_plotted))) { ## adjust the limits so that 'stat_pvalue_manual' doesn't put the geom_text into a boxplot by positioning 10% below the top of the scale
+                    Limits[[2]] <- max(as.vector(Data$plant_area_plotted)) + (max(as.vector(Data$plant_area_plotted))) * 0.10
+                    Limits[[2]] <- round_any(Limits[[2]], 25, f = ceiling)
+                }
                 Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
