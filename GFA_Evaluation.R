@@ -693,6 +693,42 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(plot_Title)
         }
+        generatePlotSubTitleDaily <- function(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini) {
+            if (as.logical(ini$General$Debug)) {
+                plot_SubTitle <- str_c(
+                    "Experiment: ", ini$Experiment$Name,
+                    "\nT0: ", ini$Experiment$T0,
+                    # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
+                    , "\nNormalised: ", as.logical(ini$Experiment$Normalise),
+                    "\nPots per Group: ", PotsPerGroup,
+                    "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
+                    "\n  Theme: ", set_theme, " (", Theme_Index, ")",
+                    "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
+                    "\n  Palette: ", str_c(str_c(Palette_Boxplot, collapse = ", "), " || ", str_c(Palette_Lines, collapse = ", "))
+                )
+            } else {
+                if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                } else {
+                    plot_SubTitle <- str_c(
+                        "Experiment: ", ini$Experiment$Name,
+                        if_else(as.logical(ini$General$language == "German"),
+                                true = str_c(
+                                    "\nUmtopfen: ", ini$Experiment$T0,
+                                    "\nSample-Size: ", PotsPerGroup
+                                ),
+                                false = str_c(
+                                    "\nDate of Repotting: ", ini$Experiment$T0,
+                                    "\nSample-Size: ", PotsPerGroup
+                                )
+                        ),
+                        "",
+                        ""
+                    )
+                }
+            }
+            return(plot_SubTitle)
+        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
