@@ -1151,13 +1151,12 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     pval_size <- 2.5
                 }
                 # Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
-                stat.test <- Data_stat_test %>%
-                    t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
+                # stat.test2 <- Data_stat_test %>%
+                #     t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
                 stat.test <- stat.test %>%
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
                 stat.test$p.scient <- formatPValue(stat.test$p)
-                GFA_plot_box2 <- GFA_plot_box
                 if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
                     Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
                     stat_ypos <- Limits[[2]] - (Diff * 0.1)
