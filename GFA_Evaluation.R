@@ -659,6 +659,21 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             )
             return(filename)
         }
+        generateXLabelDaily <- function(ini) {
+            if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
+                x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
+            } else {
+                x_label <- if_else(as.logical(ini$General$language == "German"),
+                                   true = str_c("Versuchs-Gruppen"),
+                                   false = str_c("Treatment groups"),
+                                   missing = if_else(as.logical(ini$General$RelativeColnames),
+                                                     true = str_c("Versuchs-Gruppen"),
+                                                     false = str_c("Treatment groups")
+                                   )
+                )
+            }
+            return(x_label)
+        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
