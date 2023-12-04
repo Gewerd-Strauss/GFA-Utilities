@@ -674,6 +674,25 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(x_label)
         }
+        generatePlotTitleDaily <- function(curr_Day,ini) {
+            if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+            } else {
+                plot_Title <- if_else(as.logical(ini$General$language == "German"),
+                                      true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
+                                      false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                )
+            }
+            if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+            } else {
+                plot_Title <- if_else(as.logical(ini$General$language == "German"),
+                                      true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
+                                      false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                )
+            }
+            return(plot_Title)
+        }
         # Create objects
 
         ret <- list() # for returning all results from this functions
