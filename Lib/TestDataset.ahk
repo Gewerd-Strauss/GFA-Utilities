@@ -41,8 +41,8 @@ setupTestSet(lp,test_folder,Gist_Hash) {
             FileMove % A_LoopFileFullPath, % strreplace(A_LoopFileFullPath,Gist_Hash "-main\"), true
         }
     }
-    FileRemoveDir % test_folder "\" Gist_Hash,% true
-    FileRemoveDir % test_folder "\tmp.zip" ,% true
+    FileRemoveDir % test_folder "\" Gist_Hash "-main",% true
+    FileDelete % test_folder "\tmp.zip"
     return
 }
 Unz(sZip, sUnz) {
