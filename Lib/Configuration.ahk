@@ -152,11 +152,12 @@ setupdefaultconfig(Switch) {
             ;TestSet Hidden:
             ; only edit this if you know what you are doing.
             ;; The URL below points to the newest version of the gist. If this may ever change in a way you do not want, you can replace it with
-            ; "https://gist.github.com/Gewerd-Strauss/d944d8abc295253ced401493edd377f2/archive/0d46c65c3993b1e8eef113776b68190e0802deb5.zip"
+            ; "https://gist.github.com/Gewerd-Strauss/41513a345dc601353cd5a8a46227276b/archive/0d46c65c3993b1e8eef113776b68190e0802deb5.zip"
             ; to grab the first set that was published for this.
-            URL=https://gist.github.com/Gewerd-Strauss/d944d8abc295253ced401493edd377f2/archive/main.zip
-            Names= G14,G21,G28,G35,G42,UU
-            PlantsPerGroup= 7
+            URLMissing=https://gist.github.com/Gewerd-Strauss/410af64eed560abfbae8a436d141b36b/archive/main.zip
+            URLFull=https://gist.github.com/Gewerd-Strauss/41513a345dc601353cd5a8a46227276b/archive/main.zip
+            IDMissing=410af64eed560abfbae8a436d141b36b
+            IDFull=41513a345dc601353cd5a8a46227276b
             [LastConfigsHistory]
             ;LastConfigsHistory Hidden:
             1=%A_ScriptDir%\res\Examples\Example 1 - keine Behandlung\GFA_conf.ini
