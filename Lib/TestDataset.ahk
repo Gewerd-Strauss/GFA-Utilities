@@ -22,7 +22,7 @@ downloadTestset(URL:="https://gist.github.com/Gewerd-Strauss/d944d8abc295253ced4
         return ErrorLevel
     }
 }
-setupTestSet(lp,test_folder,Gist_Hash) {
+setupTestset(lp,test_folder,Gist_Hash) {
     ret:=Unz(strreplace(lp,"\\","\"),test_folder) ; unpack it.
     OutputDebug % test_folder
     Loop, Files, % test_folder "\*.md", FR ;; remove the "about-this-gist.md"-file
