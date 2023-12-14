@@ -1,0 +1,12 @@
+*/*.R
+*.RData
+.Rhistory
+.vscode/launch.json
+**/INI-Files/*.ini
+**/Excludes/**
+.vscode/
+Errorlog.txt
+build.ahk
+**/GFA_Evaluation_EL**
+res/Examples/Example **/*.jpg
+res/Examples/Example **/ROutput/**.xlsx
