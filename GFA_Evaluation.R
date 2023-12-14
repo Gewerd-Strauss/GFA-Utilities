@@ -1201,16 +1201,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (isTRUE(as.logical(saveFigures))) {
                     ## ensure path length limits are conformed to
                     if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                        deslen <- 256
-                        lendiff <- clen - deslen + 4
-                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                        old <- str_c(folder_path, "ROutput\\", filename2)
-                        if (str_length(new) == 256) {
-                            filename <- str_c(filename2, ".jpg")
-                        }
-                        rm(new, old, clen, deslen, lendiff)
+                        filename <- ensurePathLength(folder_path,filename,ini,curr_Day)
                     }
                     filename <- sanitisePath(filename)
                     ggsave(
@@ -1567,16 +1558,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (isTRUE(as.logical(saveFigures))) {
                     ## ensure path length limits are conformed to
                     if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-                        deslen <- 256
-                        lendiff <- clen - deslen + 4
-                        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-                        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-                        old <- str_c(folder_path, "ROutput\\", filename2)
-                        if (str_length(new) == 256) {
-                            filename <- str_c(filename2, ".jpg")
-                        }
-                        rm(new, old, clen, deslen, lendiff)
+                        filename <- ensurePathLength(folder_path,filename,ini,curr_Day)
                     }
                     filename <- sanitisePath(filename)
                     ggsave(
@@ -2009,6 +1991,35 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         # List$Group <- factor(List$Group,levels=Da)
         # Listas.factor()
         return(List)
+    }
+    #' Title
+    #'
+    #' @param folderPath
+    #' @param filename
+    #' @param curr_Day
+    #' @param ini
+    #'
+    #' @return
+    #' @keywords internal
+    #'
+    #' @examples
+    ensurePathLength <- function(folder_path,filename,ini,curr_Day="",bSummary=FALSE,TitleDates="") {
+        clen <- str_length(str_c(folder_path, "ROutput\\", filename))
+        deslen <- 256
+        if (isTRUE(as.logical(bSummary))) {
+            date_insert <- str_c(format(as.Date(TitleDates[[1]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format)," - ",format(as.Date(TitleDates[[length(TitleDates)]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format))
+        } else {
+            date_insert <- format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format)
+        }
+        lendiff <- clen - deslen + 4 + str_length(date_insert) + 2
+        filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
+        filename2 <- str_c(filename2,", ",date_insert)
+        new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
+        if (str_length(new) == 256) {
+            filename <- str_c(filename2, ".jpg")
+        }
+        print(str_length(filename))
+        return(filename)
     }
     #' Title
     #'
@@ -3148,14 +3159,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     if (isTRUE(as.logical(saveFigures))) {
         ## ensure path length limits are conformed to
         if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-            clen <- str_length(str_c(folder_path, "ROutput\\", filename))
-            deslen <- 256
-            lendiff <- clen - deslen + 4
-            filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
-            new <- str_c(folder_path, "ROutput\\", filename2, ".jpg")
-            if (str_length(new) == 256) {
-                filename <- str_c(filename2, ".jpg")
-            }
+            filename <- ensurePathLength(folder_path,filename,ini,curr_Day,TRUE,TitleDates)
         }
         filename <- sanitisePath(filename)
         ggsave(
