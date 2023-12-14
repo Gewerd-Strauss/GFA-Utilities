@@ -308,7 +308,16 @@
 
         for Parameter,Value in this.Arguments {
             if (Value.Control="DDL" || Value.Control="DropDownList" || Value.Control="ComboBox") {
-                guicontrol % "GC:" "ChooseString",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+                if (Value.Control="ComboBox") {
+                    if InStr(Value.ctrlOptions,Value.Value)  {
+                        guicontrol % "GC:" "ChooseString",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+                    } else {
+                        guicontrol % "GC:" ,% "v" StrReplace(Parameter,"-","___") , % Value.Value "||" strreplace(Value.ctrlOptions,"||","|")
+                    }
+
+                } else {
+                    guicontrol % "GC:" "ChooseString",% "v" StrReplace(Parameter,"-","___") , % Value.Value
+                }
             } else {
                 guicontrol % "GC:",% "v" StrReplace(Parameter,"-","___") , % Value.Value
             }
