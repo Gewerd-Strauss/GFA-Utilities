@@ -1261,7 +1261,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Results$"wilcox.test" <- stat.test
                 }
                 Results$summary <- summary
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
+                key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+                ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
             } else {
                 ## normal, no facetting occured, so we can use the old pathway
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
@@ -1618,7 +1619,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Results$"wilcox.test" <- stat.test
                 }
                 Results$summary <- summary
-                ret[[str_trim(curr_Day)]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_Day = curr_Day)
+                key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+                ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
             }
         }
         return(ret)
