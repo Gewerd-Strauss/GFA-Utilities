@@ -2940,15 +2940,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         format(as.Date(TitleDates[[1]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
         " - ",
         format(as.Date(TitleDates[[length(TitleDates)]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-        ") ",
+        ") norm",
         if_else(as.logical(ini$Experiment$Normalise),
-            "norm",
-            "non-norm"
+            "1",
+            "0"
         ),
-        "_",
+        "_relColNms",
         if_else(as.logical(ini$General$RelativeColnames),
-            "relColNms",
-            "absColNms"
+                "1",
+                "0"
         ),
         "_",
         ini$General$language,
