@@ -1520,11 +1520,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
                     breaks$breaknumber <- breaks$breaknumber + 1
                 }
-                mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
-                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
-                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
-                    limits = c(Limits[[1]], Limits[[2]])
-                )
                 if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
                     pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
                 } else {
@@ -1552,6 +1547,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         scale_colour_manual(values = Palette_Lines)
                 }
 
+                mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
+                GFA_plot_box <- GFA_plot_box + scale_y_continuous(
+                    breaks = seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize), minor_breaks = mb, n.breaks = breaks$breaknumber, ## round_any is used to get the closest multiple of 25 above the maximum value of the entire dataset to generate tick
+                    limits = c(Limits[[1]], Limits[[2]])
+                )
                 if (ini$General$Debug) {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 } else {
