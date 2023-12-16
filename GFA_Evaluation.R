@@ -251,7 +251,7 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
     table <- as.data.frame(list())
-    SortedFormattedDates <- as.character.Date(sort(as.Date.character(unlist(str_trim(ChosenDays)), format = "%d.%m.%Y")), format = "%d.%m.%Y")
+    SortedFormattedDates <- format.Date(sort(format.Date(as.Date(str_trim(ChosenDays), tryFormats = c("%d.%m.%Y","%Y-%m-%d")))),format="%Y-%m-%d")
     if (isFALSE(returnTable)) {
         # print("Changes in Leaf-Area relative to the previous day: ")
     }
@@ -706,16 +706,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 " (",
                 ini$Experiment$Name,
                 ", ",
-                format(as.Date(str_trim(Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                ") ",
+                format(as.Date(str_trim(Day), tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)), format = ini$Experiment$filename_date_format),
+                ") norm",
                 if_else(as.logical(ini$Experiment$Normalise),
-                        "norm",
-                        "non-norm"
+                        "1",
+                        "0"
                 ),
-                "_",
+                "_relColNms",
                 if_else(as.logical(ini$General$RelativeColnames),
-                        "relColNms",
-                        "absColNms"
+                        "1",
+                        "0"
                 ),
                 "_",
                 ini$General$language,
@@ -742,16 +742,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         }
         generatePlotTitleDaily <- function(curr_Day,ini) {
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
-                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
             } else {
                 plot_Title <- if_else(as.logical(ini$General$language == "German"),
-                  true = str_c("Grünfläche (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
-                  false = str_c("Green area (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                  true = str_c("Grünfläche (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")"),
+                  false = str_c("Green area (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
                 )
             }
             return(plot_Title)
         }
-        generatePlotSubTitleDaily <- function(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini) {
+        generatePlotSubTitleDaily <- function(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_day,ini) {
             if (as.logical(ini$General$Debug)) {
                 plot_SubTitle <- str_c(
                     "Experiment: ", ini$Experiment$Name,
@@ -759,24 +759,24 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     # , "\nrelative column names: ", as.logical(ini$General$RelativeColnames)
                     , "\nNormalised: ", as.logical(ini$Experiment$Normalise),
                     "\nPots per Group: ", PotsPerGroup,
-                    "\nFigure generated: ", as.character.POSIXt(now(), "%d.%m.%Y %H:%M:%S"),
+                    "\nFigure generated: ", format.POSIXct(now(),format = "%Y-%m-%d %H:%M:%S"),
                     "\n  Theme: ", set_theme, " (", Theme_Index, ")",
                     "\n  Sample-Size: ", str_c(as.logical(ini$General$PlotSampleSize), " Only Irregular:", as.logical(ini$General$ShowOnlyIrregularN)),
                     "\n  Palette: ", str_c(str_c(Palette_Boxplot, collapse = ", "), " || ", str_c(Palette_Lines, collapse = ", "))
                 )
             } else {
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
-                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
+                    plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
                 } else {
                     plot_SubTitle <- str_c(
                         "Experiment: ", ini$Experiment$Name,
                         if_else(as.logical(ini$General$language == "German"),
                                 true = str_c(
-                                    "\nUmtopfen: ", ini$Experiment$T0,
+                                    "\nUmtopfen: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format),
                                     "\nSample-Size: ", PotsPerGroup
                                 ),
                                 false = str_c(
-                                    "\nDate of Repotting: ", ini$Experiment$T0,
+                                    "\nDate of Repotting: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format),
                                     "\nSample-Size: ", PotsPerGroup
                                 )
                         ),
@@ -872,7 +872,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     Gruppe <- rep(groups_as_ordered_in_datafile, each = as.integer(PotsPerGroup) * 2)
                 }
-                # green pixels per day
                 Data$Gruppe <- Gruppe
                 Data$Nummer <- Nummer
                 treatments2 <- unlist(strsplit(ini$Experiment$Facet2DVar, ","))
@@ -913,7 +912,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 ) +
                     scale_x_discrete() +
                     scale_y_discrete() +
-                    ggtitle(str_c("Day: ", curr_Day)) +
+                    ggtitle(str_c("Day: ", curr_day)) +
                     geom_boxplot(
                         outlier.color = "red",
                         outlier.size = 2
@@ -1348,7 +1347,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
+                    as.Date(as.Date(str_trim(curr_day), tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format)),format = ini$Experiment$filename_date_format),
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
@@ -1665,7 +1664,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             Conditions <- {}
             # as.logical(ini$General$RelativeColnames) <- as.logical(ini$General$RelativeColnames)
             if ((isFALSE(as.logical(ini$General$RelativeColnames)) & isFALSE(bGetDiff)) | bForceActualDates) { # print full dates
-                TimeSinceT0[Ind] <- as.character.Date(Date, "%d.%m.%Y")
+                TimeSinceT0[Ind] <- format.Date(as.Date(Date), ini$Experiment$figure_date_format)
                 # todo: figure out how to format them as date instead of character ._.
                 Ind <- Ind + 1
                 next
@@ -2007,9 +2006,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         clen <- str_length(str_c(folder_path, "ROutput\\", filename))
         deslen <- 256
         if (isTRUE(as.logical(bSummary))) {
-            date_insert <- str_c(format(as.Date(TitleDates[[1]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format)," - ",format(as.Date(TitleDates[[length(TitleDates)]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format))
+            date_insert <- str_c(format(as.Date(TitleDates[[1]], tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$figure_date_format,ini$Experiment$filename_date_format)), format = ini$Experiment$filename_date_format)," - ",format(as.Date(TitleDates[[length(TitleDates)]], "%d.%m.%Y"), format = ini$Experiment$filename_date_format))
         } else {
-            date_insert <- format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format)
+            date_insert <- format(as.Date(curr_day, tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$figure_date_format,ini$Experiment$filename_date_format)), format = ini$Experiment$filename_date_format)
         }
         lendiff <- clen - deslen + 4 + str_length(date_insert) + 2
         filename2 <- str_sub(filename, 1, str_length(filename) - lendiff)
@@ -2018,7 +2017,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         if (str_length(new) == 256) {
             filename <- str_c(filename2, ".jpg")
         }
-        print(str_length(filename))
         return(filename)
     }
     #' Title
@@ -2119,7 +2117,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @examples
     getMaximumDateRange <- function(Colnames) {
         CharacterString <- as.character(unlist(Colnames))
-        updated <- as.Date(CharacterString, format = "%d.%m.%Y")
+        updated <- as.Date(CharacterString, tryFormats = c("%d.%m.%Y","%Y-%m-%d"))
         min <- min(updated)
         min <- format(min, "%d.%m.%Y")
         max <- max(updated)
@@ -2167,13 +2165,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
             } else {
                 plot_SubTitle <- str_c(
-                    "Experiment: ", ini$Experiment$Name
-                    # , if_else(as.logical(ini$General$language=='German')
-                    #          , true=str_c("\nUmtopfen: ", ini$Experiment$T0)
-                    #          , false=str_c("\nDate of Repotting: ", ini$Experiment$T0))
-                    , if_else(as.logical(ini$General$language == "German"),
-                        true = str_c("\nUmtopfen: ", ini$Experiment$T0),
-                        false = str_c("\nDate of Repotting: ", ini$Experiment$T0)
+                    "Experiment: ", ini$Experiment$Name,
+                    if_else(as.logical(ini$General$language == "German"),
+                        true = str_c("\nUmtopfen: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format)),
+                        false = str_c("\nDate of Repotting: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format))
                     ),
                     "",
                     ""
@@ -2239,11 +2234,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     "Experiment: ", ini$Experiment$Name,
                     if_else(as.logical(ini$General$language == "German"),
                         true = str_c(
-                            "\nUmtopfen: ", ini$Experiment$T0,
+                            "\nUmtopfen: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format),
                             "\nSample-Size: ", PotsPerGroup
                         ),
                         false = str_c(
-                            "\nDate of Repotting: ", ini$Experiment$T0,
+                            "\nDate of Repotting: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format),
                             "\nSample-Size: ", PotsPerGroup
                         )
                     ),
@@ -2778,6 +2773,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
     if (isFALSE(as.logical(ini$General$RelativeColnames))) {
         data_pivot_CA$Days <- as.factor(data_pivot_CA$Days)
+        data_pivot_CA$Days <- as.Date(data_pivot_CA$Days, tryFormats = c("%Y-%m-%d","%d.%m.%Y")) # BUG: why does this not format as date?
     }
 
 
@@ -2860,8 +2856,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         plot_SubTitle <- str_c(
             "Experiment: ", ini$Experiment$Name,
             if_else(as.logical(ini$General$language == "German"),
-                true = str_c("\nUmtopfen: ", ini$Experiment$T0),
-                false = str_c("\nDate of Repotting: ", ini$Experiment$T0)
+                true = str_c("\nUmtopfen: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format)),
+                false = str_c("\nDate of Repotting: ", format(as.Date(str_trim(ini$Experiment$T0), "%d.%m.%Y"), format = ini$Experiment$figure_date_format))
             ),
             "",
             ""
@@ -2930,7 +2926,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         data_pivot_CA$Days <- as.numeric(data_pivot_CA$Days)
     } else {
         data_pivot_CA$Days <- factor(data_pivot_CA$Days, ordered = T)
-        data_pivot_CA$Days <- as.Date(data_pivot_CA$Days, format = "%d.%m.%Y")
+        data_pivot_CA$Days <- as.Date(data_pivot_CA$Days, tryFormats = c("%Y-%m-%d","%d.%m.%Y")) # BUG: why does this not format as date?
     }
 
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
@@ -2983,7 +2979,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             GFA_summary_Labels <- paste(calculateColnames(Files, ini, bGetDiff = T, bForceActualDates = T), " - ", GFA_summary_Breaks)
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_continuous(breaks = as.integer(GFA_summary_Breaks), labels = GFA_summary_Labels)
         } else { ## date-scale  <-  scale needs dates, labels need format "{date} - {age}"
-            GFA_summary_Breaks <- sort(as.Date.character(unlist(calculateColnames(Files, ini, bGetDiff = F, bForceActualDates = T)), format = "%d.%m.%Y"))
+            GFA_summary_Breaks <- sort(as.Date(as.Date(unlist(calculateColnames(Files, ini, bGetDiff = F, bForceActualDates = T)),tryFormats = c("%Y-%m-%d","%d.%m.%Y"))))
             GFA_summary_Labels <- paste(calculateColnames(Files, ini, bGetDiff = T, bForceActualDates = T), " - ", calculateColnames(Files, ini, bGetDiff = T, bForceActualDates = F))
             GFA_summary_Labels <- GFA_summary_Labels[order(unlist(calculateColnames(Files, ini, bGetDiff = T, bForceActualDates = F)))]
             GFA_SummaryPlot <- GFA_SummaryPlot + scale_x_date(breaks = GFA_summary_Breaks, labels = GFA_summary_Labels)
