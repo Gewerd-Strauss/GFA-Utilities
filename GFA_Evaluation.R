@@ -821,8 +821,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     }
                     # }
                     if (nextFile) {
-                    next
-                }
+                        next
+                    }
                     #TODO: BUGGED SECTION END
                     ####
                 }
