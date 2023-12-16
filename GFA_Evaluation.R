@@ -1591,7 +1591,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 if (isTRUE(as.logical(saveFigures))) {
                     ## ensure path length limits are conformed to
-                    if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
+                    if (isTRUE(as.logical(str_length(str_c(folder_path, "ROutput\\", filename)) > 256))) {
                         filename <- ensurePathLength(folder_path,filename,ini,curr_day)
                     }
                     filename <- sanitisePath(filename)
