@@ -740,7 +740,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(x_label)
         }
-        generatePlotTitleDaily <- function(curr_Day,ini) {
+        generatePlotTitleDaily <- function(curr_day,ini) {
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
             } else {
@@ -1030,7 +1030,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 XLSX_Path <- str_c(
                     folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
-                    format(as.Date(str_trim(curr_Day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
+                    format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
                     ".xlsx"
                 )
                 if (isTRUE(as.logical(saveExcel))) {
@@ -1103,11 +1103,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 )
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-                plot_Title <- generatePlotTitleDaily(curr_Day,ini)
-                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                plot_Title <- generatePlotTitleDaily(curr_day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_day,ini)
                 x_label <- generateXLabelDaily(ini)
                 y_label <- generateYLabel(unit_y,ini)
-                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
+                filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
@@ -1125,7 +1125,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     GFA_plot_box <- GFA_plot_box +
                         ggtitle(plot_Title, plot_SubTitle)
                 } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
-                    dte <- as.Date.character(curr_Day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
+                    dte <- as.Date.character(curr_day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
                     TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palette_BoxPlot, Palette_Lines, dte, unit_x, ini)
                     if (hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
@@ -1300,7 +1300,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 ) +
                     scale_x_discrete() +
                     scale_y_discrete() +
-                    ggtitle(str_c("Day: ", curr_Day)) +
+                    ggtitle(str_c("Day: ", curr_day)) +
                     geom_boxplot(
                         outlier.color = "red",
                         outlier.size = 2
@@ -1456,11 +1456,11 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
 
-                plot_Title <- generatePlotTitleDaily(curr_Day,ini)
-                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_Day,ini)
+                plot_Title <- generatePlotTitleDaily(curr_day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_day,ini)
                 x_label <- generateXLabelDaily(ini)
                 y_label <- generateYLabel(unit_y,ini)
-                filename <- generateDailyPlotFilename(curr_Day,Theme_Index,ini) 
+                filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 GFA_plot_box <- ggboxplot(Data,
                     x = "Gruppe",
@@ -1479,7 +1479,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     GFA_plot_box <- GFA_plot_box +
                         ggtitle(plot_Title, plot_SubTitle)
                 } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
-                    dte <- as.Date.character(curr_Day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
+                    dte <- as.Date.character(curr_day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
                     TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palette_BoxPlot, Palette_Lines, dte, unit_x, ini)
                     if (hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
@@ -1592,7 +1592,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (isTRUE(as.logical(saveFigures))) {
                     ## ensure path length limits are conformed to
                     if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-                        filename <- ensurePathLength(folder_path,filename,ini,curr_Day)
+                        filename <- ensurePathLength(folder_path,filename,ini,curr_day)
                     }
                     filename <- sanitisePath(filename)
                     ggsave(
@@ -2030,14 +2030,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #'
     #' @param folderPath
     #' @param filename
-    #' @param curr_Day
+    #' @param curr_day
     #' @param ini
     #'
     #' @return
     #' @keywords internal
     #'
     #' @examples
-    ensurePathLength <- function(folder_path,filename,ini,curr_Day="",bSummary=FALSE,TitleDates="") {
+    ensurePathLength <- function(folder_path,filename,ini,curr_day="",bSummary=FALSE,TitleDates="") {
         clen <- str_length(str_c(folder_path, "ROutput\\", filename))
         deslen <- 256
         if (isTRUE(as.logical(bSummary))) {
@@ -3190,7 +3190,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     if (isTRUE(as.logical(saveFigures))) {
         ## ensure path length limits are conformed to
         if (str_length(str_c(folder_path, "ROutput\\", filename)) > 256) {
-            filename <- ensurePathLength(folder_path,filename,ini,curr_Day,TRUE,TitleDates)
+            filename <- ensurePathLength(folder_path,filename,ini,curr_day,TRUE,TitleDates)
         }
         filename <- sanitisePath(filename)
         ggsave(
