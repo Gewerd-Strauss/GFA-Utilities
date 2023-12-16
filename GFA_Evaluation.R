@@ -787,20 +787,46 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(plot_SubTitle)
         }
-        # Create objects
-
-        ret <- list() # for returning all results from this functions
-        retOutliers <- list()
-
-        RObj <- list() # for keeping all results of a day together
-        # 1. Load Data
-        Day_Index <- 0
-        for (curr_Day in ChosenDays) {
+        loadData <- function(Files) {
             for (curr_file in Files) {
-                if ((isFALSE(as.logical(str_count(curr_file, str_trim(curr_Day))))) && (isFALSE(as.logical(str_count(curr_file, format(as.Date(str_trim(curr_Day), tryFormats = c("%Y-%m-%d", "%d.%m.%Y", ini$Experiment$filename_date_format, ini$Experiment$figure_date_format)))))))) {
+                fn <- basename(curr_file)
+                #print(fn)
+                #print(curr_day)
+                if (isFALSE(as.logical(str_count(fn,str_trim(curr_day))))) {
+                    ####
+                    #TODO: BUGGED SECTION START
+                    #format_count <- 0
+                    #potential_date_formats <- c("%Y-%m-%d","%d.%m.%Y","%Y-%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)
+                    #guessed_format <- lubridate::guess_formats(str_trim(curr_day),orders = c("ymd","dmy"))
+                    # for (format in potential_date_formats) {
+                    #     matching_date <- try_default(format.Date(as.Date(str_trim(curr_day),format),format),default = NULL,quiet = T)
+                    #     if (is.null(matching_date)) {
+                    #         next
+                    #     }
+                    #     if (is.na(matching_date)) {
+                    #         next
+                    #     }
+                    #     #matching_date <- format.Date(as.Date(str_trim(curr_day),tryFormats = potential_date_formats,optional = TRUE),format="%Y-%m-%d")
+                    #     print(fn)
+                    #     print(matching_date)
+                    #     print(str_count(fn,matching_date))
+                    Date <- str_extract(fn, "\\d+(\\.|\\-)\\d+(\\.|\\-)\\d+")
+                    Date <- as.Date.character(Date, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
+                    if (str_count(str_trim(Date),str_trim(curr_day))) {
+                        nextFile <- FALSE
+                        #break
+                    } else {
+                        nextFile <- TRUE
+                        #break
+                    }
+                    # }
+                    if (nextFile) {
                     next
                 }
-
+                    #TODO: BUGGED SECTION END
+                    ####
+                }
+                # TODO: why does the code above not properly select the right xlsx-path?
                 # Data <- as.data.frame(importCSV_Data1(curr_file,""))
                 if (ini$General$used_filesuffix == "csv") {
                     csv1 <- read.csv(curr_file, sep = ";")
@@ -863,7 +889,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 break
             }
-            Day_Index <- Day_Index + 1
+            return(Data)
+        }
+        # Create objects
+        ret <- list() # for returning all results from this functions
+        retOutliers <- list()
+
+        RObj <- list() # for keeping all results of a day together
+        # 1. Load Data
+        for (curr_day in ChosenDays) {
+            Data <- loadData(Files)
             # Data <- cbind(Data,Gruppe,Nummer)
             if (ini$Experiment$Facet2D) {
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
