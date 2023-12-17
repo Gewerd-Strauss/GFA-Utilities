@@ -1063,9 +1063,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 #
                 Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
-                set_theme <- switch(as.integer(Theme_Index), 
-                                    Themes
-                ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
+                set_theme <- Themes[[as.integer(Theme_Index)]] ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
                 Theme <- switch(as.integer(Theme_Index),
@@ -1417,9 +1415,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
                 #
                 Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
-                set_theme <- switch(as.integer(Theme_Index), 
-                                    Themes
-                ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
+                set_theme <- Themes[[as.integer(Theme_Index)]] ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
                 # REMEMBER TO EDIT 'numberofThemes' above if you add/remove themes from this switch-statement
                 Theme <- switch(as.integer(Theme_Index),
@@ -2829,9 +2825,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
 
     Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
-    set_theme <- switch(as.integer(Theme_Index),
-        Themes
-    ) ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
+    set_theme <- Themes[[as.integer(Theme_Index)]] ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
     if (Theme_Index > numberofThemes) {
         set_theme <- str_c(Themes, collapse = ", ")
     } else {
