@@ -1106,7 +1106,23 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 x_label <- generateXLabelDaily(ini)
                 y_label <- generateYLabel(unit_y,ini)
                 filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
-                Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
+                Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ","))) # TODO: how to enforce proper level reordering here?
+                if (is.null(ini$Experiment$GroupsOrderXFacetingDaily)) {
+                    warning <- simpleWarning(str_c(
+                    "RunDetailed() [user-defined]: Task: plotting daily-plots for facetted data",
+                    "\nThe required configuration-key 'GroupsOrderXFacetingDaily' in the section 'Experiment' is not set.",
+                    "\nWithout this key, the program cannot order the facets properly.",
+                    "\nIt is advised to adjust the configuration key 'GroupsOrderXFacetingDaily' in the 'Experiments'-section of your config accordingly.",
+                    "\nThe program will continue with current settings."
+                    ))
+                    warning(warning)
+                } else {
+                    Data$interactions <- factor(Data$interactions,levels=unlist(str_split(ini$Experiment$GroupsOrderXFacetingDaily, ","))) # TODO: how to enforce proper level reordering here?
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area_plotted ~ interactions, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "interactions")
+                }
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
                     y = "plant_area_plotted",
@@ -1136,13 +1152,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                             ggtitle(label = "", subtitle = TitleObj$plot_SubTitle) ## we unfortunately must specify a "label" iof we want to plot a subtitle.
                     }
                 }
-                if (hasName(ini$Experiment, "LegendEntries")) {
-                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
-                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
+                if ((hasName(ini$Experiment, "LegendEntries_Daily") && isFALSE(ini$Experiment$LegendEntries_Daily==""))) {
+                    #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
                 } else {
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = paste(str_split(ini$Experiment$UniqueGroups, ",")[[1]], str_split(ini$Experiment$Facet2DVar, ",")[[1]]))
-                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = paste(str_split(ini$Experiment$UniqueGroups, ",")[[1]], str_split(ini$Experiment$Facet2DVar, ",")[[1]]))
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
                 }
                 scale_y_lowerEnd <- 0
                 Limits <- c(0, 1) ## otherwhise initialise the vector so we can modify the second element below
@@ -1537,8 +1553,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
-                if (hasName(ini$Experiment, "LegendEntries")) {
-                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+                if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+                    #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box +
                         scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                         scale_colour_manual(values = Palette_Lines)
@@ -3084,8 +3100,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     )
 
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-        if (hasName(ini$Experiment, "LegendEntries")) {
-            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+        if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+            #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3095,8 +3111,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 scale_colour_manual(values = Palette_Lines)
         }
     } else {
-        if (hasName(ini$Experiment, "LegendEntries")) {
-            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+        if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+            #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
