@@ -109,29 +109,31 @@ main() {
             exitApp()
         }
     } else { ;; handle testimage downloading
-        test_folder:=script.resfolder "\Examples\Example 5 - Image-Renamer, full dataset"
-        test_folder2:=script.resfolder "\Examples\Example 5 - Image-Renamer, example with missing images"
-        if (!InStr(FileExist(test_folder),"D") || !InStr(FileExist(test_folder2),"D")) {
-            if !InStr(FileExist(test_folder),"D") {
-                Title:="Download Image-Testset 1/2?"
-                Message:="The full test dataset for the image-renamer does not exist.`nDo you want to download it?"
-                answer := AppError(Title, Message, Options := 0x34, TitlePrefix := " - ")
-                if (answer = "Yes") {
-                    ttip("Downloading & Extracting Image Example Files (1/2)",5)
-                    lp:=downloadTestset(script.config.testset.URLFull,test_folder)
-                    setupTestset(lp,test_folder,script.config.testset.IDFull)
-                    ttip("Finished setting up Image Example Files (1/2)",5)
+        if (!(DEBUG && globalLogicSwitches.bIsAuthor) && !bUpdateGeneratedFiles) {
+            test_folder:=script.resfolder "\Examples\Example 5 - Image-Renamer, full dataset"
+            test_folder2:=script.resfolder "\Examples\Example 5 - Image-Renamer, example with missing images"
+            if (!InStr(FileExist(test_folder),"D") || !InStr(FileExist(test_folder2),"D")) {
+                if !InStr(FileExist(test_folder),"D") {
+                    Title:="Download Image-Testset 1/2?"
+                    Message:="The full test dataset for the image-renamer does not exist.`nDo you want to download it?"
+                    answer := AppError(Title, Message, Options := 0x34, TitlePrefix := " - ")
+                    if (answer = "Yes") {
+                        ttip("Downloading & Extracting Image Example Files (1/2)",5)
+                        lp:=downloadTestset(script.config.testset.URLFull,test_folder)
+                        setupTestset(lp,test_folder,script.config.testset.IDFull)
+                        ttip("Finished setting up Image Example Files (1/2)",5)
+                    }
                 }
-            }
-            if !InStr(FileExist(test_folder2),"D") {
-                Title:="Download Image-Testset 2/2?"
-                Message:="The partial test dataset for the image-renamer does not exist.`nDo you want to download it?"
-                answer := AppError(Title, Message, Options := 0x34, TitlePrefix := " - ")
-                if (answer = "Yes") {
-                    ttip("Downloading & Extracting Image Example Files (2/2)",5)
-                    lp:=downloadTestset(script.config.testset.URLMissing,test_folder2)
-                    setupTestset(lp,test_folder2,script.config.testset.IDMissing)
-                    ttip("Finished setting up Image Example Files (2/2)")
+                if !InStr(FileExist(test_folder2),"D") {
+                    Title:="Download Image-Testset 2/2?"
+                    Message:="The partial test dataset for the image-renamer does not exist.`nDo you want to download it?"
+                    answer := AppError(Title, Message, Options := 0x34, TitlePrefix := " - ")
+                    if (answer = "Yes") {
+                        ttip("Downloading & Extracting Image Example Files (2/2)",5)
+                        lp:=downloadTestset(script.config.testset.URLMissing,test_folder2)
+                        setupTestset(lp,test_folder2,script.config.testset.IDMissing)
+                        ttip("Finished setting up Image Example Files (2/2)")
+                    }
                 }
             }
         }
