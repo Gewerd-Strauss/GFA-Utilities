@@ -606,7 +606,7 @@ getMeanofVectorElements <- function(Vector, Elements) {
 #' @export
 #'
 #' @examples
-GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteEncoding = "", overwriteWarnings = 1) {
+GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteEncoding = "", overwriteWarnings = 1,strictLimitsValidation = FALSE,strictLimitsValidation_Daily = FALSE) {
     # internal functions ------------------------------------------------------
 
     ## define local functions
@@ -699,7 +699,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @keywords internal
     #'
     #' @examples
-    RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1) {
+    RunDetailed <- function(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures = FALSE, saveExcel = FALSE, saveRDATA = FALSE, overwriteWarnings = 1, strictLimitsValidation_Daily = FALSE) {
         generateDailyPlotFilename <- function(Day,Theme_Index,ini) {
             filename <- str_c(
                 ini$Experiment$Filename_Prefix, "Einzelanalyse",
@@ -1167,12 +1167,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Limits[[2]] <- max(as.vector(Data$plant_area_plotted)) + (max(as.vector(Data$plant_area_plotted))) * 0.10
                     Limits[[2]] <- round_any(Limits[[2]], 25, f = ceiling)
                 }
-                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini, strictLimitsValidation_Daily)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
-                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
-                    Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
-                    breaks$breaknumber <- breaks$breaknumber + 1
+                if (isFALSE(as.logical(strictLimitsValidation_Daily))) {
+                    while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
+                        Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                        breaks$breaknumber <- breaks$breaknumber + 1
+                    }
                 }
                 mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
                 GFA_plot_box <- GFA_plot_box + scale_y_continuous(
@@ -1514,12 +1516,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Limits[[2]] <- max(as.vector(Data$plant_area_plotted)) + (max(as.vector(Data$plant_area_plotted))) * 0.10
                     Limits[[2]] <- round_any(Limits[[2]], 25, f = ceiling)
                 }
-                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini)
+                Yscale_Data <- calculateLimitsandBreaksforYAxis(Data$plant_area_plotted, Limits, ini, strictLimitsValidation_Daily)
                 Limits <- Yscale_Data$Limits
                 breaks <- Yscale_Data$breaks
-                while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
-                    Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
-                    breaks$breaknumber <- breaks$breaknumber + 1
+                if (isFALSE(as.logical(strictLimitsValidation_Daily))) {
+                    while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(Data$plant_area_plotted))) {
+                        Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+                        breaks$breaknumber <- breaks$breaknumber + 1
+                    }
                 }
                 if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
                     pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
@@ -1743,7 +1747,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @keywords internal
     #'
     #' @examples
-    calculateLimitsandBreaksforYAxis <- function(data, Limits, ini) {
+    calculateLimitsandBreaksforYAxis <- function(data, Limits, ini, strictLimitsValidation) {
         getBreaks <- function(ini, Limits) {
             # function generates breaks and stepsizes to be used by scale_y_continuous, in an opinionated matter for the daily-plots.
             if (hasName(ini$Experiment, "BreakStepSize")) {
@@ -1821,7 +1825,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 breaknumber = nbreaks
             ))
         }
-        strictLimitsValidation <- T
         if (hasName(ini$Experiment, "ForceAxes")) { ## The user wants to force the axis to a specific range
             if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
                 if (hasName(ini$Experiment, "BreakStepSize")) {
@@ -1835,8 +1838,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 temp <- as.numeric(unlist(str_split(ini$Experiment$YLimits, ",")))
                 breaks <- getBreaks(ini, Limits)
-                if (Limits[[2]] > temp[[2]]) { ## The upper y-limit selected by the user (in the config, thus in 'temp') is smaller than the dataset's maximum.
-                    if (strictLimitsValidation) {
+                if (Limits[[2]] >= temp[[2]]) { ## The upper y-limit selected by the user (in the config, thus in 'temp') is smaller than the dataset's maximum.
+                    if (isTRUE(as.logical(strictLimitsValidation))) {
                         wrnopt <- getOption("warn")
                         options(warn = overwriteWarnings)
                         warning(str_c(
@@ -1873,12 +1876,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         }
                     }
                 } else { ## The upper y-limit selected by the user is within 10% of the data's maximum - this can become really bad if we want to plot statistics
-                    if (Limits[[2]] - Limits[[2]] * 0.1 <= max(data)) {
-                        Limits[[2]] <- round_any(Limits[[2]], breaks$BreakStepSize, ceiling) + breaks$BreakStepSize
-                        breaks$breaknumber <- breaks$breaknumber + 1
+                    if (isTRUE(as.logical(strictLimitsValidation))) {
                         if (Limits[[2]] - Limits[[2]] * 0.1 <= max(data)) {
                             Limits[[2]] <- round_any(Limits[[2]], breaks$BreakStepSize, ceiling) + breaks$BreakStepSize
                             breaks$breaknumber <- breaks$breaknumber + 1
+                            if (Limits[[2]] - Limits[[2]] * 0.1 <= max(data)) {
+                                Limits[[2]] <- round_any(Limits[[2]], breaks$BreakStepSize, ceiling) + breaks$BreakStepSize
+                                breaks$breaknumber <- breaks$breaknumber + 1
+                            }
                         }
                     }
                 }
@@ -3109,7 +3114,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     }
     # rescale the y-axis if we chose to force specific limits upon it.
     # The code will check if the config-section "Experiment" has the Key "ForceAxes". If that is true, it will check if it is true, then check if all info has been provided to use it. BreakStepSize
-    strictLimitsValidation <- T
     scale_y_lowerEnd <- 0
     Limits <- c(0, 1) ## otherwhise initialise the vector so we can modify the second element below
     if (isTRUE(as.logical(ini$Experiment$ForceAxes))) {
@@ -3126,12 +3130,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     if (Limits[[2]] < round_any(ceiling(max(as.vector(data_pivot_CA$value), na.rm = T)), 25, f = ceiling)) { ## validate that the y-axis is scaled large enough to accommodate the argest number of the dataset.
         Limits[[2]] <- round_any(ceiling(max(as.vector(data_pivot_CA$value), na.rm = T)), 25, f = ceiling) ## if you force the upper y-limit to a kiwer value, ggplot will fail.
     }
-    Yscale_Data <- calculateLimitsandBreaksforYAxis(data_pivot_CA$value, Limits, ini)
+    Yscale_Data <- calculateLimitsandBreaksforYAxis(data_pivot_CA$value, Limits, ini, strictLimitsValidation)
     Limits <- Yscale_Data$Limits
     breaks <- Yscale_Data$breaks
-    while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(data_pivot_CA$value))) {
-        Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
-        breaks$breaknumber <- breaks$breaknumber + 1
+    if (isFALSE(as.logical(strictLimitsValidation))) {
+        while ((Limits[[2]] - (Limits[[2]] * 0.05)) < max(as.vector(data_pivot_CA$value))) {
+            Limits[[2]] <- Limits[[2]] + breaks$BreakStepSize
+            breaks$breaknumber <- breaks$breaknumber + 1
+        }
     }
     mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
     GFA_SummaryPlot <- GFA_SummaryPlot + scale_y_continuous(
@@ -3211,7 +3217,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         print("RUNNING DAYLIES")
 
         ChosenDays <- unlist(strsplit(ChosenDays, ","))
-        GFA_DailyAnalyses <- RunDetailed(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures, saveExcel, saveRDATA, overwriteWarnings)
+        GFA_DailyAnalyses <- RunDetailed(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures, saveExcel, saveRDATA, overwriteWarnings, strictLimitsValidation_Daily)
         GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = F)
         kable_table <- kable(calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = T), caption = "Relative and Absolute changes per group for subsequent days")
         print(kable_table)
