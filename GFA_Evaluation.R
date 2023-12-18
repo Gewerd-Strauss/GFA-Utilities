@@ -246,7 +246,7 @@ library(stats)
 #' change <- calculateChange(GFA_2[[3]], unlist(GFA_2[[4]]), T)
 #' kable(change, caption = "Calculate the consecutive absolute and relative
 #' changes within each groups across all days.")
-calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
+calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F,ini) {
     # calculateChange
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
@@ -263,11 +263,6 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
             lastVals <- DailyAnalyses[[str_trim(curr_day)]]
             lastmean <- lastVals$Res$summary$mean
             name <- lastVals$Res$summary$name
-            if (isFALSE(returnTable)) {
-                # print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
-            } else {
-
-            }
             next
         } else {
             lastVals <- DailyAnalyses[[str_trim(ld)]]
@@ -278,16 +273,12 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
             relative_change <- absolute_change / abs(lastmean) * 100
             name <- lastVals$Res$summary$name
             console_print <- str_c(ld, " -> ", curr_day, str_pad(name, width = max(str_length(name)) + 1), "    Mean: ", str_pad(signif(lastmean, digits = 12), width = 12, side = "right"), " -> ", str_pad(signif(thismean, digits = 11), side = "left", width = 12), str_pad(" [cm^2]", width = 13, side = "left"), "    |absC: ", absolute_change, " [cm^2]", "    |relC: ", relative_change, " [%]")
-            # print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
             CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
             CurrSum$relative_change <- relative_change
             CurrSum$absolute_change <- absolute_change
             DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum # todo: figure out how to do this right!!
-            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
-            if (isFALSE(returnTable)) {
-                # print(console_print)
-                # print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
-            } else {
+            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- format.Date(as.Date(str_trim(ld),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+            if (isTRUE(returnTable)) {
                 table2 <- dplyr::tibble(
                     Change = str_c(ld, " -> ", curr_day),
                     Name = as.character(thisVals$Res$summary$name),
@@ -891,6 +882,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(Data)
         }
+        labelOutliers <- function(y) {
+            o <- boxplot.stats(y)$out
+            if (length(o) == 0) NA else o
+        }
         # Create objects
         ret <- list() # for returning all results from this functions
         retOutliers <- list()
@@ -926,10 +921,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     group_by(interactions) %>%
                     identify_outliers("plant_area_plotted")
 
-                labelOutliers <- function(y) {
-                    o <- boxplot.stats(y)$out
-                    if (length(o) == 0) NA else o
-                }
                 summary <- do.call("rbind", summary)
                 summary <- data.frame(name = row.names(summary), summary)
 
@@ -959,9 +950,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         hjust = -1
                     )
 
-
-                # print(p_Outlier2) # this will label the outlier with its value.
-
                 # TODO: figure out what to group_by by...
                 Outliers <- Data %>%
                     group_by(interactions) %>%
@@ -975,8 +963,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 ##  Daten normalverteilt?
                 ## if TRUE  -> uniforme Varianz durch Bartlett's Test | nutze wo_outliers_data
                 ## if FALSE -> Varianz durch Levene-Test | nutze wo_outliers_data
-
-                ##
 
                 norm <- wo_outliers %>%
                     group_by(interactions) %>%
@@ -1107,6 +1093,22 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 y_label <- generateYLabel(unit_y,ini)
                 filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
+                if (is.null(ini$Experiment$GroupsOrderXFacetingDaily)) {
+                    warning <- simpleWarning(str_c(
+                    "RunDetailed() [user-defined]: Task: plotting daily-plots for facetted data",
+                    "\nThe required configuration-key 'GroupsOrderXFacetingDaily' in the section 'Experiment' is not set.",
+                    "\nWithout this key, the program cannot order the facets in a controlled manner.",
+                    "\nIt is advised to adjust the configuration key 'GroupsOrderXFacetingDaily' in the 'Experiments'-section of your config accordingly.",
+                    "\nThe program will continue with current settings without ordering the factors."
+                    ))
+                    warning(warning)
+                } else {
+                    Data$interactions <- factor(Data$interactions,levels=unlist(str_split(ini$Experiment$GroupsOrderXFacetingDaily, ",")))
+                    stat.test <- Data_stat_test %>%
+                        wilcox_test(plant_area_plotted ~ interactions, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
+                        add_significance("p") %>%
+                        add_xy_position(x = "interactions")
+                }
                 GFA_plot_box <- ggboxplot(Data,
                     x = "interactions",
                     y = "plant_area_plotted",
@@ -1136,13 +1138,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                             ggtitle(label = "", subtitle = TitleObj$plot_SubTitle) ## we unfortunately must specify a "label" iof we want to plot a subtitle.
                     }
                 }
-                if (hasName(ini$Experiment, "LegendEntries")) {
-                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
-                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries, ",")))
+                if (hasName(ini$Experiment, "LegendEntries_Daily") && isFALSE(ini$Experiment$LegendEntries_Daily=="")) {
+                    #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
                 } else {
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = paste(str_split(ini$Experiment$UniqueGroups, ",")[[1]], str_split(ini$Experiment$Facet2DVar, ",")[[1]]))
-                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = paste(str_split(ini$Experiment$UniqueGroups, ",")[[1]], str_split(ini$Experiment$Facet2DVar, ",")[[1]]))
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
+                    GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
                 }
                 scale_y_lowerEnd <- 0
                 Limits <- c(0, 1) ## otherwhise initialise the vector so we can modify the second element below
@@ -1185,9 +1187,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     pval_size <- 2.5
                 }
-                # Data_stat_test <- group_by(Data_stat_test,Data_stat_test$interactions)
-                # stat.test2 <- Data_stat_test %>%
-                #     t_test(plant_area_plotted ~ interactions, var.equal = TRUE, alternative = "two.sided", ref.group = ini$Experiment$RefGroup)
                 stat.test <- stat.test %>%
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
@@ -1198,71 +1197,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
                 }
-                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
-                    xmin = "group2",
-                    label = "{p.scient} {p.adj.signif}",
-                    size = pval_size,
-                    remove.bracket = T,
-                    y.position = stat_ypos
-                )
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
-
-                GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
-                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
-
-                # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen
-                if (as.logical(ini$General$PlotSampleSize)) {
-                    if (hasName(ini$Fontsizes, "Fontsize_SampleSize")) {
-                        n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
-                    } else {
-                        n_size <- 2.5
-                    }
-                    ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
-                    GFA_plot_box <- GFA_plot_box + stat_summary(
-                        fun.data = labelSample_n,
-                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area_plotted))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
-                        geom = "text",
-                        hjust = 0.5,
-                        size = n_size,
-                        fontface = "bold",
-                        position = position_dodge(width = 0.75)
-                    )
-                }
-                
-                
-                if (isTRUE(as.logical(saveFigures))) {
-                    ## ensure path length limits are conformed to
-                    if (isTRUE(as.logical(str_length(str_c(folder_path, "ROutput\\", filename)) > 256))) {
-                        filename <- ensurePathLength(folder_path,filename,ini,curr_day)
-                    }
-                    filename <- sanitisePath(filename)
-                    ggsave(
-                        filename = filename,
-                        plot = GFA_plot_box,
-                        width = 7,
-                        height = 5,
-                        dpi = 300,
-                        path = str_c(folder_path, "ROutput\\")
-                    )
-                }
-                Results <- list(
-                    "data" = Data,
-                    "outlier" = Outliers,
-                    "data_wo_Outlier" = wo_outliers,
-                    "norm" = norm
-                )
-                if (isNormallyDistributed(norm)) {
-                    Results$bartlett <- BT
-                    Results$"t.test" <- stat.test
-                } else {
-                    Results$levene <- levene
-                    Results$"wilcox.test" <- stat.test
-                }
-                Results$summary <- summary
-                key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
-                ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
             } else {
                 ## normal, no facetting occured, so we can use the old pathway
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
@@ -1280,10 +1214,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     group_by(Gruppe) %>%
                     identify_outliers("plant_area_plotted")
 
-                labelOutliers <- function(y) {
-                    o <- boxplot.stats(y)$out
-                    if (length(o) == 0) NA else o
-                }
                 summary <- do.call("rbind", summary)
                 summary <- data.frame(name = row.names(summary), summary)
 
@@ -1537,8 +1467,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
-                if (hasName(ini$Experiment, "LegendEntries")) {
-                    warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+                if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+                    #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box +
                         scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                         scale_colour_manual(values = Palette_Lines)
@@ -1558,70 +1488,72 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     GFA_plot_box <- GFA_plot_box + theme(plot.subtitle = element_text(size = 5))
                 }
-                GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
-                    xmin = "group2",
-                    label = "{p.scient} {p.adj.signif}",
-                    size = pval_size,
-                    remove.bracket = T,
-                    y.position = stat_ypos
-                )
-                GFA_plot_box <- GFA_plot_box +
-                    guides(fill = guide_legend(title = "Groups")) +
-                    theme(plot.title = element_text(hjust = 0.5))
-
-                GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
-                GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
-
-                # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen
-                if (as.logical(ini$General$PlotSampleSize)) {
-                    if (hasName(ini$Fontsizes, "Fontsize_SampleSize")) {
-                        n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
-                    } else {
-                        n_size <- 2.5
-                    }
-                    ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
-                    GFA_plot_box <- GFA_plot_box + stat_summary(
-                        fun.data = labelSample_n,
-                        fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area_plotted))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
-                        geom = "text",
-                        hjust = 0.5,
-                        size = n_size,
-                        fontface = "bold",
-                        position = position_dodge(width = 0.75)
-                    )
-                }
-                if (isTRUE(as.logical(saveFigures))) {
-                    ## ensure path length limits are conformed to
-                    if (isTRUE(as.logical(str_length(str_c(folder_path, "ROutput\\", filename)) > 256))) {
-                        filename <- ensurePathLength(folder_path,filename,ini,curr_day)
-                    }
-                    filename <- sanitisePath(filename)
-                    ggsave(
-                        filename = filename,
-                        plot = GFA_plot_box,
-                        width = 7,
-                        height = 5,
-                        dpi = 300,
-                        path = str_c(folder_path, "ROutput\\")
-                    )
-                }
-                Results <- list(
-                    "data" = Data,
-                    "outlier" = Outliers,
-                    "data_wo_outlier" = wo_outliers,
-                    "norm" = norm
-                )
-                if (isNormallyDistributed(norm)) {
-                    Results$bartlett <- BT
-                    Results$"t.test" <- stat.test
-                } else {
-                    Results$levene <- levene
-                    Results$"wilcox.test" <- stat.test
-                }
-                Results$summary <- summary
-                key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
-                ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
             }
+            #!!
+            GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
+                                                              xmin = "group2",
+                                                              label = "{p.scient} {p.adj.signif}",
+                                                              size = pval_size,
+                                                              remove.bracket = T,
+                                                              y.position = stat_ypos
+            )
+            GFA_plot_box <- GFA_plot_box +
+                guides(fill = guide_legend(title = "Groups")) +
+                theme(plot.title = element_text(hjust = 0.5))
+            
+            GFA_plot_box <- formatFontsizes(GFA_plot_box,ini)
+            GFA_plot_box <- GFA_plot_box + theme_pubclean() + theme(legend.position = "bottom", legend.key = element_rect(fill = "transparent")) + ggpubr::grids("y", linetype = 1)
+            
+            # Speicher den Boxplot als jpg Datei unter dem eingegebenen Namen
+            if (as.logical(ini$General$PlotSampleSize)) {
+                if (hasName(ini$Fontsizes, "Fontsize_SampleSize")) {
+                    n_size <- as.numeric(ini$Fontsizes$Fontsize_SampleSize)
+                } else {
+                    n_size <- 2.5
+                }
+                ## to change the offset of the n=XX-text from the top of the graph, modify the fractions present in the if_else-function in the below stat_summary(). Note that this is by no means recommended, as it is hard to get right and can take quite a while. Due to the nature of the script, this modification would be applied to every day, which may cause problems.
+                GFA_plot_box <- GFA_plot_box + stat_summary(
+                    fun.data = labelSample_n,
+                    fun.args = c(if_else((Limits[[2]] - (Limits[[2]] * 0.025) > max(as.vector(Data$plant_area_plotted))), Limits[[2]] - (Limits[[2]] * 0.025), Limits[[2]] - (Limits[[2]] * 0.0125)), as.integer(PotsPerGroup), ini$General$ShowOnlyIrregularN),
+                    geom = "text",
+                    hjust = 0.5,
+                    size = n_size,
+                    fontface = "bold",
+                    position = position_dodge(width = 0.75)
+                )
+            }
+            if (isTRUE(as.logical(saveFigures))) {
+                ## ensure path length limits are conformed to
+                if (isTRUE(as.logical(str_length(str_c(folder_path, "ROutput\\", filename)) > 256))) {
+                    filename <- ensurePathLength(folder_path,filename,ini,curr_day)
+                }
+                filename <- sanitisePath(filename)
+                ggsave(
+                    filename = filename,
+                    plot = GFA_plot_box,
+                    width = 7,
+                    height = 5,
+                    dpi = 300,
+                    path = str_c(folder_path, "ROutput\\")
+                )
+            }
+            Results <- list(
+                "data" = Data,
+                "outlier" = Outliers,
+                "data_wo_outlier" = wo_outliers,
+                "norm" = norm
+            )
+            if (isNormallyDistributed(norm)) {
+                Results$bartlett <- BT
+                Results$"t.test" <- stat.test
+            } else {
+                Results$levene <- levene
+                Results$"wilcox.test" <- stat.test
+            }
+            Results$summary <- summary
+            key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+            ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
+            #!!
         }
         return(ret)
     }
@@ -3084,8 +3016,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     )
 
     if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-        if (hasName(ini$Experiment, "LegendEntries")) {
-            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+        if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+            #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3095,8 +3027,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 scale_colour_manual(values = Palette_Lines)
         }
     } else {
-        if (hasName(ini$Experiment, "LegendEntries")) {
-            warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
+        if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
+            #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
             GFA_SummaryPlot <- GFA_SummaryPlot +
                 scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
                 scale_colour_manual(values = Palette_Lines)
@@ -3212,8 +3144,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
         ChosenDays <- unlist(strsplit(ChosenDays, ","))
         GFA_DailyAnalyses <- RunDetailed(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures, saveExcel, saveRDATA, overwriteWarnings, strictLimitsValidation_Daily)
-        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = F)
-        kable_table <- kable(calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = T), caption = "Relative and Absolute changes per group for subsequent days")
+        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = F,ini)
+        kable_table <- kable(calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = T,ini), caption = "Relative and Absolute changes per group for subsequent days")
         print(kable_table)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
