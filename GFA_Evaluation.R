@@ -1097,9 +1097,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     warning <- simpleWarning(str_c(
                     "RunDetailed() [user-defined]: Task: plotting daily-plots for facetted data",
                     "\nThe required configuration-key 'GroupsOrderXFacetingDaily' in the section 'Experiment' is not set.",
-                    "\nWithout this key, the program cannot order the facets properly.",
+                    "\nWithout this key, the program cannot order the facets in a controlled manner.",
                     "\nIt is advised to adjust the configuration key 'GroupsOrderXFacetingDaily' in the 'Experiments'-section of your config accordingly.",
-                    "\nThe program will continue with current settings."
+                    "\nThe program will continue with current settings without ordering the factors."
                     ))
                     warning(warning)
                 } else {
@@ -1138,7 +1138,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                             ggtitle(label = "", subtitle = TitleObj$plot_SubTitle) ## we unfortunately must specify a "label" iof we want to plot a subtitle.
                     }
                 }
-                if ((hasName(ini$Experiment, "LegendEntries_Daily") && isFALSE(ini$Experiment$LegendEntries_Daily==""))) {
+                if (hasName(ini$Experiment, "LegendEntries_Daily") && isFALSE(ini$Experiment$LegendEntries_Daily=="")) {
                     #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
                     GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
