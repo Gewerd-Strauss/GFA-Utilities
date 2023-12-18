@@ -927,6 +927,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     csv1$drought_fraction <- str_replace(csv1$drought_fraction, ",", ".")
                     csv1$drought_fraction <- as.numeric(csv1$drought_fraction)
                 }
+                Data <- FALSE
                 Data <- csv1
                 Values <- csv1[[ini$Experiment$used_plant_area]] ## extract the plant_area values that we need, based on the config-key
                 if (ini$Experiment$Normalise) {
@@ -950,6 +951,20 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     Data$plant_area_plotted <- Values # TODO: Verify that this is correct. Also find out where the normalised area is loaded for the develoment-plot so I can use that logic here instead.
                 }
                 break
+            }
+            if (isFALSE(Data)) {
+                level <- deparse(sys.calls()[[sys.nframe()-1]])
+                level <- str_replace(level[[1]],"\\(.*","()")
+                error <- simpleError(str_c(
+                    "loadData() [user-defined,called from '",level,"']: Task: loading csv-/xlsx-files",
+                    "\nNo data could be read from the any file.",
+                    "\nThe following files:",
+                    "\n",
+                    str_flatten(Files,collapse = '""\n""'),
+                    "\n could not be loaded.",
+                    "\n"
+                    ))
+                stop(error)
             }
             return(Data)
         }
@@ -1066,11 +1081,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 } else {
                     levene <- leveneTest(wo_outliers$plant_area_plotted, wo_outliers$Gruppe)
 
-                    # TODO: Double-Check if ref.group=UU is valid or if I must use a single-sided test here
-
                     Data_stat_test <- subset(Data, select = -c(file))
                     Data_stat_test <- cbind(Data_stat_test, Data$file) # this makes no sense, but not removing and re-adding the file-column causes the stat-test to fail
-                    # Data_stat_test <- group_by(Data)
                     stat.test <- Data_stat_test %>%
                         wilcox_test(plant_area_plotted ~ interactions, alternative = "two.sided", paired = FALSE, ref.group = ini$Experiment$RefGroup) %>%
                         add_significance("p") %>%
