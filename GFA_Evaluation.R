@@ -741,6 +741,37 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             }
             return(x_label)
         }
+        generateYAxisUnitsDaily <- function(ini) {
+            unit_y <- str_split(ini$General$axis_units_y_Daily, ",")
+            unit_y <- if_else(as.logical(ini$General$language == "German"),
+                              true = unit_y[[1]][1],
+                              false = unit_y[[1]][2]
+            )
+            return(unit_y)
+        }
+        generateXAxisUnitsDaily <- function(ini) {
+            # assemble label strings
+            unit_x <- str_split(ini$General$axis_units_x_Daily, ",")
+            unit_x <- if_else(as.logical(ini$General$language == "German"),
+                              true = unit_x[[1]][1],
+                              false = unit_x[[1]][2]
+            )
+            return(unit_x)
+        }
+        generateColorPalettesDaily <- function(numberofGroups,ini) {
+            # Select the required number of colours from a sequencial color palette
+            Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
+            Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
+            Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
+            Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
+            if (hasName(ini$Experiment, "Palette_Boxplot2")) {
+                Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2, ","))
+            }
+            if (hasName(ini$Experiment, "Palette_Lines2")) {
+                Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2, ","))
+            }
+            return(list(Lines = Palette_Lines,Boxplot = Palette_Boxplot))
+        }
         generatePlotTitleDaily <- function(curr_day,ini) {
             if (isFALSE(is.null(ini$Experiment$Title_Daily))) {
                 plot_Title <- str_c(ini$Experiment$Title_Daily[[1]], " (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
@@ -1091,34 +1122,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     theme_pubclean(base_size = 10),
                     clean_theme()
                 )
-
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot2")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines2")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2, ","))
-                }
-
-                # assemble label strings
-                unit_x <- str_split(ini$General$axis_units_x_Daily, ",")
-                unit_y <- str_split(ini$General$axis_units_y_Daily, ",")
-                unit_x <- if_else(as.logical(ini$General$language == "German"),
-                    true = unit_x[[1]][1],
-                    false = unit_x[[1]][2]
-                )
-                unit_y <- if_else(as.logical(ini$General$language == "German"),
-                    true = unit_y[[1]][1],
-                    false = unit_y[[1]][2]
-                )
-
+                Palettes <- generateColorPalettesDaily(numberofGroups,ini)
+                Palettes$Boxplot <- Palettes$Boxplot
+                Palettes$Lines <- Palettes$Lines
+                unit_x <- generateXAxisUnitsDaily(ini)
+                unit_y <- generateYAxisUnitsDaily(ini)
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
                 plot_Title <- generatePlotTitleDaily(curr_day,ini)
-                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palettes$Boxplot,Palettes$Lines,curr_day,ini)
                 x_label <- generateXLabelDaily(ini)
                 y_label <- generateYLabel(unit_y,ini)
                 filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
@@ -1156,7 +1167,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         ggtitle(plot_Title, plot_SubTitle)
                 } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
                     dte <- as.Date.character(curr_day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
-                    TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palette_BoxPlot, Palette_Lines, dte, unit_x, ini)
+                    TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palettes$Boxplot, Palettes$Lines, dte, unit_x, ini)
                     if (hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
                             ggtitle(label = TitleObj$plot_Title, subtitle = TitleObj$plot_SubTitle)
@@ -1170,10 +1181,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
                 if (hasName(ini$Experiment, "LegendEntries_Daily") && isFALSE(ini$Experiment$LegendEntries_Daily=="")) {
                     #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palettes$Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
                     GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(ini$Experiment$LegendEntries_Daily, ",")))
                 } else {
-                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
+                    GFA_plot_box <- GFA_plot_box + scale_fill_manual(values = Palettes$Boxplot, labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
                     GFA_plot_box <- GFA_plot_box + scale_x_discrete(labels = unlist(str_split(str_replace_all(ini$Experiment$GroupsOrderXFacetingDaily[[1]],"[.]"," "),",")))
                 }
                 scale_y_lowerEnd <- 0
@@ -1387,36 +1398,14 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     theme_pubclean(base_size = 10),
                     clean_theme()
                 )
-
-                # Select the required number of colours from a sequencial color palette
-                Palette_Boxplot <- getLastNElementsOfPalette("Reds", numberofGroups)
-                Palette_Lines <- getLastNElementsOfPalette("Reds", numberofGroups)
-                # replace the last colour because the group UU is placed there and is not strictly part of the drought groups, so to say.
-                Palette_Boxplot <- replace(Palette_Boxplot, list = 1, "white")
-                Palette_Lines <- replace(Palette_Lines, list = 1, "#112734")
-                if (hasName(ini$Experiment, "Palette_Boxplot2")) {
-                    Palette_Boxplot <- unlist(str_split(ini$Experiment$Palette_Boxplot2, ","))
-                }
-                if (hasName(ini$Experiment, "Palette_Lines2")) {
-                    Palette_Lines <- unlist(str_split(ini$Experiment$Palette_Lines2, ","))
-                }
-
-                # assemble label strings
-                unit_x <- str_split(ini$General$axis_units_x_Daily, ",")
-                unit_y <- str_split(ini$General$axis_units_y_Daily, ",")
-                unit_x <- if_else(as.logical(ini$General$language == "German"),
-                    true = unit_x[[1]][1],
-                    false = unit_x[[1]][2]
-                )
-                unit_y <- if_else(as.logical(ini$General$language == "German"),
-                    true = unit_y[[1]][1],
-                    false = unit_y[[1]][2]
-                )
-
+                Palettes <- generateColorPalettesDaily(numberofGroups,ini)
+                Palettes$Boxplot <- Palettes$Boxplot
+                Palettes$Lines <- Palettes$Lines
+                unit_x <- generateXAxisUnitsDaily(ini)
+                unit_y <- generateYAxisUnitsDaily(ini)
                 TitleTimeSpan <- calculateColnames(Files, ini, T)
-
                 plot_Title <- generatePlotTitleDaily(curr_day,ini)
-                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palette_Boxplot,Palette_Lines,curr_day,ini)
+                plot_SubTitle <- generatePlotSubTitleDaily(PotsPerGroup,set_theme,Theme_Index,Palettes$Boxplot,Palettes$Lines,curr_day,ini)
                 x_label <- generateXLabelDaily(ini)
                 y_label <- generateYLabel(unit_y,ini)
                 filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
@@ -1425,7 +1414,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     x = "Gruppe",
                     y = "plant_area_plotted",
                     fill = "Gruppe",
-                    palette = Palette_Boxplot,
+                    palette = Palettes$Boxplot,
                     color = "black",
                     add = "jitter",
                     ylab = y_label,
@@ -1439,7 +1428,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         ggtitle(plot_Title, plot_SubTitle)
                 } else if (isTRUE(as.logical(ini$General$ShowTitle_Daily)) || isTRUE(as.logical(ini$General$ShowTitleSub_Daily))) {
                     dte <- as.Date.character(curr_day, tryFormats = c("%Y-%m-%d", "%d.%m.%Y")) - as.Date.character(ini$Experiment$T0, tryFormats = c("%Y-%m-%d", "%d.%m.%Y"))
-                    TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palette_BoxPlot, Palette_Lines, dte, unit_x, ini)
+                    TitleObj <- getTitle(FALSE, PotsPerGroup, set_theme, Theme_Index, Palettes$Boxplot, Palettes$Lines, dte, unit_x, ini)
                     if (hasName(TitleObj, "plot_Title") && hasName(TitleObj, "plot_SubTitle")) {
                         GFA_plot_box <- GFA_plot_box +
                             ggtitle(label = TitleObj$plot_Title, subtitle = TitleObj$plot_SubTitle)
@@ -1500,12 +1489,12 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (hasName(ini$Experiment, "LegendEntries") && isFALSE(ini$Experiment$LegendEntries=="")) {
                     #warning(simpleWarning(str_c("The configuration-key 'legendentries' has been deprecated and should not be used.\nRemove it from your configuration-file to remove this warning")), immediate. = 1)
                     GFA_plot_box <- GFA_plot_box +
-                        scale_fill_manual(values = Palette_Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
-                        scale_colour_manual(values = Palette_Lines)
+                        scale_fill_manual(values = Palettes$Boxplot, labels = unlist(str_split(ini$Experiment$LegendEntries, ","))) +
+                        scale_colour_manual(values = Palettes$Lines)
                 } else {
                     GFA_plot_box <- GFA_plot_box +
-                        scale_fill_manual(values = Palette_Boxplot) +
-                        scale_colour_manual(values = Palette_Lines)
+                        scale_fill_manual(values = Palettes$Boxplot) +
+                        scale_colour_manual(values = Palettes$Lines)
                 }
 
                 mb <- seq(Limits[[1]], Limits[[2]], breaks$BreakStepSize / 2) ## generate minor breaks always inbetween major breaks.
