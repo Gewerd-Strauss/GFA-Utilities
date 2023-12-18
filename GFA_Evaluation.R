@@ -720,6 +720,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             if (isFALSE(is.null(ini$Experiment$XLabel_Daily))) {
                 x_label <- str_c(ini$Experiment$XLabel_Daily[[1]])
             } else {
+                level <- deparse(sys.calls()[[sys.nframe()-1]])
+                level <- str_replace(level[[1]],"\\(.*","()")
+                Warning <- str_c(
+                    "generateXLabelDaily() [user-defined,called from '",level,"']: Task: generating X-label string",
+                    "\nThe required configuration-key 'XLabel_Daily' in the section 'Experiment' is not set.",
+                    "\nIt controls the X-label for the current ggplot",
+                    "\n",
+                    "\nA generic default X-label is generated instead. Code-execution will continue."
+                )
+                warning(warning,immediate. = T)
                 x_label <- if_else(as.logical(ini$General$language == "German"),
                                    true = str_c("Versuchs-Gruppen"),
                                    false = str_c("Treatment groups"),
