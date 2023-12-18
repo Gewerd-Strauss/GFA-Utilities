@@ -1075,40 +1075,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         "summary" = summary
                     )
                 }
-                XLSX_Path <- str_c(
-                    folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
-                    format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$filename_date_format),
-                    ".xlsx"
-                )
-                if (isTRUE(as.logical(saveExcel))) {
-                    dir <- dirname(XLSX_Path)
-
-                    if (isFALSE(dir.exists(dir))) {
-                        dir.create(dir)
-                    }
-                    XLSX_Object <- na.omit(XLSX_Object)
-                    if (dim(XLSX_Object$outlier)[1] == 0) {
-                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
-                    }
-                    if (is.null(XLSX_Object$data_wo_Outlier)) {
-                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
-                    }
-                    write.xlsx(XLSX_Object,
-                        file = XLSX_Path, asTable = T,
-                        creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
-                    ) ## sign the file with being created by this username on this machine.
-                }
+                
 
 
-                if (hasName(ini$General, "Theme")) {
-                    Theme_Index <- ini$General$Theme
-                } else {
-                    Theme_Index <- 1
-                }
-                numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
-
-
-                #
+                #!!
                 Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
                 set_theme <- Themes[[as.integer(Theme_Index)]] ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
@@ -1340,39 +1310,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         "summary" = summary
                     )
                 }
-                XLSX_Path <- str_c(
-                    folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
-                    as.Date(as.Date(str_trim(curr_day), tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format)),format = ini$Experiment$filename_date_format),
-                    ".xlsx"
-                )
-                if (isTRUE(as.logical(saveExcel))) {
-                    dir <- dirname(XLSX_Path)
-
-                    if (isFALSE(dir.exists(dir))) {
-                        dir.create(dir)
-                    }
-                    XLSX_Object <- na.omit(XLSX_Object)
-                    if (dim(XLSX_Object$outlier)[1] == 0) {
-                        XLSX_Object$outlier <- as.data.frame(list(pad = 1))
-                    }
-                    if (is.null(XLSX_Object$data_wo_Outlier)) {
-                        XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
-                    }
-                    write.xlsx(XLSX_Object,
-                        file = XLSX_Path, asTable = T,
-                        creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
-                    ) ## sign the file with being created by this username on this machine.
-                }
-
-                if (hasName(ini$General, "Theme")) {
-                    Theme_Index <- ini$General$Theme
-                } else {
-                    Theme_Index <- 1
-                }
-                numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
+                
 
 
-                #
+                #!!
                 Themes <- c("tufte", "bw", "pubr", "pubclean", "labs_pubr", "pubclean", "clean")
                 set_theme <- Themes[[as.integer(Theme_Index)]] ## IF YOU WANT TO EDIT THEMES: There are 7 places where this array must be changed, which are all located at and around occurences of the string 'switch(as.integer(' in the code.
 
@@ -1543,6 +1484,38 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     path = str_c(folder_path, "ROutput\\")
                 )
             }
+            #!!
+            XLSX_Path <- str_c(
+                folder_path, "\\ROutput\\", ini$Experiment$Filename_Prefix, "Results_",
+                as.Date(as.Date(str_trim(curr_day), tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format)),format = ini$Experiment$filename_date_format),
+                ".xlsx"
+            )
+            if (isTRUE(as.logical(saveExcel))) {
+                dir <- dirname(XLSX_Path)
+                
+                if (isFALSE(dir.exists(dir))) {
+                    dir.create(dir)
+                }
+                XLSX_Object <- na.omit(XLSX_Object)
+                if (dim(XLSX_Object$outlier)[1] == 0) {
+                    XLSX_Object$outlier <- as.data.frame(list(pad = 1))
+                }
+                if (is.null(XLSX_Object$data_wo_Outlier)) {
+                    XLSX_Object$data_wo_Outlier <- as.data.frame(list(pad = 1))
+                }
+                write.xlsx(XLSX_Object,
+                           file = XLSX_Path, asTable = T,
+                           creator = str_c("generated with GFA_Evaluation.R, on user_machine ", Sys.getenv("USERNAME"))
+                ) ## sign the file with being created by this username on this machine.
+            }
+            
+            if (hasName(ini$General, "Theme")) {
+                Theme_Index <- ini$General$Theme
+            } else {
+                Theme_Index <- 1
+            }
+            numberofThemes <- 7 # Change this if you edit the switch-statement for 'Theme' below
+            #!!
             Results <- list(
                 "data" = Data,
                 "outlier" = Outliers,
