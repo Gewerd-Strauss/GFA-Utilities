@@ -1750,6 +1750,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     nbreaks <- 4
                 }
             }
+            if (isFALSE(as.integer(BreakStepSize)==as.numeric(BreakStepSize)) || (isFALSE(as.integer(nbreaks)==as.numeric(nbreaks)))) {
+                level <- deparse(sys.calls()[[sys.nframe()-1]])
+                level <- str_replace(level[[1]],"\\(.*","()")
+                Error <- simpleError(str_c(
+                    "getBreaks() [user-defined]: Task: y-scaling,3",
+                    "\nReturn-Value 'breaks$StepsSize' or 'breaks$nbreaks' is not valid.",
+                    "\n"
+                ))
+                stop(Error)
+            }
             return(list(
                 BreakStepSize = BreakStepSize,
                 breaknumber = nbreaks
