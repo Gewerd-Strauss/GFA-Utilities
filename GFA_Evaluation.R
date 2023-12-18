@@ -779,6 +779,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (isFALSE(is.null(ini$Experiment$SubTitle_Daily))) {
                     plot_SubTitle <- str_c(ini$Experiment$SubTitle_Daily[[1]], " (", format(as.Date(str_trim(curr_day), "%d.%m.%Y"), format = ini$Experiment$figure_date_format), ")")
                 } else {
+                    level <- deparse(sys.calls()[[sys.nframe()-1]])
+                    level <- str_replace(level[[1]],"\\(.*","()")
+                    warning <- str_c(
+                        "generatePlotSubTitleDaily() [user-defined,called from '",level,"']: Task: generating plot subtitle string",
+                        "\nThe required configuration-key 'SubTitle_Daily' in the section 'Experiment' is not set.",
+                        "\nIt controls the plot-subtitle for the current ggplot",
+                        "\n",
+                        "\nA generic default plot-subtitle is generated instead. Code-execution will continue."
+                    )
+                    warning(warning,immediate. = T)
                     plot_SubTitle <- str_c(
                         "Experiment: ", ini$Experiment$Name,
                         if_else(as.logical(ini$General$language == "German"),
