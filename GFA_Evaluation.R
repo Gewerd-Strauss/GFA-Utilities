@@ -654,6 +654,16 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
         if (isFALSE(is.null(ini$Experiment$YLabel))) {
             y_label <- str_c(ini$Experiment$YLabel[[1]], " [", unit_y, "]")
         } else {
+            level <- deparse(sys.calls()[[sys.nframe()-1]])
+            level <- str_replace(level[[1]],"\\(.*","()")
+            warning <- str_c(
+                "generateYLabel() [user-defined,called from '",level,"']: Task: generating Y-label string",
+                "\nThe required configuration-key 'YLabel' in the section 'Experiment' is not set.",
+                "\nIt controls the Y-label for the current ggplot",
+                "\n",
+                "\nA generic default Y-label is generated instead. Code-execution will continue."
+            )
+            warning(warning,immediate. = T)
             y_label <- if_else(as.logical(ini$Experiment$Normalise),
                                if_else(as.logical(ini$General$language == "German"),
                                        true = str_c("Normalisierte Grünfläche  [", unit_y, "]"),
