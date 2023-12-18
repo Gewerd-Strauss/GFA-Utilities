@@ -2398,21 +2398,15 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 colnames(List)[c(3:(3 + length(DateDifference_Integers) - 1))] <- as.integer(DateDifference_Integers)
             }
         } else {
-            DateDifference_Integers <- calculateColnames(Files, ini)
             CharacterString <- as.character(unlist(DateDifference_Integers))
             factoredDates <- as.factor(CharacterString)
-            updated <- as.Date(CharacterString, format = "%d.%m.%Y")
-            updated <- as.list.Date(updated, format = "%d.%m.%Y")
-            # vect <- unlist(strsplit(DateDifference_Integers," "))
-            # colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- updated
             if (isTRUE(as.logical(ini$Experiment$Facet2D))) {
-                colnames(List)[c(4:(4 + length(DateDifference_Integers) - 1))] <- unlist(as.character(factoredDates, format = "%d.%m.%Y"))
                 order <- c(c(1, 2, 3), unlist(order(as.Date(CharacterString, format = "%d.%m.%Y")) + 3))
+                colnames(List)[c(4:(4 + length(DateDifference_Integers) - 1))] <- unlist(as.character(factoredDates, format = "%d.%m.%Y"))
             } else {
                 order <- c(c(1, 2), unlist(order(as.Date(CharacterString, format = "%d.%m.%Y")) + 2))
                 colnames(List)[c(3:(3 + length(DateDifference_Integers) - 1))] <- unlist(as.character(factoredDates, format = "%d.%m.%Y"))
             }
-            # colnames(List)[c(3:(3+length(DateDifference_Integers)-1))] <- as.Date(vect,format="%d.%m.%Y")
             List <- List[order]
         }
         return(List)
