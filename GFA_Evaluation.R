@@ -1554,7 +1554,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             Results$summary <- summary
             key <- format.Date(as.Date(str_trim(curr_day),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
             ret[[key]] <- list(boxplot = GFA_plot_box, outlierplot = GFA_p_Outlier, Res = Results, XLSX_Path = XLSX_Path, curr_day = curr_day,key = key)
-            #!!
         }
         return(ret)
     }
@@ -2061,7 +2060,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
             print(paste0("Selected File Suffix: ", filesuffix))
             print(paste0("Selected File Prefix: ", out_prefix))
         }
-        otp <- out_prefix
         lapply(Files, checkExistence)
         Files <- RemoveOutputFiles(as.list(Files), "ROutput")
         if (length(Files) == 0) {
