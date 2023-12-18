@@ -1699,7 +1699,7 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 if (maximum > 2500) {
                     wrnopt <- getOption("warn")
                     options(warn = overwriteWarnings)
-                    warning(str_c(
+                    warning <- str_c(
                         "getBreaks() [user-defined]: your largest y-value ",
                         Limits[[2]],
                         " exceeds 2500, which is the last step for which the author of this script predefined",
@@ -1707,7 +1707,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         "\nThe script defined 10 numbers, of spacing Limits[[2]]/10 for now.",
                         "\nPlease open the sourceCode for GFA_Evaluation.R and look for the function 'getBreaks'.",
                         "\nAt the very bottom of it you can see this warning, and the pattern above displays how to expand it."
-                    ))
+                    )
+                    warning(warning)
                     options(warn = wrnopt)
                     BreakStepSize <- Limits[[2]] / 10
                     nbreaks <- 10
