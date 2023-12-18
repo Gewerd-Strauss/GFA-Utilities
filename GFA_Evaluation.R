@@ -1124,13 +1124,13 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 filename <- generateDailyPlotFilename(curr_day,Theme_Index,ini) 
                 Data$Gruppe <- factor(Data$Gruppe, levels = unlist(str_split(ini$Experiment$GroupsOrderX, ",")))
                 if (is.null(ini$Experiment$GroupsOrderXFacetingDaily)) {
-                    warning <- simpleWarning(str_c(
+                    warning <- str_c(
                     "RunDetailed() [user-defined]: Task: plotting daily-plots for facetted data",
                     "\nThe required configuration-key 'GroupsOrderXFacetingDaily' in the section 'Experiment' is not set.",
                     "\nWithout this key, the program cannot order the facets in a controlled manner.",
                     "\nIt is advised to adjust the configuration key 'GroupsOrderXFacetingDaily' in the 'Experiments'-section of your config accordingly.",
                     "\nThe program will continue with current settings without ordering the factors."
-                    ))
+                    )
                     warning(warning)
                 } else {
                     Data$interactions <- factor(Data$interactions,levels=unlist(str_split(ini$Experiment$GroupsOrderXFacetingDaily, ",")))
