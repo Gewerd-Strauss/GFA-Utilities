@@ -263,11 +263,6 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
             lastVals <- DailyAnalyses[[str_trim(curr_day)]]
             lastmean <- lastVals$Res$summary$mean
             name <- lastVals$Res$summary$name
-            if (isFALSE(returnTable)) {
-                # print(str_c(curr_day, " -> ",curr_day,str_pad("/",width = max(str_length(name))+1,side = "left"), "    Mean: ",str_pad("/",width = 13,side = "left")," -> ",str_pad("/",side = "left",width = 12),str_pad("  [cm^2]",width = 13,side = "left"),"    |absC: ", str_pad("/",side = "left",width = 16), " [cm^2]","    |relC: ", str_pad("/",side = "left",width = 16), " [%]"))
-            } else {
-
-            }
             next
         } else {
             lastVals <- DailyAnalyses[[str_trim(ld)]]
@@ -278,16 +273,12 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
             relative_change <- absolute_change / abs(lastmean) * 100
             name <- lastVals$Res$summary$name
             console_print <- str_c(ld, " -> ", curr_day, str_pad(name, width = max(str_length(name)) + 1), "    Mean: ", str_pad(signif(lastmean, digits = 12), width = 12, side = "right"), " -> ", str_pad(signif(thismean, digits = 11), side = "left", width = 12), str_pad(" [cm^2]", width = 13, side = "left"), "    |absC: ", absolute_change, " [cm^2]", "    |relC: ", relative_change, " [%]")
-            # print(str_c(ld, " -> ",curr_day,str_pad(name,width = max(str_length(name))+1), "    Mean: ",str_pad(signif(lastmean,digits = 12),width = 13,side = "right")," -> ",str_pad(signif(thismean,digits = 11),side = "right",width = 13)," [cm^2]    |absC: ", absohttp://127.0.0.1:18555/graphics/ecd75976-e096-42d0-9013-c79382ece4db.pnglute_change, " [cm^2]","    |relC: ", relative_change, " [%]"))
             CurrSum <- DailyAnalyses[[str_trim(curr_day)]]$Res$summary
             CurrSum$relative_change <- relative_change
             CurrSum$absolute_change <- absolute_change
             DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum # todo: figure out how to do this right!!
-            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- ld
-            if (isFALSE(returnTable)) {
-                # print(console_print)
-                # print(str_pad("-",width = max(str_length(console_print)),pad = "-"))
-            } else {
+            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- format.Date(as.Date(str_trim(ld),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+            if (isTRUE(returnTable)) {
                 table2 <- dplyr::tibble(
                     Change = str_c(ld, " -> ", curr_day),
                     Name = as.character(thisVals$Res$summary$name),
