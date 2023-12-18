@@ -1223,21 +1223,9 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                     limits = c(Limits[[1]], Limits[[2]])
                 )
 
-                if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
-                    pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
-                } else {
-                    pval_size <- 2.5
-                }
                 stat.test <- stat.test %>%
                     add_significance("p") %>%
                     add_xy_position(x = "interactions")
-                stat.test$p.scient <- formatPValue(stat.test$p)
-                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
-                    Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
-                    stat_ypos <- Limits[[2]] - (Diff * 0.1)
-                } else {
-                    stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
-                }
             } else {
                 ## normal, no facetting occured, so we can use the old pathway
                 Nummer <- rep(c(1:PotsPerGroup), times = numberofGroups)
@@ -1470,19 +1458,6 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                         breaks$breaknumber <- breaks$breaknumber + 1
                     }
                 }
-                if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
-                    pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
-                } else {
-                    pval_size <- 2.5
-                }
-                stat.test$p.scient <- formatPValue(stat.test$p)
-                if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
-                    Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
-                    stat_ypos <- Limits[[2]] - (Diff * 0.1)
-                } else {
-                    stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
-                }
-                
                 GFA_plot_box$scales$scales <- list() ## temporarily remove all scales.
                 # this is done as the 'scale_XXX_XXX()'-calls below will otherwhise complain about preexisting scales which would be overwritten.
                 # Instead, all preexisting scales are removed, and new ones are added in a manner which does not yield the warning.
@@ -1509,6 +1484,18 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
                 }
             }
             #!!
+            if (hasName(ini$Fontsizes, "Fontsize_PValue")) {
+                pval_size <- as.numeric(ini$Fontsizes$Fontsize_PValue)
+            } else {
+                pval_size <- 2.5
+            }
+            stat.test$p.scient <- formatPValue(stat.test$p)
+            if ((Limits[[2]] - Limits[[2]] * 0.10) < max(max(Data$plant_area_plotted))) {
+                Diff <- Limits[[2]] - max(max(Data$plant_area_plotted))
+                stat_ypos <- Limits[[2]] - (Diff * 0.1)
+            } else {
+                stat_ypos <- Limits[[2]] - Limits[[2]] * 0.1
+            }#!!
             GFA_plot_box <- GFA_plot_box + stat_pvalue_manual(stat.test,
                                                               xmin = "group2",
                                                               label = "{p.scient} {p.adj.signif}",
