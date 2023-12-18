@@ -2371,10 +2371,10 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
     #' @keywords internal
     #'
     #' @examples
-    sanitisePath <- function(Path, forbiddenChars = ":") {
+    sanitisePath <- function(Path, forbiddenChars = ':*?""<>|') {
         for (character in strsplit(forbiddenChars, "")[[1]]) {
-            if (str_count(Path, character) > 0) {
-                Path <- str_replace_all(Path, character, "")
+            if (str_count(Path, str_escape(character)) > 0) {
+                Path <- str_replace_all(Path, str_escape(character), "")
             }
         }
         return(Path)
