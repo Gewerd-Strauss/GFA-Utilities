@@ -246,7 +246,7 @@ library(stats)
 #' change <- calculateChange(GFA_2[[3]], unlist(GFA_2[[4]]), T)
 #' kable(change, caption = "Calculate the consecutive absolute and relative
 #' changes within each groups across all days.")
-calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F) {
+calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F,ini) {
     # calculateChange
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
@@ -3144,8 +3144,8 @@ GFA_main <- function(folder_path, returnDays = FALSE, saveFigures = FALSE, saveE
 
         ChosenDays <- unlist(strsplit(ChosenDays, ","))
         GFA_DailyAnalyses <- RunDetailed(ChosenDays, Files, PotsPerGroup, numberofGroups, groups_as_ordered_in_datafile, folder_path, Conditions, ini, data_all_dailies, saveFigures, saveExcel, saveRDATA, overwriteWarnings, strictLimitsValidation_Daily)
-        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = F)
-        kable_table <- kable(calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = T), caption = "Relative and Absolute changes per group for subsequent days")
+        GFA_DailyAnalyses <- calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = F,ini)
+        kable_table <- kable(calculateChange(GFA_DailyAnalyses, ChosenDays, returnTable = T,ini), caption = "Relative and Absolute changes per group for subsequent days")
         print(kable_table)
         if (isTRUE(as.logical(saveExcel))) {
             writeChangetoFile(GFA_DailyAnalyses)
