@@ -246,7 +246,7 @@ library(stats)
 #' change <- calculateChange(GFA_2[[3]], unlist(GFA_2[[4]]), T)
 #' kable(change, caption = "Calculate the consecutive absolute and relative
 #' changes within each groups across all days.")
-calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F,ini) {
+calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F,ini="") {
     # calculateChange
     dayID <- 1
     ChosenDays <- str_trim(ChosenDays)
@@ -277,7 +277,11 @@ calculateChange <- function(DailyAnalyses, ChosenDays, returnTable = F,ini) {
             CurrSum$relative_change <- relative_change
             CurrSum$absolute_change <- absolute_change
             DailyAnalyses[[str_trim(curr_day)]]$Res$summary <- CurrSum # todo: figure out how to do this right!!
-            DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- format.Date(as.Date(str_trim(ld),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+            if (isTRUE(as.logical(ini==""))) {
+                DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- format.Date(as.Date(str_trim(ld),tryFormats = c("%d.%m.%Y","%Y-%m-%d")),"%Y-%m-%d")
+            } else {
+                DailyAnalyses[[str_trim(curr_day)]]$PreviousDay <- format.Date(as.Date(str_trim(ld),tryFormats = c("%d.%m.%Y","%Y-%m-%d",ini$Experiment$filename_date_format,ini$Experiment$figure_date_format)),"%Y-%m-%d")
+            }
             if (isTRUE(returnTable)) {
                 table2 <- dplyr::tibble(
                     Change = str_c(ld, " -> ", curr_day),
