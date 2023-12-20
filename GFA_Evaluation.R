@@ -43,7 +43,16 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
         make_option(c("-c", "--overwriteEncoding"),
             type = "character", default = "UTF-16LE",
             help = "string [Default: %default].\n\t\tManual override for forcing a different file-encoding when loading in the configuration file.\n\t\tOnly use when necessary, and if the automatic encoding detection failed. This argument must be provided if the configuration-file supplied via the option '-i' was saved with an encoding DIFFERENT than 'UTF-16LE'", metavar = "[string]"
+        ),
+        make_option(c("-l", "--strictLimits"),
+            type = "integer", default = 0,
+            help = "pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tManual override for forcing _exactly_ the Y-limits defined in configuration, fully disabling any precautionary adjustments against overlapping elements. Primarily used if dimensions are known and the user only wants to rerun.", metavar = "[integer]"
+        ),
+        make_option(c("-m", "--strictLimitsDaily"),
+            type = "integer", default = 0,
+            help = "pseudo-boolean Flag, either numerical 1 or 0 [Default: %default].\n\t\tAnalogue for daily Plots. See flag '-l' for further details.", metavar = "[integer]"
         )
+        
     )
     Object_Key <- str_c("", "Object Key", "1: Summary Plot", "2: Titles", "3: Daily Analyses", "4: Dates", "5: configuration", "6: configuration-path", "7: RDATA_Path", "8: function 'getRelative_change()'", "9: function 'getAbsolute_change()'", "10: function\t 'formatPValue()'", sep = "\n")
     retDocs <- str_c("return\t\t\t\t\t\t Object containing the following elements\t\t\t\t\t\t\t\t [list]",
@@ -3216,7 +3225,7 @@ if (sys.nframe() == 0) { ## check if script is run by rscript  -> this will retu
             print(opt)
         }
         pdf(NULL)
-        plot_1 <- GFA_main(opt$input, opt$returnDays, opt$saveFigures, opt$saveExcel, opt$saveRDATA, opt$overwriteEncoding, opt$warning)
+        plot_1 <- GFA_main(folder_path = opt$input,returnDays =  opt$returnDays,saveFigures =  opt$saveFigures,saveExcel =  opt$saveExcel,saveRDATA =  opt$saveRDATA,overwriteEncoding =  opt$overwriteEncoding,overwriteWarnings =  opt$warning,strictLimitsValidation = opt$strictLimits,strictLimitsValidation_Daily = opt$strictLimitsDaily)
         print(plot_1[[1]])
         et <- Sys.time()
         tt <- round(et - st, 2)
