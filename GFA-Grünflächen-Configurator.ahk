@@ -1646,8 +1646,15 @@ OnMsgBox_MissingContent() {
     }
 }
 prepare_release() {
-    Run % A_ScriptDir "\Excludes\build.ahk"
-    exitApp()
+    p:=A_ScriptDir "\Excludes\build.ahk"
+    Run % p
+    if (FileExist(p)) {
+        Run % p
+    } else {
+        ttip("Script '<A_ScriptDir>\Excludes\build' does not exist.")
+    }
+    return
+}
 run_unit_tests() {
     p:=A_ScriptDir "\Excludes\unit_tests.ahk"
     if (FileExist(p)) {
