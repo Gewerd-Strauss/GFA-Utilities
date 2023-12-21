@@ -171,15 +171,17 @@ main() {
     guiShow(guiObject)
         , f5:=Func("guiShow2").Bind(guiObject)
         , f6:=Func("prepare_release")
-        , f7:=func("copyGFA_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
-        , f8:=func("openCommandline_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
+        , f7:=Func("run_unit_tests")
+        , f8:=func("copyGFA_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
+        , f9:=func("openCommandline_EvaluationFolder").Bind(script.config.Configurator_settings.GFA_Evaluation_InstallationPath)
     guiResize(guiObject)
     Menu Tray, Add, Show GUI, % f5
     if (globalLogicSwitches.bIsAuthor) {
         menu Tray, Add, Recompile, % f6
+        menu Tray, Add, Unit Tests, % f7
     }
-    Menu Tray, Add, Copy GFA_Evaluation-Path, % f7
-    Menu Tray, Add, Open CMD, % f8
+    Menu Tray, Add, Copy GFA_Evaluation-Path, % f8
+    Menu Tray, Add, Open CMD, % f9
     handleCheckboxes()
     handleConfig(guiObject.dynGUI,false)
     fillRC1(guiObject.RCodeTemplate)
@@ -1646,6 +1648,14 @@ OnMsgBox_MissingContent() {
 prepare_release() {
     Run % A_ScriptDir "\Excludes\build.ahk"
     exitApp()
+run_unit_tests() {
+    p:=A_ScriptDir "\Excludes\unit_tests.ahk"
+    if (FileExist(p)) {
+        Run % p
+    } else {
+        ttip("Script '<A_ScriptDir>\Excludes\unit_tests' does not exist.")
+    }
+    return
 }
 #if WinExist("ahk_id " guiObject.dynGUI.GCHWND)
 ::gfc.s::
@@ -1653,6 +1663,9 @@ guiShow2(guiObject)
 return
 #if DEBUG ;; hard-coded reload for when running through vsc, not usable in compiled form.
 NumpadDot::reload()
+::gfc.rut::
+run_unit_tests()
+return
 #if globalLogicSwitches.bIsDebug
 ~!Esc:: ;; debug-state-dependent, usable by normal users when compiled
 answer := AppError("Do you want to reload without saving?", "You pressed Alt+Escape while in Debug-Mode. Do you want to reload the program without saving any data? `n`nAny currently unsaved changes will not be saved.",0x34," - ")
